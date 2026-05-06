@@ -1,5 +1,11 @@
 [
   {
+    "date": "2026-05-06",
+    "title": "第 11 期：GPT-5.5 Instant 幻觉率砍半成为默认模型——同日美国要求预审前沿 AI，能力与治理开始同步加速",
+    "highlights": "GPT-5.5 Instant 幻觉率砍半 · CAISI 预审前沿 AI · Anthropic 金融 Agent · Samsung 万亿市值 · Daemon Tools 供应链攻击 · Mozilla WAICT JS 可信性 · Meta 消费级 Agent · DeepMind 员工工会化 · Chrome 静装 4GB 模型",
+    "image": "https://opengraph.githubassets.com/1/anthropics/financial-services"
+  },
+  {
     "date": "2026-05-05",
     "title": "第 10 期：Anthropic 不再只卖模型了——当 AI 实验室开始卖「交付」，工程纪律成了新战场",
     "highlights": "Anthropic 联合黑石高盛卖交付 · Agent Skills 26K stars · 开源模型跨过可用门槛 · Stripe 25M 行格式化 + 5% 测试 · Linux CopyFail 漏洞 · Vercel deepsec 开源 · OpenAI 语音 AI 低延迟 · 蒸馏恐慌纠偏",
