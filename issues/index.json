@@ -1,5 +1,11 @@
 [
   {
+    "date": "2026-05-07",
+    "title": "第 12 期：Claude Code 公开复盘三连 Bug——当 Agent 工具自身的可靠性成为最大信任风险",
+    "highlights": "Claude Code 三连Bug复盘 · Gemma 4 推测解码3倍加速 · Meta Muse Spark 多Agent推理 · OpenAI Symphony 编排开源 · Swift 6.3 Android SDK · Jepsen NATS 丢数据 · Braintrust 安全事件 · Stripe Agent 评测基准 · Datadog Postgres WAL 陷阱",
+    "image": "https://opengraph.githubassets.com/1/openai/symphony"
+  },
+  {
     "date": "2026-05-06",
     "title": "第 11 期：GPT-5.5 Instant 幻觉率砍半成为默认模型——同日美国要求预审前沿 AI，能力与治理开始同步加速",
     "highlights": "GPT-5.5 Instant 幻觉率砍半 · CAISI 预审前沿 AI · Anthropic 金融 Agent · Samsung 万亿市值 · Daemon Tools 供应链攻击 · Mozilla WAICT JS 可信性 · Meta 消费级 Agent · DeepMind 员工工会化 · Chrome 静装 4GB 模型",

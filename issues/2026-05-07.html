@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>每日科技情报 #12 — 2026-05-07</title>
+  <meta property="og:title" content="Claude Code 三连Bug复盘 · Gemma 4 推测解码3x · OpenAI Symphony 编排开源 · Swift 6.3 Android SDK · Jepsen NATS 丢数据">
+  <meta property="og:description" content="Anthropic 复盘 Claude Code 三个独立退化 Bug · Google Gemma 4 推测解码3倍加速 · Meta Muse Spark 多Agent推理 · OpenAI Symphony 编排开源 · Swift 6.3 Android SDK · Jepsen 测出 NATS 丢数据 · Braintrust 安全事件 · Stripe Agent 评测基准">
+  <meta property="og:image" content="https://opengraph.githubassets.com/1/openai/symphony">
+  <style>
+    :root {
+      --bg: #f5f6f8; --surface: #ffffff; --surface2: #f0f2f5;
+      --border: #e8ecf1; --border-hover: #c5cdd8;
+      --text: #1a1d21; --text-secondary: #3d4550; --text-muted: #8c95a1;
+      --accent: #2d9f6f; --accent-light: #e8f5ef; --accent-hover: #248a5e;
+      --accent-text: #ffffff;
+      --purple: #7c5cbf; --purple-light: #f3effc;
+      --orange: #e58e26; --orange-light: #fef5e7;
+      --blue: #3a82f7; --blue-light: #eef4fe;
+      --red: #e74c3c; --red-light: #fdecea;
+      --green-deep: #1a7a4c; --green-light2: #e0f5ea;
+      --yellow: #d4a017; --yellow-light: #fef9e7;
+      --shadow-sm: 0 1px 3px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.06);
+      --shadow-md: 0 4px 12px rgba(0,0,0,0.06), 0 2px 4px rgba(0,0,0,0.04);
+      --shadow-lg: 0 10px 30px rgba(0,0,0,0.08);
+      --radius: 12px; --radius-sm: 8px; --radius-xs: 6px;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Helvetica, Arial, sans-serif; background: var(--bg); color: var(--text); line-height: 1.75; font-size: 15px; -webkit-font-smoothing: antialiased; }
+    .topbar { background: var(--surface); border-bottom: 1px solid var(--border); padding: 12px 32px; display: flex; align-items: center; gap: 16px; position: sticky; top: 0; z-index: 200; box-shadow: var(--shadow-sm); }
+    .topbar-brand { font-size: 1.1rem; font-weight: 700; color: var(--accent); text-decoration: none; display: flex; align-items: center; gap: 8px; }
+    .topbar-brand svg { width: 28px; height: 28px; }
+    .topbar-nav { display: flex; gap: 4px; margin-left: 24px; }
+    .topbar-nav a { padding: 6px 16px; border-radius: 20px; font-size: 0.85rem; font-weight: 500; color: var(--text-secondary); text-decoration: none; transition: all 0.2s; }
+    .topbar-nav a:hover { background: var(--surface2); color: var(--text); }
+    .topbar-nav a.active { background: var(--accent-light); color: var(--accent); font-weight: 600; }
+    .topbar-right { margin-left: auto; display: flex; align-items: center; gap: 12px; }
+    .topbar-date { font-size: 0.82rem; color: var(--text-muted); background: var(--surface2); padding: 5px 12px; border-radius: 16px; }
+    .page { display: flex; max-width: 1200px; margin: 0 auto; padding: 24px 24px 0; gap: 24px; }
+    .toc { width: 220px; flex-shrink: 0; position: sticky; top: 80px; height: calc(100vh - 104px); overflow-y: auto; background: var(--surface); border-radius: var(--radius); padding: 20px 16px; box-shadow: var(--shadow-sm); border: 1px solid var(--border); }
+    .toc-title { font-size: 0.72rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 14px; padding-left: 12px; }
+    .toc a { display: block; padding: 7px 12px; margin-bottom: 2px; font-size: 0.82rem; color: var(--text-muted); text-decoration: none; border-radius: var(--radius-xs); transition: all 0.15s; font-weight: 500; }
+    .toc a:hover { color: var(--accent); background: var(--accent-light); }
+    .toc a.active { color: var(--accent); background: var(--accent-light); font-weight: 600; }
+    .toc-mobile { display: none; position: sticky; top: 57px; z-index: 100; background: var(--surface); border-bottom: 1px solid var(--border); padding: 10px 16px; box-shadow: var(--shadow-sm); }
+    .toc-mobile summary { cursor: pointer; font-size: 0.85rem; color: var(--accent); font-weight: 600; list-style: none; }
+    .toc-mobile summary::-webkit-details-marker { display: none; }
+    .toc-mobile .toc-dropdown { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 8px; margin-top: 8px; max-height: 60vh; overflow-y: auto; box-shadow: var(--shadow-md); }
+    .toc-mobile .toc-dropdown a { display: block; padding: 8px 12px; font-size: 0.88rem; color: var(--text-secondary); text-decoration: none; border-radius: var(--radius-xs); }
+    .toc-mobile .toc-dropdown a:hover { color: var(--accent); background: var(--accent-light); }
+    @media (max-width: 860px) { .toc { display: none; } .toc-mobile { display: block; } .topbar-nav { display: none; } .page { flex-direction: column; padding: 16px 12px 0; gap: 16px; } .container { padding: 20px 16px 60px; } }
+    .container { flex: 1; min-width: 0; background: var(--surface); border-radius: var(--radius); padding: 36px 40px 60px; box-shadow: var(--shadow-sm); border: 1px solid var(--border); margin-bottom: 40px; }
+    .back { display: inline-flex; align-items: center; gap: 4px; color: var(--text-muted); text-decoration: none; font-size: 0.85rem; margin-bottom: 28px; font-weight: 500; transition: color 0.15s; }
+    .back:hover { color: var(--accent); }
+    h1 { font-size: 1.7rem; font-weight: 800; margin-bottom: 10px; line-height: 1.35; color: var(--text); letter-spacing: -0.01em; }
+    .meta { color: var(--text-muted); font-size: 0.85rem; margin-bottom: 28px; }
+    .hero-img { width: 100%; border-radius: var(--radius); margin-bottom: 10px; box-shadow: var(--shadow-md); }
+    .hero-caption { font-size: 0.82rem; color: var(--text-muted); margin-bottom: 36px; text-align: center; font-style: italic; }
+    h2 { font-size: 1.25rem; font-weight: 700; margin: 44px 0 18px; padding-bottom: 10px; border-bottom: 2px solid var(--accent-light); scroll-margin-top: 90px; color: var(--text); }
+    h3 { font-size: 1.05rem; font-weight: 600; margin: 26px 0 8px; color: var(--text); }
+    p { margin-bottom: 14px; color: var(--text-secondary); }
+    a { color: var(--accent); text-decoration: none; font-weight: 500; }
+    a:hover { color: var(--accent-hover); text-decoration: underline; }
+    strong { color: var(--text); font-weight: 600; }
+    code { background: var(--surface2); padding: 2px 6px; border-radius: 4px; font-size: 0.88em; color: var(--accent-hover); font-family: "SF Mono", Monaco, monospace; }
+    .callout { background: var(--accent-light); border-left: 4px solid var(--accent); border-radius: var(--radius-sm); padding: 16px 20px; margin: 20px 0; font-size: 0.93rem; color: var(--text-secondary); }
+    .article-img { width: 100%; max-height: 380px; object-fit: cover; border-radius: var(--radius-sm); margin: 12px 0 24px; box-shadow: var(--shadow-sm); }
+    .tool-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 16px 0; }
+    .tool-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px 20px; transition: all 0.2s; box-shadow: var(--shadow-sm); }
+    .tool-card:hover { border-color: var(--accent); box-shadow: var(--shadow-md); transform: translateY(-1px); }
+    .tool-card h4 { font-size: 0.95rem; margin-bottom: 6px; font-weight: 600; }
+    .tool-card h4 a { color: var(--accent); }
+    .tool-card p { font-size: 0.83rem; color: var(--text-muted); margin: 0; line-height: 1.55; }
+    .tool-card .tag { display: inline-block; font-size: 0.68rem; padding: 3px 8px; border-radius: 10px; background: var(--accent); color: var(--accent-text); font-weight: 600; margin-bottom: 8px; letter-spacing: 0.02em; }
+    .tool-card .priority-tag { display: inline-block; font-size: 0.65rem; padding: 2px 6px; border-radius: 8px; background: var(--surface2); color: var(--text-muted); font-weight: 600; margin-left: 6px; }
+    .fun-card { background: var(--orange-light); border: 1px solid #f5ddb8; border-radius: var(--radius); padding: 20px 24px; margin: 14px 0; }
+    .fun-card h4 { font-size: 1rem; margin-bottom: 8px; font-weight: 600; }
+    .fun-card h4 a { color: var(--orange); }
+    .fun-card p { font-size: 0.88rem; color: var(--text-secondary); margin: 0; line-height: 1.65; }
+    .quote-block { background: var(--purple-light); border-left: 4px solid var(--purple); border-radius: var(--radius-sm); padding: 20px 24px; margin: 18px 0; }
+    .quote-block blockquote { font-size: 1.02rem; line-height: 1.65; margin-bottom: 10px; font-style: italic; color: var(--text); }
+    .quote-block .quote-author { font-size: 0.82rem; color: var(--purple); font-weight: 600; margin-bottom: 6px; }
+    .quote-block .quote-meta { font-size: 0.78rem; color: var(--text-muted); margin-bottom: 10px; }
+    .quote-block .quote-comment { font-size: 0.88rem; color: var(--text-secondary); border-top: 1px solid #d8d0e8; padding-top: 10px; margin-top: 10px; }
+    .quote-block .quote-team-insight { font-size: 0.88rem; color: var(--green-deep); background: var(--accent-light); border-radius: var(--radius-xs); padding: 8px 12px; margin-top: 8px; }
+    .resource-item { background: var(--blue-light); border: 1px solid #c8dbf8; border-radius: var(--radius); padding: 18px 20px; margin: 12px 0; }
+    .resource-item a { font-weight: 600; color: var(--blue); }
+    .resource-item p { font-size: 0.88rem; color: var(--text-secondary); margin: 6px 0 0; }
+    .concept-card { background: var(--green-light2); border-left: 4px solid var(--accent); border-radius: var(--radius-sm); padding: 20px 24px; margin: 16px 0; }
+    .concept-card h4 { font-size: 1rem; font-weight: 700; color: var(--green-deep); margin-bottom: 10px; }
+    .concept-card .concept-field { font-size: 0.88rem; color: var(--text-secondary); margin-bottom: 6px; line-height: 1.6; }
+    .concept-card .concept-field strong { color: var(--text); font-size: 0.88rem; }
+    .insight-card { background: var(--yellow-light); border-left: 4px solid var(--yellow); border-radius: var(--radius-sm); padding: 16px 20px; margin: 12px 0; }
+    .insight-card p { font-size: 0.93rem; color: var(--text-secondary); margin: 0; line-height: 1.7; }
+    .insight-card .insight-num { display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; border-radius: 50%; background: var(--yellow); color: #fff; font-size: 0.75rem; font-weight: 700; margin-right: 10px; flex-shrink: 0; }
+    .certainty-tag { display: inline-block; font-size: 0.65rem; padding: 2px 6px; border-radius: 8px; font-weight: 600; margin-left: 8px; }
+    .certainty-confirmed { background: var(--accent-light); color: var(--accent); }
+    .certainty-announced { background: var(--blue-light); color: var(--blue); }
+    .certainty-reported { background: var(--yellow-light); color: var(--yellow); }
+    .certainty-opinion { background: var(--purple-light); color: var(--purple); }
+    .certainty-rumor { background: var(--red-light); color: var(--red); }
+    .audio-bar { background: var(--accent-light); border: 1px solid #b8dfc9; border-radius: var(--radius); padding: 16px 20px; margin-bottom: 28px; }
+    .audio-bar.hidden { display: none; }
+    .audio-bar .audio-label { font-size: 0.85rem; color: var(--accent-hover); margin-bottom: 8px; }
+    .audio-bar audio { width: 100%; height: 36px; border-radius: 18px; }
+    .footer-sources { margin-top: 44px; padding: 20px 24px; background: var(--surface2); border-radius: var(--radius); font-size: 0.78rem; color: var(--text-muted); line-height: 1.9; }
+    .footer-sources strong { color: var(--text-secondary); font-size: 0.78rem; }
+    @media (max-width: 640px) { .tool-grid { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+
+<header class="topbar">
+  <a href="../index.html" class="topbar-brand">
+    <svg viewBox="0 0 28 28" fill="none"><circle cx="14" cy="14" r="14" fill="#2d9f6f"/><path d="M8 14.5l3.5 3.5 8.5-8" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    Tech Digest
+  </a>
+  <nav class="topbar-nav">
+    <a href="../index.html">Archive</a>
+    <a href="#headline" class="active">Today</a>
+    <a href="#tools">Tools</a>
+    <a href="#quotes">Quotes</a>
+    <a href="../lenny/index.html">Lenny 精读</a>
+  </nav>
+  <div class="topbar-right">
+    <span class="topbar-date">2026-05-07</span>
+  </div>
+</header>
+
+<details class="toc-mobile">
+  <summary>📑 目录导航</summary>
+  <div class="toc-dropdown">
+    <a href="#headline">🔥 头条深读</a>
+    <a href="#tech-news">📰 科技动态</a>
+    <a href="#ai">🤖 AI 相关</a>
+    <a href="#articles">📝 文章推荐</a>
+    <a href="#tools">🛠️ 工具推荐</a>
+    <a href="#ai-tools">🧠 AI 工具</a>
+    <a href="#concepts">🧩 本期概念库</a>
+    <a href="#fun">🎲 趣闻</a>
+    <a href="#resources">📚 资源</a>
+    <a href="#quotes">💬 言论</a>
+    <a href="#team-insights">✅ 对团队的启发</a>
+  </div>
+</details>
+
+<div class="page">
+<nav class="toc">
+  <div class="toc-title">本期目录</div>
+    <a href="#headline">🔥 头条深读</a>
+    <a href="#tech-news">📰 科技动态</a>
+    <a href="#ai">🤖 AI 相关</a>
+    <a href="#articles">📝 文章推荐</a>
+    <a href="#tools">🛠️ 工具推荐</a>
+    <a href="#ai-tools">🧠 AI 工具</a>
+    <a href="#concepts">🧩 本期概念库</a>
+    <a href="#fun">🎲 趣闻</a>
+    <a href="#resources">📚 资源</a>
+    <a href="#quotes">💬 言论</a>
+    <a href="#team-insights">✅ 对团队的启发</a>
+</nav>
+
+<main class="container">
+  <a href="../index.html" class="back">← 返回目录</a>
+
+  <h1>第 12 期：Claude Code 公开复盘三连 Bug——当 Agent 工具自身的可靠性成为最大信任风险</h1>
+  <div class="meta">第 12 期 · 2026年5月7日，星期四</div>
+
+  <div class="audio-bar hidden" id="audioBar">
+    <div class="audio-label">🎧 收听本期音频版<br><small>由 NotebookLM 生成 · 双人对话播客风格</small></div>
+    <audio controls preload="none" id="audioPlayer"></audio>
+  </div>
+
+  <img class="hero-img" src="https://opengraph.githubassets.com/1/openai/symphony" alt="OpenAI Symphony - Codex Orchestration Framework">
+  <div class="hero-caption">OpenAI Symphony：把 Linear 看板变成 Codex Agent 的编排控制面，开源后团队 PR 吞吐量可达原先约 6 倍</div>
+
+  <div class="callout">
+    <strong>🎯 本期核心判断：</strong>Anthropic 首次公开复盘 Claude Code 三个独立退化 Bug（推理 effort 回调、thinking 清理泄漏、系统提示字数限制反噬），同日三大实验室密集发布 Agent 级产品（Gemma 4、Muse Spark、Symphony），行业正从「谁的模型更强」转入「谁的 Agent 更可靠」的信任竞赛——可靠性工程不再是模型的附属，而是 Agent 产品的核心竞争力。
+  </div>
+
+  <div class="callout">
+    <strong>⏱ 本期建议阅读顺序</strong><br>
+    5 分钟：核心判断 + 头条深读（Claude Code 三连 Bug 复盘）+ 对团队的启发<br>
+    15 分钟：科技动态（Swift 6.3、Braintrust 安全事件、Anthropic 算力扩容）+ AI 动态（Gemma 4 推测解码、Muse Spark）<br>
+    20 分钟：文章推荐（Stripe Agent 评测、Discord 故障复盘、Datadog Postgres 陷阱、Jepsen NATS）+ 概念库<br>
+    30 分钟：工具（Symphony 编排、Android CLI）+ AI 工具 + 言论全文 + 趣闻（DeepMind × EVE Online）<br>
+  </div>
+
+  <h2 id="headline">🔥 头条深读</h2>
+
+  <p><strong>发生了什么。</strong>Anthropic 5 月 6 日发布了一篇罕见的 <a href='https://www.anthropic.com/engineering/april-23-postmortem'>工程事故复盘</a>，将用户广泛感知的「Claude Code 变差了」归因于三个独立 Bug：（1）默认推理 effort 从 high 被意外回调到 medium，导致 Opus 4.7 在编码任务中表现退化；（2）一个空闲一小时后清理 thinking 上下文的实现 Bug，使后续每轮对话丢弃推理链；（3）为降低输出冗长而在系统提示中加入字数上限，反而压制了编码输出质量，已回滚。同日，Google 发布 Gemma 4 开源模型家族（Apache 2.0，通过推测解码宣称最高约 3 倍推理加速），Meta 推出 Muse Spark MSL 原生多模态推理模型（含多 Agent 并行的 Contemplating 模式），OpenAI 开源 Symphony 编排框架（将 Linear 等问题跟踪器变为 Codex Agent 控制面），Anthropic 同步发布 Claude Opus 4.7 并宣布与 SpaceX 签约扩容算力。</p>
+  <p><strong>为什么重要。</strong>这篇复盘的价值不在于 Bug 本身，而在于它揭示了 Agent 级产品的工程复杂度：三个 Bug 分别来自「节省成本的参数回调」「改善 UX 的上下文清理」和「减少噪音的输出约束」——每个都是善意的优化，每个都意外伤害了核心体验。这与传统 API 的退化模式截然不同：Agent 系统的旋钮更多（推理 effort、上下文窗口、系统提示、工具调用策略），每个旋钮都是潜在的回归向量。与此同时，三大实验室同日密集发布 Agent 产品，说明产业化节奏正在加速——「模型可用」只是起点，「Agent 可靠」才是交付门槛。</p>
+  <p><strong>我的判断。</strong>2026 年 AI 工具竞争正式进入「可靠性即产品力」阶段。Anthropic 的透明复盘建立了行业先例——但也暴露了一个普遍困境：当 Agent 工具的供应商自己都在与质量回归战斗时，下游团队不能盲信版本升级。每个团队都需要建立自己的 Agent 工具质量基线和回归检测机制，就像我们不会在没有测试的情况下升级数据库版本一样。Gemma 4 的推测解码、Symphony 的编排开源、Muse Spark 的并行推理——这些产品层面的进步值得关注，但更值得关注的是：你的团队是否有能力评估这些进步是否「真的」到了你的场景。</p>
+  <p><strong>对团队的启发。</strong>对照 Anthropic 复盘中的三类退化 Bug，审查内部 Agent 工具链是否存在类似的「善意优化→意外退化」风险——推理 effort 预设是否足够、上下文管理是否有清理泄漏、系统提示约束是否过于激进；评估 Gemma 4 推测解码在端侧推理场景的实际加速效果——如果宣称的 3 倍成立，部分边缘推理方案的 ROI 计算需要更新；关注 OpenAI Symphony 的编排模式——将问题跟踪器作为 Agent 控制面的设计思路，可用于内部编码 Agent 的规模化运维。</p>
+
+  <h2 id="tech-news">📰 科技动态</h2>
+
+  <h3>1、<a href="https://www.swift.org/blog/swift-6-3-released/" target="_blank" rel="noopener noreferrer">Swift 6.3 正式发布：首个官方 Android SDK、@c 互操作与 Swift Testing 增强</a> <span class="certainty-tag certainty-confirmed">confirmed</span></h3>
+  <p>Swift 6.3 带来多个里程碑级更新：首个官方 Swift SDK for Android 让 Swift 直接编译 Android 目标成为可能；`@c` 和 `@implementation` 属性改善 C 语言互操作；模块选择器 `Module::symbol` 解决跨模块命名冲突；SwiftPM 集成 Swift Build 预览；Swift Testing 新增警告级别、取消语义与截图附件。对跨端团队而言，这是评估 Swift 统一双端核心逻辑的信号。</p>
+  <h3>2、<a href="https://techcrunch.com/2026/05/06/ai-evaluation-startup-braintrust-confirms-breach-tells-every-customer-to-rotate-sensitive-keys/" target="_blank" rel="noopener noreferrer">AI 评测平台 Braintrust 确认安全事件，要求所有客户轮换敏感密钥</a> <span class="certainty-tag certainty-confirmed">confirmed</span></h3>
+  <p>Braintrust 作为 AI 评估与实验追踪供应商确认遭入侵，公开要求客户轮换所有敏感凭证。使用第三方 LLM 观测与评测基建的团队应立即核对密钥分级、最小权限与审计留存策略。AI 工具链的供应链安全正在成为高发攻击面。</p>
+  <h3>3、<a href="https://blog.cloudflare.com/de-tld-outage-dnssec/" target="_blank" rel="noopener noreferrer">Cloudflare 复盘 .de 域名 DNSSEC 全网故障：DENIC 签名错误导致验证解析大面积 SERVFAIL</a> <span class="certainty-tag certainty-confirmed">confirmed</span></h3>
+  <p>2026-05-05 DENIC 对 .de 区发布错误 DNSSEC 签名，全网验证解析器大量返回 SERVFAIL。Cloudflare 1.1.1.1 通过 RFC 8767 的 serve stale 策略平滑冲击，并临时将 .de 视为非 DNSSEC 区进行恢复。文章详述了观测手段、权衡决策与恢复过程，是 DNS 可靠性的教科书级复盘。</p>
+  <h3>4、<a href="https://www.anthropic.com/news/higher-limits-spacex" target="_blank" rel="noopener noreferrer">Anthropic 与 SpaceX 签约扩容算力并上调 Claude 限额：Opus API 速率翻倍</a> <span class="certainty-tag certainty-confirmed">confirmed</span></h3>
+  <p>Anthropic 宣布使用 SpaceX Colossus 1 数据中心超 300MW（约 22 万+ GPU）容量。同日生效：Claude Code 对 Pro/Max/Team/企业席位的五小时速率上限翻倍、取消 Pro/Max 高峰时段折减，并显著提高 Claude Opus 系列 API 速率上限。直接影响基于 Claude 构建产品的容量规划与成本核算。</p>
+  <h3>5、<a href="https://developer.apple.com/news/?id=agq42lxe" target="_blank" rel="noopener noreferrer">Apple：自动续订订阅支持「月付 + 12 个月履约承诺」新模式</a> <span class="certainty-tag certainty-confirmed">confirmed</span></h3>
+  <p>App Store Connect 已可配置与测试新的订阅模式：用户可随时取消，但在完成约定付款次数前仍会履约；账户内展示已完成/剩余付款次数。部分区域随 iOS 26.5 起可用。对商业化与订阅策略直接相关——兼顾用户灵活性与收入可预测性。</p>
+  <img class="article-img" src="https://devimages-cdn.apple.com/wwdc-services/articles/images/DA2EE0E9-4016-41FF-9732-30BE201E5D63/2048.jpeg" alt="" loading="lazy">
+  <h3>6、<a href="https://android-developers.googleblog.com/2026/04/jetpack-compose-april-2026-updates.html" target="_blank" rel="noopener noreferrer">Jetpack Compose 2026 年 4 月更新：性能与 API 增量迭代</a> <span class="certainty-tag certainty-confirmed">confirmed</span></h3>
+  <p>Google 官方发布 Compose 月度更新说明，覆盖性能改善与 API 增量。面向客户端团队的 UI 工具链迭代入口，适合评估升级窗口与兼容面。</p>
+  <img class="article-img" src="https://blogger.googleusercontent.com/img/a/AVvXsEhgVW3uXlpqZ7PcHixqBlJ2AG19VCQosSAZfuCaqN5WnsvBCiGJdFo4WersXe30hoBz9w6iNYN6QfyY7ae3pNYaa6BQpveTPDKFXXEhJkMXFfxoJIUOXzoaslEJ6NkAA85VvXU4Kv5oZnfG1BDe5dlxsEVxkeyZ1OECfXLSmbcP46IPw5JBj2eBWascC6A=s1600" alt="" loading="lazy">
+
+  <h2 id="ai">🤖 AI 相关</h2>
+
+  <h3>1、<a href="https://deepmind.google/blog/gemma-4-byte-for-byte-the-most-capable-open-models/" target="_blank" rel="noopener noreferrer">Google Gemma 4 开源：推测解码宣称最高 3 倍推理加速，边缘到云全栈覆盖</a> <span class="certainty-tag certainty-confirmed">confirmed</span></h3>
+  <p>Apache 2.0 许可，提供 E2B/E4B 边缘规格与 26B MoE、31B Dense 等规格。通过多 token 预测草稿器与推测解码在宣称无明显质量损失下显著降低延迟。原生函数调用、结构化 JSON、系统指令，边缘模型支持 128K 上下文、大模型至 256K。支持 AI Studio、Hugging Face、vLLM、Ollama 等全栈工具链。</p>
+  <h3>2、<a href="https://ai.meta.com/blog/introducing-muse-spark-msl/" target="_blank" rel="noopener noreferrer">Meta 发布 Muse Spark MSL：原生多模态推理模型与多 Agent 并行推理模式</a> <span class="certainty-tag certainty-announced">announced</span></h3>
+  <p>宣称在预训练效率上相对 Llama 4 Maverick 获得数量级提升。上线 Contemplating 模式：并行多 Agent 推理以在类似延迟下逼近极限推理精度。附带第三方关于「评测觉察」的讨论——模型可能在评测场景中表现异常高分——对评测方法论有警示意义。</p>
+  <h3>3、<a href="https://openai.com/index/mrc-supercomputer-networking/" target="_blank" rel="noopener noreferrer">OpenAI 联合产业链发布 MRC 协议：面向超大规模训练集群的多路径网络标准</a> <span class="certainty-tag certainty-confirmed">confirmed</span></h3>
+  <p>Multipath Reliable Connection（MRC）在 RoCE 之上扩展多路径包喷洒、丢包修剪与 SRv6 源路由，降低同步训练的长尾延迟并在链路/交换机故障时微秒级绕行。已在 GB200 等集群部署，规范贡献至 Open Compute Project。训练基础设施的开放标准化又进一步。</p>
+  <h3>4、<a href="https://www.anthropic.com/research/Evaluating-Claude-For-Bioinformatics-With-BioMysteryBench" target="_blank" rel="noopener noreferrer">Anthropic BioMysteryBench：真实脏数据上的生物信息学 Agent 评测</a> <span class="certainty-tag certainty-confirmed">confirmed</span></h3>
+  <p>99 道专家出题任务，模型在容器内可调 pip/conda、访问 NCBI 等数据库，答案来自数据可控性质而非主观论文结论。结论包括 Claude 跨代在生物学任务上快速提升、当前世代可与专家比肩并在部分题上超越专家面板。对科学方向 Agent 与离线评测设计有直接启发。</p>
+
+  <h2 id="articles">📝 文章推荐</h2>
+
+  <h3>1、<a href="https://stripe.com/blog/can-ai-agents-build-real-stripe-integrations" target="_blank" rel="noopener noreferrer">Stripe 自建基准测评：AI Agent 能否独立完成真实 Stripe 集成？</a></h3>
+  <p>搭建 11 套全栈/后端环境与确定性评分器，用 goose 工具链与 Stripe MCP 统一评测模型的长链路集成表现。初步结论包括顶尖模型在全栈任务上的超预期表现，以及在模糊需求与浏览器操作中仍会误判「完成」的典型失败模式。对建立内部 Agent 评测基准有直接参考价值。</p>
+  <h3>2、<a href="https://www.datadoghq.com/blog/engineering/debugging-postgres-performance/" target="_blank" rel="noopener noreferrer">Datadog 工程：Postgres 高并发 upsert 的「未更新却写 WAL」陷阱</a></h3>
+  <p>高并发 upsert 在 WHERE 未命中时仍会锁行并分配 xid，导致 WAL/COMMIT 与同步飙升。团队用 pg_walinspect 定位 LOCK/COMMIT 记录，并用「插入尝试 CTE + 条件 UPDATE」路径消除无效写放大。对后台高频 metadata 更新类 workload 有普遍借鉴意义。</p>
+  <h3>3、<a href="https://discord.com/blog/behind-the-scenes-of-the-3-25-26-voice-outage" target="_blank" rel="noopener noreferrer">Discord 语音大规模故障复盘：K8s 缩容引发会话层与网关连锁反应</a></h3>
+  <p>K8s 调整会话服务资源时因副本骤减与 termination grace 内未完成 handoff，导致约 17% 会话非优雅下线。海量 Process.monitor 通知触发网关重连风暴与速率限制未及时调整，引发专区内存尖峰与语音路由同步瓶颈。串联 Elixir 有状态进程、网关与会话恢复的系统性教训，是有状态服务缩容的反面教材。</p>
+  <h3>4、<a href="https://www.figma.com/blog/pgkeeper-building-the-bouncer-we-needed-for-postgres/" target="_blank" rel="noopener noreferrer">Figma 工程：自研 PGKeeper 取代 PgBouncer 的连接与负载治理</a></h3>
+  <p>PgBouncer 单线程、缺少分级准入与背压限制显现后，Figma 用 Go/PGX 实现 gRPC 接口的 PGKeeper，在 DBProxy 与 Postgres 之间做准入控制、连接池预热与建连/拆连限速，并引入 CoDel 算法、令牌桶与优先级信号量防止过载雪崩。PostgreSQL 连接治理的工程范本。</p>
+  <h3>5、<a href="https://huggingface.co/blog/evaleval/eval-costs-bottleneck" target="_blank" rel="noopener noreferrer">Hugging Face：AI 评测正在成为新的算力瓶颈</a></h3>
+  <p>用 HAL、GAIA、PaperBench 等公开账目说明：静态基准可被抽样压缩两个数量级，但 Agent 与「训练中评测」把单次评测推到数千美元乃至数万 GPU 小时。结论：评测成本正在成为问责与学术独立验证的新壁垒，成本盲区榜单会激励无效堆 token。</p>
+  <h3>6、<a href="https://jepsen.io/analyses/nats-2.12.1" target="_blank" rel="noopener noreferrer">Jepsen：NATS JetStream 2.12.1 在故障下面临确认写入丢失与持续脑裂</a></h3>
+  <p>针对宣称至少一次投递与线性一致的 JetStream，测试发现默认约两分钟才 fsync 的策略下，确认写入可能在断电/内核崩溃与分区组合下丢失。文件损坏还可触发大范围丢弃已确认消息与副本视图分叉。使用消息队列的团队应审查持久化语义是否与业务预期匹配。</p>
+  <h3>7、<a href="https://engineering.fb.com/2026/04/21/ml-applications/modernizing-the-facebook-groups-search-to-unlock-the-power-of-community-knowledge/" target="_blank" rel="noopener noreferrer">Meta 工程：Facebook Groups 搜索的混合检索与 LLM 自动化评测改造</a></h3>
+  <p>并行打通 Unicorn 词法检索与 Faiss 语义检索，再由 MTML 排序模型联合优化多目标。离线评测引入 Llama 3 多模态裁判细化相关性档位，以支撑语义检索上线前的规模化质检。混合检索与 LLM 裁判的组合对搜索系统改造有直接参考。</p>
+  <img class="article-img" src="https://engineering.fb.com/wp-content/uploads/2026/04/Modernizing-FB-Groups-search-image-2.png" alt="" loading="lazy">
+  <h3>8、<a href="https://engineering.fb.com/2026/05/01/security/meta-strengthening-end-to-end-encrypted-backups/" target="_blank" rel="noopener noreferrer">Meta 工程：强化 WhatsApp/Messenger 端到端加密备份的 HSM 基础设施</a></h3>
+  <p>基于 HSM 的 Backup Key Vault 通过多地多数派复制托管恢复码，新增面向 Messenger 的空口分发公钥验证包（Cloudflare 签名 + Meta 副署），承诺在博客公示新机队部署证据增强可验证性。加密备份基础设施的工程化参考。</p>
+  <img class="article-img" src="https://engineering.fb.com/wp-content/uploads/2026/05/Over-the-Air-Fleet-Key-Distribution.png" alt="" loading="lazy">
+
+  <h2 id="tools">🛠️ 工具推荐</h2>
+
+  <div class="tool-grid">
+    <div class="tool-card">
+      <h4><a href="https://openai.com/index/open-source-codex-orchestration-symphony/" target="_blank" rel="noopener noreferrer">OpenAI Symphony</a> <span class="priority-tag">P0</span></h4>
+      <p>将 Linear 等问题跟踪器变为 Codex Agent 编排控制面的开源框架。核心抽象：每个未完成 issue 对应常驻 Agent 工作区，Symphony 监控看板、卡住时重启 Agent，Agent 可自主拆分依赖 DAG 并并行推进跨仓库 PR。部分团队合并 PR 吞吐量宣称达原先约 6 倍。</p>
+    </div>
+    <div class="tool-card">
+      <h4><a href="https://tilde.run/" target="_blank" rel="noopener noreferrer">Tilde.run Agent 沙箱</a> <span class="priority-tag">P1</span></h4>
+      <p>为 Agent 提供带事务语义与版本化文件系统的隔离执行环境，可回滚工具调用对宿主仓库的破坏。在内网跑 Claude/Cursor 类流水线的团队可参考其沙箱化思路，降低 Agent 操作的爆炸半径。</p>
+    </div>
+  </div>
+
+  <h2 id="ai-tools">🧠 AI 工具</h2>
+
+  <div class="tool-grid">
+    <div class="tool-card">
+      <span class="tag">企业集成</span>
+      <h4><a href="https://openai.com/index/openai-on-aws/" target="_blank" rel="noopener noreferrer">OpenAI 模型 + Codex 登陆 AWS Bedrock</a></h4>
+      <p>OpenAI 前沿模型（含 GPT-5.5）、Codex 与 Bedrock Managed Agents 登陆 AWS：企业可在既有 AWS 安全、账单与合规路径内调用 OpenAI 模型和多步 Agent。Codex 可配置以 Bedrock 为推理后端。</p>
+    </div>
+    <div class="tool-card">
+      <span class="tag">模型</span>
+      <h4><a href="https://www.anthropic.com/news/claude-opus-4-7" target="_blank" rel="noopener noreferrer">Claude Opus 4.7</a></h4>
+      <p>Anthropic 新一代旗舰模型，强调编程、Agent 与多步任务的持续性与完备性。配合 SpaceX 算力扩容同步上线。工程复盘中提及 Opus 4.7 偏冗长等行为取舍，部署时需结合 harness 与 effort 预设调参。</p>
+    </div>
+    <div class="tool-card">
+      <span class="tag">移动端</span>
+      <h4><a href="https://android-developers.googleblog.com/2026/04/build-android-apps-3x-faster-using-any-agent.html" target="_blank" rel="noopener noreferrer">Android CLI + Skills</a></h4>
+      <p>Google 发布预览版 Android CLI 并提供面向 Agent 的技能与知识扩展，宣称任意编码 Agent 开发 Android 应用提速约 3 倍。将终端工作流、脚本化构建与多 Agent 编排纳入 Android 工程体验。</p>
+    </div>
+  </div>
+
+  <h2 id="concepts">🧩 本期概念库</h2>
+
+  <div class="concept-card">
+    <h4>1. Trustworthy Agents 四层模型</h4>
+    <div class="concept-field"><strong>一句话解释：</strong>Anthropic 将 Agent 拆解为模型、harness、工具、环境四层，分别讨论人控边界、目标对齐、子代理可见性、何时中断澄清与多层 prompt injection 防护。核心论点：Agent 的可信不等于模型安全——harness 设计、工具权限与环境隔离同等重要。</div>
+    <div class="concept-field"><strong>背景来源：</strong>Anthropic Research — Trustworthy Agents in Practice</div>
+    <div class="concept-field"><strong>为什么重要：</strong>Agent 产品从 demo 走向生产的系统性治理框架</div>
+    <div class="concept-field"><strong>团队应用场景：</strong>用四层模型审计内部 Agent 工具链：模型选型、harness 配置（effort/context/system prompt）、工具权限边界、执行环境隔离——每层都需独立评审</div>
+  </div>
+  <div class="concept-card">
+    <h4>2. B2B Signals：企业 AI 采用深度量化</h4>
+    <div class="concept-field"><strong>一句话解释：</strong>OpenAI 基于脱敏企业数据披露：「前沿企业」人均请求的智力负载约为典型企业的 3.5 倍（较去年约 2 倍提升），且仅凭消息量只能解释约 36% 的差距。差距主要来自代理型工具的使用强度（Codex、Agent、Deep Research）。</div>
+    <div class="concept-field"><strong>背景来源：</strong>OpenAI — Introducing B2B Signals</div>
+    <div class="concept-field"><strong>为什么重要：</strong>量化「从对话到委派」转变的行业基线</div>
+    <div class="concept-field"><strong>团队应用场景：</strong>对照 B2B Signals 的指标维度（人均智力负载 vs 消息量），评估团队 AI 采用处于哪个阶段——是停留在对话辅助，还是已进入代理型委派</div>
+  </div>
+  <div class="concept-card">
+    <h4>3. 理解 LLM 架构的工程化流程</h4>
+    <div class="concept-field"><strong>一句话解释：</strong>Sebastian Raschka 针对「技术报告越来越简略」的现实，提出面向开源权重模型的手工研读路径：以 HF config + transformers 参考实现为准绳，从可读的配置与代码反推架构细节。核心原则：能跑的代码不会说谎，论文可以省略但代码不会。</div>
+    <div class="concept-field"><strong>背景来源：</strong>Ahead of AI / Sebastian Raschka</div>
+    <div class="concept-field"><strong>为什么重要：</strong>团队评估新模型时的实操方法论</div>
+    <div class="concept-field"><strong>团队应用场景：</strong>评估新开源模型时，优先看 HF config.json 与 modeling 文件而非仅看论文或博客——配置文件是无歧义的架构声明</div>
+  </div>
+
+  <h2 id="fun">🎲 趣闻</h2>
+
+  <div class="fun-card">
+    <h4><a href="https://arstechnica.com/gaming/2026/05/google-deepmind-partners-with-eve-online-for-ai-model-testing/" target="_blank" rel="noopener noreferrer">DeepMind 与 EVE Online 开发商合作：用太空沙盒测试 AI 模型</a></h4>
+    <p>DeepMind 与 CCP（现 Fenris Creations）围绕 EVE Online 复杂社会经济沙盒开展模型试验，强调长线博弈环境下的评测需求。当静态基准不够用时，把 AI 扔进一个有上万真实玩家、公司政治与银河战争的虚拟经济体——这可能是目前最硬核的评测环境。</p>
+  </div>
+  <div class="fun-card">
+    <h4><a href="https://www.anthropic.com/features/project-deal" target="_blank" rel="noopener noreferrer">Anthropic「Project Deal」：让员工委托 Claude 在办公室做二手交易</a></h4>
+    <p>Anthropic 在旧金山办公室内搭建了一个由 Claude 代理议价、撮合买卖的同事市集实验。用于观察高自主工具调用与谈判场景下的行为与安全边界。当你的 AI 帮你砍同事的价——这就是内部 dogfooding 的极致形态。</p>
+  </div>
+
+  <h2 id="resources">📚 资源</h2>
+
+  <div class="resource-item">
+    <a href="https://sqlite.org/locrsf.html" target="_blank" rel="noopener noreferrer">SQLite 被美国国会图书馆列为推荐长期存储格式</a>
+    <p>SQLite 入选 Library of Congress Recommended Formats，为归档、嵌入式与边缘场景提供权威背书。对数据平台与合规归档需求，这是「为何继续押注 SQLite」的官方认证。</p>
+  </div>
+  <div class="resource-item">
+    <a href="https://webkit.org/blog/17934/release-notes-for-safari-technology-preview-242/" target="_blank" rel="noopener noreferrer">Safari Technology Preview 242 发布说明</a>
+    <p>新增 CSS Values 5 attr()、dialog closedby、IndexedDB getAllRecords()、WebRTC jitterBufferTarget 等特性；修复大量渲染与 JS 引擎问题。iOS/macOS WebView 行为前瞻的重要参照。</p>
+  </div>
+
+  <h2 id="quotes">💬 言论</h2>
+
+  <div class="quote-block">
+    <blockquote>Traces 告诉你发生了什么。Feedback 告诉你那意味着什么。</blockquote>
+    <div class="quote-author">— <a href="https://blog.langchain.dev/agent-observability-needs-feedback-to-power-learning/" target="_blank" rel="noopener noreferrer">LangChain 工程团队</a></div>
+    <div class="quote-meta">类型：译文 · 关键词：Agent Ops / 可观测性</div>
+    <div class="quote-comment"><strong>点评：</strong>一句话戳中 Agent 可观测性的盲区：光有调用链追踪不够，必须把用户反馈、规则判定与在线评测挂钩到同一运行上下文，才能区分模型、Harness 与检索三层缺陷。</div>
+    <div class="quote-team-insight"><strong>团队启发：</strong>内部 Agent 工具链如果只有日志没有反馈闭环，等于只做了一半的可观测——考虑在关键 Agent 流程上加入结构化反馈采集</div>
+  </div>
+  <div class="quote-block">
+    <blockquote>TEE 不是银弹：每个未被度量的输入和缺失的验证，都可能变成漏洞。</blockquote>
+    <div class="quote-author">— <a href="https://blog.trailofbits.com/2026/04/07/what-we-learned-about-tee-security-from-auditing-whatsapps-private-inference/" target="_blank" rel="noopener noreferrer">Trail of Bits 安全团队</a></div>
+    <div class="quote-meta">类型：译文 · 关键词：安全 / 机密计算</div>
+    <div class="quote-comment"><strong>点评：</strong>审计 WhatsApp 机密推理方案后的教训：环境变量在度量之后加载、ACPI 表未纳入证明——可信执行环境的「可信」需要工程逐层兑现，而非架构承诺。</div>
+    <div class="quote-team-insight"><strong>团队启发：</strong>如果团队在评估 TEE 方案做隐私推理，这篇审计报告是必读的反面案例库——信任边界需要逐层验证而非假设</div>
+  </div>
+  <div class="quote-block">
+    <blockquote>过去六个月剧情大变——我们多篇建模指向 CPU 需求飙升，驱动力包括强化学习与 Agent 编排。</blockquote>
+    <div class="quote-author">— <a href="https://newsletter.semianalysis.com/p/cpus-are-back-the-datacenter-cpu" target="_blank" rel="noopener noreferrer">SemiAnalysis</a></div>
+    <div class="quote-meta">类型：摘要式转述 · 关键词：基础设施 / 算力经济学</div>
+    <div class="quote-comment"><strong>点评：</strong>GPU 叙事主导了三年，但 RL、Agent 编排与「vibe coding」等工作负载正在重新拉高 CPU 需求。Intel 2025 末数据中心 CPU 反转是信号。算力经济学比想象的更复杂。</div>
+    <div class="quote-team-insight"><strong>团队启发：</strong>服务端容量规划不能只看 GPU——Agent 编排层的 CPU 需求可能成为新的瓶颈，值得在下次扩容评审时加入评估维度</div>
+  </div>
+  <div class="quote-block">
+    <blockquote>编写证明脚本是 LLM 最好的应用之一——证明检查器会拒绝任何无效证明并强制 AI 重试。</blockquote>
+    <div class="quote-author">— <a href="https://martin.kleppmann.com/2025/12/08/ai-formal-verification.html" target="_blank" rel="noopener noreferrer">Martin Kleppmann</a></div>
+    <div class="quote-meta">类型：译文 · 关键词：AI 工程化 / 可靠性</div>
+    <div class="quote-comment"><strong>点评：</strong>形式化验证长期被视为「太贵」的奢侈品，但 LLM 可能正在改变这个等式。当生成代码的是 AI 而非人类时，机器可检查的正确性论证反而变得更加必要——AI 写代码，机器验证正确性，人类只需关注规格是否准确。</div>
+    <div class="quote-team-insight"><strong>团队启发：</strong>对核心交易逻辑等高风险模块，形式化验证 + LLM 辅助的组合路径值得预研——瓶颈可能已从「写证明太贵」转向「规格是否刻画了意图」</div>
+  </div>
+  <div class="quote-block">
+    <blockquote>「氛围编程」与严谨的 Agent 工程化在我自己的工作流中正 uncomfortably 地汇合——工具越强，流程与审查若跟不上，技术债与风险越快累积。</blockquote>
+    <div class="quote-author">— <a href="https://simonwillison.net/2026/May/6/vibe-coding-and-agentic-engineering/" target="_blank" rel="noopener noreferrer">Simon Willison</a></div>
+    <div class="quote-meta">类型：摘要式转述 · 关键词：工程文化 / 研发流程</div>
+    <div class="quote-comment"><strong>点评：</strong>Simon 敏锐地指出了一个张力：即兴式 vibe coding 和强调可控性的 agentic engineering 看似对立，实则在同一个人的工作流中并存。关键不是选择其一，而是为不同场景画出清晰的边界。</div>
+    <div class="quote-team-insight"><strong>团队启发：</strong>在团队推行编码 Agent 时，需要明确「哪些场景允许 vibe coding、哪些必须走正式流程」——边界不清会让技术债以 Agent 速度积累</div>
+  </div>
+  <div class="quote-block">
+    <blockquote>交付瓶颈多在协调、需求澄清、评审与责任边界，而非单纯写代码速度。Agent 放大的是既有流程问题。</blockquote>
+    <div class="quote-author">— <a href="https://www.thetypicalset.com/blog/thoughts-on-coding-agents" target="_blank" rel="noopener noreferrer">The Typical Set</a></div>
+    <div class="quote-meta">类型：摘要式转述 · 关键词：组织效能 / 管理认知</div>
+    <div class="quote-comment"><strong>点评：</strong>这是对「Agent 让开发提速 10 倍」叙事的有效冷水：如果你的瓶颈是需求不清和评审缓慢，更快的代码生成只会更快地产出错误的东西。管理者和 Tech Lead 应该用这个视角校准期望。</div>
+    <div class="quote-team-insight"><strong>团队启发：</strong>在评估 Agent 投入产出比时，先量化团队当前的非编码瓶颈（需求评审、跨团队协调、测试验收）——如果这些占 70% 的交付周期，Agent 的加速效果会大打折扣</div>
+  </div>
+  <div class="quote-block">
+    <blockquote>我们把 QUIC 视为期待已久的答案：为请求/响应应用而生的传输协议。</blockquote>
+    <div class="quote-author">— <a href="https://systemsapproach.org/2026/04/06/quic-the-third-transport-protocol/" target="_blank" rel="noopener noreferrer">Bruce Davie (Systems Approach)</a></div>
+    <div class="quote-meta">类型：译文 · 关键词：网络协议 / 基础设施</div>
+    <div class="quote-comment"><strong>点评：</strong>大多数人把 QUIC 理解为「更快的 TCP」，但 Davie 重新定位为补齐 RPC/HTTPS 需求的第三类传输范式——连接 ID 迁移、多路独立流、TLS 记录层融合这些特性，本质上是为现代应用的请求/响应模式量身设计的。</div>
+    <div class="quote-team-insight"><strong>团队启发：</strong>如果团队在评估移动端弱网优化方案，QUIC 的连接迁移能力（网络切换不断连）值得优先评估，而非仅关注传统的 TCP 快开/0-RTT</div>
+  </div>
+
+  <h2 id="team-insights">✅ 对团队的启发</h2>
+
+  <div class="insight-card">
+    <p><span class="insight-num">1</span>参照 Anthropic 复盘的三类退化 Bug（推理 effort 预设、上下文清理、系统提示约束），建立内部 Agent 工具链的变更影响评估清单——每个「优化」都可能是下一个回归向量</p>
+  </div>
+  <div class="insight-card">
+    <p><span class="insight-num">2</span>Swift 6.3 正式支持 Android SDK 和 @c 互操作——评估是否将部分跨端核心逻辑（如加密、数据模型）统一到 Swift，缩小双端维护成本</p>
+  </div>
+  <div class="insight-card">
+    <p><span class="insight-num">3</span>Jepsen 测出 NATS JetStream 默认不 fsync 导致确认写入丢失——审查内部消息队列的持久化语义是否与业务预期匹配，特别是交易类场景的「至少一次」承诺</p>
+  </div>
+  <div class="insight-card">
+    <p><span class="insight-num">4</span>评测成本正在成为 AI 质量保障的隐性瓶颈——在引入 Agent 评测时，需要在评测覆盖率与算力预算之间找到平衡，避免「跑一次就打分」的伪科学</p>
+  </div>
+
+  <div class="footer-sources">
+    <strong>信息源：</strong>60 个全球精选科技 / AI / 工程 / 系统可靠性信息源<br>
+    <strong>覆盖：</strong>Hacker News · TLDR · Anthropic · OpenAI · DeepMind · Simon Willison · Pragmatic Engineer · Cloudflare · Netflix · Stripe · GitHub · Jepsen · ACM Queue 等<br><br>
+    由 Cursor AI 自动生成 · 信息截止至 2026-05-07
+  </div>
+</main>
+</div>
+
+<script>
+  const today = '2026-05-07';
+  const audioPath = `../audio/${today}.m4a`;
+  fetch(audioPath, { method: 'HEAD' }).then(r => {
+    if (r.ok) {
+      document.getElementById('audioBar').classList.remove('hidden');
+      document.getElementById('audioPlayer').src = audioPath;
+    }
+  }).catch(() => {});
+
+  const tocLinks = document.querySelectorAll('.toc a');
+  const sections = [];
+  tocLinks.forEach(link => {
+    const id = link.getAttribute('href')?.replace('#','');
+    if (id) { const el = document.getElementById(id); if (el) sections.push({ id, el, link }); }
+  });
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      const s = sections.find(s => s.el === entry.target);
+      if (s) s.link.classList.toggle('active', entry.isIntersecting);
+    });
+  }, { rootMargin: '-20% 0px -75% 0px' });
+  sections.forEach(s => observer.observe(s.el));
+</script>
+</body>
+</html>
