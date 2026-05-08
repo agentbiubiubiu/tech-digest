@@ -1,5 +1,11 @@
 [
   {
+    "date": "2026-05-08",
+    "title": "第 13 期：Anthropic NLA——可解释性从实验室跨入上线前审计",
+    "highlights": "NLA 把内部激活译成可读文本 · Mozilla Mythos 271漏洞零误报 · Linux DirtyFrag 通用LPE · Node.js 26 默认Temporal API · Claude「类梦境」记忆整理 · Moonshot AI 200亿估值 · Anthropic Petri 3.0 开源捐赠 · Agent 评测成本瓶颈",
+    "image": "https://cdn.sanity.io/images/4zrzovbb/website/645f8c90db35a5d392c816a90c806b2904ccad21-1280x720.png"
+  },
+  {
     "date": "2026-05-07",
     "title": "第 12 期：Claude Code 公开复盘三连 Bug——当 Agent 工具自身的可靠性成为最大信任风险",
     "highlights": "Claude Code 三连Bug复盘 · Gemma 4 推测解码3倍加速 · Meta Muse Spark 多Agent推理 · OpenAI Symphony 编排开源 · Swift 6.3 Android SDK · Jepsen NATS 丢数据 · Braintrust 安全事件 · Stripe Agent 评测基准 · Datadog Postgres WAL 陷阱",
