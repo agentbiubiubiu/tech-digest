@@ -1,5 +1,11 @@
 [
   {
+    "date": "2026-05-09",
+    "title": "第 14 期：AI 产效数字写进季报了——但支撑它的基础设施正以相同速度膨胀单点风险",
+    "highlights": "Airbnb 称 60% 代码 AI 编写 · Cloudflare 裁千人归因 AI · Anthropic 签 18 亿美元 Akamai 算力合约 · AWS us-east-1 宕机波及交易服务 · Teaching Claude Why 对齐泛化 · Allen AI EMO 涌现模块 MoE · io_uring ZCRX 零日提权 · Meta 关闭 Instagram E2E 加密 · 美国电网 AI 负载告急",
+    "image": "https://cdn.arstechnica.net/wp-content/uploads/2026/05/AI-Overview-hero-1152x648.jpg"
+  },
+  {
     "date": "2026-05-08",
     "title": "第 13 期：Anthropic NLA——可解释性从实验室跨入上线前审计",
     "highlights": "NLA 把内部激活译成可读文本 · Mozilla Mythos 271漏洞零误报 · Linux DirtyFrag 通用LPE · Node.js 26 默认Temporal API · Claude「类梦境」记忆整理 · Moonshot AI 200亿估值 · Anthropic Petri 3.0 开源捐赠 · Agent 评测成本瓶颈",
