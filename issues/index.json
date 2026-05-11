@@ -1,5 +1,11 @@
 [
   {
+    "date": "2026-05-11",
+    "title": "第 16 期：AI 实验室不卖 API 改卖交付了——当模型能力过了可用门槛，「谁能帮客户把活干完」成了新战场",
+    "highlights": "AI Lab 转型卖服务 · Stripe Agent Commerce Suite 288 项发布 · OpenAI Codex Chrome 扩展 · AlphaEvolve 跨领域落地 · Agent 3.5x 流量打崩 GitHub · Mozilla Claude Mythos 安全 harness · ProgramBench 全通过率 0% · Jepsen 测出 NATS 数据丢失 · EU AI Act 妥协退让",
+    "image": "https://opengraph.githubassets.com/1/facebookresearch/ProgramBench"
+  },
+  {
     "date": "2026-05-10",
     "title": "第 15 期：Agent 框架从提示注入到 RCE 只需一步——当 Agent 成为基础设施，安全工程要跑在能力前面",
     "highlights": "Agent 框架可被 RCE · CISA 紧急画线 · Gemma 4 开源 · AWS MCP Server GA · 美团 31 万行 AI 重构 · Stripe Agent 支付基准 · Chrome DevTools MCP · Ramp 60% PR Agent 合并 · GPT-5.5 Pro 一小时推进数学开放问题",

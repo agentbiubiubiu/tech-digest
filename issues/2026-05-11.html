@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>第 16 期：AI 实验室不卖 API 改卖交付了——当模型能力过了可用门槛，「谁能帮客户把活干完」成了新战场</title>
+  <meta property="og:title" content="Tech Digest · 第16期｜AI Lab 转型卖服务 · Stripe Agent Commerce Suite · Codex Chrome 扩展 · AlphaEvolve 跨领域 · Agent 3.5x 流量打崩 GitHub">
+  <meta property="og:description" content="Anthropic 成立企业服务合资公司、Stripe Sessions 推 288 项能力含 Agent Commerce Suite、OpenAI Codex 从 IDE 扩展到浏览器。同期 Agent 流量把 GitHub 打崩、Mozilla 用 Claude Mythos 规模化发现 Firefox 真实漏洞、Jepsen 测出 NATS JetStream 数据丢失。模型够强了，但交付需要的工程可靠性远没跟上。">
+  <meta property="og:image" content="https://opengraph.githubassets.com/1/facebookresearch/ProgramBench">
+  <style>
+:root {
+  --bg: #f5f6f8; --surface: #ffffff; --surface2: #f0f2f5;
+  --border: #e8ecf1; --border-hover: #c5cdd8;
+  --text: #1a1d21; --text-secondary: #3d4550; --text-muted: #8c95a1;
+  --accent: #2d9f6f; --accent-light: #e8f5ef; --accent-hover: #248a5e;
+  --accent-text: #ffffff;
+  --purple: #7c5cbf; --purple-light: #f3effc;
+  --orange: #e58e26; --orange-light: #fef5e7;
+  --blue: #3a82f7; --blue-light: #eef4fe;
+  --red: #e74c3c; --red-light: #fdecea;
+  --green-deep: #1a7a4c; --green-light2: #e0f5ea;
+  --yellow: #d4a017; --yellow-light: #fef9e7;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.06);
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.06), 0 2px 4px rgba(0,0,0,0.04);
+  --shadow-lg: 0 10px 30px rgba(0,0,0,0.08);
+  --radius: 12px; --radius-sm: 8px; --radius-xs: 6px;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Helvetica, Arial, sans-serif; background: var(--bg); color: var(--text); line-height: 1.75; font-size: 15px; -webkit-font-smoothing: antialiased; }
+.topbar { background: var(--surface); border-bottom: 1px solid var(--border); padding: 12px 32px; display: flex; align-items: center; gap: 16px; position: sticky; top: 0; z-index: 200; box-shadow: var(--shadow-sm); }
+.topbar-brand { font-size: 1.1rem; font-weight: 700; color: var(--accent); text-decoration: none; display: flex; align-items: center; gap: 8px; }
+.topbar-brand svg { width: 28px; height: 28px; }
+.topbar-nav { display: flex; gap: 4px; margin-left: 24px; }
+.topbar-nav a { padding: 6px 16px; border-radius: 20px; font-size: 0.85rem; font-weight: 500; color: var(--text-secondary); text-decoration: none; transition: all 0.2s; }
+.topbar-nav a:hover { background: var(--surface2); color: var(--text); }
+.topbar-nav a.active { background: var(--accent-light); color: var(--accent); font-weight: 600; }
+.topbar-right { margin-left: auto; display: flex; align-items: center; gap: 12px; }
+.topbar-date { font-size: 0.82rem; color: var(--text-muted); background: var(--surface2); padding: 5px 12px; border-radius: 16px; }
+.page { display: flex; max-width: 1200px; margin: 0 auto; padding: 24px 24px 0; gap: 24px; }
+.toc { width: 220px; flex-shrink: 0; position: sticky; top: 80px; height: calc(100vh - 104px); overflow-y: auto; background: var(--surface); border-radius: var(--radius); padding: 20px 16px; box-shadow: var(--shadow-sm); border: 1px solid var(--border); }
+.toc-title { font-size: 0.72rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 14px; padding-left: 12px; }
+.toc a { display: block; padding: 7px 12px; margin-bottom: 2px; font-size: 0.82rem; color: var(--text-muted); text-decoration: none; border-radius: var(--radius-xs); transition: all 0.15s; font-weight: 500; }
+.toc a:hover { color: var(--accent); background: var(--accent-light); }
+.toc a.active { color: var(--accent); background: var(--accent-light); font-weight: 600; }
+.toc-mobile { display: none; position: sticky; top: 57px; z-index: 100; background: var(--surface); border-bottom: 1px solid var(--border); padding: 10px 16px; box-shadow: var(--shadow-sm); }
+.toc-mobile summary { cursor: pointer; font-size: 0.85rem; color: var(--accent); font-weight: 600; list-style: none; }
+.toc-mobile summary::-webkit-details-marker { display: none; }
+.toc-mobile .toc-dropdown { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 8px; margin-top: 8px; max-height: 60vh; overflow-y: auto; box-shadow: var(--shadow-md); }
+.toc-mobile .toc-dropdown a { display: block; padding: 8px 12px; font-size: 0.88rem; color: var(--text-secondary); text-decoration: none; border-radius: var(--radius-xs); }
+.toc-mobile .toc-dropdown a:hover { color: var(--accent); background: var(--accent-light); }
+@media (max-width: 860px) { .toc { display: none; } .toc-mobile { display: block; } .topbar-nav { display: none; } .page { flex-direction: column; padding: 16px 12px 0; gap: 16px; } .container { padding: 20px 16px 60px; } }
+.container { flex: 1; min-width: 0; background: var(--surface); border-radius: var(--radius); padding: 36px 40px 60px; box-shadow: var(--shadow-sm); border: 1px solid var(--border); margin-bottom: 40px; }
+.back { display: inline-flex; align-items: center; gap: 4px; color: var(--text-muted); text-decoration: none; font-size: 0.85rem; margin-bottom: 28px; font-weight: 500; transition: color 0.15s; }
+.back:hover { color: var(--accent); }
+h1 { font-size: 1.7rem; font-weight: 800; margin-bottom: 10px; line-height: 1.35; color: var(--text); letter-spacing: -0.01em; }
+.meta { color: var(--text-muted); font-size: 0.85rem; margin-bottom: 28px; }
+.highlights-line { color: var(--text-secondary); font-size: 0.9rem; margin: -18px 0 28px; line-height: 1.65; }
+.hero-img { width: 100%; border-radius: var(--radius); margin-bottom: 10px; box-shadow: var(--shadow-md); }
+.hero-caption { font-size: 0.82rem; color: var(--text-muted); margin-bottom: 36px; text-align: center; font-style: italic; }
+h2 { font-size: 1.25rem; font-weight: 700; margin: 44px 0 18px; padding-bottom: 10px; border-bottom: 2px solid var(--accent-light); scroll-margin-top: 90px; color: var(--text); }
+h3 { font-size: 1.05rem; font-weight: 600; margin: 26px 0 8px; color: var(--text); }
+p { margin-bottom: 14px; color: var(--text-secondary); }
+a { color: var(--accent); text-decoration: none; font-weight: 500; }
+a:hover { color: var(--accent-hover); text-decoration: underline; }
+strong { color: var(--text); font-weight: 600; }
+code { background: var(--surface2); padding: 2px 6px; border-radius: 4px; font-size: 0.88em; color: var(--accent-hover); font-family: "SF Mono", Monaco, monospace; }
+.callout { background: var(--accent-light); border-left: 4px solid var(--accent); border-radius: var(--radius-sm); padding: 16px 20px; margin: 20px 0; font-size: 0.93rem; color: var(--text-secondary); }
+.article-img { width: 100%; max-height: 380px; object-fit: cover; border-radius: var(--radius-sm); margin: 12px 0 24px; box-shadow: var(--shadow-sm); }
+.tool-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 16px 0; }
+.tool-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px 20px; transition: all 0.2s; box-shadow: var(--shadow-sm); }
+.tool-card:hover { border-color: var(--accent); box-shadow: var(--shadow-md); transform: translateY(-1px); }
+.tool-card h4 { font-size: 0.95rem; margin-bottom: 6px; font-weight: 600; }
+.tool-card h4 a { color: var(--accent); }
+.tool-card p { font-size: 0.83rem; color: var(--text-muted); margin: 0; line-height: 1.55; }
+.tool-card .tag { display: inline-block; font-size: 0.68rem; padding: 3px 8px; border-radius: 10px; background: var(--accent); color: var(--accent-text); font-weight: 600; margin-bottom: 8px; letter-spacing: 0.02em; }
+.tool-card .priority-tag { display: inline-block; font-size: 0.65rem; padding: 2px 6px; border-radius: 8px; background: var(--surface2); color: var(--text-muted); font-weight: 600; margin-left: 6px; }
+.fun-card { background: var(--orange-light); border: 1px solid #f5ddb8; border-radius: var(--radius); padding: 20px 24px; margin: 14px 0; }
+.fun-card h4 { font-size: 1rem; margin-bottom: 8px; font-weight: 600; }
+.fun-card h4 a { color: var(--orange); }
+.fun-card p { font-size: 0.88rem; color: var(--text-secondary); margin: 0; line-height: 1.65; }
+.quote-block { background: var(--purple-light); border-left: 4px solid var(--purple); border-radius: var(--radius-sm); padding: 20px 24px; margin: 18px 0; }
+.quote-block blockquote { font-size: 1.02rem; line-height: 1.65; margin-bottom: 10px; font-style: italic; color: var(--text); }
+.quote-block .quote-author { font-size: 0.82rem; color: var(--purple); font-weight: 600; margin-bottom: 6px; }
+.quote-block .quote-meta { font-size: 0.78rem; color: var(--text-muted); margin-bottom: 10px; }
+.quote-block .quote-comment { font-size: 0.88rem; color: var(--text-secondary); border-top: 1px solid #d8d0e8; padding-top: 10px; margin-top: 10px; }
+.quote-block .quote-team-insight { font-size: 0.88rem; color: var(--green-deep); background: var(--accent-light); border-radius: var(--radius-xs); padding: 8px 12px; margin-top: 8px; }
+.resource-item { background: var(--blue-light); border: 1px solid #c8dbf8; border-radius: var(--radius); padding: 18px 20px; margin: 12px 0; }
+.resource-item a { font-weight: 600; color: var(--blue); }
+.resource-item p { font-size: 0.88rem; color: var(--text-secondary); margin: 6px 0 0; }
+.concept-card { background: var(--green-light2); border-left: 4px solid var(--accent); border-radius: var(--radius-sm); padding: 20px 24px; margin: 16px 0; }
+.concept-card h4 { font-size: 1rem; font-weight: 700; color: var(--green-deep); margin-bottom: 10px; }
+.concept-card .concept-field { font-size: 0.88rem; color: var(--text-secondary); margin-bottom: 6px; line-height: 1.6; }
+.concept-card .concept-field strong { color: var(--text); font-size: 0.88rem; }
+.insight-card { background: var(--yellow-light); border-left: 4px solid var(--yellow); border-radius: var(--radius-sm); padding: 16px 20px; margin: 12px 0; }
+.insight-card p { font-size: 0.93rem; color: var(--text-secondary); margin: 0; line-height: 1.7; }
+.insight-card .insight-num { display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; border-radius: 50%; background: var(--yellow); color: #fff; font-size: 0.75rem; font-weight: 700; margin-right: 10px; flex-shrink: 0; }
+.certainty-tag { display: inline-block; font-size: 0.65rem; padding: 2px 6px; border-radius: 8px; font-weight: 600; margin-left: 8px; }
+.certainty-confirmed { background: var(--accent-light); color: var(--accent); }
+.certainty-announced { background: var(--blue-light); color: var(--blue); }
+.certainty-reported { background: var(--yellow-light); color: var(--yellow); }
+.certainty-opinion { background: var(--purple-light); color: var(--purple); }
+.certainty-rumor { background: var(--red-light); color: var(--red); }
+.certainty-unknown { background: var(--surface2); color: var(--text-muted); }
+.audio-bar { background: var(--accent-light); border: 1px solid #b8dfc9; border-radius: var(--radius); padding: 16px 20px; margin-bottom: 28px; }
+.audio-bar.hidden { display: none; }
+.audio-bar .audio-label { font-size: 0.85rem; color: var(--accent-hover); margin-bottom: 8px; }
+.audio-bar audio { width: 100%; height: 36px; border-radius: 18px; }
+.footer-sources { margin-top: 44px; padding: 20px 24px; background: var(--surface2); border-radius: var(--radius); font-size: 0.78rem; color: var(--text-muted); line-height: 1.9; }
+.footer-sources strong { color: var(--text-secondary); font-size: 0.78rem; }
+@media (max-width: 640px) { .tool-grid { grid-template-columns: 1fr; } }
+
+  </style>
+</head>
+<body>
+
+<header class="topbar">
+  <a href="../index.html" class="topbar-brand">
+    <svg viewBox="0 0 28 28" fill="none"><circle cx="14" cy="14" r="14" fill="#2d9f6f"/><path d="M8 14.5l3.5 3.5 8.5-8" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    Tech Digest
+  </a>
+  <nav class="topbar-nav">
+    <a href="../index.html">Archive</a>
+    <a href="#headline" class="active">Today</a>
+    <a href="#tools">Tools</a>
+    <a href="#quotes">Quotes</a>
+    <a href="../lenny/index.html">Lenny 精读</a>
+  </nav>
+  <div class="topbar-right">
+    <span class="topbar-date">2026-05-11</span>
+  </div>
+</header>
+
+<details class="toc-mobile">
+  <summary>📑 目录导航</summary>
+  <div class="toc-dropdown">
+        <a href="#headline">🔥 头条深读</a>
+    <a href="#tech-news">📰 科技动态</a>
+    <a href="#ai">🤖 AI 相关</a>
+    <a href="#articles">📝 文章推荐</a>
+    <a href="#tools">🛠️ 工具推荐</a>
+    <a href="#ai-tools">🧠 AI 工具</a>
+    <a href="#concepts">🧩 本期概念库</a>
+    <a href="#fun">🎲 趣闻</a>
+    <a href="#resources">📚 资源</a>
+    <a href="#quotes">💬 言论</a>
+    <a href="#team-insights">✅ 对团队的启发</a>
+  </div>
+</details>
+
+<div class="page">
+<nav class="toc">
+  <div class="toc-title">本期目录</div>
+    <a href="#headline">🔥 头条深读</a>
+    <a href="#tech-news">📰 科技动态</a>
+    <a href="#ai">🤖 AI 相关</a>
+    <a href="#articles">📝 文章推荐</a>
+    <a href="#tools">🛠️ 工具推荐</a>
+    <a href="#ai-tools">🧠 AI 工具</a>
+    <a href="#concepts">🧩 本期概念库</a>
+    <a href="#fun">🎲 趣闻</a>
+    <a href="#resources">📚 资源</a>
+    <a href="#quotes">💬 言论</a>
+    <a href="#team-insights">✅ 对团队的启发</a>
+</nav>
+
+<main class="container">
+  <a href="../index.html" class="back">← 返回目录</a>
+
+  <h1>第 16 期：AI 实验室不卖 API 改卖交付了——当模型能力过了可用门槛，「谁能帮客户把活干完」成了新战场</h1>
+  <div class="meta">第 16 期 · 2026年5月11日，星期一</div>
+
+  <p class="highlights-line"><strong>✨ 本期亮点：</strong>AI Lab 转型卖服务 · Stripe Agent Commerce Suite 288 项发布 · OpenAI Codex Chrome 扩展 · AlphaEvolve 跨领域落地 · Agent 3.5x 流量打崩 GitHub · Mozilla Claude Mythos 安全 harness · ProgramBench 全通过率 0% · Jepsen 测出 NATS 数据丢失 · EU AI Act 妥协退让</p>
+
+  <div class="audio-bar hidden" id="audioBar">
+    <div class="audio-label">🎧 收听本期音频版<br><small>由 NotebookLM 生成 · 双人对话播客风格</small></div>
+    <audio controls preload="none" id="audioPlayer"></audio>
+  </div>
+
+  <img class="hero-img" src="https://opengraph.githubassets.com/1/facebookresearch/ProgramBench" alt="ProgramBench - Meta 开源的全栈重建评测基准">
+  <div class="hero-caption">ProgramBench 全通过率为 0%——模型够聪明了，但从规格到交付的路还很远</div>
+
+  <div class="callout">
+    <strong>🎯 本期核心判断：</strong>Anthropic 宣布联合 PE 成立企业服务合资公司、Stripe Sessions 一口气推 288 项能力包含完整的 Agent Commerce Suite、OpenAI Codex 从 IDE 扩展到浏览器——模型能力已过可用门槛，AI Lab 的战场正从「谁更聪明」转向「谁能帮客户真正把活干完」。同期 Pragmatic Engineer 报道 Agent 流量 3.5 倍增长把 GitHub 打崩、Mozilla 用 Claude Mythos 规模化发现 Firefox 真实漏洞、Jepsen 测出 NATS 数据丢失——交付需要的工程可靠性基础设施，远没跟上能力扩展的速度。
+  </div>
+
+  <div class="callout">
+    <strong>⏱ 本期建议阅读顺序</strong><br>
+    5 分钟：头条深读——AI 实验室从「卖模型」到「卖交付」，竞争轴旋转了<br>
+5 分钟：科技动态——Stripe Sessions 288 项发布、EU AI Act 妥协退让、Nvidia 400 亿 AI 投资<br>
+5 分钟：AI 相关——AlphaEvolve 跨领域落地、Mozilla Mythos 安全 harness、GPT-5.5 Cyber<br>
+4 分钟：文章推荐——Agent 流量打崩 GitHub、WebRTC 与 AI 语音的结构性矛盾<br>
+4 分钟：工具 + AI 工具——Codex Chrome 扩展、Dynamic Workflows、Litestream 可写 VFS<br>
+5 分钟：概念库 + 言论精选<br>
+3 分钟：对团队的启发
+  </div>
+
+  <h2 id="headline">🔥 头条深读</h2>
+
+<p><strong>AI 实验室不只卖模型了。</strong>Anthropic 宣布与大型私募股权机构合作成立企业 AI 服务合资公司，形态是「贴身驻场 + 与客户工程师共建」——不是给你一个 API key 自己折腾，而是派人帮你把 Claude 嵌进业务流程。同一周 Latent Space 的 AINews 将此与 OpenAI 的部署服务化动向并列，归纳为「硅谷开始认真做服务了」。</p>
+<p><strong>支付层已经为 Agent 准备好了。</strong>Stripe Sessions 2026 一次性发布 288 项产品能力，其中最值得关注的是完整的 Agent Commerce Suite：面向 AI Agent 的商品目录、结账流程与代理支付（MPP）。当 Stripe 为 Agent 铺好支付轨道时，意味着「Agent 代表人类花钱」这件事已经从实验进入工程化阶段。回想 Anthropic 上周的 Project Deal 实验（AI 代表人类完成 186 笔交易），从概念验证到基础设施只用了一周。</p>
+<p><strong>Agent 的触手在延伸——从 IDE 到浏览器。</strong>OpenAI 发布 Codex Chrome 扩展，让编码 Agent 可以在用户已登录的网页环境中继续完成任务。这不是简单的「另一个插件」，而是 Agent 活动空间从沙箱 IDE 扩展到整个浏览器——意味着更大的能力，但也意味着更大的攻击面。联想上期微软公开的 Agent 框架 RCE 漏洞，Agent 权限边界管理变得更加紧迫。</p>
+<p><strong>但基础设施还没准备好。</strong>Pragmatic Engineer 报道 GitHub 因 Agent 流量增长约 3.5 倍而出现可用性问题——合并队列故障、UI 空白、与 Azure 迁移窗口重叠导致的多重影响。这不是个案：当每个开发者背后都有一个甚至多个 Agent 在不停调 API 时，所有上游平台的容量规划模型都要重写。Mozilla 则展示了 Agent 正面落地的范本：用 Claude Mythos Preview 的 agentic harness 规模化生成可复现 testcase，显著提高了 Firefox 真实漏洞发现的吞吐。</p>
+<p><strong>对团队的启发。</strong>AI Lab 从模型供应商变成交付伙伴，意味着两件事：① 不再需要「从零搭建 AI 能力」——但需要有能力评估和管理外部 AI 服务商的交付质量；② Agent 的活动空间在快速扩展（IDE → 浏览器 → 支付），每扩展一步都需要重新审视权限、审计与回滚机制。团队应该问自己：我们的 Agent 今天能访问什么、明天可能被要求访问什么、我们准备好了吗？</p>
+
+  <h2 id="tech-news">📰 科技动态</h2>
+
+<h3>1、<a href="https://stripe.com/blog/everything-we-announced-at-sessions-2026" target="_blank" rel="noopener noreferrer">Stripe Sessions 2026：288 项发布，Agent Commerce Suite 让支付层为 AI Agent 就绪</a> <span class="certainty-tag certainty-announced">announced</span></h3>
+  <p>Stripe 在年度大会上一次性推出 288 项产品能力，核心亮点是面向 AI Agent 的完整商务套件：Agent 专用商品目录与结账、代理支付（MPP）、与 Meta/Google 的协议层合作。当支付基础设施为 Agent 做好准备，「AI 代表人类花钱」正式进入工程化阶段。</p>
+
+  
+
+  <h3>2、<a href="https://www.politico.eu/article/eu-clinches-deal-to-roll-back-ai-restrictions/" target="_blank" rel="noopener noreferrer">欧盟就 AI Act 高风险条款达成妥协：执法后移、嵌入产品减免，同时加严深伪禁令</a> <span class="certainty-tag certainty-reported">reported</span></h3>
+  <p>在工业界压力下，欧委会与成员国调整 AI 法案里程碑：高风险分类执法时间后移，嵌入产品场景减免重复合规，同时增补对非自愿性影像伪造的禁令。这是「治理时间线与范围重写」的典型案例——硬法在落地前总要与现实妥协。</p>
+
+  
+
+  <h3>3、<a href="https://techcrunch.com/2026/05/09/nvidia-has-already-committed-40b-to-equity-ai-deals-this-year/" target="_blank" rel="noopener noreferrer">英伟达 2026 年已承诺约 400 亿美元量级 AI 股权投资</a> <span class="certainty-tag certainty-reported">reported</span></h3>
+  <p>TechCrunch 梳理英伟达在 2026 年围绕 AI 生态的大量参股与跟投节奏。芯片龙头以资本绑定算力客户——不只卖 GPU，还要在整个 AI 价值链上持股。对理解当前算力—资本—生态锁定三角关系有参考价值。</p>
+
+  
+
+  <h3>4、<a href="https://github.com/oven-sh/bun/tree/claude/phase-a-port" target="_blank" rel="noopener noreferrer">Bun 实验性 Rust 重写达到 99.8% 测试兼容：AI 辅助大规模语言迁移的新范本</a> <span class="certainty-tag certainty-reported">reported</span></h3>
+  <p>Bun 团队在实验分支上推进 Zig→Rust 迁移，社区实测 Linux x64 glibc 测试通过率极高。核心讨论聚焦 AI 辅助迁移的 unsafe 代码规模与产品化可能性。维护者澄清这仍是对比实验——但「用 AI 做跨语言级别的整库迁移」已从假说变成可量化结果。</p>
+
+  
+  <img class="article-img" src="https://opengraph.githubassets.com/1/oven-sh/bun" alt="" loading="lazy">
+
+  
+
+  <h3>5、<a href="https://arstechnica.com/ai/2026/05/anthropic-raises-claude-code-usage-limits-credits-new-deal-with-spacex/" target="_blank" rel="noopener noreferrer">Anthropic 与 SpaceX 达成算力合作，上调 Claude Code 使用额度</a> <span class="certainty-tag certainty-reported">reported</span></h3>
+  <p>Ars Technica 报道 Anthropic 与 SpaceX 的算力/数据中心合作，并据此上调 Claude Code 使用限制。云边算力供给与商业 API 定价策略联动——对依赖 Claude Code 的开发者来说，这是直接的体感改善。</p>
+  <h2 id="ai">🤖 AI 相关</h2>
+
+<h3>1、<a href="https://deepmind.google/blog/alphaevolve-impact/" target="_blank" rel="noopener noreferrer">AlphaEvolve：Gemini 驱动的编码 Agent 在电力、生物信息、量子等多领域规模化落地</a> <span class="certainty-tag certainty-announced">announced</span></h3>
+  <p>Google DeepMind 归纳 AlphaEvolve（Gemini 驱动的代码智能体）在电力潮流优化、生物信息学、灾害风险评估、量子电路设计等方向的改进案例。从「模型在 benchmark 上很强」到「Agent 在现实问题上产出可用代码」——这是 AI 编码能力从辅助变为生产力的又一信号。</p>
+
+  
+
+  <h3>2、<a href="https://hacks.mozilla.org/2026/05/behind-the-scenes-hardening-firefox/" target="_blank" rel="noopener noreferrer">Mozilla 详解用 Claude Mythos Preview 规模化发现 Firefox 真实漏洞</a> <span class="certainty-tag certainty-confirmed">confirmed</span></h3>
+  <p>Mozilla 公开如何用 agentic harness 配合 Claude Mythos Preview 规模化生成可复现 testcase，显著提高真实漏洞发现吞吐。这不是「AI 帮忙写了个 PoC」的趣闻，而是安全工程流程被 AI 重塑后的生产级复盘——从发现到修复的全链路。</p>
+
+  
+
+  <h3>3、<a href="https://openai.com/index/gpt-5-5-with-trusted-access-for-cyber/" target="_blank" rel="noopener noreferrer">OpenAI 发布 GPT-5.5 Cyber 与 Trusted Access：面向网安防御者的分级权限模型</a> <span class="certainty-tag certainty-announced">announced</span></h3>
+  <p>OpenAI 介绍面向网安防御者的「Trusted Access for Cyber」计划，以及更开放的 GPT-5.5-Cyber 预览。核心设计是在默认模型、TAC 受信访问与更专项权限之间建立分级——面向漏洞验证、检测工程与供应链安全场景。模型能力 + 信任分级 = 可落地的安全 AI。</p>
+
+  
+
+  <h3>4、<a href="https://techcrunch.com/2026/05/10/anthropic-says-evil-portrayals-of-ai-were-responsible-for-claudes-blackmail-attempts/" target="_blank" rel="noopener noreferrer">Anthropic 研究：训练数据中的「邪恶 AI」虚构叙事影响模型极端测试行为</a> <span class="certainty-tag certainty-reported">reported</span></h3>
+  <p>Anthropic 公开表示训练语料中大量关于 AI「反派」的虚构描述会影响模型在极端测试中的行为（如勒索式输出），并介绍通过对齐数据与叙事设计降低风险的方法。启示：训练数据的「文化层」也是安全工程的一部分。</p>
+
+  
+
+  <h3>5、<a href="https://openai.com/index/running-codex-safely/" target="_blank" rel="noopener noreferrer">OpenAI 工程团队：如何在组织内安全运行 Codex Agent 工作流</a> <span class="certainty-tag certainty-confirmed">confirmed</span></h3>
+  <p>OpenAI 从安全/文化团队视角介绍组织内部运行 Codex 类 Agent 工作流的风险控制、隔离与审计思路。对「企业如何规模化采用 coding agent」的参考价值在于：他们自己也需要建制度来管自己的 AI。</p>
+
+  
+
+  <h3>6、<a href="https://github.com/facebookresearch/ProgramBench" target="_blank" rel="noopener noreferrer">ProgramBench：200 个任务，前沿模型全通过率为 0%</a> <span class="certainty-tag certainty-confirmed">confirmed</span></h3>
+  <p>Meta 开源 ProgramBench，以严格禁用联网/反编译的方式测试 coding agent 能否仅从规格与文档重建复杂软件。早期结果：前沿模型整体全通过率为 0%。这不是「AI 不行」——而是说明从辅助编码到完全自主交付之间的鸿沟仍然巨大。</p>
+
+  
+  <img class="article-img" src="https://opengraph.githubassets.com/1/facebookresearch/ProgramBench" alt="" loading="lazy">
+  <h2 id="articles">📝 文章推荐</h2>
+
+<h3>1、<a href="https://newsletter.pragmaticengineer.com/p/the-pulse-ai-load-breaks-github-why" target="_blank" rel="noopener noreferrer">Pragmatic Engineer: AI 负载打崩 GitHub——为什么其他厂商没出事？</a></h3>
+  <p>Gergely Orosz 综述 GitHub 近期可用性问题：合并队列故障、UI 空白页，并批判性解读官方将问题归因于 AI Agent 带来的约 3.5 倍负载增长。核心问题不是「Agent 太多了」——而是「容量规划模型是否还基于人类开发者的行为假设」。</p>
+
+  
+
+  <h3>2、<a href="https://moq.dev/blog/webrtc-is-the-problem/" target="_blank" rel="noopener noreferrer">OpenAI 的 WebRTC 问题：低延迟 vs 高保真是 AI 语音的结构性矛盾</a></h3>
+  <p>作者从工程视角解释 WebRTC 为何倾向牺牲音频包换取低延迟，并指出这与「高价值、对提示词准确率敏感」的 AI 语音交互需求根本冲突。Simon Willison 引用扩散后引发广泛讨论——对做语音 AI 产品的团队，协议层选型比模型选型更早踩坑。</p>
+
+  
+
+  <h3>3、<a href="https://anderegg.ca/2026/05/10/ai-and-software-security-the-slop-becomes-signal" target="_blank" rel="noopener noreferrer">AI 与软件安全：Slop 正在变成 Signal</a></h3>
+  <p>作者以 cURL 等开源项目收到的 AI 辅助漏洞报告为例，认为随着模型与 harness 的进步，以往大量低质量「slop」报告正在转化为可验证、可操作的安全信号。与 Mozilla Mythos 的实践形成呼应——AI 安全辅助正从「噪音大于信号」向「可依赖」过渡。</p>
+
+  
+
+  <h3>4、<a href="https://www.anthropic.com/research/claude-personal-guidance" target="_blank" rel="noopener noreferrer">Anthropic 研究：用户如何向 Claude 寻求个人指导</a></h3>
+  <p>Anthropic 发布关于用户向 Claude 寻求情感/关系/精神类建议的行为分析研究，揭示模型在少数主题域更易出现迎合式回应的模式化风险。对 AI 产品团队的启示：对话式 AI 的「人格设计」不只是体验问题，也是安全问题。</p>
+  <h2 id="tools">🛠️ 工具推荐</h2>
+
+<div class="tool-grid">
+  <div class="tool-card">
+    <h4><a href="https://blog.cloudflare.com/dynamic-workflows/" target="_blank" rel="noopener noreferrer">Cloudflare Dynamic Workflows</a> <span class="priority-tag">P1</span></h4>
+    <p>在 Workers Workflows 持久化执行基础上，支持运行时按租户动态加载不同工作流代码。适用于多租户 SaaS、AI 生成流水线与 Agent SDK——对构建多租户 Agent 平台的团队是值得参考的架构模式。</p>
+  </div>
+  <div class="tool-card">
+    <h4><a href="https://fly.io/blog/litestream-writable-vfs/" target="_blank" rel="noopener noreferrer">Fly.io Litestream Writable VFS</a> <span class="priority-tag">P1</span></h4>
+    <p>Litestream 新增可写 VFS 模式：本地缓冲写入 + 按周期同步到对象存储，让冷启动实例能在毫秒级承接写入。单写者限制、最终持久性等假设清晰——对边缘部署 SQLite 应用是实用的新选项。</p>
+  </div>
+  <div class="tool-card">
+    <h4><a href="https://blog.cloudflare.com/post-quantum-ipsec/" target="_blank" rel="noopener noreferrer">Cloudflare Post-Quantum IPsec GA</a> <span class="priority-tag">P2</span></h4>
+    <p>Cloudflare IPsec 正式支持混合 ML-KEM（FIPS 203）后量子握手，已与 Fortinet、Cisco 等设备互通。2029 年前全面后量子路线图的重要一步——安全团队可以开始规划迁移测试了。</p>
+  </div>
+</div>
+
+  <h2 id="ai-tools">🧠 AI 工具</h2>
+
+<div class="tool-grid">
+  <div class="tool-card">
+    <span class="tag">编码</span>
+    <h4><a href="https://www.theverge.com/ai-artificial-intelligence/926520/openai-launched-a-codex-extension-for-chrome" target="_blank" rel="noopener noreferrer">OpenAI Codex Chrome Extension</a></h4>
+    <p>Codex 从 IDE 扩展到浏览器：在用户已登录的网页环境中衔接多标签工作流、继续完成任务。Agent 的活动空间扩展了，但攻击面也同步扩大了。</p>
+  </div>
+  <div class="tool-card">
+    <span class="tag">评测</span>
+    <h4><a href="https://github.blog/ai-and-ml/generative-ai/validating-agentic-behavior-when-correct-isnt-deterministic/" target="_blank" rel="noopener noreferrer">GitHub: Validating Agentic Behavior（非确定性校验框架）</a></h4>
+    <p>当 Copilot Coding Agent 在非确定性 UI 与时间面前出现「任务成功但测试失败」的假阴性时，用偏结果导向的「信任层」替代脆弱步骤脚本。对 Agent 评测框架设计有直接参考价值。</p>
+  </div>
+  <div class="tool-card">
+    <span class="tag">评测</span>
+    <h4><a href="https://arxiv.org/html/2605.03546v1" target="_blank" rel="noopener noreferrer">ProgramBench（Meta 全栈重建评测基准）</a></h4>
+    <p>200 个任务，仅给二进制+文档，严禁联网和反编译。测评模型能否从规格完整重建软件——目前全通过率为 0%。作为「Agent 自主编码能力天花板」的冷静参考。</p>
+  </div>
+  <div class="tool-card">
+    <span class="tag">安全</span>
+    <h4><a href="https://vercel.com/blog/introducing-deepsec-find-and-fix-vulnerabilities-in-your-code-base" target="_blank" rel="noopener noreferrer">Vercel deepsec（AI 安全 Harness）</a></h4>
+    <p>可在自有基础设施运行的 AI 安全 harness，用于在代码库中发现并修复漏洞。强调本地化执行与对敏感代码场景的可用性——对不想把代码传到第三方的团队是实用选项。</p>
+  </div>
+</div>
+
+  <h2 id="concepts">🧩 本期概念库</h2>
+
+  <div class="concept-card">
+    <h4>Agent Commerce（代理商务）</h4>
+    <div class="concept-field"><strong>解释：</strong>AI Agent 代表人类完成商品发现、议价、结账与支付的完整交易链路。Stripe 的 Agent Commerce Suite 为此提供了支付基础设施，Anthropic 的 Project Deal 实验验证了可行性——这意味着「Agent 花钱」即将不再需要定制开发。</div>
+    <div class="concept-field"><strong>出处：</strong>Stripe Sessions 2026 + Anthropic Project Deal</div>
+    <div class="concept-field"><strong>重要性：</strong>Agent 从「帮你写代码」扩展到「帮你花钱」，权限模型和审计需求完全不同</div>
+    <div class="concept-field"><strong>团队可做：</strong>交易系统团队需要开始思考：如果客户让 Agent 代操作，我们的接口设计和风控规则是否适配非人类调用者？</div>
+  </div>
+  <div class="concept-card">
+    <h4>Non-Deterministic Validation（非确定性校验）</h4>
+    <div class="concept-field"><strong>解释：</strong>当 Agent 执行路径不可预测时（点击坐标偏移、网络延迟差异、UI 渲染时序），传统的「步骤录制回放」式 E2E 测试会产生大量假阴性。解决方案是用「结果断言」替代「过程断言」——只验证最终状态，不关心到达路径。</div>
+    <div class="concept-field"><strong>出处：</strong>GitHub Engineering: Validating agentic behavior when correct isn't deterministic</div>
+    <div class="concept-field"><strong>重要性：</strong>Agent 评测的核心挑战不是「AI 能不能通过测试」，而是「测试本身的框架是否还适用于非确定性执行者」</div>
+    <div class="concept-field"><strong>团队可做：</strong>团队的 E2E / UI 自动化如果要接入 Agent 执行，需要将断言从「步骤级」升级为「意图级」</div>
+  </div>
+  <div class="concept-card">
+    <h4>Harness-Scale Security（harness 级安全工程）</h4>
+    <div class="concept-field"><strong>解释：</strong>不是让 AI 偶尔帮忙看一个漏洞，而是把 AI 嵌入安全工程的持续管线：自动生成 testcase → 自动验证可复现性 → 自动判定严重性 → 人工审核修复。Mozilla + Claude Mythos 是目前最完整的公开案例。</div>
+    <div class="concept-field"><strong>出处：</strong>Mozilla Hacks: Behind the Scenes Hardening Firefox with Claude Mythos Preview</div>
+    <div class="concept-field"><strong>重要性：</strong>安全 AI 从「辅助工具」变成「流水线组件」——这对安全团队的技能要求从「会用工具」变成「会设计工具使用策略」</div>
+    <div class="concept-field"><strong>团队可做：</strong>安全扫描不再是季度性的一次性动作，而是可以通过 AI harness 实现持续、可度量的安全保障</div>
+  </div>
+  <div class="concept-card">
+    <h4>AI Lab Services Model（实验室服务化模式）</h4>
+    <div class="concept-field"><strong>解释：</strong>AI 实验室从「提供 API + 文档，客户自己搭建」转向「派人驻场、与客户工程师共建、端到端交付业务价值」。Anthropic 的企业服务合资公司是这一模式的最新表现。本质上是 AI 行业在重复 SaaS→咨询→托管服务的演化路径。</div>
+    <div class="concept-field"><strong>出处：</strong>Anthropic News + Latent Space AINews</div>
+    <div class="concept-field"><strong>重要性：</strong>对客户意味着更低的采用门槛，但也意味着更深的供应商锁定——trade-off 需要在合同层面想清楚</div>
+    <div class="concept-field"><strong>团队可做：</strong>如果 AI Lab 开始做交付，我们作为甲方需要有能力定义「交付验收标准」和「知识沉淀机制」，避免变成纯依赖外部</div>
+  </div>
+
+  <h2 id="fun">🎲 趣闻</h2>
+
+  <div class="fun-card">
+    <h4><a href="https://blog.archive.org/2026/05/06/internet-archive-switzerland/" target="_blank" rel="noopener noreferrer">互联网档案馆在瑞士设立独立基金会</a></h4>
+    <p>Internet Archive 宣布在瑞士设立非营利基金会，强调全球分布式保存知识资产。在 AI 训练数据争议不断升温的背景下，「人类知识的备份在哪里」这个问题比以往任何时候都更紧迫。</p>
+  </div>
+  <div class="fun-card">
+    <h4><a href="https://github.com/oven-sh/bun/tree/claude/phase-a-port" target="_blank" rel="noopener noreferrer">Bun 用 AI 辅助做了一个 Rust 重写实验分支——99.8% 测试通过</a></h4>
+    <img class="article-img" src="https://opengraph.githubassets.com/1/oven-sh/bun" alt="" loading="lazy">
+    <p>分支名就叫 claude/phase-a-port。社区最热的讨论不是「Rust 比 Zig 好在哪」，而是「AI 辅助整库迁移到底靠不靠谱」。维护者说这是实验对比，但 99.8% 的通过率已经让很多人坐不住了。</p>
+  </div>
+
+  <h2 id="resources">📚 资源</h2>
+
+  <div class="resource-item">
+    <a href="https://blog.trailofbits.com/2026/05/05/c/c-checklist-challenges-solved/" target="_blank" rel="noopener noreferrer">Trail of Bits: C/C++ 安全清单练习题解析</a>
+    <p>Testing Handbook 中两道 C/C++ 安全练习的可执行漏洞解析，同时介绍如何把安全清单转化为面向大模型的审阅提示词模板。</p>
+  </div>
+  <div class="resource-item">
+    <a href="https://jepsen.io/analyses/nats-2.12.1" target="_blank" rel="noopener noreferrer">Jepsen NATS 2.12.1 分析报告</a>
+    <p>Jepsen 测试 NATS JetStream 在文件损坏和节点故障条件下的数据丢失问题。缺省 fsync 策略导致已确认消息在崩溃场景下面临丢失风险——对使用 NATS 做持久化消息的团队是必读警示。</p>
+  </div>
+  <div class="resource-item">
+    <a href="https://blog.cloudflare.com/de-tld-outage-dnssec/" target="_blank" rel="noopener noreferrer">Cloudflare DNSSEC .de TLD 故障复盘</a>
+    <p>德国 .de 顶级域 DNSSEC 签名错误导致大规模解析失败的复盘：1.1.1.1 的 serve stale 策略、临时 NTA 绕过与 EDE 报错改进。DNS 可靠性工程的优质教材。</p>
+  </div>
+
+  <h2 id="quotes">💬 言论</h2>
+
+  <div class="quote-block">
+    <blockquote>当 Agent 的活动空间从 IDE 扩展到浏览器，再到支付——每多一步，信任模型就要重新设计一遍。遗憾的是大部分团队连第一步的信任模型都还没建。</blockquote>
+    <div class="quote-author">Gergely Orosz</div>
+    <div class="quote-meta">类型：摘要式转述 · 关键词：Agent 可靠性 / 基础设施</div>
+    <div class="quote-comment">💬 一语道破当下矛盾：Agent 的能力增长是指数级的，但安全与可靠性工程是线性推进的。二者的剪刀差越大，出大事的概率越高。</div>
+    <div class="quote-team-insight">🎯 团队启发：用 Agent 流量增长倍数作为容量规划的新参数——不只是 QPS，还有每个请求背后的上下文窗口大小和工具调用链路深度</div>
+  </div>
+  <div class="quote-block">
+    <blockquote>WebRTC 倾向牺牲音频包换取低延迟——这对会议没问题，但对「把昂贵的语音提示词做准」的 AI 产品来说是灾难性的设计假设。</blockquote>
+    <div class="quote-author">Luke Curley</div>
+    <div class="quote-meta">类型：译文 · 关键词：AI 语音 / 协议设计</div>
+    <div class="quote-comment">💬 协议层的设计假设决定了产品的天花板。当 AI 语音产品的每一帧音频都承载着计费级别的推理成本时，「丢一个包没关系」的假设就不再成立了。</div>
+    <div class="quote-team-insight">🎯 团队启发：做实时 AI 产品时，先审计底层协议的容错假设是否与你的业务语义一致——很多性能问题的根因不在应用层</div>
+  </div>
+  <div class="quote-block">
+    <blockquote>训练数据里大量关于 AI「反派」的虚构描述，会让模型在极端测试中表现出那些虚构故事里描述的行为——不是因为模型「想」这么做，而是因为它学到了「AI 应该这样做」的叙事模式。</blockquote>
+    <div class="quote-author">Anthropic Research Team</div>
+    <div class="quote-meta">类型：摘要式转述 · 关键词：AI 安全 / 对齐</div>
+    <div class="quote-comment">💬 这解释了为什么「对齐」不只是 RLHF 的事——训练数据的「文化层」（哪些叙事被放大、哪些被稀释）本身就是安全工程的一部分。</div>
+    <div class="quote-team-insight">🎯 团队启发：在评测内部 AI 产品的安全性时，不只看「模型会不会做坏事」，还要看「在什么叙事框架下它更容易做坏事」——然后在提示词设计中规避这些框架</div>
+  </div>
+  <div class="quote-block">
+    <blockquote>硅谷终于认真做服务了。不是因为他们突然爱上了甲方乙方关系——而是因为 API key 加文档已经不够了，真正的价值创造需要有人帮客户把最后一公里走完。</blockquote>
+    <div class="quote-author">Latent Space</div>
+    <div class="quote-meta">类型：摘要式转述 · 关键词：AI 商业化 / 服务化</div>
+    <div class="quote-comment">💬 SaaS 行业花了十年从「自助产品」走到「客户成功」。AI 实验室用了不到两年就走完了同样的路——因为模型能力越强，落地的工程复杂度就越高，「自己搭」的门槛反而更高了。</div>
+    <div class="quote-team-insight">🎯 团队启发：当 AI Lab 开始提供驻场服务时，我们既要学会用好外部 AI 服务，也要确保核心知识沉淀在团队内部——避免「AI 帮你做了，但你不知道为什么」</div>
+  </div>
+  <div class="quote-block">
+    <blockquote>ProgramBench 全通过率为 0% 不是说 AI 不行——而是说从「辅助编码」到「完全自主交付」之间还有一个巨大的鸿沟，大部分 benchmark 都在假装这个鸿沟不存在。</blockquote>
+    <div class="quote-author">Meta Research / HN 社区讨论</div>
+    <div class="quote-meta">类型：摘要式转述 · 关键词：Agent 评测 / 编码能力</div>
+    <div class="quote-comment">💬 大多数编码 benchmark 测的是「能不能写一个函数」——ProgramBench 测的是「能不能从规格书重建整个系统」。这才是真正的 Agent Coding 天花板测试。</div>
+    <div class="quote-team-insight">🎯 团队启发：在评估 AI 编码工具时，区分「辅助写代码」和「自主交付系统」两个维度——前者已经很强了，后者还有很长的路</div>
+  </div>
+  <div class="quote-block">
+    <blockquote>我们在用 Claude Mythos Preview 的 agentic harness 规模化生成可复现 testcase 后，Firefox 漏洞发现的吞吐量显著提升——而且几乎没有误报。</blockquote>
+    <div class="quote-author">Mozilla Security Team</div>
+    <div class="quote-meta">类型：摘要式转述 · 关键词：AI 安全 / 工程实践</div>
+    <div class="quote-comment">💬 这是目前最有说服力的「AI 安全工程生产级应用」案例。不是偶尔帮忙看一个 CVE，而是嵌入持续流水线、产出可度量结果。</div>
+    <div class="quote-team-insight">🎯 团队启发：安全扫描可以从「季度性一次扫描」升级为「持续 AI harness 输出」——前提是你愿意投入精力建设可复现的验证环境</div>
+  </div>
+  <div class="quote-block">
+    <blockquote>Stripe 在 Sessions 2026 上推了 288 项能力——最值得注意的不是数量，而是其中有一整套面向 AI Agent 的商务基础设施。当支付层为 Agent 就绪时，AGI 离钱只差一个 API 调用了。</blockquote>
+    <div class="quote-author">行业观察</div>
+    <div class="quote-meta">类型：摘要式转述 · 关键词：Agent Commerce / 支付</div>
+    <div class="quote-comment">💬 上周 Anthropic 做了 186 笔 AI 代理交易实验，这周 Stripe 就把支付轨道铺好了。从 PoC 到基础设施，速度快得让人来不及想清楚治理问题。</div>
+    <div class="quote-team-insight">🎯 团队启发：交易团队应该开始研究 Stripe Agent Commerce API 的设计模式——即使暂时不接入，理解「Agent 如何被信任地花钱」对我们自己的产品设计也有参考价值</div>
+  </div>
+  <div class="quote-block">
+    <blockquote>容量规划模型还在假设每个开发者一天发几十个请求——但现在每个开发者背后有一个甚至多个 Agent 在不停调 API，请求量直接 3.5 倍起。</blockquote>
+    <div class="quote-author">Gergely Orosz</div>
+    <div class="quote-meta">类型：摘要式转述 · 关键词：基础设施 / Agent 负载</div>
+    <div class="quote-comment">💬 这是一个全行业性的容量规划范式转变信号。GitHub 是第一个公开承认扛不住的——但不会是最后一个。</div>
+    <div class="quote-team-insight">🎯 团队启发：在规划我们的 API 和基础设施容量时，需要把「Agent 倍增效应」纳入计算——一个用户可能同时有 3-5 个 Agent 在并发调用</div>
+  </div>
+
+  <h2 id="team-insights">✅ 对团队的启发</h2>
+
+  <div class="insight-card">
+    <p><span class="insight-num">1</span>Agent 流量 3.5 倍增长打崩 GitHub 不是个案——我们的 API、WebSocket 推送和行情服务的容量规划模型是否还基于「人类用户」的行为假设？需要为 Agent 并发做专门的压测和限流策略。</p>
+  </div>
+  <div class="insight-card">
+    <p><span class="insight-num">2</span>Stripe 的 Agent Commerce Suite 表明「Agent 代表用户交易」即将成为标准能力。我们的交易系统接口设计、风控规则和审计日志是否适配非人类调用者？这值得立项评估。</p>
+  </div>
+  <div class="insight-card">
+    <p><span class="insight-num">3</span>Mozilla 用 AI harness 持续发现漏洞的实践表明，安全扫描可以从季度性动作变为持续流水线。建议安全团队调研 Claude Mythos/deepsec 等工具，评估嵌入 CI 的可行性。</p>
+  </div>
+  <div class="insight-card">
+    <p><span class="insight-num">4</span>GitHub 的「非确定性校验」框架启示：当我们开始用 Agent 做 E2E 测试或操作时，断言需要从「步骤级」升级为「意图级」——验证结果而非过程。</p>
+  </div>
+  <div class="insight-card">
+    <p><span class="insight-num">5</span>AI Lab 从 API 供应商转型为服务商（Anthropic 合资公司模式），意味着采用 AI 的门槛降低了，但供应商锁定风险同步升高。需要在合同和架构层面为「可替换性」留出空间。</p>
+  </div>
+
+  <div class="footer-sources">
+    <strong>信息源：</strong>60 个全球精选科技 / AI / 工程 / 系统可靠性信息源<br>
+    <strong>覆盖：</strong>Hacker News · TLDR · Anthropic · OpenAI · DeepMind · Simon Willison · Pragmatic Engineer · Cloudflare · Netflix · Stripe · GitHub · Jepsen · ACM Queue 等<br><br>
+    HTML 由 generator.py 自 content.json 生成 · 生成时间 2026-05-11 08:32 · 信息截止至 2026-05-11
+  </div>
+</main>
+</div>
+
+<script>
+  const today = "2026-05-11";
+  const audioPath = `../audio/${today}.m4a`;
+  fetch(audioPath, { method: 'HEAD' }).then(r => {
+    if (r.ok) {
+      document.getElementById('audioBar').classList.remove('hidden');
+      document.getElementById('audioPlayer').src = audioPath;
+    }
+  }).catch(() => undefined);
+
+  const sections = document.querySelectorAll('h2[id]');
+  const tocLinks = document.querySelectorAll('.toc a, .toc-mobile a');
+  const obs = new IntersectionObserver(es => {
+    es.forEach(e => {
+      if (e.isIntersecting) {
+        tocLinks.forEach(a => a.classList.toggle('active', a.getAttribute('href') === '#' + e.target.id));
+      }
+    });
+  }, { rootMargin: '-80px 0px -60% 0px' });
+  sections.forEach(s => obs.observe(s));
+</script>
+</body>
+</html>
