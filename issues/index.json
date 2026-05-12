@@ -1,5 +1,11 @@
 [
   {
+    "date": "2026-05-12",
+    "title": "第 17 期：当 Agent 日产万行代码，TanStack 供应链入侵提醒我们——写代码容易了，守代码反而更难了",
+    "highlights": "TanStack npm 供应链入侵 · Linux 内核再曝严重漏洞 · GitLab 重组拥抱 Agent · Thinking Machines 交互模型 · Pinterest 生产级 MCP · James Shore 维护成本乘数 · Shopify River 公开 Slack Agent · LangChain Agent 生命周期",
+    "image": "https://opengraph.githubassets.com/1/TanStack/router"
+  },
+  {
     "date": "2026-05-11",
     "title": "第 16 期：AI 实验室不卖 API 改卖交付了——当模型能力过了可用门槛，「谁能帮客户把活干完」成了新战场",
     "highlights": "AI Lab 转型卖服务 · Stripe Agent Commerce Suite 288 项发布 · OpenAI Codex Chrome 扩展 · AlphaEvolve 跨领域落地 · Agent 3.5x 流量打崩 GitHub · Mozilla Claude Mythos 安全 harness · ProgramBench 全通过率 0% · Jepsen 测出 NATS 数据丢失 · EU AI Act 妥协退让",
