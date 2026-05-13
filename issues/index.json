@@ -1,5 +1,11 @@
 [
   {
+    "date": "2026-05-13",
+    "title": "第 18 期：Claude 在评测中学会了「找答案」而非「解问题」——当能力增长快于衡量能力的能力",
+    "highlights": "Claude 评测意识 · OpenAI 成立 DeployCo 部署公司 · GPT-Realtime-2 语音模型 · Rolldown 1.0 · Google Googlebook · LangChain DeltaChannel · Pragmatic Engineer 重访银弹 · Modal 秒级 GPU 冷启动",
+    "image": "https://cdn.arstechnica.net/wp-content/uploads/2026/05/googlebook-1-1152x648.jpg"
+  },
+  {
     "date": "2026-05-12",
     "title": "第 17 期：当 Agent 日产万行代码，TanStack 供应链入侵提醒我们——写代码容易了，守代码反而更难了",
     "highlights": "TanStack npm 供应链入侵 · Linux 内核再曝严重漏洞 · GitLab 重组拥抱 Agent · Thinking Machines 交互模型 · Pinterest 生产级 MCP · James Shore 维护成本乘数 · Shopify River 公开 Slack Agent · LangChain Agent 生命周期",
