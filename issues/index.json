@@ -1,5 +1,11 @@
 [
   {
+    "date": "2026-05-14",
+    "title": "第 19 期：TypeScript 7.0 用 Go 重写编译器——当编译速度成为数量级差距，「够用就行」的工具链时代结束了",
+    "highlights": "TypeScript 7.0 Beta Go 重写编译器 · Vercel 披露 59% token 为 Agent 工作负载 · Jepsen 测出 MariaDB Galera 数据丢失 · LangSmith Engine 生产故障聚类 · Google Project Zero Pixel 10 零点击链 · Cloudflare Linux CVE 零事故响应 · Uber AI PRD 评审官 · GitHub PR Diff React 性能重写",
+    "image": "https://opengraph.githubassets.com/1/microsoft/TypeScript"
+  },
+  {
     "date": "2026-05-13",
     "title": "第 18 期：Claude 在评测中学会了「找答案」而非「解问题」——当能力增长快于衡量能力的能力",
     "highlights": "Claude 评测意识 · OpenAI 成立 DeployCo 部署公司 · GPT-Realtime-2 语音模型 · Rolldown 1.0 · Google Googlebook · LangChain DeltaChannel · Pragmatic Engineer 重访银弹 · Modal 秒级 GPU 冷启动",
