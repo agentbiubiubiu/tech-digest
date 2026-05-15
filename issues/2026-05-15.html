@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>第 20 期：所有工具都在竞相成为「指挥家」——当 OpenAI 弃用微调 API，Agent 时代的护城河从模型定制滑向编排层</title>
+  <meta property="og:title" content="每日科技情报 #20：Agent 工具 Conductor 化 + 微调弃用 + Bun Rust 重写">
+  <meta property="og:description" content="Agent 编码工具全面 Conductor 化 · OpenAI 弃用微调 API · Bun 核心用 Rust 重写 · Nginx Rift 严重漏洞 · Cloudflare ClickHouse 万亿级锁争用 · GitHub Issues 导航性能重构 · IBM Granite 多语言嵌入 · LangChain Interrupt 十连发">
+  <meta property="og:image" content="https://substack-post-media.s3.amazonaws.com/public/images/c44b00aa-b057-4698-a9c6-f8e73c7aaaf7_2289x1342.jpeg">
+  <style>
+:root {
+  --bg: #f5f6f8; --surface: #ffffff; --surface2: #f0f2f5;
+  --border: #e8ecf1; --border-hover: #c5cdd8;
+  --text: #1a1d21; --text-secondary: #3d4550; --text-muted: #8c95a1;
+  --accent: #2d9f6f; --accent-light: #e8f5ef; --accent-hover: #248a5e;
+  --accent-text: #ffffff;
+  --purple: #7c5cbf; --purple-light: #f3effc;
+  --orange: #e58e26; --orange-light: #fef5e7;
+  --blue: #3a82f7; --blue-light: #eef4fe;
+  --red: #e74c3c; --red-light: #fdecea;
+  --green-deep: #1a7a4c; --green-light2: #e0f5ea;
+  --yellow: #d4a017; --yellow-light: #fef9e7;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.06);
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.06), 0 2px 4px rgba(0,0,0,0.04);
+  --shadow-lg: 0 10px 30px rgba(0,0,0,0.08);
+  --radius: 12px; --radius-sm: 8px; --radius-xs: 6px;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Helvetica, Arial, sans-serif; background: var(--bg); color: var(--text); line-height: 1.75; font-size: 15px; -webkit-font-smoothing: antialiased; }
+.topbar { background: var(--surface); border-bottom: 1px solid var(--border); padding: 12px 32px; display: flex; align-items: center; gap: 16px; position: sticky; top: 0; z-index: 200; box-shadow: var(--shadow-sm); }
+.topbar-brand { font-size: 1.1rem; font-weight: 700; color: var(--accent); text-decoration: none; display: flex; align-items: center; gap: 8px; }
+.topbar-brand svg { width: 28px; height: 28px; }
+.topbar-nav { display: flex; gap: 4px; margin-left: 24px; }
+.topbar-nav a { padding: 6px 16px; border-radius: 20px; font-size: 0.85rem; font-weight: 500; color: var(--text-secondary); text-decoration: none; transition: all 0.2s; }
+.topbar-nav a:hover { background: var(--surface2); color: var(--text); }
+.topbar-nav a.active { background: var(--accent-light); color: var(--accent); font-weight: 600; }
+.topbar-right { margin-left: auto; display: flex; align-items: center; gap: 12px; }
+.topbar-date { font-size: 0.82rem; color: var(--text-muted); background: var(--surface2); padding: 5px 12px; border-radius: 16px; }
+.page { display: flex; max-width: 1200px; margin: 0 auto; padding: 24px 24px 0; gap: 24px; }
+.toc { width: 220px; flex-shrink: 0; position: sticky; top: 80px; height: calc(100vh - 104px); overflow-y: auto; background: var(--surface); border-radius: var(--radius); padding: 20px 16px; box-shadow: var(--shadow-sm); border: 1px solid var(--border); }
+.toc-title { font-size: 0.72rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 14px; padding-left: 12px; }
+.toc a { display: block; padding: 7px 12px; margin-bottom: 2px; font-size: 0.82rem; color: var(--text-muted); text-decoration: none; border-radius: var(--radius-xs); transition: all 0.15s; font-weight: 500; }
+.toc a:hover { color: var(--accent); background: var(--accent-light); }
+.toc a.active { color: var(--accent); background: var(--accent-light); font-weight: 600; }
+.toc-mobile { display: none; position: sticky; top: 57px; z-index: 100; background: var(--surface); border-bottom: 1px solid var(--border); padding: 10px 16px; box-shadow: var(--shadow-sm); }
+.toc-mobile summary { cursor: pointer; font-size: 0.85rem; color: var(--accent); font-weight: 600; list-style: none; }
+.toc-mobile summary::-webkit-details-marker { display: none; }
+.toc-mobile .toc-dropdown { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 8px; margin-top: 8px; max-height: 60vh; overflow-y: auto; box-shadow: var(--shadow-md); }
+.toc-mobile .toc-dropdown a { display: block; padding: 8px 12px; font-size: 0.88rem; color: var(--text-secondary); text-decoration: none; border-radius: var(--radius-xs); }
+.toc-mobile .toc-dropdown a:hover { color: var(--accent); background: var(--accent-light); }
+@media (max-width: 860px) { .toc { display: none; } .toc-mobile { display: block; } .topbar-nav { display: none; } .page { flex-direction: column; padding: 16px 12px 0; gap: 16px; } .container { padding: 20px 16px 60px; } }
+.container { flex: 1; min-width: 0; background: var(--surface); border-radius: var(--radius); padding: 36px 40px 60px; box-shadow: var(--shadow-sm); border: 1px solid var(--border); margin-bottom: 40px; }
+.back { display: inline-flex; align-items: center; gap: 4px; color: var(--text-muted); text-decoration: none; font-size: 0.85rem; margin-bottom: 28px; font-weight: 500; transition: color 0.15s; }
+.back:hover { color: var(--accent); }
+h1 { font-size: 1.7rem; font-weight: 800; margin-bottom: 10px; line-height: 1.35; color: var(--text); letter-spacing: -0.01em; }
+.meta { color: var(--text-muted); font-size: 0.85rem; margin-bottom: 28px; }
+.highlights-line { color: var(--text-secondary); font-size: 0.9rem; margin: -18px 0 28px; line-height: 1.65; }
+.hero-img { width: 100%; border-radius: var(--radius); margin-bottom: 10px; box-shadow: var(--shadow-md); }
+.hero-caption { font-size: 0.82rem; color: var(--text-muted); margin-bottom: 36px; text-align: center; font-style: italic; }
+h2 { font-size: 1.25rem; font-weight: 700; margin: 44px 0 18px; padding-bottom: 10px; border-bottom: 2px solid var(--accent-light); scroll-margin-top: 90px; color: var(--text); }
+h3 { font-size: 1.05rem; font-weight: 600; margin: 26px 0 8px; color: var(--text); }
+p { margin-bottom: 14px; color: var(--text-secondary); }
+a { color: var(--accent); text-decoration: none; font-weight: 500; }
+a:hover { color: var(--accent-hover); text-decoration: underline; }
+strong { color: var(--text); font-weight: 600; }
+code { background: var(--surface2); padding: 2px 6px; border-radius: 4px; font-size: 0.88em; color: var(--accent-hover); font-family: "SF Mono", Monaco, monospace; }
+.callout { background: var(--accent-light); border-left: 4px solid var(--accent); border-radius: var(--radius-sm); padding: 16px 20px; margin: 20px 0; font-size: 0.93rem; color: var(--text-secondary); }
+.article-img { width: 100%; max-height: 380px; object-fit: cover; border-radius: var(--radius-sm); margin: 12px 0 24px; box-shadow: var(--shadow-sm); }
+.tool-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 16px 0; }
+.tool-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px 20px; transition: all 0.2s; box-shadow: var(--shadow-sm); }
+.tool-card:hover { border-color: var(--accent); box-shadow: var(--shadow-md); transform: translateY(-1px); }
+.tool-card h4 { font-size: 0.95rem; margin-bottom: 6px; font-weight: 600; }
+.tool-card h4 a { color: var(--accent); }
+.tool-card p { font-size: 0.83rem; color: var(--text-muted); margin: 0; line-height: 1.55; }
+.tool-card .tag { display: inline-block; font-size: 0.68rem; padding: 3px 8px; border-radius: 10px; background: var(--accent); color: var(--accent-text); font-weight: 600; margin-bottom: 8px; letter-spacing: 0.02em; }
+.tool-card .priority-tag { display: inline-block; font-size: 0.65rem; padding: 2px 6px; border-radius: 8px; background: var(--surface2); color: var(--text-muted); font-weight: 600; margin-left: 6px; }
+.fun-card { background: var(--orange-light); border: 1px solid #f5ddb8; border-radius: var(--radius); padding: 20px 24px; margin: 14px 0; }
+.fun-card h4 { font-size: 1rem; margin-bottom: 8px; font-weight: 600; }
+.fun-card h4 a { color: var(--orange); }
+.fun-card p { font-size: 0.88rem; color: var(--text-secondary); margin: 0; line-height: 1.65; }
+.quote-block { background: var(--purple-light); border-left: 4px solid var(--purple); border-radius: var(--radius-sm); padding: 20px 24px; margin: 18px 0; }
+.quote-block blockquote { font-size: 1.02rem; line-height: 1.65; margin-bottom: 10px; font-style: italic; color: var(--text); }
+.quote-block .quote-author { font-size: 0.82rem; color: var(--purple); font-weight: 600; margin-bottom: 6px; }
+.quote-block .quote-meta { font-size: 0.78rem; color: var(--text-muted); margin-bottom: 10px; }
+.quote-block .quote-comment { font-size: 0.88rem; color: var(--text-secondary); border-top: 1px solid #d8d0e8; padding-top: 10px; margin-top: 10px; }
+.quote-block .quote-team-insight { font-size: 0.88rem; color: var(--green-deep); background: var(--accent-light); border-radius: var(--radius-xs); padding: 8px 12px; margin-top: 8px; }
+.resource-item { background: var(--blue-light); border: 1px solid #c8dbf8; border-radius: var(--radius); padding: 18px 20px; margin: 12px 0; }
+.resource-item a { font-weight: 600; color: var(--blue); }
+.resource-item p { font-size: 0.88rem; color: var(--text-secondary); margin: 6px 0 0; }
+.concept-card { background: var(--green-light2); border-left: 4px solid var(--accent); border-radius: var(--radius-sm); padding: 20px 24px; margin: 16px 0; }
+.concept-card h4 { font-size: 1rem; font-weight: 700; color: var(--green-deep); margin-bottom: 10px; }
+.concept-card .concept-field { font-size: 0.88rem; color: var(--text-secondary); margin-bottom: 6px; line-height: 1.6; }
+.concept-card .concept-field strong { color: var(--text); font-size: 0.88rem; }
+.insight-card { background: var(--yellow-light); border-left: 4px solid var(--yellow); border-radius: var(--radius-sm); padding: 16px 20px; margin: 12px 0; }
+.insight-card p { font-size: 0.93rem; color: var(--text-secondary); margin: 0; line-height: 1.7; }
+.insight-card .insight-num { display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; border-radius: 50%; background: var(--yellow); color: #fff; font-size: 0.75rem; font-weight: 700; margin-right: 10px; flex-shrink: 0; }
+.certainty-tag { display: inline-block; font-size: 0.65rem; padding: 2px 6px; border-radius: 8px; font-weight: 600; margin-left: 8px; }
+.certainty-confirmed { background: var(--accent-light); color: var(--accent); }
+.certainty-announced { background: var(--blue-light); color: var(--blue); }
+.certainty-reported { background: var(--yellow-light); color: var(--yellow); }
+.certainty-opinion { background: var(--purple-light); color: var(--purple); }
+.certainty-rumor { background: var(--red-light); color: var(--red); }
+.certainty-unknown { background: var(--surface2); color: var(--text-muted); }
+.audio-bar { background: var(--accent-light); border: 1px solid #b8dfc9; border-radius: var(--radius); padding: 16px 20px; margin-bottom: 28px; }
+.audio-bar.hidden { display: none; }
+.audio-bar .audio-label { font-size: 0.85rem; color: var(--accent-hover); margin-bottom: 8px; }
+.audio-bar audio { width: 100%; height: 36px; border-radius: 18px; }
+.footer-sources { margin-top: 44px; padding: 20px 24px; background: var(--surface2); border-radius: var(--radius); font-size: 0.78rem; color: var(--text-muted); line-height: 1.9; }
+.footer-sources strong { color: var(--text-secondary); font-size: 0.78rem; }
+@media (max-width: 640px) { .tool-grid { grid-template-columns: 1fr; } }
+
+  </style>
+</head>
+<body>
+
+<header class="topbar">
+  <a href="../index.html" class="topbar-brand">
+    <svg viewBox="0 0 28 28" fill="none"><circle cx="14" cy="14" r="14" fill="#2d9f6f"/><path d="M8 14.5l3.5 3.5 8.5-8" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    Tech Digest
+  </a>
+  <nav class="topbar-nav">
+    <a href="../index.html">Archive</a>
+    <a href="#headline" class="active">Today</a>
+    <a href="#tools">Tools</a>
+    <a href="#quotes">Quotes</a>
+    <a href="../lenny/index.html">Lenny 精读</a>
+  </nav>
+  <div class="topbar-right">
+    <span class="topbar-date">2026-05-15</span>
+  </div>
+</header>
+
+<details class="toc-mobile">
+  <summary>📑 目录导航</summary>
+  <div class="toc-dropdown">
+        <a href="#headline">🔥 头条深读</a>
+    <a href="#tech-news">📰 科技动态</a>
+    <a href="#ai">🤖 AI 相关</a>
+    <a href="#articles">📝 文章推荐</a>
+    <a href="#tools">🛠️ 工具推荐</a>
+    <a href="#ai-tools">🧠 AI 工具</a>
+    <a href="#concepts">🧩 本期概念库</a>
+    <a href="#fun">🎲 趣闻</a>
+    <a href="#resources">📚 资源</a>
+    <a href="#quotes">💬 言论</a>
+    <a href="#team-insights">✅ 对团队的启发</a>
+  </div>
+</details>
+
+<div class="page">
+<nav class="toc">
+  <div class="toc-title">本期目录</div>
+    <a href="#headline">🔥 头条深读</a>
+    <a href="#tech-news">📰 科技动态</a>
+    <a href="#ai">🤖 AI 相关</a>
+    <a href="#articles">📝 文章推荐</a>
+    <a href="#tools">🛠️ 工具推荐</a>
+    <a href="#ai-tools">🧠 AI 工具</a>
+    <a href="#concepts">🧩 本期概念库</a>
+    <a href="#fun">🎲 趣闻</a>
+    <a href="#resources">📚 资源</a>
+    <a href="#quotes">💬 言论</a>
+    <a href="#team-insights">✅ 对团队的启发</a>
+</nav>
+
+<main class="container">
+  <a href="../index.html" class="back">← 返回目录</a>
+
+  <h1>第 20 期：所有工具都在竞相成为「指挥家」——当 OpenAI 弃用微调 API，Agent 时代的护城河从模型定制滑向编排层</h1>
+  <div class="meta">第 20 期 · 2026年5月15日，星期四</div>
+
+  <p class="highlights-line"><strong>✨ 本期亮点：</strong>Agent 编码工具 Conductor 化 · OpenAI 弃用微调 API · Bun 用 Rust 重写核心 · Nginx Rift 严重漏洞 · Cloudflare ClickHouse 万亿级锁争用 · GitHub Issues 性能重构 · IBM Granite 多语言嵌入 · LangChain Interrupt 十连发 · Anthropic 2028 AI 地缘论文</p>
+
+  <div class="audio-bar hidden" id="audioBar">
+    <div class="audio-label">🎧 收听本期音频版<br><small>由 NotebookLM 生成 · 双人对话播客风格</small></div>
+    <audio controls preload="none" id="audioPlayer"></audio>
+  </div>
+
+  <img class="hero-img" src="https://substack-post-media.s3.amazonaws.com/public/images/c44b00aa-b057-4698-a9c6-f8e73c7aaaf7_2289x1342.jpeg" alt="Agent coding tools convergence diagram">
+  <div class="hero-caption">Latent Space AINews: Everything is Conductor — 当 GitHub Copilot、Codex、Cursor 全部走向多 Agent 并行编排</div>
+
+  <div class="callout">
+    <strong>🎯 本期核心判断：</strong>当所有 AI 编码工具都在竞相成为「Conductor」，OpenAI 同日弃用微调 API——Agent 时代的护城河不在模型定制，在编排层
+  </div>
+
+  <div class="callout">
+    <strong>⏱ 本期建议阅读顺序</strong><br>
+    5 分钟：科技动态速览（Bun Rust 重写 + Nginx 严重漏洞 + PostgreSQL 安全更新）<br>
+10 分钟：头条深读 — 为什么「Everything is Conductor」是 2026 Agent 工具的终局形态<br>
+15 分钟：AI 工具板块 — Codex Mobile、Granite 嵌入、HF 异步批处理、LangChain 全家桶<br>
+20 分钟：工程深度 — Cloudflare ClickHouse 锁争用 + GitHub Issues 性能重写 + Airbnb 数据网格<br>
+30 分钟：全文通读含言论、概念库与团队启发
+  </div>
+
+  <h2 id="headline">🔥 头条深读</h2>
+
+<p>今天科技圈最值得关注的信号不是某个产品发布，而是一个<strong>结构性趋势</strong>的确认：所有主流 AI 编码工具正在同时进化成「指挥家」（Conductor）形态。</p>
+<p>Latent Space 的 AINews 专题<a href="https://www.latent.space/p/ainews-everything-is-conductor" target="_blank" rel="noopener noreferrer">「Everything is Conductor」</a>捕捉到了这一信号：GitHub 发布了 Agent-first 桌面版 Copilot 预览，OpenAI 让 Codex 登陆手机端并开放 Remote SSH，VS Code 引入原生 Agent 面板——三者不约而同地走向同一形态：<strong>开发者不再逐行写代码，而是同时编排多个 Agent 工作流</strong>。</p>
+<p>与此同时，Latent Space 另一篇重磅分析<a href="https://www.latent.space/p/ainews-the-end-of-finetuning" target="_blank" rel="noopener noreferrer">「The End of Finetuning」</a>指出，OpenAI 正式弃用微调 API 并非意外——行业早已从 API 侧微调漂移到长上下文提示、蒸馏系统先验、和开源权重 RL/FT。<strong>当模型能力过剩到「定制」不再是瓶颈，编排和评估才是新护城河。</strong></p>
+<p>这两个信号叠加的含义很清晰：<strong>工具层竞争的决胜点从「谁家模型更聪明」转向「谁能让开发者同时指挥更多 Agent 做更多事」</strong>。LangChain 在 Interrupt 大会一口气发布了 SmithDB、Context Hub、LLM Gateway、Managed Deep Agents 等十余个产品——全部围绕「生产级 Agent 编排」。Linear 也为自家 Agent 加入了代码情报能力。战场已经明确。</p>
+<p><strong>对团队的启发</strong>：如果你还在纠结「选哪个模型微调」，是时候转向「设计好评估管线和编排拓扑」了。Agent 工具的 Conductor 化意味着你的工程投资应该放在<strong>可靠的评估框架、确定性的工具调用约束、和可观测的编排流程</strong>上，而不是模型本身。</p>
+
+  <h2 id="tech-news">📰 科技动态</h2>
+
+<h3>1、Bun 核心运行时用 Rust 重写的 PR 合入主线 <span class="certainty-tag certainty-confirmed">confirmed</span></h3>
+  <p>Bun 团队将核心运行时从 Zig 改用 Rust 重写的巨型 PR 正式合入 upstream。官方动机是内存安全、长期维护速度和社区贡献便利性。继 TypeScript 用 Go 重写编译器后，又一 JS 生态基础设施做出语言级迁移。</p>
+
+<h3>2、Nginx Rift：新披露的严重漏洞影响所有反向代理部署 <span class="certainty-tag certainty-confirmed">confirmed</span></h3>
+  <p>安全研究员通过协调披露发布了针对 Nginx 的严重漏洞「Nginx Rift」。社区正在消化细节，任何在生产环境使用 Nginx 做 TLS 终止或反向代理的团队应紧急关注厂商安全公告和补丁版本。</p>
+
+<h3>3、PostgreSQL 18.4/17.10 修复 11 个安全 CVE <span class="certainty-tag certainty-confirmed">confirmed</span></h3>
+  <p>PostgreSQL 维护版本修补了 11 个 CVE 级别的安全问题。使用 Docker 基础镜像或发行版包的数据库团队应优先安排滚动升级。</p>
+
+<h3>4、Windows 11 BitLocker 默认配置被零日攻击完全绕过 <span class="certainty-tag certainty-confirmed">confirmed</span></h3>
+  <p>Ars Technica 报道一条活跃零日链可绕过 Windows 11 默认 BitLocker 加密保护。企业 Windows 管理员需立即评估微软缓解指引，不能再假设 BitLocker 是硬性防线。</p>
+
+<h3>5、macOS M5 芯片首个公开内核内存损坏漏洞利用链 <span class="certainty-tag certainty-confirmed">confirmed</span></h3>
+  <p>安全研究者发布了针对 Apple M5 级硬件的首个公开内核内存损坏利用链。macOS 设备管理团队应追踪 Apple 安全更新和遥测数据。</p>
+
+<h3>6、Foxconn 确认北美工厂遭 Nitrogen 勒索软件攻击 <span class="certainty-tag certainty-confirmed">confirmed</span></h3>
+  <p>电子制造巨头富士康确认其北美工厂遭受破坏性网络事件，Nitrogen 勒索组织公开认领。供应链关联企业应审视第三方应急预案。</p>
+
+<h3>7、RubyGems 暂停新用户注册以应对滥用攻击 <span class="certainty-tag certainty-confirmed">confirmed</span></h3>
+  <p>继 npm 生态遭供应链攻击后，RubyGems 注册中心也因滥用调查暂停了新账户注册。包管理生态的安全治理压力仍在扩大。</p>
+
+<h3>8、LangChain Interrupt 大会一口气发布十余产品 <span class="certainty-tag certainty-confirmed">confirmed</span></h3>
+  <p>LangChain 在 Interrupt 大会发布了 SmithDB（Agent 可观测数据层）、Context Hub（统一提示/语料管理）、LLM Gateway（运行时治理）、Managed Deep Agents、Sandboxes GA 等产品，全面围绕生产级 Agent 编排。</p>
+
+  <h2 id="ai">🤖 AI 相关</h2>
+
+<h3>1、Anthropic 发布「2028：全球 AI 领导力的两种场景」政策论文 <span class="certainty-tag certainty-confirmed">confirmed</span></h3>
+  <p>Anthropic 发表政策研究，对比 2028 年民主阵营与 PRC 在前沿 AI 竞争中的两种走向，强调算力霸权和出口管控是决定性杠杆。研究将模型能力领先与安全规范制定权直接挂钩。</p>
+
+<h3>2、OpenAI Parameter Golf 竞赛复盘：16MB 模型在 8 张 H100 上十分钟训练的极限探索 <span class="certainty-tag certainty-confirmed">confirmed</span></h3>
+  <p>OpenAI 总结 Parameter Golf 竞赛经验：参赛者在极端约束下探索量化、新型 tokenizer/注意力混合、测试时适应策略，大量提交由 Agent 辅助完成。内部 Codex 分诊 bot 帮助处理了数千个 PR。</p>
+
+<h3>3、PyTorch 2.12 发布 <span class="certainty-tag certainty-confirmed">confirmed</span></h3>
+  <p>PyTorch 发布 2.12 版本，包含性能优化、API 变更和生态改进。内部微调任务依赖 torch 版本的团队应检查 CUDA wheel 矩阵和废弃 ops。</p>
+
+<h3>4、BAIR：自适应并行推理——高效推理扩展的下一范式 <span class="certainty-tag certainty-confirmed">confirmed</span></h3>
+  <p>Berkeley AI Research 综述了新兴的自适应并行推理思路：模型自主决定何时将子问题分片到并发线程、以多大力度扇出。将推理时扩展效率推向静态 Chain-of-Thought 之外。</p>
+
+<h3>5、Interconnects：开源模型生态的复利效应 <span class="certainty-tag certainty-confirmed">confirmed</span></h3>
+  <p>分析文章指出前沿算力中约 80% 投入迭代研发而非单次端到端训练。中国的密集开源共享生态摊薄了探索失败成本，收紧了反馈环路——与西方「向内 fork」的倾向形成对比。</p>
+
+<h3>6、HuggingFace：安全评估应投射测试时计算预算 <span class="certainty-tag certainty-confirmed">confirmed</span></h3>
+  <p>提出安全评估应表述为 R(budget) 曲线，涵盖重试、脚手架、Agent、工具和检索——而非单次 pass/fail。为生产 Agent 的安全评估提供了新的方法论框架。</p>
+
+  <h2 id="articles">📝 文章推荐</h2>
+
+<h3>1、<a href="https://blog.cloudflare.com/clickhouse-query-plan-contention/" target="_blank" rel="noopener noreferrer">Cloudflare：ClickHouse 查询计划锁争用导致计费管线瘫痪</a></h3>
+  <p>Cloudflare 追踪了 PB 级 ClickHouse 集群在分区键迁移后出现的严重锁争用问题，用 trace logs 和火焰图定位，合入上游兼容优化。对大规模 OLAP 运维有直接参考价值。</p>
+
+<h3>2、<a href="https://github.blog/engineering/from-latency-to-instant-modernizing-github-issues-navigation-performance/" target="_blank" rel="noopener noreferrer">GitHub：Issues 导航性能从延迟到即时的现代化之路</a></h3>
+  <p>GitHub 用 IndexedDB 客户端缓存 + 预取预热 + 后台重验证 + Service Worker 重新设计了 Issues 导航，让常见操作感知为即时加载。前端性能优化的教科书级案例。</p>
+
+<h3>3、<a href="https://newsletter.pragmaticengineer.com/p/typescript-c-and-turbo-pascal-with" target="_blank" rel="noopener noreferrer">Pragmatic Engineer：Anders Hejlsberg 谈 TypeScript、C# 与编译器哲学</a></h3>
+  <p>长访谈从 Turbo Pascal 讲到 TypeScript，具体讨论了惰性工作、增量 AST、async/await 作为编译器状态机生成器、以及 AI 辅助对主导训练语料的语言的不同影响。</p>
+
+<h3>4、<a href="https://denodell.com/blog/browsers-treat-big-sites-differently" target="_blank" rel="noopener noreferrer">浏览器对大站的差别待遇：兼容性暗箱</a></h3>
+  <p>作者记录了主流浏览器为头部站点单独保留的异常行为、兼容路径和特殊 Cookie 语义——解释了为什么「在 Google 上能跑但在我这不行」的 bug 如此常见。</p>
+
+<h3>5、<a href="https://medium.com/airbnb-engineering/viaduct-1-0-and-the-future-of-airbnbs-data-mesh-6bab4ec98b89" target="_blank" rel="noopener noreferrer">Airbnb Engineering：Viaduct 1.0 与数据网格的未来</a></h3>
+  <p>Airbnb 发布 Viaduct 1.0，阐述 Data Mesh 下一阶段的平台化方向与工程取舍。对大规模数据平台与产品工程协同的团队有架构启发。</p>
+
+<h3>6、<a href="https://medium.com/airbnb-engineering/monitoring-reliably-at-scale-ca6483040930" target="_blank" rel="noopener noreferrer">Airbnb Engineering：大规模可靠监控</a></h3>
+  <p>讨论在大规模场景下如何让监控体系本身变得可靠——涵盖指标噪声、组织流程和工程化维度。直接关联可观测性与 SRE 实践。</p>
+
+<h3>7、<a href="https://blog.bytebytego.com/p/a-guide-to-event-driven-architectural" target="_blank" rel="noopener noreferrer">ByteByteGo：事件驱动架构模式指南</a></h3>
+  <p>面向实践者的事件驱动集成风格综述，比较与同步 RPC 的取舍，列举服务间松耦合协作的主流模式。</p>
+
+  <h2 id="tools">🛠️ 工具推荐</h2>
+
+<div class="tool-grid">
+  <div class="tool-card">
+    <h4><a href="https://blog.trailofbits.com/2026/05/12/go-fuzzing-was-missing-half-the-toolkit.-we-forked-the-toolchain-to-fix-it./" target="_blank" rel="noopener noreferrer">gosentry — Trail of Bits Go 模糊测试工具链增强</a> <span class="priority-tag">P1</span></h4>
+    <p>Go 工具链 fork，保留 testing.F 工作流但接入 LibAFL 级能力：结构感知输入、语法模糊、丰富 bug 类检测。已在 Optimism/Revm 类客户端中发现漏洞。</p>
+  </div>
+  <div class="tool-card">
+    <h4><a href="https://alebeck.github.io/boring/?ref=console.dev" target="_blank" rel="noopener noreferrer">boring — SSH 隧道管理器</a> <span class="priority-tag">P2</span></h4>
+    <p>Rust 编写的 SSH 隧道管理工具，TOML 配置即可管理多路跳板、反向代理和长连接。告别手写复杂 ssh 命令。</p>
+  </div>
+  <div class="tool-card">
+    <h4><a href="https://linear.app/blog/code-intelligence-for-linear-agent" target="_blank" rel="noopener noreferrer">Linear Code Intelligence for Agent</a> <span class="priority-tag">P1</span></h4>
+    <p>Linear 为 Agent 场景增加代码情报能力，在 Issue/研发流中理解和关联代码上下文。研发工具链 Agent 化的又一案例。</p>
+  </div>
+  <div class="tool-card">
+    <h4><a href="https://github.com/warpdotdev/warp" target="_blank" rel="noopener noreferrer">Warp Terminal 开源 (Apache 2.0)</a> <span class="priority-tag">P1</span></h4>
+    <p>GPU 加速的 Rust 终端 Warp 宣布以 Apache 2.0 协议开源，结束多年专有模式。可审计的网络层和插件系统对合规需求友好。</p>
+  </div>
+</div>
+
+  <h2 id="ai-tools">🧠 AI 工具</h2>
+
+<div class="tool-grid">
+  <div class="tool-card">
+    <span class="tag">Agent 编排</span>
+    <h4><a href="https://openai.com/index/work-with-codex-from-anywhere/" target="_blank" rel="noopener noreferrer">OpenAI Codex Mobile — 随时随地指挥 Agent</a></h4>
+    <p>Codex 进入 ChatGPT 手机端，工程师可在移动端监控线程、审批命令、审查 diff。配合 Remote SSH 和 Hooks GA，形成完整的远程 Agent 控制回路。</p>
+  </div>
+  <div class="tool-card">
+    <span class="tag">安全</span>
+    <h4><a href="https://openai.com/index/building-codex-windows-sandbox/" target="_blank" rel="noopener noreferrer">Codex Windows Sandbox — 为 Windows 构建安全沙箱</a></h4>
+    <p>深度技术文章解释为何 Windows 原生隔离机制（AppContainer/Windows Sandbox）不适合 Codex 开放式工作流，以及团队如何设计定制隔离方案。</p>
+  </div>
+  <div class="tool-card">
+    <span class="tag">嵌入/检索</span>
+    <h4><a href="https://huggingface.co/blog/ibm-granite/granite-embedding-multilingual-r2" target="_blank" rel="noopener noreferrer">IBM Granite Embedding Multilingual R2</a></h4>
+    <p>Apache-2 开源的 97M/311M 多语言+代码嵌入模型，基于 ModernBERT 支持 32K 上下文和 Matryoshka 截断。多语言 RAG 的开箱即用方案。</p>
+  </div>
+  <div class="tool-card">
+    <span class="tag">推理优化</span>
+    <h4><a href="https://huggingface.co/blog/continuous_async" target="_blank" rel="noopener noreferrer">HuggingFace 异步连续批处理</a></h4>
+    <p>通过 CUDA Streams/Events 将 CPU 调度与 GPU 前向分离，让批次准备与计算重叠执行，压缩同步连续批处理的空闲间隙。</p>
+  </div>
+  <div class="tool-card">
+    <span class="tag">可观测性</span>
+    <h4><a href="https://blog.langchain.dev/introducing-smithdb" target="_blank" rel="noopener noreferrer">LangSmith SmithDB — Agent 可观测数据层</a></h4>
+    <p>LangSmith 的专用存储层，为高吞吐 Agent traces、评估和遥测提供持久化和查询能力。关心 Agent 运行成本和留存的团队值得关注。</p>
+  </div>
+  <div class="tool-card">
+    <span class="tag">治理</span>
+    <h4><a href="https://blog.langchain.dev/introducing-llm-gateway" target="_blank" rel="noopener noreferrer">LangSmith LLM Gateway — 运行时治理</a></h4>
+    <p>集成于 LangSmith 的 LLM 网关，在 Agent 生命周期的推理时提供策略路由、费用控制和护栏。满足企业对模型白名单和审计的需求。</p>
+  </div>
+  <div class="tool-card">
+    <span class="tag">开发者工具</span>
+    <h4><a href="https://github.com/simonw/llm/pull/1435" target="_blank" rel="noopener noreferrer">Simon Willison: llm 1.x alpha 接入 OpenAI Responses API</a></h4>
+    <p>LLM CLI 工具接入 /v1/responses 替代 /v1/chat/completions，支持彩色推理流展示和 -R 抑制标志。终端调试顺序工具编排更丝滑。</p>
+  </div>
+</div>
+
+  <h2 id="concepts">🧩 本期概念库</h2>
+
+  <div class="concept-card">
+    <h4>Conductor 化</h4>
+    <div class="concept-field"><strong>解释：</strong>AI 编码工具从单轮问答/补全进化为多 Agent 并行编排器形态，开发者的核心动作从「写代码」变为「指挥 Agent」</div>
+    <div class="concept-field"><strong>出处：</strong>Latent Space: Everything is Conductor</div>
+    <div class="concept-field"><strong>重要性：</strong>定义了 2026 年 Agent 工具竞争的终局形态</div>
+    <div class="concept-field"><strong>团队可做：</strong>评估内部 Agent 工具时优先看编排拓扑和评估框架，而非单模型能力</div>
+  </div>
+  <div class="concept-card">
+    <h4>微调弃用（Post-Finetuning Era）</h4>
+    <div class="concept-field"><strong>解释：</strong>随着长上下文窗口和开源权重 RL/FT 成熟，API 侧微调不再是主要定制手段，OpenAI 正式弃用微调 API</div>
+    <div class="concept-field"><strong>出处：</strong>Latent Space: The End of Finetuning</div>
+    <div class="concept-field"><strong>重要性：</strong>标志「模型定制」作为商业壁垒的终结</div>
+    <div class="concept-field"><strong>团队可做：</strong>将微调预算转向评估管线建设和 prompt engineering 标准化</div>
+  </div>
+  <div class="concept-card">
+    <h4>安全预算曲线 R(budget)</h4>
+    <div class="concept-field"><strong>解释：</strong>安全评估不应是单次 pass/fail，而应表述为 R(budget) 曲线——涵盖重试次数、脚手架复杂度、Agent 工具和检索等维度的攻击者计算预算</div>
+    <div class="concept-field"><strong>出处：</strong>HuggingFace: Safety Evals Should Project Test-Time Compute</div>
+    <div class="concept-field"><strong>重要性：</strong>为 Agent 安全评估提供了严谨的方法论</div>
+    <div class="concept-field"><strong>团队可做：</strong>在 Agent 权限设计中引入预算化思维：不同 budget 级别允许不同操作范围</div>
+  </div>
+  <div class="concept-card">
+    <h4>查询计划锁争用（Query Plan Contention）</h4>
+    <div class="concept-field"><strong>解释：</strong>ClickHouse 等 OLAP 在分区键变更后，大量 parts 导致查询计划阶段的全局锁成为瓶颈，表现为非直觉的批处理管线延迟</div>
+    <div class="concept-field"><strong>出处：</strong>Cloudflare: ClickHouse Query Plan Contention</div>
+    <div class="concept-field"><strong>重要性：</strong>挑战「OLAP 瓶颈总在 IO」的直觉</div>
+    <div class="concept-field"><strong>团队可做：</strong>大规模分析型数据库的分区策略变更必须配合查询计划层的压测</div>
+  </div>
+  <div class="concept-card">
+    <h4>开源复利效应</h4>
+    <div class="concept-field"><strong>解释：</strong>前沿算力 80% 用于迭代研发而非单次训练，密集开源共享生态让每次实验失败的学习被社区摊薄，形成指数级反馈加速</div>
+    <div class="concept-field"><strong>出处：</strong>Interconnects: How Open Model Ecosystems Compound</div>
+    <div class="concept-field"><strong>重要性：</strong>解释为何中国开源 AI 生态能在算力差距下缩小能力差距</div>
+    <div class="concept-field"><strong>团队可做：</strong>积极参与和贡献开源评估/数据集，利用社区复利效应加速自身迭代</div>
+  </div>
+
+  <h2 id="fun">🎲 趣闻</h2>
+
+  <div class="fun-card">
+    <h4><a href="https://twitter.com/tdietterich/status/2055000956144935055" target="_blank" rel="noopener noreferrer">arXiv 计划对含幻觉引用的论文实施一年禁投</a></h4>
+    <p>学术预印本平台 arXiv 据报将对提交含 AI 编造引用的作者实施一年投稿禁令。LLM 辅助写作时代，连参考文献都需要人工复核了。</p>
+  </div>
+  <div class="fun-card">
+    <h4><a href="https://classic7.lol/" target="_blank" rel="noopener noreferrer">Classic 7：在 Windows 10 LTSC 上还原 Windows 7 经典界面</a></h4>
+    <p>怀旧项目在仍受支持的 Windows 10 LTSC 上完美复刻 Windows 7 视觉体验。Lobsters 上引发了「长期维护 vs 审美复古」的热烈讨论。</p>
+  </div>
+
+  <h2 id="resources">📚 资源</h2>
+
+  <div class="resource-item">
+    <a href="https://www.datadoghq.com/blog/engineering/bits-ai-eval-platform/" target="_blank" rel="noopener noreferrer">Datadog：为自治 SRE Agent 构建真实世界评测平台</a>
+    <p>Datadog 详解如何为 Bits AI SRE 代理搭建可规模化评测平台：复现真实故障、回放事件、捕获回归并量化代理表现。Agent 评测工程的参考范式。</p>
+  </div>
+  <div class="resource-item">
+    <a href="https://newsletter.pragmaticengineer.com/p/the-pulse-forward-deployed-engineering" target="_blank" rel="noopener noreferrer">Pragmatic Engineer：前线部署工程（FDE）再次升温</a>
+    <p>Pragmatic Engineer 本期 Pulse 报道 AI Lab 大量招聘 FDE 岗位，同时记录大厂工程师自报 100% 使用 AI、vibe coding 与 Agent 工程的融合趋势。</p>
+  </div>
+  <div class="resource-item">
+    <a href="https://openai.com/index/our-response-to-the-tanstack-npm-supply-chain-attack/" target="_blank" rel="noopener noreferrer">OpenAI 对 TanStack 供应链攻击的响应复盘</a>
+    <p>OpenAI 披露两台内部笔记本拉取了被植入后门的 TanStack npm 包。macOS 用户须在 2026-06-12 前升级桌面端应用，届时旧签名证书将被撤销。</p>
+  </div>
+
+  <h2 id="quotes">💬 言论</h2>
+
+  <div class="quote-block">
+    <blockquote>行业正在从「微调是商业壁垒」走向「编排和评估才是护城河」——当模型能力过剩到定制不再是瓶颈，能让开发者同时指挥十个 Agent 的工具就是赢家。</blockquote>
+    <div class="quote-author">Latent Space 编辑部</div>
+    <div class="quote-meta">类型：摘要式转述 · 关键词：AI Workflow / Agent 工程化 · <a href="https://www.latent.space/p/ainews-the-end-of-finetuning" target="_blank" rel="noopener noreferrer">来源</a></div>
+    <div class="quote-comment">💬 精准概括了今天最重要的结构性变化。对我们而言：停止在「选哪个模型」上纠结，把精力投入评估框架和编排设计。</div>
+    <div class="quote-team-insight">🎯 团队启发：将微调预算重新分配到评估管线和 Agent 编排拓扑设计</div>
+  </div>
+  <div class="quote-block">
+    <blockquote>前沿训练约 80% 的算力花在探索性迭代，而非那一次「大训练」。中国团队密集共享失败经验的做法，让每次实验的学习成本被社区摊薄——这就是开源的复利。</blockquote>
+    <div class="quote-author">Nathan Lambert</div>
+    <div class="quote-meta">类型：摘要式转述 · 关键词：AI Workflow / 管理认知 · <a href="https://www.interconnects.ai/p/how-open-model-ecosystems-compound" target="_blank" rel="noopener noreferrer">来源</a></div>
+    <div class="quote-comment">💬 反直觉：不是谁算力多谁赢，而是谁的失败被复用得更快谁赢。这解释了为什么开源生态在算力差距下仍能缩小能力差距。</div>
+    <div class="quote-team-insight">🎯 团队启发：积极向开源社区贡献评估结果和失败经验，利用复利效应加速团队迭代</div>
+  </div>
+  <div class="quote-block">
+    <blockquote>安全评估必须从 pass/fail 进化为 R(budget) 曲线——你不是在问「模型安全吗」，而是在问「攻击者花多少计算才能突破」。</blockquote>
+    <div class="quote-author">Cerru (HuggingFace)</div>
+    <div class="quote-meta">类型：摘要式转述 · 关键词：稳定性 / Agent 工程化 · <a href="https://huggingface.co/blog/Cerru02/safety-evals-should-project-ttc" target="_blank" rel="noopener noreferrer">来源</a></div>
+    <div class="quote-comment">💬 优雅地把安全评估框架从二元判断升级为连续函数。对 Agent 权限设计启发极大——不同 budget 级别应对应不同操作边界。</div>
+    <div class="quote-team-insight">🎯 团队启发：在 Agent 权限系统中引入攻击者预算模型，按 budget 级别分层授权</div>
+  </div>
+  <div class="quote-block">
+    <blockquote>ClickHouse 在 PB 级集群上的瓶颈不在 IO，而是查询计划阶段的全局锁——当你有数百万个 parts 时，光是「决定怎么读」就能把整条管线拖垮。</blockquote>
+    <div class="quote-author">Cloudflare Engineering</div>
+    <div class="quote-meta">类型：摘要式转述 · 关键词：稳定性 / 工程深度 · <a href="https://blog.cloudflare.com/clickhouse-query-plan-contention/" target="_blank" rel="noopener noreferrer">来源</a></div>
+    <div class="quote-comment">💬 完美反直觉案例。提醒我们：分区策略变更不只影响 IO 模式，还会引入意想不到的元数据层瓶颈。</div>
+    <div class="quote-team-insight">🎯 团队启发：对分析数据库的分区/合并策略变更做查询计划层专项压测，不只关注 IO 吞吐</div>
+  </div>
+  <div class="quote-block">
+    <blockquote>我们用 IndexedDB 做客户端缓存 + 预取预热 + 后台重验证 + Service Worker，让 Issues 导航在常见操作中感知为即时加载。</blockquote>
+    <div class="quote-author">GitHub Engineering</div>
+    <div class="quote-meta">类型：摘要式转述 · 关键词：前端工程 · <a href="https://github.blog/engineering/from-latency-to-instant-modernizing-github-issues-navigation-performance/" target="_blank" rel="noopener noreferrer">来源</a></div>
+    <div class="quote-comment">💬 GitHub 把四种浏览器存储/缓存机制编织成一套系统的做法值得前端团队直接参考。关键不是用了什么技术，而是设计了怎样的失效策略。</div>
+    <div class="quote-team-insight">🎯 团队启发：为高频 SPA 导航路径设计四层缓存策略：Service Worker + IndexedDB + prefetch + revalidation</div>
+  </div>
+  <div class="quote-block">
+    <blockquote>语言选择正在变得越来越可替代——当 Agent 能在几天内完成跨语言重写，「选错了技术栈」的代价被大幅压缩了。</blockquote>
+    <div class="quote-author">Mitchell Hashimoto（经 Simon Willison 转引）</div>
+    <div class="quote-meta">类型：译文 · 关键词：工具链 / 管理认知 · <a href="https://simonwillison.net/2026/May/14/mitchell-hashimoto/" target="_blank" rel="noopener noreferrer">来源</a></div>
+    <div class="quote-comment">💬 Ghostty 作者的判断直击技术选型焦虑的核心。但这不意味着可以随意选——而是把选型重点从「语言特性」转向「生态和人才池」。</div>
+    <div class="quote-team-insight">🎯 团队启发：技术选型决策中降低「语言特性」权重，提升「生态活跃度和 Agent 友好性」权重</div>
+  </div>
+  <div class="quote-block">
+    <blockquote>Agents 写代码变容易了，但守代码反而更难了——Bun 用 Rust 重写、RubyGems 暂停注册、OpenAI 被 TanStack 供应链入侵波及，全是同一个故事。</blockquote>
+    <div class="quote-author">综合观察</div>
+    <div class="quote-meta">类型：摘要式转述 · 关键词：稳定性 / 工具链 · <a href="https://github.com/oven-sh/bun/pull/30412" target="_blank" rel="noopener noreferrer">来源</a></div>
+    <div class="quote-comment">💬 Agent 产能井喷与供应链安全脆弱性的张力构成了今天的主要叙事弧线。写得越多，攻击面越大。</div>
+    <div class="quote-team-insight">🎯 团队启发：随 Agent 代码产出提升，同比例增加供应链安全审计和依赖锁定投入</div>
+  </div>
+  <div class="quote-block">
+    <blockquote>Forward-deployed engineering 正在 AI Lab 中爆发增长。当模型能力不再是瓶颈，能把模型落地到客户场景的工程师成了最稀缺的人。</blockquote>
+    <div class="quote-author">Gergely Orosz</div>
+    <div class="quote-meta">类型：摘要式转述 · 关键词：管理认知 / AI Workflow · <a href="https://newsletter.pragmaticengineer.com/p/the-pulse-forward-deployed-engineering" target="_blank" rel="noopener noreferrer">来源</a></div>
+    <div class="quote-comment">💬 FDE 岗位的井喷印证了「AI 实验室不再只卖 API，开始卖交付」的趋势。对技术团队的启示：离客户越近的工程能力越有价值。</div>
+    <div class="quote-team-insight">🎯 团队启发：培养团队的前线交付能力——理解客户场景、快速集成、现场调优</div>
+  </div>
+
+  <h2 id="team-insights">✅ 对团队的启发</h2>
+
+  <div class="insight-card">
+    <p><span class="insight-num">1</span>将微调预算转向评估管线建设：Agent 工具 Conductor 化意味着竞争力在编排层而非模型层</p>
+  </div>
+  <div class="insight-card">
+    <p><span class="insight-num">2</span>为 Agent 权限设计引入「攻击者预算模型」：按 R(budget) 分层授权，而非二元的 allow/deny</p>
+  </div>
+  <div class="insight-card">
+    <p><span class="insight-num">3</span>供应链安全与 Agent 产能必须同步扩容：代码产出每提升 2x，安全审计和依赖锁定投入至少 1.5x</p>
+  </div>
+  <div class="insight-card">
+    <p><span class="insight-num">4</span>前端高频导航路径应设计四层缓存：Service Worker + IndexedDB + prefetch + 后台重验证</p>
+  </div>
+  <div class="insight-card">
+    <p><span class="insight-num">5</span>分析数据库的分区策略变更需做查询计划层专项压测，不只关注 IO 吞吐和存储成本</p>
+  </div>
+
+  <div class="footer-sources">
+    <strong>信息源：</strong>60 个全球精选科技 / AI / 工程 / 系统可靠性信息源<br>
+    <strong>覆盖：</strong>Hacker News · TLDR · Anthropic · OpenAI · DeepMind · Simon Willison · Pragmatic Engineer · Cloudflare · Netflix · Stripe · GitHub · Jepsen · ACM Queue 等<br><br>
+    HTML 由 generator.py 自 content.json 生成 · 生成时间 2026-05-15 · 信息截止至 2026-05-15
+  </div>
+</main>
+</div>
+
+<script>
+  const today = "2026-05-15";
+  const audioPath = `../audio/${today}.m4a`;
+  fetch(audioPath, { method: 'HEAD' }).then(r => {
+    if (r.ok) {
+      document.getElementById('audioBar').classList.remove('hidden');
+      document.getElementById('audioPlayer').src = audioPath;
+    }
+  }).catch(() => undefined);
+
+  const sections = document.querySelectorAll('h2[id]');
+  const tocLinks = document.querySelectorAll('.toc a, .toc-mobile a');
+  const obs = new IntersectionObserver(es => {
+    es.forEach(e => {
+      if (e.isIntersecting) {
+        tocLinks.forEach(a => a.classList.toggle('active', a.getAttribute('href') === '#' + e.target.id));
+      }
+    });
+  }, { rootMargin: '-80px 0px -60% 0px' });
+  sections.forEach(s => obs.observe(s));
+</script>
+</body>
+</html>
