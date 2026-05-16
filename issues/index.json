@@ -1,9 +1,9 @@
 [
   {
     "date": "2026-05-16",
-    "title": "第 21 期：三个 Agent Skills 仓库同日登顶 Trending——当竞争力从「谁的模型更强」下沉到「谁的 Harness 更结实」",
-    "highlights": "Agent Skills 三仓库同日登顶 Trending · Cerebras 约 600 亿美元 IPO · 美团 LongCat 推理评测 General 365 · LangSmith Engine 公测 · Darwin 零梯度 GPQA 88.89% · 美国 TRAINS 前沿 AI 前置评估 · Netflix ML 生命周期图谱 · Uber 多背包约束优化 · arXiv 封禁 AI 垃圾投稿",
-    "image": "https://opengraph.githubassets.com/1/anthropics/skills"
+    "title": "第 22 期：OpenAI 向苹果举起法律武器——当模型供应商与分发平台争夺价值链主导权",
+    "highlights": "OpenAI 拟对苹果采取法律行动 · Mitchell Hashimoto 痛批企业 AI psychosis · 美国电价飙升 76% · Cursor Cloud Agent 环境 · LangChain Interrupt 十连发 · Modal 秒级 GPU 冷启动 · Anthropic 15 亿版权和解遇阻 · Trail of Bits Go Fuzzing 工具链分叉",
+    "image": "https://cdn.arstechnica.net/wp-content/uploads/2026/05/GettyImages-1675604392-1152x648-1778878573.jpg"
   },
   {
     "date": "2026-05-15",
