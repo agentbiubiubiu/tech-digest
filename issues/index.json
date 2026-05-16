@@ -1,5 +1,11 @@
 [
   {
+    "date": "2026-05-16",
+    "title": "第 21 期：三个 Agent Skills 仓库同日登顶 Trending——当竞争力从「谁的模型更强」下沉到「谁的 Harness 更结实」",
+    "highlights": "Agent Skills 三仓库同日登顶 Trending · Cerebras 约 600 亿美元 IPO · 美团 LongCat 推理评测 General 365 · LangSmith Engine 公测 · Darwin 零梯度 GPQA 88.89% · 美国 TRAINS 前沿 AI 前置评估 · Netflix ML 生命周期图谱 · Uber 多背包约束优化 · arXiv 封禁 AI 垃圾投稿",
+    "image": "https://opengraph.githubassets.com/1/anthropics/skills"
+  },
+  {
     "date": "2026-05-15",
     "title": "第 20 期：所有工具都在竞相成为「指挥家」——当 OpenAI 弃用微调 API，Agent 时代的护城河从模型定制滑向编排层",
     "highlights": "Agent 编码工具 Conductor 化 · OpenAI 弃用微调 API · Bun 用 Rust 重写核心 · Nginx Rift 严重漏洞 · Cloudflare ClickHouse 万亿级锁争用 · GitHub Issues 性能重构 · IBM Granite 多语言嵌入 · LangChain Interrupt 十连发 · Anthropic 2028 AI 地缘论文",
