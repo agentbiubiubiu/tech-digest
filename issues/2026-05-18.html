@@ -1,0 +1,915 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>每日高维认知专栏 #24 — 智能体从写代码到发现算法</title>
+<meta property="og:title" content="每日高维认知专栏 #24：智能体从写代码到发现算法">
+<meta property="og:description" content="AlphaEvolve 用 Gemini 自动发现算法、Stripe 编码智能体进入生产、开放模型生态正在形成复合优势。AI 正在改变的不是效率，是组织的能力边界。">
+<style>
+:root {
+  --bg: #0a0a0f;
+  --surface: #12121a;
+  --surface2: #1a1a25;
+  --border: #2a2a3a;
+  --text: #e8e8f0;
+  --text-secondary: #a0a0b8;
+  --accent: #6366f1;
+  --accent2: #8b5cf6;
+  --accent3: #ec4899;
+  --green: #10b981;
+  --orange: #f59e0b;
+  --red: #ef4444;
+  --blue: #3b82f6;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.7;
+  -webkit-font-smoothing: antialiased;
+}
+.container { max-width: 860px; margin: 0 auto; padding: 2rem 1.5rem; }
+header {
+  text-align: center;
+  padding: 3rem 0 2rem;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 2.5rem;
+}
+.issue-badge {
+  display: inline-block;
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  color: white;
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 0.3rem 0.8rem;
+  border-radius: 999px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  margin-bottom: 1rem;
+}
+header h1 {
+  font-size: 1.75rem;
+  font-weight: 800;
+  line-height: 1.3;
+  margin-bottom: 0.5rem;
+  background: linear-gradient(135deg, var(--text), var(--accent));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+header .date { color: var(--text-secondary); font-size: 0.9rem; }
+.core-judgment {
+  background: linear-gradient(135deg, rgba(99,102,241,0.12), rgba(139,92,246,0.08));
+  border: 1px solid rgba(99,102,241,0.25);
+  border-radius: 12px;
+  padding: 1.5rem 1.8rem;
+  margin-bottom: 2.5rem;
+  font-size: 1.05rem;
+  line-height: 1.8;
+}
+.core-judgment strong { color: var(--accent); }
+section { margin-bottom: 3rem; }
+h2 {
+  font-size: 1.3rem;
+  font-weight: 700;
+  margin-bottom: 1.2rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid var(--accent);
+  display: inline-block;
+}
+h3 {
+  font-size: 1.05rem;
+  font-weight: 600;
+  margin: 1.5rem 0 0.6rem;
+  color: var(--accent2);
+}
+h4 {
+  font-size: 0.95rem;
+  font-weight: 600;
+  margin: 1.2rem 0 0.4rem;
+  color: var(--text);
+}
+p { margin-bottom: 0.8rem; }
+.signal-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 1.2rem 1.5rem;
+  margin-bottom: 1rem;
+}
+.signal-card .label {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 0.4rem;
+}
+.signal-card .label.mid { color: var(--orange); }
+.signal-card .label.long { color: var(--green); }
+.signal-card .label.short { color: var(--red); }
+.signal-card .title { font-weight: 600; margin-bottom: 0.3rem; }
+.signal-card .why { color: var(--text-secondary); font-size: 0.9rem; }
+.reading-guide {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+.reading-guide .step {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1rem;
+  text-align: center;
+}
+.reading-guide .step .time {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--accent);
+}
+.reading-guide .step .desc {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  margin-top: 0.3rem;
+}
+.headline-deep {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1.8rem;
+  margin-bottom: 2rem;
+}
+.headline-deep p { font-size: 0.95rem; }
+.headline-deep strong { color: var(--accent); }
+.evolution-line {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin: 1rem 0;
+  padding-left: 1rem;
+  border-left: 3px solid var(--accent);
+}
+.evolution-line .step { font-size: 0.9rem; }
+.evolution-line .step .num {
+  color: var(--accent);
+  font-weight: 700;
+  margin-right: 0.3rem;
+}
+.upgrade-card {
+  background: var(--surface2);
+  border-left: 3px solid var(--accent2);
+  border-radius: 0 8px 8px 0;
+  padding: 1.2rem 1.5rem;
+  margin-bottom: 1rem;
+}
+.upgrade-card .upgrade-title {
+  font-weight: 700;
+  color: var(--accent2);
+  margin-bottom: 0.4rem;
+}
+.identity-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+.identity-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 1.2rem;
+}
+.identity-card .role {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--accent);
+  margin-bottom: 0.4rem;
+}
+.identity-card .perspective { font-size: 0.9rem; margin-bottom: 0.5rem; }
+.identity-card .judgment {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  font-style: italic;
+}
+.training-section {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 1.5rem;
+  margin-bottom: 1rem;
+}
+.training-section .role-title {
+  font-weight: 700;
+  color: var(--accent2);
+  margin-bottom: 0.8rem;
+  font-size: 0.95rem;
+}
+.training-section ol {
+  padding-left: 1.2rem;
+  font-size: 0.9rem;
+}
+.training-section ol li { margin-bottom: 0.5rem; }
+.concept-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+.concept-table th {
+  background: var(--surface2);
+  padding: 0.7rem 1rem;
+  text-align: left;
+  font-weight: 600;
+  border-bottom: 2px solid var(--border);
+}
+.concept-table td {
+  padding: 0.7rem 1rem;
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+}
+.concept-table tr:hover { background: var(--surface); }
+.quote-card {
+  background: var(--surface);
+  border-left: 3px solid var(--accent3);
+  border-radius: 0 8px 8px 0;
+  padding: 1.2rem 1.5rem;
+  margin-bottom: 1rem;
+}
+.quote-card .quote-text {
+  font-size: 1.05rem;
+  font-weight: 500;
+  font-style: italic;
+  margin-bottom: 0.5rem;
+}
+.quote-card .quote-author {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  margin-bottom: 0.5rem;
+}
+.quote-card .quote-comment {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+.quote-card .team-insight {
+  background: rgba(99,102,241,0.08);
+  border-radius: 6px;
+  padding: 0.5rem 0.8rem;
+  margin-top: 0.5rem;
+  font-size: 0.8rem;
+  color: var(--accent);
+}
+.news-grid {
+  display: grid;
+  gap: 0.8rem;
+}
+.news-item {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1rem 1.2rem;
+}
+.news-item .news-title { font-weight: 600; margin-bottom: 0.3rem; }
+.news-item .news-summary { font-size: 0.85rem; color: var(--text-secondary); }
+.news-item .certainty {
+  display: inline-block;
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 0.15rem 0.5rem;
+  border-radius: 999px;
+  margin-top: 0.3rem;
+}
+.news-item .certainty.confirmed { background: rgba(16,185,129,0.15); color: var(--green); }
+.news-item .certainty.reported { background: rgba(245,158,11,0.15); color: var(--orange); }
+.tool-list { display: grid; gap: 0.6rem; }
+.tool-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.8rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.8rem 1rem;
+}
+.tool-item .tool-name {
+  font-weight: 600;
+  white-space: nowrap;
+  color: var(--accent);
+  min-width: 120px;
+}
+.tool-item .tool-desc { font-size: 0.85rem; color: var(--text-secondary); }
+.tool-item a { color: var(--accent); text-decoration: none; }
+.tool-item a:hover { text-decoration: underline; }
+.fun-item {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1rem 1.2rem;
+  margin-bottom: 0.8rem;
+}
+.fun-item .fun-title { font-weight: 600; margin-bottom: 0.3rem; }
+.fun-item .fun-desc { font-size: 0.85rem; color: var(--text-secondary); }
+.action-section {
+  background: linear-gradient(135deg, rgba(99,102,241,0.08), rgba(16,185,129,0.06));
+  border: 1px solid rgba(99,102,241,0.2);
+  border-radius: 12px;
+  padding: 1.5rem 1.8rem;
+}
+.action-section h3 { color: var(--green); }
+.action-section ul {
+  list-style: none;
+  padding: 0;
+}
+.action-section ul li {
+  padding: 0.4rem 0;
+  font-size: 0.9rem;
+}
+.action-section ul li::before {
+  content: "[ ] ";
+  color: var(--accent);
+  font-weight: 700;
+  font-family: monospace;
+}
+.asset-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1rem 1.2rem;
+  margin-bottom: 0.8rem;
+}
+.asset-card .asset-title { font-weight: 600; color: var(--green); margin-bottom: 0.3rem; }
+.asset-card .asset-content { font-size: 0.9rem; margin-bottom: 0.3rem; }
+.asset-card .asset-use { font-size: 0.8rem; color: var(--text-secondary); font-style: italic; }
+footer {
+  text-align: center;
+  padding: 2rem 0;
+  border-top: 1px solid var(--border);
+  color: var(--text-secondary);
+  font-size: 0.8rem;
+}
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+@media (max-width: 640px) {
+  .container { padding: 1rem; }
+  header h1 { font-size: 1.3rem; }
+  .reading-guide { grid-template-columns: 1fr; }
+  .identity-grid { grid-template-columns: 1fr; }
+  h2 { font-size: 1.1rem; }
+}
+.toc {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 1.2rem 1.5rem;
+  margin-bottom: 2.5rem;
+}
+.toc .toc-title {
+  font-weight: 700;
+  margin-bottom: 0.6rem;
+  color: var(--accent);
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+.toc ol {
+  padding-left: 1.2rem;
+  font-size: 0.9rem;
+}
+.toc ol li { margin-bottom: 0.3rem; }
+.toc ol li a { color: var(--text-secondary); }
+.toc ol li a:hover { color: var(--accent); }
+</style>
+</head>
+<body>
+<div class="container">
+
+<header>
+  <div class="issue-badge">第 24 期</div>
+  <h1>智能体从写代码到发现算法<br>AI 正在改变的不是效率，是组织的能力边界</h1>
+  <div class="date">2026年5月18日，星期日</div>
+</header>
+
+<div class="core-judgment">
+  <strong>核心判断：</strong>AI 智能体正在从「帮你写代码」跃迁到「帮你发现算法」，这意味着组织的竞争边界不再是人力规模，而是谁能更快将智能体嵌入研发与决策闭环。
+</div>
+
+<div class="toc">
+  <div class="toc-title">目录</div>
+  <ol>
+    <li><a href="#signals">三大结构性信号</a></li>
+    <li><a href="#headline">头条深读</a></li>
+    <li><a href="#upgrade">今日认知升级</a></li>
+    <li><a href="#identity">多身份高维启发</a></li>
+    <li><a href="#training">身份跃迁训练</a></li>
+    <li><a href="#concepts">概念库</a></li>
+    <li><a href="#quotes">言论</a></li>
+    <li><a href="#assets">长期认知资产</a></li>
+    <li><a href="#news">科技要闻</a></li>
+    <li><a href="#ai">AI 前沿</a></li>
+    <li><a href="#articles">深度文章</a></li>
+    <li><a href="#tools">工具与资源</a></li>
+    <li><a href="#fun">趣味发现</a></li>
+    <li><a href="#actions">行动清单</a></li>
+  </ol>
+</div>
+
+<div class="reading-guide">
+  <div class="step">
+    <div class="time">5 min</div>
+    <div class="desc">核心判断 + 结构性信号 + 高维启发表</div>
+  </div>
+  <div class="step">
+    <div class="time">15 min</div>
+    <div class="desc">头条深读 + 认知升级 + 身份跃迁训练</div>
+  </div>
+  <div class="step">
+    <div class="time">30 min</div>
+    <div class="desc">全文含概念库、言论、长期资产 + 行动清单</div>
+  </div>
+</div>
+
+<section id="signals">
+  <h2>三大结构性信号</h2>
+
+  <div class="signal-card">
+    <div class="label mid">中期影响</div>
+    <div class="title">AlphaEvolve 把「AI 写代码」推进到「AI 发现算法」</div>
+    <div class="why">演化搜索 + 自动评测形成闭环，研发瓶颈从人力转向评测基础设施与问题定义能力</div>
+  </div>
+
+  <div class="signal-card">
+    <div class="label long">长期影响</div>
+    <div class="title">开放模型生态形成复合网络效应</div>
+    <div class="why">Gemma 4/DeepSeek V4/Kimi K2.6 密集发布，企业选型从「选最强模型」变为「选最活跃生态」</div>
+  </div>
+
+  <div class="signal-card">
+    <div class="label short">短期影响</div>
+    <div class="title">供应链攻击从「投毒包」升级到「劫持合法发布管道」</div>
+    <div class="why">TanStack npm 事件：攻击面从依赖本身扩展到 CI/CD 管道，需要全链路发布完整性验证</div>
+  </div>
+</section>
+
+<section id="headline">
+  <h2>头条深读</h2>
+  <div class="headline-deep">
+    <h3>AlphaEvolve × Stripe Minions × Shopify AI 爆发</h3>
+
+    <p><strong>发生了什么</strong>：Google DeepMind 发布 AlphaEvolve，用 Gemini 驱动的编码智能体自动设计与优化算法。它不只是写代码——它把「演化搜索 + 自动评测 + 代码生成」串成闭环，在数据中心调度、芯片设计和训练管线等场景产出了可量化的收益。与此同时，Stripe 的 Minions 编码智能体已进入生产（不是 Demo），Shopify CTO 披露 2026 年内部 AI 使用量爆炸式增长并给顶级模型开了不限额 token 预算。</p>
+
+    <p><strong>为什么重要</strong>：这三件事画出了一条清晰的演进线：</p>
+
+    <div class="evolution-line">
+      <div class="step"><span class="num">1</span> <strong>Copilot 时代</strong> — 人写需求，AI 补代码</div>
+      <div class="step"><span class="num">2</span> <strong>Agent 时代</strong> — 人定义任务，Agent 端到端完成</div>
+      <div class="step"><span class="num">3</span> <strong>AlphaEvolve 时代</strong> — 人定义「什么是好的」（评测函数），AI 自己探索解空间</div>
+    </div>
+
+    <p>第三阶段意味着研发瓶颈将从「有多少工程师」转向「评测基础设施有多强」和「问题定义有多精确」。谁能更快建立可验证的评测闭环，谁就能更快释放 AI 的研发杠杆。</p>
+
+    <p><strong>我的判断</strong>：「AI 让流程更快」是错误的期望——AI 正在改变的是组织<em>能做什么</em>，而不是<em>做得多快</em>。AlphaEvolve 不是让算法工程师写代码更快，而是让他们解决以前解不了的问题。Stripe 的 Minions 不是让工程师手速更快，而是让一个人能做原本需要团队做的集成工作。这是能力边界的扩展，不是效率的线性提升。</p>
+
+    <p style="font-size:0.85rem;color:var(--text-secondary);margin-top:1rem;"><strong>确定性</strong>：AlphaEvolve — confirmed（DeepMind 官方博客）；Stripe Minions — confirmed（Stripe 工程博客）；Shopify AI 使用爆发 — confirmed（Latent Space 播客 CTO 访谈）</p>
+  </div>
+</section>
+
+<section id="upgrade">
+  <h2>今日认知升级</h2>
+
+  <div class="upgrade-card">
+    <div class="upgrade-title">认知升级 1：从「AI 提效」到「AI 扩能」</div>
+    <p>HN 热帖「I don't think AI will make your processes go faster」引发数百条评论。核心论点：流程慢的根因往往是组织问题而非工具问题。但 AlphaEvolve 和 Stripe Minions 告诉我们另一个故事：AI 不是用来加速现有流程的，而是用来做以前做不到的事情。这个认知差异决定了你是把 AI 当「更快的打字员」还是「新的组织能力」。</p>
+  </div>
+
+  <div class="upgrade-card">
+    <div class="upgrade-title">认知升级 2：评测基础设施成为核心竞争力</div>
+    <p>AlphaEvolve 的关键不是 Gemini 有多强，而是它有一个可自动运行的评测函数来判断「这个算法比上一个好」。Stripe 也发布了一个 benchmark 来测试「AI 能否完成真实支付集成」。未来的竞争不是「谁的模型最强」，而是「谁的评测闭环最快」。</p>
+  </div>
+
+  <div class="upgrade-card">
+    <div class="upgrade-title">认知升级 3：开放生态正在形成复合优势</div>
+    <p>Interconnects 的分析指出，开放模型生态的价值不在于单个模型的分数，而在于生态参与者之间的复合网络效应。Gemma 4、DeepSeek V4、Kimi K2.6 在同一周密集发布，每个都推动了微调、评测、工具链的共同进化。闭源模型的护城河不是分数，是生态锁定——但开放生态正在瓦解这个锁定。</p>
+  </div>
+
+  <div class="upgrade-card">
+    <div class="upgrade-title">认知升级 4：供应链安全需要从「锁版本」升级到「验证发布管道」</div>
+    <p>TanStack npm 事件展示了一种新型攻击：不是投毒一个包，而是劫持合法作者的 CI/CD 发布管道。攻击链涉及 GitHub Actions 的 <code>pull_request_target</code>、缓存投毒与 OIDC token。传统的 lockfile + 审计已经不够，团队需要对发布管道本身做安全基线检查。</p>
+  </div>
+</section>
+
+<section id="identity">
+  <h2>多身份高维启发</h2>
+  <div class="identity-grid">
+    <div class="identity-card">
+      <div class="role">当前技术负责人</div>
+      <div class="perspective">编码智能体不再是实验，团队需要建立「Agent + 评测」的工程闭环</div>
+      <div class="judgment">投入评测基础设施的团队，6 个月后会获得数量级的研发杠杆优势</div>
+    </div>
+    <div class="identity-card">
+      <div class="role">CTO</div>
+      <div class="perspective">AI 正在改变「一个工程师能做什么」的上限，组织架构需要从「按人头分工」转向「按评测闭环分能力域」</div>
+      <div class="judgment">理解「能力密度 vs 人员规模」的权衡框架</div>
+    </div>
+    <div class="identity-card">
+      <div class="role">CEO</div>
+      <div class="perspective">AI 投入不再是成本中心，而是直接的产能杠杆</div>
+      <div class="judgment">2026 下半年，竞争焦点从「用不用」转向「用得多快、用得多深」</div>
+    </div>
+    <div class="identity-card">
+      <div class="role">董事 / 投资人</div>
+      <div class="perspective">开放模型生态的复合效应正在削弱闭源护城河</div>
+      <div class="judgment">基础设施层投资（评测、编排、安全）的回报确定性高于模型层</div>
+    </div>
+    <div class="identity-card">
+      <div class="role">创业者</div>
+      <div class="perspective">每个可自动评测的优化问题都是一个创业机会</div>
+      <div class="judgment">壁垒不在模型，在行业 know-how + 评测数据集</div>
+    </div>
+    <div class="identity-card">
+      <div class="role">思想者 / 写作者</div>
+      <div class="perspective">AI 的价值不在于替代，而在于重新定义可能性边界</div>
+      <div class="judgment">这是蒸汽机的故事，不是计算器的故事</div>
+    </div>
+  </div>
+</section>
+
+<section id="training">
+  <h2>身份跃迁训练</h2>
+
+  <div class="training-section">
+    <div class="role-title">如果你正在成为 CTO</div>
+    <ol>
+      <li>AlphaEvolve 暴露了一个组织问题：大多数团队有编码能力但没有评测基础设施。问自己：我们有多少关键指标是可以自动化评测的？</li>
+      <li>Stripe Minions 的关键不是 Agent 多聪明，而是 Stripe 有完善的测试与审查基础设施来「接住」Agent 的产出。你的团队有这个基础设施吗？</li>
+      <li>开放模型密集发布意味着「自建基座」的成本在下降，但「评测+微调+部署」的工程成本在上升。哪些能力应该平台化？</li>
+      <li>Anthropic 容量短缺导致的开发者摩擦是多供应商策略的信号。避免对单一 AI 供应商的深度绑定</li>
+    </ol>
+  </div>
+
+  <div class="training-section">
+    <div class="role-title">如果你正在成为 CEO</div>
+    <ol>
+      <li>Shopify CTO 给 Opus-4.6 开了不限额 token 预算——AI 投入的 ROI 高于传统人力投入。你测算过 token 成本 vs 工程师人力成本的比值吗？</li>
+      <li>竞争优势不在于用了什么模型，而在于如何把 AI 嵌入业务流程形成飞轮。你的 AI 用法是可复制的还是嵌入了独有数据和流程？</li>
+      <li>中国监管叫停 Meta 收购 Manus 是全球 AI 资产并购的新判例。跨境 AI 资产的合规风险正在上升</li>
+      <li>开放模型民主化加速意味着窗口期在缩短。先行者优势从「用上 AI」变为「用好 AI 的组织能力」</li>
+    </ol>
+  </div>
+
+  <div class="training-section">
+    <div class="role-title">如果你正在成为投资人</div>
+    <ol>
+      <li>AI 价值捕获正从模型层向应用+评测层移动。当评测成为差异化壁垒时，应用层会重新获得定价权</li>
+      <li>GPU 集群 TCO 远超表面报价。投资算力需要关注 goodput 而不是峰值 FLOPS</li>
+      <li>开放 vs 闭源是 Android vs iOS 式的判断：短期闭源领先，长期开放可能复利反超</li>
+      <li>CI/CD 安全、SBOM、发布完整性验证正从 nice-to-have 变为合规必需</li>
+    </ol>
+  </div>
+
+  <div class="training-section">
+    <div class="role-title">如果你正在成为创业者</div>
+    <ol>
+      <li>AlphaEvolve 模式可复制：可自动评测的优化问题 + 行业数据集 → 垂直解决方案。候选领域：物流、广告、药物</li>
+      <li>Simon Willison 的产品化路径：一个人 + AI 工具链 = 持续交付的开源产品</li>
+      <li>Vercel AI Gateway 生产指数显示推理成本和路由策略正在成为差异化来源</li>
+      <li>TanStack 攻击暴露的 GitHub Actions 安全漏洞 → CI/CD 安全审计工具的创业机会</li>
+    </ol>
+  </div>
+
+  <div class="training-section">
+    <div class="role-title">如果你正在成为思想者</div>
+    <ol>
+      <li>电力、互联网最初被当产品卖，变成基础设施后才释放真正变革力——AI 正在经历同样转变</li>
+      <li>人类组织的瓶颈从来不是工具速度，而是协调成本。AI 不解决协调问题，就只是更快地做错误的事</li>
+      <li>「克制计算」运动在 AI 时代是有意义的反向信号：有意识地选择「不用」变成了一种能力</li>
+      <li>Anthropic「Teaching Claude Why」指向哲学问题：让 AI 理解「为什么」比执行「什么」更难、更重要</li>
+    </ol>
+  </div>
+</section>
+
+<section id="concepts">
+  <h2>概念库</h2>
+  <table class="concept-table">
+    <thead>
+      <tr><th>概念</th><th>解释</th><th>团队应用</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>评测驱动研发</strong><br>(Eval-Driven R&D)</td>
+        <td>以可自动运行的评测函数为核心组织研发流程。瓶颈从编码能力转向评测基础设施质量</td>
+        <td>为关键业务指标建立自动化评测管道，优先于增加编码人力</td>
+      </tr>
+      <tr>
+        <td><strong>复合生态效应</strong><br>(Compound Ecosystem)</td>
+        <td>开放模型生态中，每个新模型/工具的发布都增强其他参与者的能力，形成正向复利</td>
+        <td>技术选型时评估开源生态活跃度，不只看跑分</td>
+      </tr>
+      <tr>
+        <td><strong>发布管道劫持</strong><br>(Pipeline Hijacking)</td>
+        <td>攻击者劫持合法作者的 CI/CD 发布流程来注入恶意代码，而非投毒单个包</td>
+        <td>审查 GitHub Actions 中的 pull_request_target、缓存策略与 OIDC token</td>
+      </tr>
+      <tr>
+        <td><strong>能力密度</strong><br>(Capability Density)</td>
+        <td>单位组织成员能产出的价值密度。AI 时代少数人 + 强基础设施可能超过大团队</td>
+        <td>评估团队时关注「每人产出」而非「总人数」</td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+
+<section id="quotes">
+  <h2>言论</h2>
+
+  <div class="quote-card">
+    <div class="quote-text">"AI 是一种技术，不是一个产品。"</div>
+    <div class="quote-author">— John Gruber (Daring Fireball)</div>
+    <div class="quote-comment">一句话区分了「模型能力」和「可交付产品」。大多数公司把 AI 当产品在卖，但赢家会把 AI 当电力在用。</div>
+    <div class="team-insight">审视我们的 AI 落地方向：是在做「AI 产品」还是在用 AI 升级「现有产品」？后者通常 ROI 更高</div>
+  </div>
+
+  <div class="quote-card">
+    <div class="quote-text">"我不认为 AI 会让你的流程更快。"</div>
+    <div class="quote-author">— Frederick Van Brabant</div>
+    <div class="quote-comment">反直觉但深刻：流程慢的根因是组织问题。AI 加速了代码输出，但没有加速需求对齐、审查和决策。</div>
+    <div class="team-insight">在追求 AI 提效之前，先识别流程中的真正瓶颈——可能是沟通、审批或认知负荷</div>
+  </div>
+
+  <div class="quote-card">
+    <div class="quote-text">"模型默认上站后，费用与滥用必须从中间件治理，而不是事后看账单。"</div>
+    <div class="quote-author">— Simon Willison</div>
+    <div class="quote-comment">不只是说理论——他做了一个 LLM 费用限制插件并用在了生产上。AI 治理工程化的微型典范。</div>
+    <div class="team-insight">如果团队有公开的 AI 功能，必须提前设费用上限和滥用检测</div>
+  </div>
+
+  <div class="quote-card">
+    <div class="quote-text">"把编码代理绑在可验证 KPI 上，是自动研究走向工业界硬通货的关键门槛。"</div>
+    <div class="quote-author">— Google DeepMind (AlphaEvolve)</div>
+    <div class="quote-comment">不是「AI 很厉害」，而是「AI 的厉害可以被自动量化」——这才是 AlphaEvolve 的真正突破。</div>
+    <div class="team-insight">任何 AI 落地项目都应该先回答：什么指标可以自动化地证明 AI 比不用 AI 好？</div>
+  </div>
+
+  <div class="quote-card">
+    <div class="quote-text">"开放模型生态的价值不在于单个模型的分数，而在于参与者之间的复合网络效应。"</div>
+    <div class="quote-author">— Nathan Lambert (Interconnects)</div>
+    <div class="quote-comment">这是一个产业判断级别的洞察。它解释了为什么开源模型跑分「总差一点」但生态却越来越强。</div>
+    <div class="team-insight">技术选型时评估生态活跃度（社区、工具链、微调数据），不只看模型排行榜</div>
+  </div>
+
+  <div class="quote-card">
+    <div class="quote-text">"大多数开发者感到工作意义感下降。"</div>
+    <div class="quote-author">— ACM Queue 调研</div>
+    <div class="quote-comment">AI 不只改变了工作效率，还改变了工作的「感觉」。工程师的价值认同需要从「写代码」转向「定义问题」。</div>
+    <div class="team-insight">关注团队成员的工作满足感，帮助他们从「写代码的人」转型为「定义问题和验证方案的人」</div>
+  </div>
+</section>
+
+<section id="assets">
+  <h2>长期认知资产</h2>
+  <div class="asset-card">
+    <div class="asset-title">判断框架：评测驱动研发</div>
+    <div class="asset-content">AI 时代的研发瓶颈不是编码能力，是「定义什么是好的」的能力。投入评测基础设施 > 增加工程师人数</div>
+    <div class="asset-use">用于任何技术团队的研发策略规划、AI 落地路径设计</div>
+  </div>
+  <div class="asset-card">
+    <div class="asset-title">商业洞察：AI 投入临界点</div>
+    <div class="asset-content">当 token 成本 < 等效人力成本的 1/10 时，应该「上不封顶」地投入 AI</div>
+    <div class="asset-use">用于 AI 预算审批、ROI 测算与董事会汇报</div>
+  </div>
+  <div class="asset-card">
+    <div class="asset-title">组织洞察：能力密度模型</div>
+    <div class="asset-content">少数高杠杆工程师 + 强评测基础设施的组合，产能可超过 10 倍规模的传统团队</div>
+    <div class="asset-use">用于组织设计、招聘策略与人效评估</div>
+  </div>
+  <div class="asset-card">
+    <div class="asset-title">投资论点：AI 价值链重构</div>
+    <div class="asset-content">价值从「模型层」向「评测+编排+安全层」扩散。基础设施层投资的确定性高于模型层</div>
+    <div class="asset-use">用于 AI 赛道投资决策、产业链分析</div>
+  </div>
+  <div class="asset-card">
+    <div class="asset-title">创业机会：AlphaEvolve 模式复制</div>
+    <div class="asset-content">可自动评测的优化问题 + 行业数据集 = 创业切入点。壁垒在数据和评测，不在模型</div>
+    <div class="asset-use">用于创业方向识别、商业计划撰写</div>
+  </div>
+  <div class="asset-card">
+    <div class="asset-title">写作选题</div>
+    <div class="asset-content">「为什么大多数公司的 AI 策略是错的——他们在加速错误的流程」。核心论点：AI 的价值不在于提效，在于扩能</div>
+    <div class="asset-use">可写成文章、演讲或内部备忘录</div>
+  </div>
+</section>
+
+<section id="news">
+  <h2>科技要闻</h2>
+  <div class="news-grid">
+    <div class="news-item">
+      <div class="news-title">TanStack npm 包遭供应链攻击：GitHub Actions 管道被劫持</div>
+      <div class="news-summary">攻击者利用 pull_request_target、缓存投毒与 OIDC token 组合，在极短窗口内注入恶意版本</div>
+      <span class="certainty confirmed">confirmed</span>
+    </div>
+    <div class="news-item">
+      <div class="news-title">Apple 发布 iOS/macOS/iPadOS 26.5：RCS 加密消息上线</div>
+      <div class="news-summary">全平台更新重点是 RCS 加密，标志跨平台消息安全重要进展</div>
+      <span class="certainty reported">reported</span>
+    </div>
+    <div class="news-item">
+      <div class="news-title">Rolldown 1.0：Rust 实现的高性能 JS 打包器</div>
+      <div class="news-summary">对齐 Rollup 插件生态，成为 Vite 8 路线底座，构建速度获数量级提升</div>
+      <span class="certainty confirmed">confirmed</span>
+    </div>
+    <div class="news-item">
+      <div class="news-title">Jest 30.4.0 / Node 26.1 / Electron 42 集中发布</div>
+      <div class="news-summary">JS 生态三大基础设施同步更新：ESM/Temporal/React 19 支持、实验性 FFI、安全改进</div>
+      <span class="certainty confirmed">confirmed</span>
+    </div>
+    <div class="news-item">
+      <div class="news-title">中国监管叫停 Meta 收购 Manus</div>
+      <div class="news-summary">全球 AI 资产并购与跨境数据治理的可引用硬判例</div>
+      <span class="certainty confirmed">confirmed</span>
+    </div>
+    <div class="news-item">
+      <div class="news-title">Mozilla 致函英国：VPN 是不可削弱的安全工具</div>
+      <div class="news-summary">隐私工具可用性与跨境监管、加密流量治理的交锋</div>
+      <span class="certainty confirmed">confirmed</span>
+    </div>
+  </div>
+</section>
+
+<section id="ai">
+  <h2>AI 前沿</h2>
+  <div class="news-grid">
+    <div class="news-item">
+      <div class="news-title">AlphaEvolve：DeepMind 用 Gemini 编码智能体自动设计算法</div>
+      <div class="news-summary">演化搜索 + 自动评测 + 代码生成闭环，在数据中心/芯片/训练管线产出可量化收益</div>
+      <span class="certainty confirmed">confirmed</span>
+    </div>
+    <div class="news-item">
+      <div class="news-title">Anthropic Natural Language Autoencoders：Claude 内部想法的可读化</div>
+      <div class="news-summary">可解释性重大进展——从数值表示到自然语言的推理链翻译，使安全审计可结构化归因</div>
+      <span class="certainty confirmed">confirmed</span>
+    </div>
+    <div class="news-item">
+      <div class="news-title">OpenAI 实时语音三件套：GPT-Realtime-2 / Translate / Whisper</div>
+      <div class="news-summary">覆盖实时推理、同声传译与流式转写，语音 Agent 进入大规模可用</div>
+      <span class="certainty confirmed">confirmed</span>
+    </div>
+    <div class="news-item">
+      <div class="news-title">BAIR 自适应并行推理：模型自行决定并行度</div>
+      <div class="news-summary">推理成本阶段，并行化是少数能同时撬动质量与耗时的杠杆</div>
+      <span class="certainty confirmed">confirmed</span>
+    </div>
+    <div class="news-item">
+      <div class="news-title">Gemini 3.1 Flash-Lite：极低成本推理模型</div>
+      <div class="news-summary">推理经济学决定长尾应用能否默认全链路大模型</div>
+      <span class="certainty confirmed">confirmed</span>
+    </div>
+    <div class="news-item">
+      <div class="news-title">GPT-5.5 Instant：更低幻觉率的默认对话模型</div>
+      <div class="news-summary">默认模型的小幅可靠性变化会在亿万调用中叠加成质变</div>
+      <span class="certainty reported">reported</span>
+    </div>
+  </div>
+</section>
+
+<section id="articles">
+  <h2>深度文章</h2>
+  <div class="news-grid">
+    <div class="news-item">
+      <div class="news-title"><a href="https://stripe.dev/blog/minions-stripes-one-shot-end-to-end-coding-agents-part-2">Stripe Minions Part 2：编码智能体进入生产</a></div>
+      <div class="news-summary">不是 Demo——高强度工程流程里落地，关键在合并速率、审查成本与安全闸门</div>
+    </div>
+    <div class="news-item">
+      <div class="news-title"><a href="https://www.interconnects.ai/p/how-open-model-ecosystems-compound">开放模型生态如何形成复合优势</a></div>
+      <div class="news-summary">高参与度生态形成正向复利，生态强弱影响迭代速度与合作伙伴规模</div>
+    </div>
+    <div class="news-item">
+      <div class="news-title"><a href="https://blog.cloudflare.com/clickhouse-query-plan-contention/">Cloudflare：ClickHouse 查询规划器锁竞争</a></div>
+      <div class="news-summary">PB 级 ClickHouse 上指标正常但 SLA 炸裂，定位到规划器锁竞争。数据平台排障典范</div>
+    </div>
+    <div class="news-item">
+      <div class="news-title"><a href="https://github.blog/engineering/infrastructure/how-github-uses-ebpf-to-improve-deployment-safety/">GitHub：用 eBPF 改善部署安全</a></div>
+      <div class="news-summary">按进程/按域名出站过滤，避免自举部署的循环依赖把事故拖长</div>
+    </div>
+    <div class="news-item">
+      <div class="news-title"><a href="https://magazine.sebastianraschka.com/p/recent-developments-in-llm-architectures">LLM 架构最新进展：KV 共享、mHC 与压缩注意力</a></div>
+      <div class="news-summary">系统梳理 2026 年注意力与 KV 缓存架构动向，直接影响推理成本选型</div>
+    </div>
+    <div class="news-item">
+      <div class="news-title"><a href="https://www.interconnects.ai/p/notes-from-inside-chinas-ai-labs">中国 AI 实验室内部笔记</a></div>
+      <div class="news-summary">走访多家领先实验室的一手观察：组织方式、研究方向与产业联动</div>
+    </div>
+    <div class="news-item">
+      <div class="news-title"><a href="https://www.latent.space/p/shopify">Shopify AI 使用爆发：不限额 Opus-4.6 Token 预算</a></div>
+      <div class="news-summary">CTO 访谈披露 2026 年 AI 使用激增、Tangle/Tangent/SimGym 等内部项目方向</div>
+    </div>
+    <div class="news-item">
+      <div class="news-title"><a href="https://queue.acm.org/detail.cfm?id=3807961">ACM Queue：AI 原住民开发者</a></div>
+      <div class="news-summary">大规模调查探讨 AI 如何改变开发者的工作结构与意义感</div>
+    </div>
+  </div>
+</section>
+
+<section id="tools">
+  <h2>工具与资源</h2>
+  <h3>开发者工具</h3>
+  <div class="tool-list">
+    <div class="tool-item">
+      <div class="tool-name"><a href="https://voidzero.dev/posts/announcing-rolldown-1-0">Rolldown 1.0</a></div>
+      <div class="tool-desc">Rust 实现、对齐 Rollup 插件生态的高性能 JS 打包器，Vite 8 路线底座</div>
+    </div>
+    <div class="tool-item">
+      <div class="tool-name"><a href="https://alebeck.github.io/boring/">boring</a></div>
+      <div class="tool-desc">用 TOML 管理 SSH 隧道，支持 TCP/socket 与反向 SOCKS5</div>
+    </div>
+    <div class="tool-item">
+      <div class="tool-name"><a href="https://franktisellano.github.io/datatype/">Datatype</a></div>
+      <div class="tool-desc">用可变字体渲染条形图、迷你图与饼图，减少 JS/图片依赖</div>
+    </div>
+    <div class="tool-item">
+      <div class="tool-name"><a href="https://github.com/tinyhumansai/openhuman">OpenHuman</a></div>
+      <div class="tool-desc">私有化、极简的个人 AI 助手开源项目（Rust），GitHub Trending 热门</div>
+    </div>
+    <div class="tool-item">
+      <div class="tool-name"><a href="https://github.com/HKUDS/CLI-Anything">CLI-Anything</a></div>
+      <div class="tool-desc">CLI 枢纽：把传统命令行能力编排进智能体工作流</div>
+    </div>
+  </div>
+
+  <h3>AI 工具</h3>
+  <div class="tool-list">
+    <div class="tool-item">
+      <div class="tool-name"><a href="https://simonwillison.net/2026/May/15/datasette-llm-limits/">datasette-llm-limits</a></div>
+      <div class="tool-desc">LLM 调用按用户滚动美元预算上限，适合公开站控费</div>
+    </div>
+    <div class="tool-item">
+      <div class="tool-name"><a href="https://linear.app/changelog/2026-03-24-introducing-linear-agent">Linear Agent</a></div>
+      <div class="tool-desc">AI 驱动的项目管理 Agent，从工单工具向 Agent 驱动工作流演进</div>
+    </div>
+    <div class="tool-item">
+      <div class="tool-name"><a href="https://openai.com/index/advancing-voice-intelligence-with-new-models-in-the-api/">GPT-Realtime 三件套</a></div>
+      <div class="tool-desc">实时语音推理、同声传译与流式转写，语音 Agent 大规模可用</div>
+    </div>
+    <div class="tool-item">
+      <div class="tool-name"><a href="https://vercel.com/blog/ai-gateway-production-index">Vercel AI Gateway</a></div>
+      <div class="tool-desc">七个月生产流量数据的 AI 使用概况，推理路由策略参考</div>
+    </div>
+  </div>
+
+  <h3>学习资源</h3>
+  <div class="tool-list">
+    <div class="tool-item">
+      <div class="tool-name"><a href="https://lilianweng.github.io/posts/2025-05-01-thinking/">Why We Think</a></div>
+      <div class="tool-desc">测试时计算综述——CoT、推理扩展机制如何让模型「多想一会」</div>
+    </div>
+    <div class="tool-item">
+      <div class="tool-name"><a href="https://magazine.sebastianraschka.com/p/visual-attention-variants">注意力变体可视化指南</a></div>
+      <div class="tool-desc">MHA/GQA/MLA 等变体直觉差异，帮你把名词映射到代码行为</div>
+    </div>
+    <div class="tool-item">
+      <div class="tool-name"><a href="https://huyenchip.com/2025/01/16/ai-engineering-pitfalls.html">生成式 AI 应用常见陷阱</a></div>
+      <div class="tool-desc">产品差不等于模型差：生成强加到优化问题、忽视交互与工作流等误区</div>
+    </div>
+  </div>
+</section>
+
+<section id="fun">
+  <h2>趣味发现</h2>
+  <div class="fun-item">
+    <div class="fun-title"><a href="https://frederickvanbrabant.com/blog/2026-05-15-i-dont-think-ai-will-make-your-processes-go-faster/">「AI 不会让你的流程更快」引爆 HN 大型辩论</a></div>
+    <div class="fun-desc">AI 乐观派 vs 现实派的数百条评论交锋。核心论点：组织问题才是瓶颈，AI 无法修复糟糕的流程</div>
+  </div>
+  <div class="fun-item">
+    <div class="fun-title"><a href="https://bytes.dev/archives/483">|| vs ??：免运费门槛 Bug</a></div>
+    <div class="fun-desc">minSpendCents 为 0 时，<code>||</code> 把 0 当假值回退默认阈值，结账逻辑 silently 失效。经典 JS 真值陷阱</div>
+  </div>
+  <div class="fun-item">
+    <div class="fun-title"><a href="https://lcamtuf.substack.com/p/a-nicer-voltmeter-clock">用电压表做时钟</a></div>
+    <div class="fun-desc">在 AI 与数字化浪潮中，一个优雅的模拟仪表 Side Project 提供了工程审美的另一种可能</div>
+  </div>
+</section>
+
+<section id="actions">
+  <h2>行动清单</h2>
+  <div class="action-section">
+    <h3>本周可做</h3>
+    <ul>
+      <li>为核心 AI 工具场景建立可自动化运行的评测集，用数据驱动选型</li>
+      <li>审查 CI/CD 管道安全：检查 pull_request_target、缓存策略与 OIDC token 权限</li>
+      <li>评估 Rolldown/Vite 8 对前端构建链路的提升潜力</li>
+    </ul>
+    <h3>长期成长</h3>
+    <ul>
+      <li>学习 AlphaEvolve 的「演化搜索 + 自动评测」模式，思考可迁移场景</li>
+      <li>阅读 Lil'Log 测试时计算综述，建立推理扩展方向认知地图</li>
+      <li>练习从 CTO/CEO/投资人视角看同一件事，刻意训练多身份切换能力</li>
+    </ul>
+  </div>
+</section>
+
+<footer>
+  <p>每日高维认知专栏 #24 &middot; 2026年5月18日 &middot; 星期日</p>
+  <p style="margin-top:0.5rem;">AlphaEvolve 从写代码到发现算法 &middot; 开放模型生态形成复合优势 &middot; TanStack 供应链攻击升级 &middot; Stripe 编码 Agent 进入生产</p>
+</footer>
+
+</div>
+</body>
+</html>

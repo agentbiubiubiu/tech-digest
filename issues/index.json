@@ -1,5 +1,11 @@
 [
   {
+    "date": "2026-05-18",
+    "title": "第 24 期：智能体从写代码到发现算法 — AI 正在改变的不是效率，是组织的能力边界",
+    "highlights": "AlphaEvolve 从写代码到发现算法 · 开放模型生态形成复合优势 · TanStack 供应链攻击升级 · Stripe 编码 Agent 进入生产 · Shopify AI 使用爆发 · 评测驱动研发成为核心竞争力",
+    "image": ""
+  },
+  {
     "date": "2026-05-17",
     "title": "第 23 期：当 Agent 流量占据生产系统过半，「给它一台真机还是一个沙箱」成了平台竞争的核心战场",
     "highlights": "Agent 运行时之争：持久云电脑 vs 安全沙箱 · 开放模型密集发布压缩封闭差距 · AI 价值链向运行时层迁移 · Vercel 披露 Agent 占流量过半 · LangSmith Engine 可观测性闭环 · arXiv 放出 AI 论文禁投令 · Pixel 10 零点击利用链 · Seeduplex 全双工语音 · 美团 31 万行 AI 重构治理",
