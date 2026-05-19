@@ -1,5 +1,11 @@
 [
   {
+    "date": "2026-05-19",
+    "title": "第 25 期：当行业开始评测「Agent 系统」而非单一模型——同一个 LLM 在不同 harness 下性价比差 5 倍，工程化能力正式取代模型能力成为核心竞争力",
+    "highlights": "Open Agent Leaderboard 首次量化 Agent harness 对性价比的决定性影响 · GitHub Agent 远程控制 GA · Darwin-28B 零训练达 GPQA 88.89% · Grafana Labs 被入侵拒付赎金 · Stripe 实时计费分析架构详解 · 12-Factor Agents 方法论 · Datadog MCP 设计准则 · Discord 全面 E2EE 语音",
+    "image": ""
+  },
+  {
     "date": "2026-05-18",
     "title": "第 24 期：智能体从写代码到发现算法 — AI 正在改变的不是效率，是组织的能力边界",
     "highlights": "AlphaEvolve 从写代码到发现算法 · 开放模型生态形成复合优势 · TanStack 供应链攻击升级 · Stripe 编码 Agent 进入生产 · Shopify AI 使用爆发 · 评测驱动研发成为核心竞争力",
