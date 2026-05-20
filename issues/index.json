@@ -1,5 +1,11 @@
 [
   {
+    "date": "2026-05-20",
+    "title": "第 26 期：Karpathy 加入 Anthropic 同日 Stainless 被收购、Gemini 3.5 发布——AI 实验室的竞争从「拼模型」全面转向「拼开发者生态」",
+    "highlights": "Karpathy 加入 Anthropic · Anthropic 收购 SDK 工具商 Stainless · Gemini 3.5 发布 · Bitwarden CLI 被劫持 + 300+ npm 包投毒 · Forge 用编排将 8B 模型从 53% 提至 99% · LangGraph DeltaChannel 压缩 Agent checkpoint 41× · DeepMind Co-Scientist 发现抗衰老因子 · Pragmatic Engineer 900+ 人 AI 调研收官",
+    "image": ""
+  },
+  {
     "date": "2026-05-19",
     "title": "第 25 期：当行业开始评测「Agent 系统」而非单一模型——同一个 LLM 在不同 harness 下性价比差 5 倍，工程化能力正式取代模型能力成为核心竞争力",
     "highlights": "Open Agent Leaderboard 首次量化 Agent harness 对性价比的决定性影响 · GitHub Agent 远程控制 GA · Darwin-28B 零训练达 GPQA 88.89% · Grafana Labs 被入侵拒付赎金 · Stripe 实时计费分析架构详解 · 12-Factor Agents 方法论 · Datadog MCP 设计准则 · Discord 全面 E2EE 语音",
