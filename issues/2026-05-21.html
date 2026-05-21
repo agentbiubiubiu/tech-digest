@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>第 27 期：AI 自主证伪 80 年数学猜想，同日 Anthropic 签下月付 12.5 亿美元算力合约——当能力以指数级扩展，基础设施成了最贵的门票</title>
+  <meta property="og:title" content="Tech Digest #27：AI 证伪数学猜想 · Anthropic 月租 $1.25B 算力 · GitHub 3800 仓库泄露">
+  <meta property="og:description" content="OpenAI 模型自主攻克 Erdős 平面几何猜想；SpaceX S-1 披露 Anthropic 月付 12.5 亿美元租用 xAI 算力至 2029；GitHub 内部仓库因恶意 VS Code 扩展泄露；Google 开源 Agent Executor 分布式运行时">
+  <meta property="og:image" content="">
+  <style>
+:root {
+  --bg: #f5f6f8; --surface: #ffffff; --surface2: #f0f2f5;
+  --border: #e8ecf1; --border-hover: #c5cdd8;
+  --text: #1a1d21; --text-secondary: #3d4550; --text-muted: #8c95a1;
+  --accent: #2d9f6f; --accent-light: #e8f5ef; --accent-hover: #248a5e;
+  --accent-text: #ffffff;
+  --purple: #7c5cbf; --purple-light: #f3effc;
+  --orange: #e58e26; --orange-light: #fef5e7;
+  --blue: #3a82f7; --blue-light: #eef4fe;
+  --red: #e74c3c; --red-light: #fdecea;
+  --green-deep: #1a7a4c; --green-light2: #e0f5ea;
+  --yellow: #d4a017; --yellow-light: #fef9e7;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.06);
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.06), 0 2px 4px rgba(0,0,0,0.04);
+  --shadow-lg: 0 10px 30px rgba(0,0,0,0.08);
+  --radius: 12px; --radius-sm: 8px; --radius-xs: 6px;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Helvetica, Arial, sans-serif; background: var(--bg); color: var(--text); line-height: 1.75; font-size: 15px; -webkit-font-smoothing: antialiased; }
+.topbar { background: var(--surface); border-bottom: 1px solid var(--border); padding: 12px 32px; display: flex; align-items: center; gap: 16px; position: sticky; top: 0; z-index: 200; box-shadow: var(--shadow-sm); }
+.topbar-brand { font-size: 1.1rem; font-weight: 700; color: var(--accent); text-decoration: none; display: flex; align-items: center; gap: 8px; }
+.topbar-brand svg { width: 28px; height: 28px; }
+.topbar-nav { display: flex; gap: 4px; margin-left: 24px; }
+.topbar-nav a { padding: 6px 16px; border-radius: 20px; font-size: 0.85rem; font-weight: 500; color: var(--text-secondary); text-decoration: none; transition: all 0.2s; }
+.topbar-nav a:hover { background: var(--surface2); color: var(--text); }
+.topbar-nav a.active { background: var(--accent-light); color: var(--accent); font-weight: 600; }
+.topbar-right { margin-left: auto; display: flex; align-items: center; gap: 12px; }
+.topbar-date { font-size: 0.82rem; color: var(--text-muted); background: var(--surface2); padding: 5px 12px; border-radius: 16px; }
+.page { display: flex; max-width: 1200px; margin: 0 auto; padding: 24px 24px 0; gap: 24px; }
+.toc { width: 220px; flex-shrink: 0; position: sticky; top: 80px; height: calc(100vh - 104px); overflow-y: auto; background: var(--surface); border-radius: var(--radius); padding: 20px 16px; box-shadow: var(--shadow-sm); border: 1px solid var(--border); }
+.toc-title { font-size: 0.72rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 14px; padding-left: 12px; }
+.toc a { display: block; padding: 7px 12px; margin-bottom: 2px; font-size: 0.82rem; color: var(--text-muted); text-decoration: none; border-radius: var(--radius-xs); transition: all 0.15s; font-weight: 500; }
+.toc a:hover { color: var(--accent); background: var(--accent-light); }
+.toc a.active { color: var(--accent); background: var(--accent-light); font-weight: 600; }
+.toc-mobile { display: none; position: sticky; top: 57px; z-index: 100; background: var(--surface); border-bottom: 1px solid var(--border); padding: 10px 16px; box-shadow: var(--shadow-sm); }
+.toc-mobile summary { cursor: pointer; font-size: 0.85rem; color: var(--accent); font-weight: 600; list-style: none; }
+.toc-mobile summary::-webkit-details-marker { display: none; }
+.toc-mobile .toc-dropdown { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 8px; margin-top: 8px; max-height: 60vh; overflow-y: auto; box-shadow: var(--shadow-md); }
+.toc-mobile .toc-dropdown a { display: block; padding: 8px 12px; font-size: 0.88rem; color: var(--text-secondary); text-decoration: none; border-radius: var(--radius-xs); }
+.toc-mobile .toc-dropdown a:hover { color: var(--accent); background: var(--accent-light); }
+@media (max-width: 860px) { .toc { display: none; } .toc-mobile { display: block; } .topbar-nav { display: none; } .page { flex-direction: column; padding: 16px 12px 0; gap: 16px; } .container { padding: 20px 16px 60px; } }
+.container { flex: 1; min-width: 0; background: var(--surface); border-radius: var(--radius); padding: 36px 40px 60px; box-shadow: var(--shadow-sm); border: 1px solid var(--border); margin-bottom: 40px; }
+.back { display: inline-flex; align-items: center; gap: 4px; color: var(--text-muted); text-decoration: none; font-size: 0.85rem; margin-bottom: 28px; font-weight: 500; transition: color 0.15s; }
+.back:hover { color: var(--accent); }
+h1 { font-size: 1.7rem; font-weight: 800; margin-bottom: 10px; line-height: 1.35; color: var(--text); letter-spacing: -0.01em; }
+.meta { color: var(--text-muted); font-size: 0.85rem; margin-bottom: 28px; }
+.highlights-line { color: var(--text-secondary); font-size: 0.9rem; margin: -18px 0 28px; line-height: 1.65; }
+.hero-img { width: 100%; border-radius: var(--radius); margin-bottom: 10px; box-shadow: var(--shadow-md); }
+.hero-caption { font-size: 0.82rem; color: var(--text-muted); margin-bottom: 36px; text-align: center; font-style: italic; }
+h2 { font-size: 1.25rem; font-weight: 700; margin: 44px 0 18px; padding-bottom: 10px; border-bottom: 2px solid var(--accent-light); scroll-margin-top: 90px; color: var(--text); }
+h3 { font-size: 1.05rem; font-weight: 600; margin: 26px 0 8px; color: var(--text); }
+p { margin-bottom: 14px; color: var(--text-secondary); }
+a { color: var(--accent); text-decoration: none; font-weight: 500; }
+a:hover { color: var(--accent-hover); text-decoration: underline; }
+strong { color: var(--text); font-weight: 600; }
+code { background: var(--surface2); padding: 2px 6px; border-radius: 4px; font-size: 0.88em; color: var(--accent-hover); font-family: "SF Mono", Monaco, monospace; }
+.callout { background: var(--accent-light); border-left: 4px solid var(--accent); border-radius: var(--radius-sm); padding: 16px 20px; margin: 20px 0; font-size: 0.93rem; color: var(--text-secondary); }
+.article-img { width: 100%; max-height: 380px; object-fit: cover; border-radius: var(--radius-sm); margin: 12px 0 24px; box-shadow: var(--shadow-sm); }
+.tool-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 16px 0; }
+.tool-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px 20px; transition: all 0.2s; box-shadow: var(--shadow-sm); }
+.tool-card:hover { border-color: var(--accent); box-shadow: var(--shadow-md); transform: translateY(-1px); }
+.tool-card h4 { font-size: 0.95rem; margin-bottom: 6px; font-weight: 600; }
+.tool-card h4 a { color: var(--accent); }
+.tool-card p { font-size: 0.83rem; color: var(--text-muted); margin: 0; line-height: 1.55; }
+.tool-card .tag { display: inline-block; font-size: 0.68rem; padding: 3px 8px; border-radius: 10px; background: var(--accent); color: var(--accent-text); font-weight: 600; margin-bottom: 8px; letter-spacing: 0.02em; }
+.tool-card .priority-tag { display: inline-block; font-size: 0.65rem; padding: 2px 6px; border-radius: 8px; background: var(--surface2); color: var(--text-muted); font-weight: 600; margin-left: 6px; }
+.fun-card { background: var(--orange-light); border: 1px solid #f5ddb8; border-radius: var(--radius); padding: 20px 24px; margin: 14px 0; }
+.fun-card h4 { font-size: 1rem; margin-bottom: 8px; font-weight: 600; }
+.fun-card h4 a { color: var(--orange); }
+.fun-card p { font-size: 0.88rem; color: var(--text-secondary); margin: 0; line-height: 1.65; }
+.quote-block { background: var(--purple-light); border-left: 4px solid var(--purple); border-radius: var(--radius-sm); padding: 20px 24px; margin: 18px 0; }
+.quote-block blockquote { font-size: 1.02rem; line-height: 1.65; margin-bottom: 10px; font-style: italic; color: var(--text); }
+.quote-block .quote-author { font-size: 0.82rem; color: var(--purple); font-weight: 600; margin-bottom: 6px; }
+.quote-block .quote-meta { font-size: 0.78rem; color: var(--text-muted); margin-bottom: 10px; }
+.quote-block .quote-comment { font-size: 0.88rem; color: var(--text-secondary); border-top: 1px solid #d8d0e8; padding-top: 10px; margin-top: 10px; }
+.quote-block .quote-team-insight { font-size: 0.88rem; color: var(--green-deep); background: var(--accent-light); border-radius: var(--radius-xs); padding: 8px 12px; margin-top: 8px; }
+.resource-item { background: var(--blue-light); border: 1px solid #c8dbf8; border-radius: var(--radius); padding: 18px 20px; margin: 12px 0; }
+.resource-item a { font-weight: 600; color: var(--blue); }
+.resource-item p { font-size: 0.88rem; color: var(--text-secondary); margin: 6px 0 0; }
+.concept-card { background: var(--green-light2); border-left: 4px solid var(--accent); border-radius: var(--radius-sm); padding: 20px 24px; margin: 16px 0; }
+.concept-card h4 { font-size: 1rem; font-weight: 700; color: var(--green-deep); margin-bottom: 10px; }
+.concept-card .concept-field { font-size: 0.88rem; color: var(--text-secondary); margin-bottom: 6px; line-height: 1.6; }
+.concept-card .concept-field strong { color: var(--text); font-size: 0.88rem; }
+.insight-card { background: var(--yellow-light); border-left: 4px solid var(--yellow); border-radius: var(--radius-sm); padding: 16px 20px; margin: 12px 0; }
+.insight-card p { font-size: 0.93rem; color: var(--text-secondary); margin: 0; line-height: 1.7; }
+.insight-card .insight-num { display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; border-radius: 50%; background: var(--yellow); color: #fff; font-size: 0.75rem; font-weight: 700; margin-right: 10px; flex-shrink: 0; }
+.certainty-tag { display: inline-block; font-size: 0.65rem; padding: 2px 6px; border-radius: 8px; font-weight: 600; margin-left: 8px; }
+.certainty-confirmed { background: var(--accent-light); color: var(--accent); }
+.certainty-announced { background: var(--blue-light); color: var(--blue); }
+.certainty-reported { background: var(--yellow-light); color: var(--yellow); }
+.certainty-opinion { background: var(--purple-light); color: var(--purple); }
+.certainty-rumor { background: var(--red-light); color: var(--red); }
+.certainty-unknown { background: var(--surface2); color: var(--text-muted); }
+.audio-bar { background: var(--accent-light); border: 1px solid #b8dfc9; border-radius: var(--radius); padding: 16px 20px; margin-bottom: 28px; }
+.audio-bar.hidden { display: none; }
+.audio-bar .audio-label { font-size: 0.85rem; color: var(--accent-hover); margin-bottom: 8px; }
+.audio-bar audio { width: 100%; height: 36px; border-radius: 18px; }
+.section-note { font-size: 0.82rem; color: var(--text-muted); font-style: italic; margin-bottom: 16px; }
+.signal-table { width: 100%; border-collapse: collapse; margin-top: 12px; font-size: 0.88rem; }
+.signal-table th { background: var(--purple-light); color: var(--purple); padding: 8px 12px; text-align: left; font-weight: 600; font-size: 0.82rem; }
+.signal-table td { padding: 8px 12px; border-bottom: 1px solid var(--border); color: var(--text-secondary); }
+.identity-table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 0.88rem; }
+.identity-table th { background: var(--accent-light); color: var(--accent); padding: 10px 14px; text-align: left; font-weight: 600; font-size: 0.82rem; border-bottom: 2px solid var(--accent); }
+.identity-table td { padding: 10px 14px; border-bottom: 1px solid var(--border); color: var(--text-secondary); vertical-align: top; }
+.identity-table td:first-child { white-space: nowrap; color: var(--text); }
+.transition-card { background: #1a2332; border-radius: var(--radius); padding: 20px 24px; margin: 14px 0; }
+.transition-card h4 { color: #7eb8ff; font-size: 0.95rem; margin-bottom: 12px; }
+.transition-card ul { list-style: none; padding: 0; }
+.transition-card li { color: #c8d6e5; font-size: 0.88rem; padding: 4px 0 4px 16px; position: relative; line-height: 1.65; }
+.transition-card li::before { content: "→"; position: absolute; left: 0; color: #7eb8ff; }
+.asset-table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 0.88rem; }
+.asset-table th { background: var(--yellow-light); color: var(--yellow); padding: 10px 14px; text-align: left; font-weight: 600; font-size: 0.82rem; border-bottom: 2px solid var(--yellow); }
+.asset-table td { padding: 10px 14px; border-bottom: 1px solid var(--border); color: var(--text-secondary); vertical-align: top; }
+.asset-table td:first-child { white-space: nowrap; color: var(--text); }
+.current-work-table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 0.88rem; }
+.current-work-table th { background: var(--yellow-light); color: var(--yellow); padding: 8px 12px; text-align: left; font-weight: 600; font-size: 0.82rem; }
+.current-work-table td { padding: 8px 12px; border-bottom: 1px solid var(--border); color: var(--text-secondary); }
+.action-section { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin: 16px 0; }
+.action-col { background: var(--surface2); border-radius: var(--radius); padding: 20px; }
+.action-col h4 { font-size: 0.92rem; color: var(--accent); margin-bottom: 12px; }
+.action-col ol { padding-left: 20px; }
+.action-col li { font-size: 0.88rem; color: var(--text-secondary); padding: 4px 0; line-height: 1.6; }
+@media (max-width: 640px) { .action-section { grid-template-columns: 1fr; } }
+.footer-sources { margin-top: 44px; padding: 20px 24px; background: var(--surface2); border-radius: var(--radius); font-size: 0.78rem; color: var(--text-muted); line-height: 1.9; }
+.footer-sources strong { color: var(--text-secondary); font-size: 0.78rem; }
+@media (max-width: 640px) { .tool-grid { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+
+<header class="topbar">
+  <a href="../index.html" class="topbar-brand">
+    <svg viewBox="0 0 28 28" fill="none"><circle cx="14" cy="14" r="14" fill="#2d9f6f"/><path d="M8 14.5l3.5 3.5 8.5-8" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    Tech Digest
+  </a>
+  <nav class="topbar-nav">
+    <a href="../index.html">Archive</a>
+    <a href="#headline" class="active">Today</a>
+    <a href="#tools">Tools</a>
+    <a href="#quotes">Quotes</a>
+    <a href="../lenny/index.html">Lenny 精读</a>
+  </nav>
+  <div class="topbar-right">
+    <span class="topbar-date">2026-05-21</span>
+  </div>
+</header>
+
+<details class="toc-mobile">
+  <summary>📑 目录导航</summary>
+  <div class="toc-dropdown">
+        <a href="#headline">🔥 头条深读</a>
+    <a href="#cognition-upgrade">🧠 今日认知升级</a>
+    <a href="#identity-insights">🔭 高维启发</a>
+    <a href="#identity-training">🎯 身份跃迁训练</a>
+    <a href="#long-term-assets">💎 长期资产沉淀</a>
+    <a href="#tech-news">📰 科技动态</a>
+    <a href="#ai">🤖 AI 相关</a>
+    <a href="#articles">📝 文章推荐</a>
+    <a href="#ai-tools">🧠 AI 工具</a>
+    <a href="#concepts">🧩 本期概念库</a>
+    <a href="#fun">🎲 趣闻</a>
+    <a href="#resources">📚 资源</a>
+    <a href="#quotes">💬 言论</a>
+    <a href="#current-work-insights">✅ 对当前工作的启发</a>
+    <a href="#action-items">📋 行动清单</a>
+  </div>
+</details>
+
+<div class="page">
+<nav class="toc">
+  <div class="toc-title">本期目录</div>
+    <a href="#headline">🔥 头条深读</a>
+    <a href="#cognition-upgrade">🧠 今日认知升级</a>
+    <a href="#identity-insights">🔭 高维启发</a>
+    <a href="#identity-training">🎯 身份跃迁训练</a>
+    <a href="#long-term-assets">💎 长期资产沉淀</a>
+    <a href="#tech-news">📰 科技动态</a>
+    <a href="#ai">🤖 AI 相关</a>
+    <a href="#articles">📝 文章推荐</a>
+    <a href="#ai-tools">🧠 AI 工具</a>
+    <a href="#concepts">🧩 本期概念库</a>
+    <a href="#fun">🎲 趣闻</a>
+    <a href="#resources">📚 资源</a>
+    <a href="#quotes">💬 言论</a>
+    <a href="#current-work-insights">✅ 对当前工作的启发</a>
+    <a href="#action-items">📋 行动清单</a>
+</nav>
+
+<main class="container">
+  <a href="../index.html" class="back">← 返回目录</a>
+
+  <h1>第 27 期：AI 自主证伪 80 年数学猜想，同日 Anthropic 签下月付 12.5 亿美元算力合约——当能力以指数级扩展，基础设施成了最贵的门票</h1>
+  <div class="meta">第 27 期 · 2026年5月21日，星期四</div>
+
+  <p class="highlights-line"><strong>✨ 本期亮点：</strong>OpenAI 模型自主证伪 80 年数学猜想 · Anthropic 月付 $1.25B 租 xAI 算力至 2029 · GitHub 3800 内部仓库因恶意 VS Code 扩展泄露 · Google 开源 Agent Executor 分布式运行时 · Railway GCP 误封致 8 小时全站宕机 · LangChain Deep Agents Interpreter 降 35% token · Uber Go 栈调优省 16% CPU · Jane Street 用群论枚举位置编码空间</p>
+
+  <div class="audio-bar hidden" id="audioBar">
+    <div class="audio-label">🎧 收听本期音频版<br><small>由 NotebookLM 生成 · 双人对话播客风格</small></div>
+    <audio controls preload="none" id="audioPlayer"></audio>
+  </div>
+
+
+  <div class="callout">
+    <strong>🎯 本期核心判断：</strong>AI 的能力已从辅助编码跃升到自主数学证明，支撑这一切的算力合约以月 12.5 亿美元计价——但基础设施的单点风险（从云平台误封到开发工具投毒）也在同步放大
+  </div>
+
+  <div class="callout">
+    <strong>⏱ 本期建议阅读顺序</strong><br>
+    5 分钟：核心判断 + 科技动态速览（GitHub 泄露、SpaceX S-1、Railway 故障）<br>
+    10 分钟：头条深读（OpenAI 证伪数学猜想）+ AI 前沿（Anthropic 算力、CoT 安全、Gemini Omni）<br>
+    15 分钟：AI 工具（Agent Executor、LangChain Interpreter、Antigravity 2.0）+ 概念库<br>
+    25 分钟：工程深度（Uber Go 栈优化、Meta 数据迁移、Jane Street 位置编码）+ 言论<br>
+    30 分钟：全文通读含资源与团队启发
+  </div>
+
+  <h2 id="headline">🔥 头条深读</h2>
+
+<p>OpenAI 内部通用推理模型在未经专项数学脚手架的情况下，自主证伪了 Erdős 于 1946 年提出的平面单位距离问题核心猜想。模型构造出无限族点集配置，证明下界可突破 n<sup>1+o(1)</sup>，推翻沿用近 80 年的主流预期。</p>
+
+<p>证明已由 Noga Alon、Tim Gowers 等数学家审阅确认。Noga Alon 评价：「这是 AI 首次自主解决组合几何领域的核心开放问题。」令人意外的是，模型在证明中引入了代数数论工具来解决初等几何问题——这种跨领域迁移正是人类创造性研究的标志性行为。</p>
+
+<p>这一里程碑的意义不仅在于单个定理。它表明前沿推理模型已具备三重能力：原创性洞察（而非暴力搜索）、长链严格证明、以及跨学科工具迁移。此前 AlphaProof、AlphaGeometry 等系统需要大量领域特化与脚手架，而此次使用的是通用模型通用推理。</p>
+
+<p><strong>对团队的启发</strong>：当 AI 能独立完成跨领域数学研究时，「AI 只是代码补全工具」的心智模型已严重过时。团队需重新评估 AI 在复杂推理任务（测试策略设计、系统架构决策、性能瓶颈分析）中的角色定位——不是更快的手，而是可能提供非直觉解的「第二个大脑」。</p>
+
+
+  <h2 id="tech-news">📰 科技动态</h2>
+
+<h3>1、GitHub 确认约 3800 个内部仓库因恶意 VS Code 扩展遭窃 <span class="certainty-tag certainty-confirmed">confirmed</span></h3>
+  <p>GitHub 员工设备安装带毒 VS Code 扩展后，约 3800 个内部私有仓库数据被 exfiltrate；TeamPCP 黑客组织在暗网兜售源码要价 5 万美元起。公司称暂无客户仓库受影响证据，但已启动全面安全审查。</p>
+
+<h3>2、SpaceX 提交 S-1：2025 年营收 187 亿、合并 xAI 后 AI 占 capex 60% <span class="certainty-tag certainty-confirmed">confirmed</span></h3>
+  <p>SpaceX 近 400 页招股书披露 2025 年营收 187 亿美元但亏损 49 亿，Starlink 贡献过半。合并 xAI 后 AI 占资本支出约 60%，xAI 2025 年运营亏损 64 亿美元、年化 capex 约 308 亿。Musk 将保留 85%+ 投票权。</p>
+
+<h3>3、Railway 因 GCP 账户误封遭遇 8 小时全站 outage <span class="certainty-tag certainty-confirmed">confirmed</span></h3>
+  <p>Google Cloud 误将 Railway 生产账户 suspend，导致控制面、API 与 GCP 上全部工作负载中断约 8 小时。边缘路由缓存过期后连 Metal/AWS 工作负载也不可达。Railway 承认单云架构缺陷，计划将控制面移出 GCP。</p>
+
+<h3>4、Nvidia 季度营收 816 亿美元创纪录，私募持仓翻倍至 430 亿 <span class="certainty-tag certainty-confirmed">confirmed</span></h3>
+  <p>Nvidia 数据中心营收 752 亿，授权 800 亿回购。非上市股权持仓从 220 亿暴增至 430 亿。CFO 称 Blackwell 已被所有主要云厂商采用，并将为 Anthropic 显著扩容算力供给。</p>
+
+<h3>5、npm RFC 提议将安装脚本改为 Opt-In，从根本上缩小供应链攻击面 <span class="certainty-tag certainty-announced">announced</span></h3>
+  <p>npm 维护者提出 RFC：将 postinstall 等安装脚本从默认执行改为显式 opt-in。npm 是目前唯一默认运行依赖安装脚本的主流包管理器，该变更有望大幅降低 Shai-Hulud 类供应链攻击的有效性。</p>
+
+<h3>6、Firefox 148 默认关闭 asm.js，Mozilla 正式告别 OdinMonkey <span class="certainty-tag certainty-confirmed">confirmed</span></h3>
+  <p>SpiderMonkey 团队宣布 Firefox 148 默认禁用 asm.js JIT，未来完全移除 OdinMonkey 编译器。asm.js 曾推动 Unity/Unreal 等 C++ 代码在浏览器运行并为 WebAssembly 铺路，官方建议开发者迁移至 WASM。</p>
+
+
+  <h2 id="ai">🤖 AI 相关</h2>
+
+<h3>1、Anthropic 签约租用 xAI Colossus 算力，月付 12.5 亿美元至 2029 年 <span class="certainty-tag certainty-confirmed">confirmed</span></h3>
+  <p>SpaceX S-1 披露 Anthropic 于 2026 年 5 月与 SpaceX/xAI 签署云服务协议，租用 COLOSSUS 与 COLOSSUS II 算力集群 300MW 容量，合同总额或超 400 亿美元。这是公开可见最大规模的第三方 AI 算力采购，揭示 frontier lab 算力供给正多元化。</p>
+
+<h3>2、OpenAI 披露多代模型训练中意外对 Chain-of-Thought 计分 <span class="certainty-tag certainty-confirmed">confirmed</span></h3>
+  <p>OpenAI 发现 GPT-5.4 Thinking、GPT-5.x 等已发布模型在 RL 训练中曾意外将 CoT 纳入奖励信号（占比最高不足 3.8%）。团队构建 regex 自动检测系统并修复奖励路径，委托 METR、Redwood Research 等独立审阅，目前未见显著 monitorability 退化证据。</p>
+
+<h3>3、Qwen3.7-Max：阿里发布面向 Agent 前沿的新模型 <span class="certainty-tag certainty-announced">announced</span></h3>
+  <p>阿里巴巴 Qwen 团队发布 Qwen3.7-Max，定位 Agent 能力前沿，强调长程任务执行与工具调用表现。社区讨论其在 coding/agent 场景下相对现有开源与闭源模型的竞争力。</p>
+
+<h3>4、DeepMind 发布 Gemini Omni Flash：任意输入生成/编辑视频 <span class="certainty-tag certainty-announced">announced</span></h3>
+  <p>Gemini Omni 家族首发模型可将文本/图像/音频/视频任意组合输入，通过自然语言对话式编辑生成高质量视频。具备改进的物理模拟与 Gemini 世界知识 grounding，所有输出嵌入 SynthID 水印，今日起向 Google AI 订阅用户推出。</p>
+
+<h3>5、Prime Intellect：Codex 5.5 与 Claude Opus 4.7 自主优化 nanoGPT 超越人类基线 <span class="certainty-tag certainty-confirmed">confirmed</span></h3>
+  <p>Prime Intellect 让两大 frontier Agent 在 nanoGPT speedrun 赛道自主搜索优化器与超参，共跑约 1 万次实验。Opus 最终纪录 2930 步打破人类 2990 步基线，但在 novelty-gated 实验中未能突破——Agent 擅长 hillclimbing，缺乏原创想法。</p>
+
+<h3>6、Tilde Research 发布 Aurora 优化器：修复 Muon 导致 1/4 MLP 神经元永久死亡 <span class="certainty-tag certainty-confirmed">confirmed</span></h3>
+  <p>Tilde 拆解 Muon 优化器发现其在 tall matrix 上导致 row-norm 各向异性，训练 warmup 阶段超过 1/4 MLP 神经元永久「死亡」。新优化器 Aurora 在 1.1B 模型上 loss 2.26 优于 Muon 2.31，MMLU 提升 10 分。</p>
+
+
+  <h2 id="articles">📝 文章推荐</h2>
+
+<h3>1、<a href="https://newsletter.pragmaticengineer.com/p/why-rust-is-different-with-alice" target="_blank" rel="noopener noreferrer">Why Rust is Different — Pragmatic Engineer 对话 Google/Tokio 维护者 Alice Ryhl</a></h3>
+  <p>深度解析 Rust 所有权模型与编译期约束的独特之处，讨论 Rust 在 Linux 内核中的落地进展，以及 AI Agent 借助编译器反馈生成 Rust 代码的潜力与「假熟练」风险。来自一线维护者的架构视角。</p>
+
+<h3>2、<a href="https://www.uber.com/us/en/blog/zero-growth-stack/" target="_blank" rel="noopener noreferrer">Uber Zero-Growth Stack：用 Profile-Guided 栈调优省 16% CPU</a></h3>
+  <p>Uber 通过 pprof + 汇编分析自动化调优 goroutine 栈大小，将核心服务 stack growth CPU 开销从 10% 降至 1% 以下。1% 效率即数百万美元——在超大规模 Go 服务中，运行时隐式开销完全可被量化并消灭。</p>
+
+<h3>3、<a href="https://engineering.fb.com/2026/05/12/data-infrastructure/migrating-data-ingestion-systems-at-meta-scale/" target="_blank" rel="noopener noreferrer">Meta Scale 数据摄入系统迁移：Shadow → Reverse Shadow → Cleanup</a></h3>
+  <p>Meta 完成 PB 级数据摄入迁移：三阶段生命周期，row count + checksum 双校验，CDC 坏数据分区标记与自动 backfill，数万 job 通过 Scuba 信号驱动批量推进，实现零停机切换。</p>
+
+  <img class="article-img" src="https://engineering.fb.com/wp-content/uploads/2026/05/Migrating-Data-Ingestion-Systems-at-Meta-Scale-HERO.png" alt="">
+
+<h3>4、<a href="https://blog.janestreet.com/using-group-theory-to-explore-positional-encodings-attention/" target="_blank" rel="noopener noreferrer">Jane Street：用群论严格枚举 Attention 位置编码的合法空间</a></h3>
+  <p>在线性、平移不变与连续性约束下，证明所有合理解均为 one-parameter group，导出 RoPE、ALiBi、指数衰减等方案；发现 defect generator 产生的多项式编码新类别。来自顶级交易公司的序列建模数学分析。</p>
+
+
+  <h2 id="tools">🛠️ 工具推荐</h2>
+
+<div class="tool-grid">
+
+  <div class="tool-card">
+    <h4><a href="https://github.com/jepsen-io/jepsen/releases/tag/v0.3.10" target="_blank" rel="noopener noreferrer">Jepsen 0.3.10</a> <span class="priority-tag">P1</span></h4>
+    <p>引入可控熵与 Antithesis 确定性仿真测试：可复现 RNG、生命周期封装、op color plots 可视化。分布式系统可靠性测试的可复现性基石。</p>
+  </div>
+
+  <div class="tool-card">
+    <h4><a href="https://docs.npmjs.com/staged-publishing/" target="_blank" rel="noopener noreferrer">npm Staged Publishing</a> <span class="priority-tag">P1</span></h4>
+    <p>发布前需维护者 2FA 审批的暂存区机制。`npm stage publish` 提交 → 显式 approve → 公开，为供应链攻击增加人工闸门。</p>
+  </div>
+
+  <div class="tool-card">
+    <h4><a href="https://huggingface.co/blog/ettin-reranker" target="_blank" rel="noopener noreferrer">Ettin Reranker Family</a> <span class="priority-tag">P1</span></h4>
+    <p>6 款基于 ModernBERT 的 SOTA 开源 CrossEncoder reranker，支持 8K context，附完整 distillation 训练配方与 AI skill 一键微调。</p>
+  </div>
+
+</div>
+
+
+  <h2 id="ai-tools">🧠 AI 工具</h2>
+
+<div class="tool-grid">
+
+  <div class="tool-card">
+    <span class="tag">Agent 基础设施</span>
+    <h4><a href="https://cloud.google.com/blog/products/ai-machine-learning/agent-executor-googles-distributed-agent-runtime" target="_blank" rel="noopener noreferrer">Google Agent Executor</a></h4>
+    <p>开源分布式 Agent 运行时：durable execution、安全沙箱、单写者会话一致性、断线重连与 checkpoint 轨迹分支，支持亿级 agent 调度。</p>
+  </div>
+
+  <div class="tool-card">
+    <span class="tag">Agent 效率</span>
+    <h4><a href="https://blog.langchain.dev/give-your-agents-an-interpreter/" target="_blank" rel="noopener noreferrer">LangChain Interpreter (Deep Agents)</a></h4>
+    <p>基于 QuickJS 的嵌入式运行时，位于串行 tool call 与完整 sandbox 之间。Agent 在受控命名空间写 TS 编排多步逻辑，部分任务 token 降约 35%。</p>
+  </div>
+
+  <div class="tool-card">
+    <span class="tag">Agent 平台</span>
+    <h4><a href="https://www.latent.space/p/ainews-google-io-2026-gemini-35-flash" target="_blank" rel="noopener noreferrer">Antigravity 2.0 + Gemini Spark</a></h4>
+    <p>Google 完整 Agent 执行栈：桌面/CLI/SDK/Managed Agents API（含 Linux sandbox）。Spark 作为 24/7 后台 Agent 运行在云 VM。Demo 展示 93 个并行 sub-agent。</p>
+  </div>
+
+  <div class="tool-card">
+    <span class="tag">安全</span>
+    <h4><a href="https://openai.com/index/building-codex-windows-sandbox/" target="_blank" rel="noopener noreferrer">OpenAI Codex Windows Sandbox</a></h4>
+    <p>自研合成 SID + write-restricted token 方案，无需管理员权限即可限制文件写入与网络访问，使 Windows 开发者体验对齐 macOS/Linux。</p>
+  </div>
+
+  <div class="tool-card">
+    <span class="tag">协作</span>
+    <h4><a href="https://linear.app/now/code-intelligence-for-linear-agent" target="_blank" rel="noopener noreferrer">Linear Agent Code Intelligence</a></h4>
+    <p>Linear Agent 新增代码库读取能力，可回答实现细节与回归原因，支持自动 triage 时预调查 bug。</p>
+  </div>
+
+</div>
+
+
+  <h2 id="concepts">🧩 本期概念库</h2>
+
+  <div class="concept-card">
+    <h4>Agent Trace as Memory</h4>
+    <div class="concept-field"><strong>解释：</strong>Agent 执行过程的 JSONL 记录比 PR description 或代码注释更完整地保留决策上下文。传统文档在 feature pressure 下必然 decay，而 trace 作为 byproduct 天然保持新鲜。</div>
+    <div class="concept-field"><strong>出处：</strong>Hugging Face Blog</div>
+    <div class="concept-field"><strong>重要性：</strong>Agent-native 开发中知识管理的范式转移</div>
+    <div class="concept-field"><strong>团队可做：</strong>将 coding agent trace 存入项目仓库，作为决策审计与新人 onboarding 的优先参考物</div>
+  </div>
+
+  <div class="concept-card">
+    <h4>Important Decisions Document (IDD)</h4>
+    <div class="concept-field"><strong>解释：</strong>在项目执行过程中持续记录重大决策的 what/why 及被否决方案的理由。源自 Stack Overflow 长期项目实践，防止反复重议旧决策并加速新人上手。</div>
+    <div class="concept-field"><strong>出处：</strong>ACM Queue / Thomas Limoncelli</div>
+    <div class="concept-field"><strong>重要性：</strong>轻量级决策管理工具，直接提升组织可靠性</div>
+    <div class="concept-field"><strong>团队可做：</strong>为交易系统核心模块建立 IDD，每次架构决策后 5 分钟内记录结论与被否方案</div>
+  </div>
+
+  <div class="concept-card">
+    <h4>Structural Backpressure</h4>
+    <div class="concept-field"><strong>解释：</strong>AI 编码循环应嵌入形式化验证门禁（编译、测试、lint 硬约束），用结构性反压限制 Agent 胡编，而非无限增强模型智能。验证门禁比更聪明的模型更可靠。</div>
+    <div class="concept-field"><strong>出处：</strong>Reuben Brooks / HN 社区</div>
+    <div class="concept-field"><strong>重要性：</strong>Agent 可靠性的工程原则</div>
+    <div class="concept-field"><strong>团队可做：</strong>在 CI 中为 Agent 生成代码增加 type-check + property-test 硬门禁，通过率作为 Agent 效果指标</div>
+  </div>
+
+  <div class="concept-card">
+    <h4>Production Fork</h4>
+    <div class="concept-field"><strong>解释：</strong>克隆生产环境做 agent 安全验证后再 collapse 回主线的部署模式。Railway CEO 断言 PR 正在死亡，Agent 时代 SDLC 从 pull request 转向 prompt + feature-flag 渐进 rollout。</div>
+    <div class="concept-field"><strong>出处：</strong>Railway / Latent Space</div>
+    <div class="concept-field"><strong>重要性：</strong>Agent-era 的 SDLC 新范式候选</div>
+    <div class="concept-field"><strong>团队可做：</strong>评估现有 preview 环境能否支撑 10 个并行 Agent 分支的即时部署需求</div>
+  </div>
+
+
+  <h2 id="fun">🎲 趣闻</h2>
+
+  <div class="fun-card">
+    <h4><a href="https://haskellforall.com/2026/05/type-out-the-code" target="_blank" rel="noopener noreferrer">Type Out the Code：反对 Vibe Coding 的编程纪律宣言</a></h4>
+    <p>Gabriella439 撰文批评「只描述不手写」的 vibe coding 习惯，强调亲手敲代码才能建立类型与语义直觉。Lobsters 高分讨论将其与 Haskell 强类型文化关联：AI 辅助越多，手工实践越不可替代。</p>
+  </div>
+
+  <div class="fun-card">
+    <h4><a href="https://www.sentinelone.com/labs/fast16-mystery-shadowbrokers-reference-reveals-high-precision-software-sabotage-5-years-before-stuxnet/" target="_blank" rel="noopener noreferrer">fast16：Stuxnet 五年前就有高精度科学计算破坏病毒</a></h4>
+    <p>SentinelOne 逆向发现 ~20 年前的 fast16.sys 选择性篡改工程仿真软件的内存结果，通过 FPU 指令注入系统性误差而非传统代码劫持——与《三体》Sophon 干扰物理实验的设想高度相似。</p>
+  </div>
+
+
+  <h2 id="resources">📚 资源</h2>
+
+  <div class="resource-item">
+    <a href="https://www.latent.space/p/railway" target="_blank" rel="noopener noreferrer">Railway: The Agent-Native Cloud（Latent Space 深度访谈）</a>
+    <p>Railway 创始人详述 agent-native 基础设施愿景：350 人团队 300 万用户、自建 bare metal 3 个月回本、月 coding agent 支出 $200K+。PR 正在死亡，Production Fork 取而代之。</p>
+  </div>
+
+  <div class="resource-item">
+    <a href="https://newsletter.pragmaticengineer.com/p/ai-impact-on-software-engineers-part-2" target="_blank" rel="noopener noreferrer">Pragmatic Engineer: AI 对软件工程师的影响 Part 2（900+ 人调研结论）</a>
+    <p>AI 带来生产力与质量的显著 tradeoff，落地效果高度依赖既有工程文化。Junior 工程师 token 消耗更高但收益更低，「代码所有权」概念正在弱化。</p>
+  </div>
+
+
+  <h2 id="quotes">💬 言论</h2>
+
+  <div class="quote-block">
+    <blockquote>这篇论文证明了当前 AI 模型已超越人类数学家的助手角色——它们具备原创且巧妙的想法，并能将其推进至完整证明。</blockquote>
+    <div class="quote-author">Arul Shankar</div>
+    <div class="quote-meta">类型：译文 · 关键词：AI 推理 / 数学 / 能力评估 · <a href="https://openai.com/index/model-disproves-discrete-geometry-conjecture/" target="_blank" rel="noopener noreferrer">来源</a></div>
+    <div class="quote-comment">💬 从「辅助」到「原创」的跨越，是本期最核心的认知升级。但这也意味着我们需要新的方式来验证 AI 产出——数学有证明检查器，工程有什么？</div>
+    <div class="quote-team-insight">🎯 团队启发：为团队复杂推理任务（架构设计、测试策略）建立「AI 提案 + 人工验证」双轨流程</div>
+  </div>
+
+  <div class="quote-block">
+    <blockquote>如果奖励信号评估了 CoT 本身，模型可能学会生产误导性推理轨迹来满足奖励过程。</blockquote>
+    <div class="quote-author">OpenAI Alignment Team</div>
+    <div class="quote-meta">类型：译文 · 关键词：AI 安全 / 对齐 / 可监控性 · <a href="https://alignment.openai.com/accidental-cot-grading/" target="_blank" rel="noopener noreferrer">来源</a></div>
+    <div class="quote-comment">💬 推理模型的安全核心假设是 CoT 可监控。一旦模型学会「写好看的思考过程」来骗过奖励，monitoring 就失效了。这个发现对所有依赖 CoT 做审计的场景都是警钟。</div>
+    <div class="quote-team-insight">🎯 团队启发：在使用 thinking model 时，不要只看最终输出——定期抽检 CoT 与实际行为的一致性</div>
+  </div>
+
+  <div class="quote-block">
+    <blockquote>Pull Request 正在死亡。未来 10 年的主导物种变迁是：从汇编到 C 到 C++ 到 JavaScript 到自然语言。</blockquote>
+    <div class="quote-author">Jake Cooper, Railway CEO</div>
+    <div class="quote-meta">类型：作者原话 · 关键词：Agent 工作流 / SDLC / 基础设施 · <a href="https://www.latent.space/p/railway" target="_blank" rel="noopener noreferrer">来源</a></div>
+    <div class="quote-comment">💬 PR 不死，但它正从「唯一闸门」降级为「可选审计点」。当 10 个 Agent 并行工作时，串行 review 队列会成为瓶颈。真正的质量保障会前移到 production fork + 自动验证。</div>
+    <div class="quote-team-insight">🎯 团队启发：评估团队 CI/CD 是否能支撑多 Agent 并行分支的即时 preview 部署</div>
+  </div>
+
+  <div class="quote-block">
+    <blockquote>Agent 很擅长优化器搜索、超参数 sweep 和方法堆叠，但它们很难自主提出新想法。</blockquote>
+    <div class="quote-author">Prime Intellect</div>
+    <div class="quote-meta">类型：译文 · 关键词：AI 研究 / 自主实验 / 能力边界 · <a href="https://www.primeintellect.ai/auto-nanogpt" target="_blank" rel="noopener noreferrer">来源</a></div>
+    <div class="quote-comment">💬 这是对 Agent 能力边界最精准的描述：hillclimbing 无敌，原创为零。团队应让 Agent 做搜索与优化，人做假设与约束设计。</div>
+    <div class="quote-team-insight">🎯 团队启发：将超参调优、A/B 测试配置、性能回归分析等搜索类任务交给 Agent 自动化</div>
+  </div>
+
+  <div class="quote-block">
+    <blockquote>有趣的是 Agent 已经在生产决策上下文作为副产品——搜索代码库、尝试多种方法、遇到错误、读文档、改方向。全在那里了。</blockquote>
+    <div class="quote-author">Caleb Fahlgren, Hugging Face</div>
+    <div class="quote-meta">类型：译文 · 关键词：Agent Memory / 知识管理 / 可观测性 · <a href="https://huggingface.co/blog/huggingface/agent-traces-as-memory" target="_blank" rel="noopener noreferrer">来源</a></div>
+    <div class="quote-comment">💬 文档会腐烂，但 trace 是新鲜的。当 Agent 成为开发主力后，trace 就是最稠密的知识 artifact。问题是：你保存了吗？</div>
+    <div class="quote-team-insight">🎯 团队启发：配置 coding agent 将每次会话 trace 自动归档到项目仓库的 .traces/ 目录</div>
+  </div>
+
+  <div class="quote-block">
+    <blockquote>不像传统软件，Agent 是非线性程序——它们等待外部输入。</blockquote>
+    <div class="quote-author">Jaana Dogan, Google Cloud</div>
+    <div class="quote-meta">类型：译文 · 关键词：Agent 架构 / 基础设施 / 分布式系统 · <a href="https://cloud.google.com/blog/products/ai-machine-learning/agent-executor-googles-distributed-agent-runtime" target="_blank" rel="noopener noreferrer">来源</a></div>
+    <div class="quote-comment">💬 一句话道破 Agent 与传统服务的本质区别。传统后端是 request-response，Agent 是 long-running + event-driven + checkpoint。这意味着现有微服务框架不够用——你需要 durable execution。</div>
+    <div class="quote-team-insight">🎯 团队启发：调研 Temporal/Inngest/Agent Executor 等 durable execution 框架，为 Agent 长任务提供 crash-safe 运行时</div>
+  </div>
+
+  <div class="quote-block">
+    <blockquote>Coding Agent 是「盲松鼠」，需要精心放置的可验证约束。</blockquote>
+    <div class="quote-author">François Chollet</div>
+    <div class="quote-meta">类型：译文 · 关键词：AI 编码 / 可靠性 / 工程纪律 · <a href="https://www.latent.space/p/ainews-how-to-land-a-job-at-a-frontier" target="_blank" rel="noopener noreferrer">来源</a></div>
+    <div class="quote-comment">💬 盲松鼠偶尔找到坚果，但不能依赖运气。把 type-check、test、lint 作为硬约束嵌入 agent loop，比期待更聪明的模型更可靠。</div>
+    <div class="quote-team-insight">🎯 团队启发：在 Agent 编码 workflow 中增加 structural backpressure：每次生成后必须过编译+测试才能继续</div>
+  </div>
+
+  <div class="quote-block">
+    <blockquote>软件开发的核心是思考与结构设计，而非字符输入速度。无论代码由 LLM 还是新人编写，关键是理解代码的行为。</blockquote>
+    <div class="quote-author">Kode Vicious, ACM Queue</div>
+    <div class="quote-meta">类型：摘要式转述 · 关键词：工程纪律 / 代码理解 / AI 辅助开发 · <a href="https://queue.acm.org/detail.cfm?id=3806209" target="_blank" rel="noopener noreferrer">来源</a></div>
+    <div class="quote-comment">💬 在 Agent 产出代码速度提升 10 倍的今天，这是最需要反复强调的工程纪律。不理解的代码，无论谁写的，都是负债。</div>
+    <div class="quote-team-insight">🎯 团队启发：建立 Agent 代码 review 规范：reviewer 必须能用一句话解释每个变更的 why，否则不合并</div>
+  </div>
+
+
+  <h2 id="current-work-insights">✅ 对当前工作的启发</h2>
+
+  <p class="section-note">以下内容是当前岗位视角下的迁移，不代表全文只服务当前岗位。</p>
+
+  <div class="insight-card">
+    <p><span class="insight-num">1</span>立即审计团队 VS Code 扩展安装清单——GitHub 3800 仓库泄露的根因是员工安装了恶意扩展，建立扩展白名单与定期审查机制</p>
+  </div>
+
+  <div class="insight-card">
+    <p><span class="insight-num">2</span>将 Agent trace 作为新型知识 artifact 存入仓库：配置 coding agent 自动归档会话记录到 .traces/ 目录，替代会 decay 的人工文档</p>
+  </div>
+
+  <div class="insight-card">
+    <p><span class="insight-num">3</span>为 Agent 生成代码建立 structural backpressure：CI 中增加 type-check + property-test 硬门禁，通过率作为 Agent 效果衡量指标</p>
+  </div>
+
+  <div class="insight-card">
+    <p><span class="insight-num">4</span>评估 durable execution 框架（Temporal/Inngest/Agent Executor）替代传统 request-response 微服务，为长时 Agent 任务提供 crash-safe 运行时</p>
+  </div>
+
+  <div class="insight-card">
+    <p><span class="insight-num">5</span>在 npm 生态中部署 install script 拦截策略：启用 --ignore-scripts 默认模式，仅对白名单包开放，降低 Shai-Hulud 类攻击暴露面</p>
+  </div>
+
+
+  <div class="footer-sources">
+    <strong>信息源：</strong>60 个全球精选科技 / AI / 工程 / 系统可靠性信息源<br>
+    <strong>覆盖：</strong>Hacker News · TLDR · Anthropic · OpenAI · DeepMind · Simon Willison · Pragmatic Engineer · Cloudflare · Netflix · Stripe · GitHub · Jepsen · ACM Queue 等<br><br>
+    HTML 由 generator.py 自 content.json 生成 · 生成时间 2026-05-21 · 信息截止至 2026-05-21
+  </div>
+</main>
+</div>
+
+<script>
+  const today = "2026-05-21";
+  const audioPath = `../audio/${today}.m4a`;
+  fetch(audioPath, { method: 'HEAD' }).then(r => {
+    if (r.ok) {
+      document.getElementById('audioBar').classList.remove('hidden');
+      document.getElementById('audioPlayer').src = audioPath;
+    }
+  }).catch(() => undefined);
+
+  const sections = document.querySelectorAll('h2[id]');
+  const tocLinks = document.querySelectorAll('.toc a, .toc-mobile a');
+  const obs = new IntersectionObserver(es => {
+    es.forEach(e => {
+      if (e.isIntersecting) {
+        tocLinks.forEach(a => a.classList.toggle('active', a.getAttribute('href') === '#' + e.target.id));
+      }
+    });
+  }, { rootMargin: '-80px 0px -60% 0px' });
+  sections.forEach(s => obs.observe(s));
+</script>
+</body>
+</html>

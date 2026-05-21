@@ -1,5 +1,11 @@
 [
   {
+    "date": "2026-05-21",
+    "title": "第 27 期：AI 自主证伪 80 年数学猜想，同日 Anthropic 签下月付 12.5 亿美元算力合约——当能力以指数级扩展，基础设施成了最贵的门票",
+    "highlights": "OpenAI 模型自主证伪 80 年数学猜想 · Anthropic 月付 $1.25B 租 xAI 算力至 2029 · GitHub 3800 内部仓库因恶意 VS Code 扩展泄露 · Google 开源 Agent Executor 分布式运行时 · Railway GCP 误封致 8 小时全站宕机 · LangChain Deep Agents Interpreter 降 35% token · Uber Go 栈调优省 16% CPU · Jane Street 用群论枚举位置编码空间",
+    "image": ""
+  },
+  {
     "date": "2026-05-20",
     "title": "第 26 期：Karpathy 加入 Anthropic 同日 Stainless 被收购、Gemini 3.5 发布——AI 实验室的竞争从「拼模型」全面转向「拼开发者生态」",
     "highlights": "Karpathy 加入 Anthropic · Anthropic 收购 SDK 工具商 Stainless · Gemini 3.5 发布 · Bitwarden CLI 被劫持 + 300+ npm 包投毒 · Forge 用编排将 8B 模型从 53% 提至 99% · LangGraph DeltaChannel 压缩 Agent checkpoint 41× · DeepMind Co-Scientist 发现抗衰老因子 · Pragmatic Engineer 900+ 人 AI 调研收官",
