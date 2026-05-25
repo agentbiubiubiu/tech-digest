@@ -1,5 +1,11 @@
 [
   {
+    "date": "2026-05-25",
+    "title": "第 28 期：所有模型实验室都变成了 Agent 实验室——当 Google 关闭开源 CLI、微软禁用 Claude Code，AI 战场从「谁的模型好」变成「谁的 Agent 基础设施稳」",
+    "highlights": "所有模型实验室变成 Agent 实验室：Google 关闭 Gemini CLI 开源版 · 微软禁 Claude Code 统一 Copilot CLI · Anthropic Glasswing 一月发现万级高危漏洞 · NVIDIA Nemotron Diffusion LLM 推理提速 2.6 倍 · DeepSeek V4 Pro 永久降价 75% · Constraint Decay 研究量化 Agent 约束衰减 · Trail of Bits 加固 GitHub Actions 分析器 · 美团 LongCat 数字人 1.5 开源",
+    "image": ""
+  },
+  {
     "date": "2026-05-21",
     "title": "第 27 期：AI 自主证伪 80 年数学猜想，同日 Anthropic 签下月付 12.5 亿美元算力合约——当能力以指数级扩展，基础设施成了最贵的门票",
     "highlights": "OpenAI 模型自主证伪 80 年数学猜想 · Anthropic 月付 $1.25B 租 xAI 算力至 2029 · GitHub 3800 内部仓库因恶意 VS Code 扩展泄露 · Google 开源 Agent Executor 分布式运行时 · Railway GCP 误封致 8 小时全站宕机 · LangChain Deep Agents Interpreter 降 35% token · Uber Go 栈调优省 16% CPU · Jane Street 用群论枚举位置编码空间",
