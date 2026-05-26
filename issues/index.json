@@ -1,5 +1,11 @@
 [
   {
+    "date": "2026-05-26",
+    "title": "第 29 期：Claude 发现 macOS 内核 CVE，同日 317 个 npm 包遭投毒精准劫持 AI 编码会话——Agent 安全攻防正式开场",
+    "highlights": "Claude 发现 macOS 内核 CVE-2026-28952 · 317 npm 包遭投毒劫持 AI 编码会话 · Gemini Omni 多模态创作模型发布 · 5 月开源模型密集爆发 · Andrew Ng 量化编码 Agent 加速差异 · npm RFC 提议 install scripts opt-in · Pragmatic Engineer 900+人 AI 调研收官 · MCP 规范 RC 发布 · LangSmith Auth Proxy Agent 安全方案",
+    "image": ""
+  },
+  {
     "date": "2026-05-25",
     "title": "第 28 期：所有模型实验室都变成了 Agent 实验室——当 Google 关闭开源 CLI、微软禁用 Claude Code，AI 战场从「谁的模型好」变成「谁的 Agent 基础设施稳」",
     "highlights": "所有模型实验室变成 Agent 实验室：Google 关闭 Gemini CLI 开源版 · 微软禁 Claude Code 统一 Copilot CLI · Anthropic Glasswing 一月发现万级高危漏洞 · NVIDIA Nemotron Diffusion LLM 推理提速 2.6 倍 · DeepSeek V4 Pro 永久降价 75% · Constraint Decay 研究量化 Agent 约束衰减 · Trail of Bits 加固 GitHub Actions 分析器 · 美团 LongCat 数字人 1.5 开源",
