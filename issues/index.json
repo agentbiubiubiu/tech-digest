@@ -1,5 +1,11 @@
 [
   {
+    "date": "2026-06-02",
+    "title": "第 30 期：Anthropic 万亿估值冲刺 IPO、Copilot 按量计费引发出走、Meta AI 客服被社工劫持账号——Agent 能力疯涨，信任基础还在补课",
+    "highlights": "Anthropic 万亿估值冲刺 IPO · Copilot 按量计费引发开发者出走 · Meta AI 客服被社工劫持名人 Instagram 账号 · NVIDIA Computex 全栈发布 Cosmos 3 + Nemotron 3 Ultra + RTX Spark · 开源与闭源模型处于不同指数曲线 · Coinbase 8 小时宕机复盘 · GitHub Issues IndexedDB 性能优化 · ACM Queue 揭示 GenAI 八大误区 · Agent Skill 供应链安全数据集发布",
+    "image": ""
+  },
+  {
     "date": "2026-05-26",
     "title": "第 29 期：Claude 发现 macOS 内核 CVE，同日 317 个 npm 包遭投毒精准劫持 AI 编码会话——Agent 安全攻防正式开场",
     "highlights": "Claude 发现 macOS 内核 CVE-2026-28952 · 317 npm 包遭投毒劫持 AI 编码会话 · Gemini Omni 多模态创作模型发布 · 5 月开源模型密集爆发 · Andrew Ng 量化编码 Agent 加速差异 · npm RFC 提议 install scripts opt-in · Pragmatic Engineer 900+人 AI 调研收官 · MCP 规范 RC 发布 · LangSmith Auth Proxy Agent 安全方案",
