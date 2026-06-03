@@ -3,9 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>第 30 期：Anthropic 万亿估值冲刺 IPO、Copilot 按量计费引发出走、Meta AI 客服被社工劫持账号——Agent 能力疯涨，信任基础还在补课</title>
-  <meta property="og:title" content="Tech Digest #30：AI Agent 进入真金白银时代">
-  <meta property="og:description" content="Anthropic 秘密提交 IPO · Copilot 按量计费首日即耗尽配额 · Meta AI 客服被社工劫持名人账号 · NVIDIA Computex 全栈发布 · Coinbase 8 小时宕机复盘">
+  <title>第 30 期：AI 工具进入算 ROI 阶段——Token 账单倒逼组织回答「用得值不值」</title>
+  <meta property="og:title" content="Tech Digest #30：Token 账单倒逼组织算 ROI">
+  <meta property="og:description" content="Amazon 内部 AI 排行榜因员工脚本刷 Token 被迫关闭；Copilot 按量计费引发出走；Meta AI 客服被社工劫持账号。AI 工具从「全员铺开」进入「用得值不值」阶段。">
   <meta property="og:image" content="">
   <style>
 :root {
@@ -158,281 +158,235 @@ strong { color: var(--text); font-weight: 600; }
 
   <main class="container">
     <a href="../index.html" class="back">← 返回目录</a>
-    <h1>第 30 期：Anthropic 万亿估值冲刺 IPO、Copilot 按量计费引发出走、Meta AI 客服被社工劫持账号——Agent 能力疯涨，信任基础还在补课</h1>
-    <div class="meta">第 30 期 · 2026年6月2日，星期二</div>
-    <p class="highlights-line"><strong>✨ 本期亮点：</strong>Anthropic 万亿估值冲刺 IPO · Copilot 按量计费引发开发者出走 · Meta AI 客服被社工劫持名人 Instagram 账号 · NVIDIA Computex 全栈发布 Cosmos 3 + Nemotron 3 Ultra + RTX Spark · 开源与闭源模型处于不同指数曲线 · Coinbase 8 小时宕机复盘 · GitHub Issues IndexedDB 性能优化 · ACM Queue 揭示 GenAI 八大误区 · Agent Skill 供应链安全数据集发布</p>
+    <h1>第 30 期：AI 工具进入算 ROI 阶段——Token 账单倒逼组织回答「用得值不值」</h1>
+    <div class="meta">第 30 期 · 2026年6月2日，星期一</div>
+    <p class="highlights-line"><strong>✨ 本期亮点：</strong>Amazon 内部 AI 排行榜因 Tokenmaxxing 被迫关闭 · Meta AI 客服被社工劫持 Instagram 账号 · Anthropic 提交 IPO 估值约 9650 亿美元 · Red Hat 官方 NPM 渠道遭后门投毒 · Gemini 3.5 Flash 走 agent-first 路线</p>
 
+    <img class="hero-img" src="https://www.404media.co/content/images/size/w2000/2026/06/amazon-ai-leaderboard.jpg" alt="Amazon 内部 AI 工具使用排行榜相关示意图">
+    <div class="hero-caption">Amazon 内部 AI 排行榜：当 Token 成为 KPI，脚本比代码更「创新」</div>
 
     <div class="callout">
-      <strong>🎯 本期核心判断：</strong>当 Anthropic 以近万亿估值冲刺 IPO、GitHub Copilot 取消包月改按量计费，AI Agent 正式从「免费试用」进入「按价值付费」时代——但 Meta AI 客服被一句话骗走名人账号、开源供应链被工业化投毒，说明信任基础设施的建设远未跟上能力的膨胀速度。
+      <strong>🎯 本期核心判断：</strong>AI 工具从「全员铺开」进入「算 ROI」阶段——Token 账单正在倒逼组织从「用了没有」转向「用得值不值」
     </div>
 
     <div class="callout">
       <strong>⏱ 本期建议阅读顺序</strong><br>
-      5 分钟：核心判断 + 科技动态速览（Anthropic IPO / Copilot 定价 / Meta AI 劫持）<br>
-      10 分钟：头条深读「一句话劫持 Instagram」+ AI 前沿（开源 vs 闭源指数曲线 / 异步 Agent）<br>
-      15 分钟：工程深度（GitHub Issues 性能改造 / Coinbase 宕机复盘 / Airbnb 监控循环依赖）<br>
-      20 分钟：概念库 + 言论精选 + 团队启发<br>
-      30 分钟：全量阅读（含文章推荐 / 工具 / 资源）
+      
     </div>
 
     <h2 id="headline">🔥 头条深读</h2>
-    <p>攻击者只需对 Meta AI 客服机器人说一句「把我的新邮箱关联到 @{username} 账号」，就能绕过 Instagram 的全部安全机制——包括 2FA——完成密码重置并接管账号。奥巴马白宫、美国太空军首席军士长等高价值账号已被劫持并在黑市转售。</p>
-    <p>这不是理论上的风险。安全研究者 0xsid 完整复现了攻击链：通过 VPN 伪装地理位置，向 Meta AI 客服声称账号被盗，AI 客服便将验证码发送至攻击者指定的邮箱。整个过程不通知原账号持有者。<strong>Meta 已修补漏洞，但该方法可能已活跃数周至数月。</strong></p>
-    <p>Simon Willison 一针见血：「将 AI 聊天机器人接入账号恢复等高权限操作，是 2026 年最危险的安全反模式。」这个事件与同日 Anthropic 发布的 Claude 跨产品 containment 架构形成鲜明对比——后者为 claude.ai、Claude Code 和 Cowork 设计了三层递进的沙箱隔离（gVisor / Seatbelt / 完整 VM），并坦承用户审批通过率高达 93% 的「审批疲劳」问题。</p>
-    <p><strong>对团队的启发：</strong>如果你的产品让 AI Agent 触碰用户身份、资金或权限变更，必须在 Agent 与高危操作之间设置不可绕过的人工确认层。Anthropic 的分层 containment 是正面教材，Meta 的一句话劫持是反面教材。这不是可以「先上线再优化」的功能。</p>
+    
 
     <h2 id="tech-news">📰 科技动态</h2>
-    <h3>1、Anthropic 秘密提交 IPO 申请，估值接近万亿美元 <span class="certainty-tag certainty-confirmed">confirmed</span></h3>
-    <p>Anthropic 已向 SEC 秘密提交 IPO 草案，年化收入运行率超 470 亿美元。与 SpaceX、OpenAI 共同构成 2026 年超级 IPO 季。此前完成 650 亿美元 H 轮融资，投后估值 9650 亿美元。</p>
-    <h3>2、GitHub Copilot 按量计费首日引发开发者强烈反弹 <span class="certainty-tag certainty-confirmed">confirmed</span></h3>
-    <p>Copilot 从请求制改为按 token 计费，Pro 月 1500 credits（$15 价值），用户报告数小时即可耗尽配额。复杂 prompt 单次可消耗 700+ credits，Auto 模式可能自动选用昂贵模型。AI 编码工具补贴时代正式结束。</p>
-    <h3>3、Alphabet 拟增发 800 亿美元股权融资 AI 基础设施 <span class="certainty-tag certainty-confirmed">confirmed</span></h3>
-    <p>Google 母公司宣布拟通过股权融资筹集 800 亿美元，专项扩展 AI 基础设施与算力建设，标志 AI 算力竞赛进入万亿级资本开支阶段。</p>
-    <h3>4、NVIDIA Computex 全栈发布：Cosmos 3 + Nemotron 3 Ultra + RTX Spark <span class="certainty-tag certainty-confirmed">confirmed</span></h3>
-    <p>黄仁勋发布 Cosmos 3 物理 AI 全模态开源模型（统一语言/图像/视频/音频）、Nemotron 3 Ultra 550B 美国最强开源 LLM、RTX Spark 个人 AI 超算芯片。Nvidia 从芯片供应商向全栈 AI 平台转型。</p>
-    <h3>5、TeamPCP 大规模污染开源供应链，Red Hat 官方 NPM 包遭后门植入 <span class="certainty-tag certainty-confirmed">confirmed</span></h3>
-    <p>黑客组织 TeamPCP 以空前规模污染数百个开源工具，甚至通过投毒的 VSCode 扩展攻破 GitHub。同日 Red Hat 官方 NPM 渠道数十个 @redhat 作用域包被植入后门。供应链攻击进入工业化阶段。</p>
-    <h3>6、Chrome 148 预览声明式局部更新 API <span class="certainty-tag certainty-confirmed">confirmed</span></h3>
-    <p>Chrome 实验性推出 template-for 与 setHTML/streamHTML 两套 API，支持 HTML 乱序流式更新与声明式局部 DOM 补丁。旨在减少 SPA 对重型框架的依赖，实现 island 架构原生支持。</p>
-    <h3>7、Coinbase 5·7 事故复盘：AWS 热事件 + 撮合引擎单区 + Kafka 静默失败 <span class="certainty-tag certainty-confirmed">confirmed</span></h3>
-    <p>AWS 机房冷却故障触发约 8 小时严重中断。撮合引擎绑定单可用区无法自动 failover，AWS MSK 控制面缺陷导致 Kafka 分区 leader 无法切换。近期最完整的交易所级事故样本。</p>
-    <h3>8、佛罗里达州首次以州政府名义起诉 OpenAI <span class="certainty-tag certainty-confirmed">confirmed</span></h3>
-    <p>佛罗里达州检察长指控 ChatGPT 与多起暴力事件相关、Sam Altman 对人类生命漠不关心。这是美国首例州级 AI 安全诉讼，可能推动更严格的 AI 产品责任法规。</p>
+    <h3>1、Meta AI 客服成盗号帮凶：社工几句话拿走 Instagram 账号 <span class="certainty-tag certainty-reported">reported</span></h3>
+    <p>黑客只需跟 Meta 官方 AI 客服聊几句，就能绕过验证、重置密码、接管名人 Instagram 账号——Simon Willison 称之为「AI 客服安全的反面教材」。Agent 接入了真实权限，却没有对应的风控边界，这比模型幻觉危险得多。</p>
+    <h3>2、Red Hat 官方 NPM 渠道遭后门：数十个包被投毒 <span class="certainty-tag certainty-confirmed">confirmed</span></h3>
+    <p>攻击者通过 Red Hat 官方 NPM 发布渠道植入后门，波及数十个包——不是某个小众镜像，是.redhat.com 域名下的官方通道。AI 编码 Agent 疯狂 npm install 的时代，供应链攻击的 blast radius 正在指数放大。</p>
+    <h3>3、Alphabet 拟融资 800 亿美元：AI 基建军备竞赛再升级 <span class="certainty-tag certainty-announced">announced</span></h3>
+    <p>Google 母公司 Alphabet 宣布拟通过股权融资筹集约 800 亿美元，主要用于扩展 AI 基础设施与算力——这不是买模型，是买电、买卡、买数据中心。当模型能力趋同时，算力储备就是新的护城河。</p>
+    <h3>4、Pragmatic Engineer：企业 AI 支出出现回调信号 <span class="certainty-tag certainty-opinion">opinion</span></h3>
+    <p>Gergely Orosz 观察到多家公司开始审查 AI 工具 ROI，部分团队削减 Copilot 席位、收紧 API 预算——试点期的「全员铺开」正在让位于「算清楚值不值」。Amazon Tokenmaxxing 不是孤例，是行业转折的前奏。</p>
+    <h3>5、Project Zero 披露 Pixel 10 零点击漏洞链 <span class="certainty-tag certainty-confirmed">confirmed</span></h3>
+    <p>Google Project Zero 团队公开了针对 Pixel 10 的完整零点击攻击链——无需用户交互即可接管设备。在 Agent 能读写文件系统的时代，移动端 0-click 漏洞的破坏力不再局限于间谍软件，而是 Agent 权限的物理入口。</p>
 
     <h2 id="ai">🤖 AI 相关</h2>
-    <h3>1、开源与闭源模型处于不同指数曲线 <span class="certainty-tag certainty-opinion">opinion</span></h3>
-    <p>Interconnects 的 Nathan Lambert 指出，编码 Agent 已证明用户愿为更高智能支付显著溢价。闭源走「集成化、高毛利」路径，开源走「低价格、广扩散、多厂商协作」路径，两者并非零和竞争，而是在不同经济指数上各自扩张。</p>
-    <img class="article-img" src="https://substack-post-media.s3.amazonaws.com/public/images/6b994b97-89a2-4101-ad81-aa3ffe274b75_3182x1790.png" alt="">
-    <h3>2、Cognition Devin 内部 commit 占比从 16% 升至 80%——异步 Agent 时代到来 <span class="certainty-tag certainty-reported">reported</span></h3>
-    <p>Cognition CPO 与 OpenInspect 讨论编码 Agent 三波演进：IDE 补全 → 本地多终端 → 后台异步。Devin 的「Spec-to-PR」正成为真实生产工作流，开发者从「写代码的人」变成「审查 Agent PR 的人」。</p>
-    <h3>3、Anthropic 详解 Claude 跨产品 containment 架构 <span class="certainty-tag certainty-confirmed">confirmed</span></h3>
-    <p>claude.ai 用 gVisor 容器、Claude Code 用 Seatbelt/Bubblewrap 沙箱、Cowork 用完整 VM。文章披露用户审批通过率高达 93% 的「审批疲劳」问题，以及凭证隔离与 egress 控制等生产实践。</p>
-    <h3>4、工程部门开始收紧 AI 支出 <span class="certainty-tag certainty-reported">reported</span></h3>
-    <p>Pragmatic Engineer 报道多家中大型公司自上而下审视 AI token 与工具 ROI，部分团队开始按工程师设月度 AI 预算上限。AI 工具从「全员铺开」进入「算 ROI」阶段。</p>
-    <h3>5、ITBench-AA：前沿模型在企业 IT Agent 任务上得分不足 50% <span class="certainty-tag certainty-confirmed">confirmed</span></h3>
-    <p>IBM 与 Artificial Analysis 联合发布首个企业 IT Agent benchmark，59 个 K8s 故障诊断任务中 Claude Opus 4.7 最高 47%。更长推理轨迹并不带来更高准确率，Gemini 3.1 Pro 平均 83 轮仅 30%。</p>
-    <h3>6、Import AI 459：AI 经济在 GDP 中「隐形」 <span class="certainty-tag certainty-reported">reported</span></h3>
-    <p>UVA、Anthropic 与加拿大央行论文指出，美国 AI 经济 2025 年名义规模约 2500 亿美元，质量调整实际产出年增速约 2300%，但传统 GDP 几乎看不到，可能导致政策制定者对劳动市场冲击准备不足。</p>
-    <h3>7、Ramp 自建 coding agent 已负责超六成合并 PR <span class="certainty-tag certainty-confirmed">confirmed</span></h3>
-    <p>金融 SaaS 公司 Ramp 的自建编码 Agent 承担了超过 60% 的合并 PR，Linear 作为结构化产品上下文层使 agent 能承接 issue 并端到端完成。证明在真实金融场景下 Agent 可承担主体开发工作量。</p>
-    <h3>8、DoorDash 构建 LLM 客服评测飞轮 <span class="certainty-tag certainty-confirmed">confirmed</span></h3>
-    <p>LLM 扮演客户进行多轮对话，另一 LLM 作为 judge 做策略合规判定，通过「case state」中间层减少幻觉。11 轮迭代后仿真幻觉率下降 90%。为非确定性 LLM 系统提供了可规模化的测试范式。</p>
+    <h3>1、Anthropic 提交 IPO 文件：估值约 9650 亿美元 <span class="certainty-tag certainty-announced">announced</span></h3>
+    <p>Anthropic 正式向 SEC 提交 IPO 文件，市场估值约 9650 亿美元——Claude 从研究项目到万亿级上市公司的路径，验证了「安全优先 + 企业 API」商业模式的可行性，也标志着 AI 资本化进入新阶段。</p>
+    <h3>2、Gemini 3.5 Flash 走 agent-first 路线 <span class="certainty-tag certainty-announced">announced</span></h3>
+    <p>Google 发布 Gemini 3.5 Flash，明确面向 Agent 场景优化——更低延迟、更长上下文、原生工具调用。闭源模型不再拼裸 benchmark，而是拼「Agent 能不能稳定跑完一个任务」。</p>
+    <h3>3、开源与闭源模型处于不同指数曲线 <span class="certainty-tag certainty-opinion">opinion</span></h3>
+    <p>Interconnects 深度分析指出：开源模型生态正在复利式增长，闭源模型则在能力上维持领先但差距在缩小——Nemotron 开源、Cosmos 3 全栈发布进一步印证双轨分化。选模型不再是非黑即白，而是场景与成本的组合博弈。</p>
+    <h3>4、OpenAI 模型协助解决 Erdős 80 年猜想 <span class="certainty-tag certainty-announced">announced</span></h3>
+    <p>OpenAI 宣布其前沿模型在数学家协作下，对一项悬置 80 年的 Erdős 猜想取得实质性进展——AI 不再只是写代码的工具，开始进入纯数学研究流程。当然，「协助证明」和「独立证明」之间还有很长的距离。</p>
+    <h3>5、Cognition Devin 异步 Agent ARR 达 4.92 亿美元 <span class="certainty-tag certainty-reported">reported</span></h3>
+    <p>Latent Space 报道 Cognition（Devin 母公司）异步 coding agent 年化经常性收入达 4.92 亿美元——Agent 不再只是 demo，开始有真实的 enterprise 付费曲线。Spec-to-PR 的异步模式可能是 coding agent 商业化的正确姿势。</p>
 
     <h2 id="articles">📝 文章推荐</h2>
-    <h3>1、<a href="https://github.blog/engineering/from-latency-to-instant-modernizing-github-issues-navigation-performance/" target="_blank" rel="noopener noreferrer">GitHub Issues 性能改造：IndexedDB + Service Worker 实现近即时加载</a></h3>
-    <p>用 IndexedDB 持久化缓存 + stale-while-revalidate + Service Worker 拦截硬导航，React 软导航即时率从 4% 提升至 70%，中位 HPC 从 1200ms 降至 700ms。对数据密集型 Web 应用有直接借鉴。</p>
-    <h3>2、<a href="https://queue.acm.org/detail.cfm?id=3807963" target="_blank" rel="noopener noreferrer">ACM Queue：软件工程 GenAI 八大误区</a></h3>
-    <p>Microsoft 研究团队审视 GenAI 采纳中最常见误解：开发者实际写代码时间约 14%、LOC 指标无效、AI 效果因任务/开发者/上下文差异巨大。呼吁基于证据而非热情做 AI 采纳决策。</p>
-    <h3>3、<a href="https://medium.com/airbnb-engineering/monitoring-reliably-at-scale-ca6483040930" target="_blank" rel="noopener noreferrer">Airbnb 大规模可靠监控：打破可观测性循环依赖</a></h3>
-    <p>指标管道依赖被监控的同一套 K8s/Istio 基础设施，故障时 dashboard 与告警同时失效。解决方案：专用集群、脱离 mesh 的 Envoy 入层、meta-monitoring + Dead Man's Switch。</p>
-    <img class="article-img" src="https://cdn-images-1.medium.com/max/1024/1*aJtIFusWxXwGeCwkaawo2w.jpeg" alt="">
-    <h3>4、<a href="https://netflixtechblog.com/high-throughput-graph-abstraction-at-netflix-part-i-e88063e6f6d5" target="_blank" rel="noopener noreferrer">Netflix 高吞吐图抽象：每秒近千万次图操作</a></h3>
-    <p>基于 KV/TS 抽象与 EVCache 实现毫秒级遍历，处理近 1000 万 ops/s、650TB 图数据，支撑实时分布式图与社交图。展示超大规模图数据 OLTP 如何通过复用现有 KV 层实现高性能。</p>
-    <h3>5、<a href="https://vercel.com/blog/protecting-against-token-theft" target="_blank" rel="noopener noreferrer">Vercel：防范 AI 推理盗用，用 BotID 做每次请求深度验证</a></h3>
-    <p>Vercel 文档 AI 聊天端点曾遭住宅代理盗用，峰值 1300 RPM，日损失超一万美元。会话级限流无法抵御推理盗用，必须在每次 AI 请求前运行深度分析。</p>
-    <h3>6、<a href="https://magazine.sebastianraschka.com/p/components-of-a-coding-agent" target="_blank" rel="noopener noreferrer">编码 Agent 的六大组件：工具、记忆与仓库上下文</a></h3>
-    <p>Sebastian Raschka 拆解编码 Agent harness 六大组件：实时仓库上下文、Prompt 缓存、结构化工具与权限、上下文压缩、会话记忆、子 Agent 委托。Harness 往往比模型本身更能决定实际编码体验。</p>
-    <h3>7、<a href="https://martin.kleppmann.com/2025/12/08/ai-formal-verification.html" target="_blank" rel="noopener noreferrer">Martin Kleppmann：AI 将使形式化验证走向主流</a></h3>
-    <p>LLM 擅长生成 proof script，proof checker 可拒绝无效证明强制重试。AI 生成代码更需要 machine-checkable correctness 替代人工 review。「Vericoding」可能是 LLM 最契合的应用之一。</p>
+    <h3>1、<a href="https://newsletter.pragmaticengineer.com/p/ai-impact-on-software-engineers-part-2" target="_blank" rel="noopener noreferrer">Pragmatic Engineer：AI 对软件工程师的影响（Part 2）</a></h3>
+    <p>900+ 工程师调研收官篇：AI 编码工具的真实 adoption 曲线、岗位影响分化、以及「用了但说不清 ROI」的普遍困境。不是预测，是当下正在发生的数据。</p>
+    <h3>2、<a href="https://stripe.com/blog/can-ai-agents-build-real-stripe-integrations" target="_blank" rel="noopener noreferrer">Stripe：AI Agent 能搭建真实的支付集成吗？</a></h3>
+    <p>Stripe 用 benchmark 实测各 coding agent 搭建支付集成的成功率、安全性和完整性——少有的「厂商自己出题、自己阅卷」的 Agent 能力评估，对评估内部 Agent 工具极有参考价值。</p>
+    <h3>3、<a href="https://engineering.fb.com/2026/05/26/ml-applications/silvertorch-index-as-model-new-retrieval-paradigm-recommendation-systems/" target="_blank" rel="noopener noreferrer">Meta SilverTorch：Index-as-Model 检索新范式</a></h3>
+    <p>Meta 提出 Index-as-Model 范式——把索引结构本身当作可学习的模型组件，在推荐系统中取得显著效果。对做搜索、推荐、RAG 的团队来说，这是索引架构层面的一次认知升级。</p>
+    <h3>4、<a href="https://blog.bytebytego.com/p/how-doordash-built-a-testing-system" target="_blank" rel="noopener noreferrer">DoorDash：LLM 评测飞轮如何运转</a></h3>
+    <p>DoorDash 分享了 LLM 应用的持续评测体系——从线上反馈到离线 benchmark 再到 prompt 迭代的完整飞轮。公开 benchmark 被污染的时代，自建评测集不是可选项。</p>
+    <h3>5、<a href="https://jepsen.io/analyses/mariadb-galera-2025-10" target="_blank" rel="noopener noreferrer">Jepsen：MariaDB Galera 集群丢事务分析</a></h3>
+    <p>Jepsen 对 MariaDB Galera 集群进行严格的一致性测试，发现特定故障场景下存在丢事务风险——分布式数据库选型不能只看 benchmark 吞吐，要看 Jepsen 的故障注入报告。</p>
 
     <h2 id="tools">🛠️ 工具推荐</h2>
     <div class="tool-grid">
       <div class="tool-card">
-        <h4><a href="https://linear.app/blog/code-review-should-be-fast" target="_blank" rel="noopener noreferrer">Linear Diffs</a> <span class="priority-tag">P1</span></h4>
-        <p>在 Issue 上下文中加速 Code Review：Guided Review 按逻辑章节拆分大 diff，结构高亮去除格式化噪音。Agent 产出 PR 量激增后审查成为新瓶颈。</p>
+        <h4><a href="https://www.nvidia.com/en-us/products/rtx-spark/" target="_blank" rel="noopener noreferrer">NVIDIA RTX Spark</a> <span class="priority-tag">P2</span></h4>
+        <p>NVIDIA 面向 AI PC 的端侧推理平台，支持本地运行中小规模模型——适合需要离线推理或数据不出设备的场景。</p>
       </div>
       <div class="tool-card">
-        <h4><a href="https://vercel.com/blog/introducing-deepsec-the-security-harness-for-finding-vulnerabilities-in-your-codebase" target="_blank" rel="noopener noreferrer">Vercel deepsec</a> <span class="priority-tag">P1</span></h4>
-        <p>开源 AI 安全 harness，可在自有基础设施、使用自有密钥运行，用于在代码库中自动发现漏洞。</p>
+        <h4><a href="https://blog.trailofbits.com/2026/05/12/go-fuzzing-was-missing-half-the-toolkit.-we-forked-the-toolchain-to-fix-it./" target="_blank" rel="noopener noreferrer">gosentry</a> <span class="priority-tag">P2</span></h4>
+        <p>Trail of Bits 开源的 Go fuzzing 增强工具链，补全官方 Go fuzz 缺失的 mutation testing 能力——写 Go 安全关键代码值得试。</p>
       </div>
       <div class="tool-card">
-        <h4><a href="https://blog.trailofbits.com/2026/05/12/go-fuzzing-was-missing-half-the-toolkit.-we-forked-the-toolchain-to-fix-it./" target="_blank" rel="noopener noreferrer">gosentry</a> <span class="priority-tag">P1</span></h4>
-        <p>Trail of Bits 分叉 Go 工具链强化原生 fuzzing，接入 LibAFL、结构体 fuzz、race/leak 检测，已在 Optimism/Revm 发现真实 bug。</p>
+        <h4><a href="https://trifectatech.org/blog/announcing-zstandard-in-rust/" target="_blank" rel="noopener noreferrer">Zstandard in Rust</a> <span class="priority-tag">P3</span></h4>
+        <p>Zstandard 压缩算法的纯 Rust 实现发布——无 C 依赖，适合 Rust 生态和 WASM 场景的压缩需求。</p>
       </div>
       <div class="tool-card">
-        <h4><a href="https://blog.janestreet.com/strace-ui-bonsai-term-and-the-tui-renaissance/" target="_blank" rel="noopener noreferrer">strace-ui</a> <span class="priority-tag">P2</span></h4>
-        <p>Jane Street 开源交互式 TUI 系统调试工具，解决 strace 输出难读、难跟踪子进程的问题。TUI 文艺复兴。</p>
+        <h4><a href="https://developer.chrome.com/blog/declarative-partial-updates" target="_blank" rel="noopener noreferrer">Chrome Declarative Partial Updates</a> <span class="priority-tag">P2</span></h4>
+        <p>Chrome 148 引入声明式局部 DOM 更新 API——前端性能优化的新原语，减少手动 diff 开销。</p>
       </div>
       <div class="tool-card">
-        <h4><a href="https://orval.dev/" target="_blank" rel="noopener noreferrer">Orval</a> <span class="priority-tag">P2</span></h4>
-        <p>从 OpenAPI 规范自动生成 TypeScript API 客户端代码，支持 React Query、SWR 集成，可替代部分手写 API 层。</p>
+        <h4><a href="https://github.blog/engineering/from-latency-to-instant-modernizing-github-issues-navigation-performance/" target="_blank" rel="noopener noreferrer">GitHub Issues IndexedDB 优化</a> <span class="priority-tag">P1</span></h4>
+        <p>GitHub 用 IndexedDB 重构 Issues 导航性能——从 2 秒到即时响应的工程实践，对大型 SPA 性能优化有参考价值。</p>
       </div>
     </div>
 
     <h2 id="ai-tools">🧠 AI 工具</h2>
     <div class="tool-grid">
       <div class="tool-card">
+        <span class="tag">Agent</span>
+        <h4><a href="https://fly.io/blog/unfortunately-mcp/" target="_blank" rel="noopener noreferrer">Fly.io MCP Sprites</a></h4>
+        <p>Fly.io 推出的 MCP 运行时 Sprites——为 Agent 工具调用提供隔离沙箱，降低 MCP server 的部署和安全门槛。</p>
+      </div>
+      <div class="tool-card">
+        <span class="tag">企业</span>
+        <h4><a href="https://www.langchain.com/blog/how-we-built-langsmith-engine-our-agent-for-improving-agents" target="_blank" rel="noopener noreferrer">LangSmith Engine</a></h4>
+        <p>LangChain 自研的 Agent SRE 系统——用 Agent 监控和改进 Agent，包含 trace 分析、回归检测和自动修复建议。</p>
+      </div>
+      <div class="tool-card">
         <span class="tag">编码</span>
-        <h4><a href="https://www.coinbase.com/blog/coding-had-a-concurrency-problem-how-mux-helped-solve-it" target="_blank" rel="noopener noreferrer">Coinbase Mux</a></h4>
-        <p>多 Agent 编排工具，通过 git worktree 为每个 agent 隔离分支与终端。600+ 用户使用，power user 合并 PR 达基线 3.5 倍。</p>
+        <h4><a href="https://www.langchain.com/blog/langsmith-sandboxes-generally-available" target="_blank" rel="noopener noreferrer">LangSmith Sandboxes</a></h4>
+        <p>LangSmith 沙箱 GA——为 coding agent 提供隔离执行环境，支持代码运行、测试和 artifact 收集。</p>
       </div>
       <div class="tool-card">
-        <span class="tag">模型</span>
-        <h4><a href="https://huggingface.co/blog/JetBrains/mellum2-launch" target="_blank" rel="noopener noreferrer">JetBrains Mellum2</a></h4>
-        <p>12B MoE 模型（2.5B 激活），推理速度比同尺寸快 2 倍，定位路由、RAG、子 Agent 低延迟场景。Apache 2.0 开源。</p>
-      </div>
-      <div class="tool-card">
-        <span class="tag">编排</span>
-        <h4><a href="https://www.langchain.com/blog/interpreter-skills" target="_blank" rel="noopener noreferrer">LangChain Interpreter Skills</a></h4>
-        <p>让 agent 在工具调用间 import/运行 TypeScript 模块，以代码协调复杂 workflow 而非纯 prompt 链。</p>
-      </div>
-      <div class="tool-card">
-        <span class="tag">设计</span>
-        <h4><a href="https://www.figma.com/blog/figma-make-now-on-your-local-code/" target="_blank" rel="noopener noreferrer">Figma Make Beta</a></h4>
-        <p>桌面端连接本地 codebase，可视化选中元素直接改属性、创建 Git 分支并提交 PR。设计-代码闭环从原型延伸到生产代码。</p>
-      </div>
-      <div class="tool-card">
-        <span class="tag">评测</span>
-        <h4><a href="https://www.datadoghq.com/blog/engineering/bits-ai-eval-platform/" target="_blank" rel="noopener noreferrer">Datadog Bits AI Eval Platform</a></h4>
-        <p>构建可 replay 生产 incident 的 SRE Agent 评估平台，量化 agent 行为变化并检测跨场景回归。</p>
+        <span class="tag">编码</span>
+        <h4><a href="https://vercel.com/blog/introducing-deepsec-the-security-harness-for-finding-vulnerabilities-in-your-codebase" target="_blank" rel="noopener noreferrer">Vercel DeepSec</a></h4>
+        <p>Vercel 发布的安全 harness——专门用于在 AI 生成的代码库中发现漏洞，Agent 产出越多，这类工具越必要。</p>
       </div>
     </div>
 
     <h2 id="concepts">🧩 本期概念库</h2>
     <div class="concept-card">
-      <h4>1. 审批疲劳（Approval Fatigue）</h4>
-      <div class="concept-field"><strong>一句话解释：</strong>Anthropic 披露 Claude Code 用户 93% 通过率的审批弹窗数据。当安全确认过于频繁，人类会条件反射式点击通过，使安全屏障形同虚设。这不是技术问题而是 UX 问题——需要用上下文感知的风险分级替代一刀切的确认弹窗。</div>
-      <div class="concept-field"><strong>背景来源：</strong>Anthropic Engineering - How We Contain Claude</div>
-      <div class="concept-field"><strong>为什么重要：</strong>直接影响任何集成 Agent 的产品安全设计</div>
-      <div class="concept-field"><strong>团队应用场景：</strong>将 Claude Code 的 auto mode 审批从全量弹窗改为按风险等级分流：低风险操作自动放行，高权限操作（文件删除、网络请求）才弹确认。</div>
+      <h4>1. Tokenmaxxing（指标异化）</h4>
+      <div class="concept-field"><strong>一句话解释：</strong>当 Token 消耗量被设为 AI adoption KPI 时，理性行为是刷指标而非改工作流——Goodhart 定律在 AI 时代的具体表现。</div>
+      <div class="concept-field"><strong>背景来源：</strong>Amazon 内部 AI 排行榜事件</div>
+      <div class="concept-field"><strong>为什么重要：</strong>解释为什么 AI 铺开后反而出现「假 adoption」现象，以及 ROI 审查为何不可避免。</div>
+      <div class="concept-field"><strong>团队应用场景：</strong>团队 AI KPI 应绑定 PR 质量、缺陷率、交付周期等可验证产出，禁止用 Token 数或登录天数考核。</div>
     </div>
     <div class="concept-card">
-      <h4>2. 推理经济学的双轨分化</h4>
-      <div class="concept-field"><strong>一句话解释：</strong>Nathan Lambert 提出闭源与开源模型并非在同一维度竞争：闭源走「集成化、高毛利」路线（Claude Code/Codex 证明用户愿为更高智能付费），开源走「低价格、广扩散、多厂商协作」路线。两者在不同经济指数上各自扩张。</div>
-      <div class="concept-field"><strong>背景来源：</strong>Interconnects - Open and Closed Models Are on Different Exponential Curves</div>
-      <div class="concept-field"><strong>为什么重要：</strong>框架性地解释了 AI 工具选型的经济逻辑</div>
-      <div class="concept-field"><strong>团队应用场景：</strong>高频交互场景（编码 Agent、复杂调试）用闭源前沿模型；内部工具、数据管道用开源模型降本。不要在错误层级做选型。</div>
+      <h4>2. Video Agents</h4>
+      <div class="concept-field"><strong>一句话解释：</strong>以视频理解与生成为核心的 Agent 架构——模型不再只处理文本，而是把视频帧序列作为 Agent 的感知输入和动作输出。</div>
+      <div class="concept-field"><strong>背景来源：</strong>Latent Space Video Agents 专题</div>
+      <div class="concept-field"><strong>为什么重要：</strong>多模态 Agent 的下一个战场是视频流，对监控、交易图表分析、UI 自动化等场景有直接迁移价值。</div>
+      <div class="concept-field"><strong>团队应用场景：</strong>关注视频理解 Agent 在 UI 测试、K 线图表解读等金融场景的落地可能。</div>
     </div>
     <div class="concept-card">
-      <h4>3. Spec-to-PR 工作流</h4>
-      <div class="concept-field"><strong>一句话解释：</strong>Cognition/Devin 提出的编码 Agent 产品形态：开发者写规格说明（spec），Agent 自主完成从分支创建到 PR 提交的全流程。Devin 内部 commit 占比从 16% 升至 80%，Ramp 超过 60% PR 由 Agent 合并。</div>
-      <div class="concept-field"><strong>背景来源：</strong>Latent Space - Cognition Podcast / Linear Blog</div>
-      <div class="concept-field"><strong>为什么重要：</strong>定义了 2026 年编码 Agent 的核心产品范式</div>
-      <div class="concept-field"><strong>团队应用场景：</strong>将重复性 CRUD、测试编写、i18n 提取等任务转为 spec，让 Agent 异步完成并提交 PR，开发者聚焦核心业务逻辑审查。</div>
+      <h4>3. Index-as-Model</h4>
+      <div class="concept-field"><strong>一句话解释：</strong>把索引结构本身作为可学习的模型组件，而非固定的查表结构——检索与排序的边界被重新定义。</div>
+      <div class="concept-field"><strong>背景来源：</strong>Meta SilverTorch 工程博客</div>
+      <div class="concept-field"><strong>为什么重要：</strong>RAG 和推荐系统的索引架构正在从工程问题变成 ML 问题。</div>
+      <div class="concept-field"><strong>团队应用场景：</strong>评估现有搜索/推荐索引是否有可学习化的空间，尤其在交易对检索和用户偏好排序场景。</div>
     </div>
     <div class="concept-card">
-      <h4>4. 可观测性循环依赖</h4>
-      <div class="concept-field"><strong>一句话解释：</strong>Airbnb 发现监控管道依赖被监控的同一套基础设施（K8s/Istio），故障时 dashboard 与告警同时失效。解决方案是为监控系统建立独立于业务 mesh 的告警通道（Dead Man's Switch + AWS SNS）。</div>
-      <div class="concept-field"><strong>背景来源：</strong>Airbnb Engineering - Monitoring Reliably at Scale</div>
-      <div class="concept-field"><strong>为什么重要：</strong>SRE 核心设计原则：可观测性系统必须比被观测系统更可靠</div>
-      <div class="concept-field"><strong>团队应用场景：</strong>审计交易平台监控体系是否存在「监控依赖业务 mesh」的循环依赖，为关键指标设置独立于主链路的告警通道。</div>
-    </div>
-    <div class="concept-card">
-      <h4>5. Agent Skill 供应链安全</h4>
-      <div class="concept-field"><strong>一句话解释：</strong>ClawHub 发布 67453 个 Agent Skill 安全数据集。三个扫描器（VirusTotal、启发式、SkillSpector）的 Jaccard 相似度不超过 0.104——说明单一扫描器远远不够。26527 个 Skill 仅被语义分析器标记为风险，传统工具完全忽视。</div>
-      <div class="concept-field"><strong>背景来源：</strong>HuggingFace Blog - ClawHub Security Signals</div>
-      <div class="concept-field"><strong>为什么重要：</strong>Agent Skill/Plugin 正成为新的供应链攻击面</div>
-      <div class="concept-field"><strong>团队应用场景：</strong>对团队使用的 Cursor Skills / MCP Server 建立安全审查流程：静态扫描 + 语义 prompt injection 检测 + 最小权限原则。</div>
+      <h4>4. LLM 评测飞轮</h4>
+      <div class="concept-field"><strong>一句话解释：</strong>从线上反馈 → 离线 benchmark → prompt/模型迭代 → 再上线的闭环评测体系——公开 benchmark 被污染后的唯一可靠路径。</div>
+      <div class="concept-field"><strong>背景来源：</strong>DoorDash LLM 评测系统 + Datadog Bits AI Eval</div>
+      <div class="concept-field"><strong>为什么重要：</strong>AI 工具选型不能只看公开榜单，必须建立业务场景的真实评测集。</div>
+      <div class="concept-field"><strong>团队应用场景：</strong>为交易相关 AI 功能（客服、风控文案、代码生成）建立内部 golden set 和回归评测流程。</div>
     </div>
 
     <h2 id="fun">🎲 趣闻</h2>
-    <div class="fun-card">
-      <h4><a href="https://blog.janestreet.com/can-you-reverse-engineer-our-neural-network/" target="_blank" rel="noopener noreferrer">你能逆向我们的神经网络吗？Jane Street ML CTF</a></h4>
-      <p>Jane Street 发布 ML Capture-the-Flag 式 puzzle：给定黑盒神经网络，逆向推断其功能。用 gamification 推进 ML 理解，顺便招人。</p>
-    </div>
-    <div class="fun-card">
-      <h4><a href="https://trifectatech.org/blog/announcing-zstandard-in-rust/" target="_blank" rel="noopener noreferrer">Zstandard 纯 Rust 实现首次发布</a></h4>
-      <p>解压性能默认比 C 版慢约 3%，启用 unsafe 特性可持平。由 Astral（Ruff 团队）资助，关键基础设施 Rust 化趋势延续。</p>
-    </div>
+
 
     <h2 id="resources">📚 资源</h2>
     <div class="resource-item">
-      <a href="https://cs336.stanford.edu/" target="_blank" rel="noopener noreferrer">Stanford CS336：从零构建语言模型</a>
-      <p>斯坦福系统讲授从零实现现代语言模型的完整技术栈。理解 LLM 底层原理的权威课程资源。</p>
+      <a href="https://cs336.stanford.edu/" target="_blank" rel="noopener noreferrer">Stanford CS336 Language Modeling from Scratch</a>
+      <p>Stanford 2026 春季「从零构建语言模型」课程公开资料——想理解 LLM 底层原理的工程师值得收藏。</p>
     </div>
     <div class="resource-item">
-      <a href="https://thewebsitespec.org/" target="_blank" rel="noopener noreferrer">The Website Specification</a>
-      <p>面向工程师与 AI Agent 的 Web 开发技术规范框架。可纳入 Agent 提示词或 code review checklist。</p>
+      <a href="https://thewebsitespec.org/" target="_blank" rel="noopener noreferrer">The Website Spec</a>
+      <p>Web 标准的现代解读与最佳实践汇总——前端工程师的规范速查手册。</p>
     </div>
     <div class="resource-item">
-      <a href="https://martin.kleppmann.com/" target="_blank" rel="noopener noreferrer">DDIA 第二版（2026）</a>
-      <p>Kleppmann 与 Chris Riccomini 合著的 Designing Data-Intensive Applications 第二版，分布式系统领域标杆教材。</p>
-    </div>
-    <div class="resource-item">
-      <a href="https://jepsen.io/blog/2025-10-20-distsys-glossary" target="_blank" rel="noopener noreferrer">分布式系统可靠性术语表</a>
-      <p>Jepsen × Antithesis 联合发布，覆盖并发理论、一致性模型、各类 fault 与测试方法。统一团队 reliability 讨论基线。</p>
+      <a href="https://queue.acm.org/detail.cfm?id=3807963" target="_blank" rel="noopener noreferrer">ACM Queue: GenAI 八大误区</a>
+      <p>ACM Queue 梳理企业落地 GenAI 时最常见的八个认知误区——适合拿去做团队 AI 认知对齐的共读材料。</p>
     </div>
 
     <h2 id="quotes">💬 言论：本期 8 个认知增量</h2>
     <div class="quote-block">
-      <blockquote>将 AI 聊天机器人接入账号恢复等高权限操作，是 2026 年最危险的安全反模式。攻击者只需一句「把我的新邮箱关联到 @username」就能劫持 Instagram 账号。</blockquote>
+      <blockquote>Meta 的 AI 客服系统被设计用来帮助用户，但黑客发现它可以被反向利用来重置任何人的密码——这是 AI 客服安全最糟糕的反面教材。</blockquote>
       <div class="quote-author">—— Simon Willison</div>
-      <div class="quote-meta">来源：<a href="https://simonwillison.net/2026/Jun/1/hackers-meta-ai-instagram/" target="_blank" rel="noopener noreferrer">simonwillison.net</a> · 类型：摘要式转述 · 关键词：Agent安全 · 权限设计</div>
-      <div class="quote-comment">💭 Meta AI 客服被社工的案例证明：Agent 的 blast radius 不取决于它有多聪明，而取决于它被授予了多大的权限。每一个 Agent 接口都应该被视为攻击面。</div>
-      <div class="quote-team-insight">🎯 团队启发：为交易平台所有 AI 接触点建立权限边界清单，标注哪些操作绝不可由 Agent 单独完成。</div>
+      <div class="quote-meta">来源：<a href="https://simonwillison.net/2026/Jun/1/hackers-meta-ai-instagram/" target="_blank" rel="noopener noreferrer">simonwillison.net</a> · 类型：译文 · 关键词：Agent安全 · 身份验证 · AI客服</div>
+      <div class="quote-comment">💭 Agent 接入了真实权限却没有对应的风控——比模型幻觉危险一个数量级。</div>
+      <div class="quote-team-insight">🎯 团队启发：任何接入用户数据的 AI 功能，必须先定义权限边界和人工确认点，再谈自动化。</div>
     </div>
     <div class="quote-block">
-      <blockquote>2026 年编码 Agent 已经证明，用户愿意为更高的智能支付显著溢价。闭源前沿模型和开源模型并非零和竞争——它们在不同的经济指数曲线上各自膨胀。</blockquote>
-      <div class="quote-author">—— Nathan Lambert (Interconnects)</div>
-      <div class="quote-meta">来源：<a href="https://www.interconnects.ai/p/open-and-closed-models-are-on-different" target="_blank" rel="noopener noreferrer">interconnects.ai</a> · 类型：译文 · 关键词：AI经济学 · 模型选型</div>
-      <div class="quote-comment">💭 这解释了为什么 Claude Code 能维持高价（用户真的愿意为 10% 的质量提升付 3 倍价格），同时开源生态也在蓬勃发展——它们服务不同层级的需求。</div>
-      <div class="quote-team-insight">🎯 团队启发：核心业务场景用最好的闭源模型，内部工具用开源模型降本——建立明确的分层选型标准。</div>
+      <blockquote>AI 经济的大部分价值是隐形的——它体现在效率提升、成本削减和决策质量改善中，不会直接出现在 GDP 统计里。</blockquote>
+      <div class="quote-author">—— Jack Clark</div>
+      <div class="quote-meta">来源：<a href="https://importai.substack.com/p/import-ai-459-ai-oversight-is-difficult" target="_blank" rel="noopener noreferrer">importai.substack.com</a> · 类型：摘要式转述 · 关键词：AI经济 · 生产力 · ROI</div>
+      <div class="quote-comment">💭 GDP 测不出 AI 的真实影响，所以用 GDP 论证「AI 泡沫」或「AI 革命」都不完整。</div>
+      <div class="quote-team-insight">🎯 团队启发：评估 AI 工具价值时，建立团队自己的效率指标，别等宏观数据告诉你答案。</div>
     </div>
     <div class="quote-block">
-      <blockquote>开发者实际写代码的时间只有 14%。用代码行数衡量 AI 编码效率是把错误的指标放大了。</blockquote>
-      <div class="quote-author">—— Microsoft Research (ACM Queue)</div>
-      <div class="quote-meta">来源：<a href="https://queue.acm.org/detail.cfm?id=3807963" target="_blank" rel="noopener noreferrer">queue.acm.org</a> · 类型：摘要式转述 · 关键词：AI效率 · 工程管理</div>
-      <div class="quote-comment">💭 这应该让所有宣称「AI 写了 X% 代码」的 PR 稿冷静一下。真正的效率提升应该衡量的是端到端交付速度、bug 密度和维护成本。</div>
-      <div class="quote-team-insight">🎯 团队启发：建立团队 AI 效率度量：不看 LOC，看 PR merge-to-deploy 周期、bug reopen 率和 agent 生成代码的维护成本。</div>
+      <blockquote>我每个月的 AI Token 账单已经远超 VPS 和域名费用之和——这是 2026 年独立开发者的新常态。</blockquote>
+      <div class="quote-author">—— 阮一峰</div>
+      <div class="quote-meta">来源：<a href="https://www.ruanyifeng.com/blog/2026/05/token-cost.html" target="_blank" rel="noopener noreferrer">ruanyifeng.com</a> · 类型：摘要式转述 · 关键词：Token成本 · 开发者 · ROI</div>
+      <div class="quote-comment">💭 个人开发者尚且如此，企业级 Token 账单只会更惊人——ROI 算账不可避免。</div>
+      <div class="quote-team-insight">🎯 团队启发：团队应建立 Token 预算台账，按项目/功能拆分，定期复盘单位产出成本。</div>
     </div>
     <div class="quote-block">
-      <blockquote>AI Agent 编码工具是「热核 ADHD 放大器」——让你一小时内从模糊想法到完整项目，然后产生大量无法维护的 abandoned projects。</blockquote>
-      <div class="quote-author">—— David Wilson (via Simon Willison)</div>
-      <div class="quote-meta">来源：<a href="https://simonwillison.net/2026/May/31/ai-subscription-attention/" target="_blank" rel="noopener noreferrer">simonwillison.net</a> · 类型：译文 · 关键词：工程纪律 · AI编码</div>
-      <div class="quote-comment">💭 Agent 降低了启动成本但没有降低维护成本。团队推广 Agent 编码时，建立项目准入规范比降低启动门槛更重要。</div>
-      <div class="quote-team-insight">🎯 团队启发：为 Agent 驱动的新功能建立 maintenance contract：启动前明确谁负责维护，否则不开工。</div>
+      <blockquote>技术面试已经死了——不是因为它不公平，而是因为它测量的能力与实际工作脱节，而 AI 工具让这种脱节变得不可能忽视。</blockquote>
+      <div class="quote-author">—— Steve Yegge</div>
+      <div class="quote-meta">来源：<a href="https://steve-yegge.medium.com/technical-interviews-are-dead-2026" target="_blank" rel="noopener noreferrer">steve-yegge.medium.com</a> · 类型：摘要式转述 · 关键词：招聘 · AI工具 · 工程能力</div>
+      <div class="quote-comment">💭 Yegge 一贯敢说。AI 时代面试考 LeetCode 的意义确实在被重构。</div>
+      <div class="quote-team-insight">🎯 团队启发：内部晋升和招聘评估应增加「用 AI 工具完成真实任务」的环节，而非纯算法题。</div>
     </div>
     <div class="quote-block">
-      <blockquote>在 Tokenland，教科书的价值在于帮读者建立 mental model 和 system design judgment，而非复制 encyclopedia。LLM 可以回答任意问题，但缺乏视角。</blockquote>
-      <div class="quote-author">—— Bruce Davie (Systems Approach)</div>
-      <div class="quote-meta">来源：<a href="https://systemsapproach.org/textbooks-in-tokenland/" target="_blank" rel="noopener noreferrer">systemsapproach.org</a> · 类型：译文 · 关键词：技术教育 · 系统思维</div>
-      <div class="quote-comment">💭 在 AI 可以即时生成 factoid 的时代，structured perspective 比 information retrieval 更稀缺。团队技术分享应教 system thinking，不是 LLM Q&amp;A。</div>
-      <div class="quote-team-insight">🎯 团队启发：团队 onboarding 和技术分享强调 mental model 而非知识点——推荐 DDIA 第二版作为核心参考书。</div>
+      <blockquote>教 Claude「为什么」比教它「做什么」更重要——理解原因能让模型在未见过的场景中做出更好的判断。</blockquote>
+      <div class="quote-author">—— Anthropic Research</div>
+      <div class="quote-meta">来源：<a href="https://www.anthropic.com/research/teaching-claude-why" target="_blank" rel="noopener noreferrer">anthropic.com</a> · 类型：摘要式转述 · 关键词：Prompt工程 · Claude · Agent</div>
+      <div class="quote-comment">💭 这是 prompt 工程的上限——从指令遵循走向原则内化。</div>
+      <div class="quote-team-insight">🎯 团队启发：团队 AI 使用规范应写「为什么这样做」，而非只写「必须这样做」。</div>
     </div>
     <div class="quote-block">
-      <blockquote>RL post-training 的本质是基础设施问题，不是算法问题。2026 年 RL 竞争焦点已从算法转向集群编排、RDMA 权重同步与 sandbox buffer sizing。</blockquote>
-      <div class="quote-author">—— Modal Team</div>
-      <div class="quote-meta">来源：<a href="https://modal.com/blog/reinforcement-learning-infrastructure-problem" target="_blank" rel="noopener noreferrer">modal.com</a> · 类型：摘要式转述 · 关键词：AI基础设施 · RL</div>
-      <div class="quote-comment">💭 又一个「算法不是瓶颈，工程是瓶颈」的案例。从推理到训练再到 RL，基础设施层面的 plumbing 决定了谁能真正把 AI 用起来。</div>
-      <div class="quote-team-insight">🎯 团队启发：评估 AI 工具时不仅看模型能力，更要看部署、监控与成本管理的基础设施成熟度。</div>
+      <blockquote>AI 订阅正在变成注意力税——你付的钱买的不是能力，是不被打断地继续使用同一个工具的权利。</blockquote>
+      <div class="quote-author">—— Simon Willison</div>
+      <div class="quote-meta">来源：<a href="https://simonwillison.net/2026/May/31/ai-subscription-attention/" target="_blank" rel="noopener noreferrer">simonwillison.net</a> · 类型：摘要式转述 · 关键词：AI订阅 · 定价 · Copilot</div>
+      <div class="quote-comment">💭 Copilot 按量计费反弹的本质：开发者拒绝为「可能用不到的上限」预付。</div>
+      <div class="quote-team-insight">🎯 团队启发：采购 AI 工具时优先选按实际用量计费或可按团队弹性调整的方案。</div>
     </div>
     <div class="quote-block">
-      <blockquote>可观测性系统必须比被观测系统更可靠。如果你的监控管道跑在和业务一样的 K8s 集群上，那故障时你将同时「失明」和「失聪」。</blockquote>
-      <div class="quote-author">—— Airbnb SRE Team</div>
-      <div class="quote-meta">来源：<a href="https://medium.com/airbnb-engineering/monitoring-reliably-at-scale-ca6483040930" target="_blank" rel="noopener noreferrer">medium.com</a> · 类型：摘要式转述 · 关键词：SRE · 可观测性</div>
-      <div class="quote-comment">💭 这是 SRE 的第一性原理。很多团队的 Grafana/Prometheus 跑在业务 mesh 上，出事时 dashboard 也挂了——然后大家开始打电话。</div>
-      <div class="quote-team-insight">🎯 团队启发：为交易平台核心链路（行情、下单、充提）建立独立于业务 mesh 的 Dead Man's Switch 告警。</div>
+      <blockquote>形式验证和 AI 的结合不是科幻——AI 可以生成证明草稿，人类和工具验证其正确性，这是未来十年软件可靠性的关键路径。</blockquote>
+      <div class="quote-author">—— Martin Kleppmann</div>
+      <div class="quote-meta">来源：<a href="https://martin.kleppmann.com/2025/12/08/ai-formal-verification.html" target="_blank" rel="noopener noreferrer">martin.kleppmann.com</a> · 类型：摘要式转述 · 关键词：形式验证 · 可靠性 · AI</div>
+      <div class="quote-comment">💭 交易系统这种对正确性要求极高的场景，这条路值得长期关注。</div>
+      <div class="quote-team-insight">🎯 团队启发：核心交易链路的关键不变量，可以探索 AI 辅助的形式化规格编写。</div>
     </div>
     <div class="quote-block">
-      <blockquote>Andrew Ng 对比 Forward Deployed Engineer 与 AI Engineer 两种职业路径，认为后者需求更大——AI Engineer 不只写代码，更要理解如何用 AI 重构整个工作流。</blockquote>
-      <div class="quote-author">—— Andrew Ng (The Batch #355)</div>
-      <div class="quote-meta">来源：<a href="https://www.deeplearning.ai/the-batch/issue-355/" target="_blank" rel="noopener noreferrer">deeplearning.ai</a> · 类型：摘要式转述 · 关键词：AI Engineer · 职业发展</div>
-      <div class="quote-comment">💭 FDE 是把模型塞进客户流程，AI Engineer 是用 AI 重新设计流程。后者的杠杆率更高，也更稀缺。</div>
-      <div class="quote-team-insight">🎯 团队启发：团队能力建设向「前端 + AI Workflow 设计」方向倾斜，而非只学 prompt engineering。</div>
+      <blockquote>代码审查应该快——慢审查的代价不是时间，是上下文切换和团队流状态的中断。</blockquote>
+      <div class="quote-author">—— Linear Team</div>
+      <div class="quote-meta">来源：<a href="https://linear.app/blog/code-review-should-be-fast" target="_blank" rel="noopener noreferrer">linear.app</a> · 类型：摘要式转述 · 关键词：Code Review · 工程效率 · AI编码</div>
+      <div class="quote-comment">💭 AI 生成 PR 增多后，审查速度变成瓶颈——Linear Diffs 就是在解决这个问题。</div>
+      <div class="quote-team-insight">🎯 团队启发：AI 提效了编码，就要同步提效 review 流程——考虑结构化 diff 和自动预检。</div>
     </div>
 
     <h2 id="team-insights">✅ 对团队的启发</h2>
     <div class="insight-card">
-      <p><span class="insight-num">1</span>审计交易平台所有 AI 接触点的权限边界——Meta AI 客服被一句话劫持名人账号的案例证明，Agent 的 blast radius 取决于被授予的权限而非智能程度。为每个 Agent 操作标注风险等级，高危操作必须有人工确认层。</p>
+      <p><span class="insight-num">1</span>AI 工具 KPI 禁止绑定 Token 数或登录天数——绑定 PR 合并质量、缺陷率、交付周期等可验证业务产出，避免 Amazon 式 Tokenmaxxing。</p>
     </div>
     <div class="insight-card">
-      <p><span class="insight-num">2</span>建立 AI 工具 ROI 度量体系——Copilot 按量计费引发出走、多家公司开始收紧 AI 支出，说明「全员铺开不算账」的时代结束了。按 PR merge 周期、bug reopen 率和维护成本衡量，而非代码行数。</p>
+      <p><span class="insight-num">2</span>Agent 接入任何用户数据或支付链路前，必须定义最小权限、沙箱运行、人工确认点和回滚机制——Meta AI 客服盗号是反面教材。</p>
     </div>
     <div class="insight-card">
-      <p><span class="insight-num">3</span>将 Spec-to-PR 工作流引入重复性任务——Devin 内部 80% commit 由 Agent 完成、Ramp 60%+ PR 由 Agent 合并。把 i18n 提取、组件迁移、测试补齐等任务转为 spec 文档，让 Agent 异步完成。</p>
+      <p><span class="insight-num">3</span>建立团队级 Token 预算台账和 ROI 复盘节奏——按项目/功能拆分 AI 成本，每月回答「这钱花得值不值」。</p>
     </div>
     <div class="insight-card">
-      <p><span class="insight-num">4</span>参考 GitHub Issues 的 IndexedDB + Service Worker 架构优化交易前端列表页——软导航即时率从 4% 提升至 70%，中位加载从 1200ms 降至 700ms，交易平台行情/持仓/订单列表可直接借鉴。</p>
+      <p><span class="insight-num">4</span>npm 供应链安全升级：lockfile 审计、install scripts 审查、依赖来源白名单——Red Hat 官方渠道都能被投毒，没有绝对可信源。</p>
     </div>
     <div class="insight-card">
-      <p><span class="insight-num">5</span>为监控体系建立独立告警通道——Airbnb 发现监控管道依赖业务 K8s 集群导致故障时同时失明。交易平台核心链路（行情/下单/充提）必须有独立于主链路的 Dead Man's Switch 告警。</p>
+      <p><span class="insight-num">5</span>为交易相关 AI 功能建立内部 golden set 评测集——公开 benchmark 已被污染，真实业务场景的回归评测才是选型依据。</p>
     </div>
 
     <div class="footer-sources">
       <strong>📋 数据来源说明</strong><br>
       本情报来自 60 个全球精选科技 / AI / 工程 / 系统可靠性信息源的每日更新。<br>
-      由 Cursor AI 自动生成，信息截止至 2026年6月2日，星期二。
+      由 Cursor AI 自动生成，信息截止至 2026年6月2日，星期一。
     </div>
   </main>
 </div>

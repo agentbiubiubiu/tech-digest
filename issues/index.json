@@ -1,8 +1,8 @@
 [
   {
     "date": "2026-06-02",
-    "title": "第 30 期：Anthropic 万亿估值冲刺 IPO、Copilot 按量计费引发出走、Meta AI 客服被社工劫持账号——Agent 能力疯涨，信任基础还在补课",
-    "highlights": "Anthropic 万亿估值冲刺 IPO · Copilot 按量计费引发开发者出走 · Meta AI 客服被社工劫持名人 Instagram 账号 · NVIDIA Computex 全栈发布 Cosmos 3 + Nemotron 3 Ultra + RTX Spark · 开源与闭源模型处于不同指数曲线 · Coinbase 8 小时宕机复盘 · GitHub Issues IndexedDB 性能优化 · ACM Queue 揭示 GenAI 八大误区 · Agent Skill 供应链安全数据集发布",
+    "title": "第 30 期：AI 工具进入算 ROI 阶段——Token 账单倒逼组织回答「用得值不值」",
+    "highlights": "Amazon 内部 AI 排行榜因 Tokenmaxxing 被迫关闭 · Meta AI 客服被社工劫持 Instagram 账号 · Anthropic 提交 IPO 估值约 9650 亿美元 · Red Hat 官方 NPM 渠道遭后门投毒 · Gemini 3.5 Flash 走 agent-first 路线",
     "image": ""
   },
   {
@@ -172,5 +172,11 @@
     "title": "第 1 期：TypeScript 7.0 用 Go 重写编译器，AI 自动化编码真能干几周的活了",
     "highlights": "TypeScript 7.0 编译器用 Go 重写 · MirrorCode 验证 AI 多周编码能力 · DHH 转向 Agent-first 工作流 · Vercel 安全事件 · AlphaGenome 解读暗基因",
     "image": "https://devblogs.microsoft.com/typescript/wp-content/uploads/sites/11/2026/04/ts7-0-beta-4.png"
+  },
+  {
+    "date": "2026-06-03",
+    "title": "第 31 期：AI 编程的账单清算日——Uber 四个月烧光预算、亚马逊关停刷量排行榜",
+    "highlights": "Uber 四个月烧光 AI 预算限额 · 亚马逊关停员工 AI 刷量排行榜 · 微软/英伟达论文承认 Agent 盲冲不管安全 · Anthropic Glasswing 扩至 150 机构发现万级漏洞",
+    "image": ""
   }
 ]
