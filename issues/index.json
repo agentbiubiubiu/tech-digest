@@ -1,5 +1,17 @@
 [
   {
+    "date": "2026-06-05",
+    "title": "第 32 期：rsync 备份失败把「AI 写进基础设施」推上审判台——信任危机的第一批账单到了",
+    "highlights": "rsync 备份崩溃引爆 AI 编码信任战 · Anthropic 80% 代码由 Claude 编写 · Trail of Bits 一小时攻破三大 Skill 扫描器 · HTTP/2 Bomb 88 万站点受影响 · VoidZero 加入 Cloudflare Vite 获千万基金",
+    "image": ""
+  },
+  {
+    "date": "2026-06-03",
+    "title": "第 31 期：AI 编程的账单清算日——Uber 四个月烧光预算、亚马逊关停刷量排行榜",
+    "highlights": "Uber AI 四个月烧光全年预算 · Amazon 关停 Tokenmaxxing 排行榜 · GitHub Copilot 转计量计费 · MAI-Thinking-1 混合推理 · Glasswing 推理盗窃检测",
+    "image": ""
+  },
+  {
     "date": "2026-06-02",
     "title": "第 30 期：AI 工具进入算 ROI 阶段——Token 账单倒逼组织回答「用得值不值」",
     "highlights": "Amazon 内部 AI 排行榜因 Tokenmaxxing 被迫关闭 · Meta AI 客服被社工劫持 Instagram 账号 · Anthropic 提交 IPO 估值约 9650 亿美元 · Red Hat 官方 NPM 渠道遭后门投毒 · Gemini 3.5 Flash 走 agent-first 路线",
