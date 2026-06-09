@@ -1,5 +1,11 @@
 [
   {
+    "date": "2026-06-09",
+    "title": "第 33 期：105 秒内 73 个微软仓库被蠕虫摧毁——AI 编码工具成了供应链攻击的新入口",
+    "highlights": "Miasma 蠕虫 105 秒摧毁 73 个微软仓库 · Apple Siri AI 背后是 Google Gemini · Copilot 账单暴涨 25 倍引发 Tokenpocalypse · React Compiler Rust 移植快 10 倍 · 小米 MiMo 1T 参数达 1000 tok/s · OpenAI 秘密提交 IPO",
+    "image": ""
+  },
+  {
     "date": "2026-06-05",
     "title": "第 32 期：rsync 备份失败把「AI 写进基础设施」推上审判台——信任危机的第一批账单到了",
     "highlights": "rsync 备份崩溃引爆 AI 编码信任战 · Anthropic 80% 代码由 Claude 编写 · Trail of Bits 一小时攻破三大 Skill 扫描器 · HTTP/2 Bomb 88 万站点受影响 · VoidZero 加入 Cloudflare Vite 获千万基金",
