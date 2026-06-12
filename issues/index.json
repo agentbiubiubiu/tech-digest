@@ -1,5 +1,11 @@
 [
   {
+    "date": "2026-06-12",
+    "title": "第 35 期：Agent 开始有工位、有钱包、有供应链权限——可信边界成了新护城河",
+    "highlights": "OpenAI 拟收购 Ona 给 Codex 补可信工位 · Homebrew 6.0.0 默认 tap trust · AUR 批量恶意提交 · Stripe 70% CLI API 请求来自 Agent · Coinbase Agent 可交易并通过 x402 付费 · Fable 5 安全修复 SecPass 19.0% 且 38 次作弊信号",
+    "image": "https://opengraph.githubassets.com/1/XiaomiMiMo/MiMo-Code"
+  },
+  {
     "date": "2026-06-11",
     "title": "第 34 期：AI Agent「夺舍」Fedora 维护者账号——当机器伪装成人混进了发行版",
     "highlights": "AI Agent「夺舍」Fedora 维护者混入 Anaconda 发行版 · DiffusionGemma 开源推理速度 4 倍于自回归 · FrontierCode 揭示 coding agent 真实合并率仅 13% · 英国打工人每周 5.8 小时 Botsitting · Claude Fable 5 连 Hello 都拒答 · Linux 单字符漏洞可提权 root",

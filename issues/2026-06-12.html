@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>第 35 期：Agent 开始有工位、有钱包、有供应链权限——可信边界成了新护城河</title>
+  <meta property="og:title" content="Tech Digest #35：Agent 开始有工位、有钱包、有供应链权限">
+  <meta property="og:description" content="OpenAI 拟收购 Ona、Stripe Projects、Coinbase for Agents、Homebrew tap trust、AUR 恶意包与 Fable 5 评测争议。">
+  <meta property="og:image" content="https://opengraph.githubassets.com/1/XiaomiMiMo/MiMo-Code">
+  <style>
+:root {
+  --bg: #f5f6f8; --surface: #ffffff; --surface2: #f0f2f5;
+  --border: #e8ecf1; --border-hover: #c5cdd8;
+  --text: #1a1d21; --text-secondary: #3d4550; --text-muted: #8c95a1;
+  --accent: #2d9f6f; --accent-light: #e8f5ef; --accent-hover: #248a5e;
+  --accent-text: #ffffff;
+  --purple: #7c5cbf; --purple-light: #f3effc;
+  --orange: #e58e26; --orange-light: #fef5e7;
+  --blue: #3a82f7; --blue-light: #eef4fe;
+  --red: #e74c3c; --red-light: #fdecea;
+  --green-deep: #1a7a4c; --green-light2: #e0f5ea;
+  --yellow: #d4a017; --yellow-light: #fef9e7;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.06);
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.06), 0 2px 4px rgba(0,0,0,0.04);
+  --shadow-lg: 0 10px 30px rgba(0,0,0,0.08);
+  --radius: 12px; --radius-sm: 8px; --radius-xs: 6px;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Helvetica, Arial, sans-serif; background: var(--bg); color: var(--text); line-height: 1.75; font-size: 15px; -webkit-font-smoothing: antialiased; }
+.topbar { background: var(--surface); border-bottom: 1px solid var(--border); padding: 12px 32px; display: flex; align-items: center; gap: 16px; position: sticky; top: 0; z-index: 200; box-shadow: var(--shadow-sm); }
+.topbar-brand { font-size: 1.1rem; font-weight: 700; color: var(--accent); text-decoration: none; display: flex; align-items: center; gap: 8px; }
+.topbar-brand svg { width: 28px; height: 28px; }
+.topbar-nav { display: flex; gap: 4px; margin-left: 24px; }
+.topbar-nav a { padding: 6px 16px; border-radius: 20px; font-size: 0.85rem; font-weight: 500; color: var(--text-secondary); text-decoration: none; transition: all 0.2s; }
+.topbar-nav a:hover { background: var(--surface2); color: var(--text); }
+.topbar-nav a.active { background: var(--accent-light); color: var(--accent); font-weight: 600; }
+.topbar-right { margin-left: auto; display: flex; align-items: center; gap: 12px; }
+.topbar-date { font-size: 0.82rem; color: var(--text-muted); background: var(--surface2); padding: 5px 12px; border-radius: 16px; }
+.page { display: flex; max-width: 1200px; margin: 0 auto; padding: 24px 24px 0; gap: 24px; }
+.toc { width: 220px; flex-shrink: 0; position: sticky; top: 80px; height: calc(100vh - 104px); overflow-y: auto; background: var(--surface); border-radius: var(--radius); padding: 20px 16px; box-shadow: var(--shadow-sm); border: 1px solid var(--border); }
+.toc-title { font-size: 0.72rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 14px; padding-left: 12px; }
+.toc a { display: block; padding: 7px 12px; margin-bottom: 2px; font-size: 0.82rem; color: var(--text-muted); text-decoration: none; border-radius: var(--radius-xs); transition: all 0.15s; font-weight: 500; }
+.toc a:hover { color: var(--accent); background: var(--accent-light); }
+.toc a.active { color: var(--accent); background: var(--accent-light); font-weight: 600; }
+.toc-mobile { display: none; position: sticky; top: 57px; z-index: 100; background: var(--surface); border-bottom: 1px solid var(--border); padding: 10px 16px; box-shadow: var(--shadow-sm); }
+.toc-mobile summary { cursor: pointer; font-size: 0.85rem; color: var(--accent); font-weight: 600; list-style: none; }
+.toc-mobile summary::-webkit-details-marker { display: none; }
+.toc-mobile .toc-dropdown { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 8px; margin-top: 8px; max-height: 60vh; overflow-y: auto; box-shadow: var(--shadow-md); }
+.toc-mobile .toc-dropdown a { display: block; padding: 8px 12px; font-size: 0.88rem; color: var(--text-secondary); text-decoration: none; border-radius: var(--radius-xs); }
+.toc-mobile .toc-dropdown a:hover { color: var(--accent); background: var(--accent-light); }
+@media (max-width: 860px) { .toc { display: none; } .toc-mobile { display: block; } .topbar-nav { display: none; } .page { flex-direction: column; padding: 16px 12px 0; gap: 16px; } .container { padding: 20px 16px 60px; } }
+.container { flex: 1; min-width: 0; background: var(--surface); border-radius: var(--radius); padding: 36px 40px 60px; box-shadow: var(--shadow-sm); border: 1px solid var(--border); margin-bottom: 40px; }
+.back { display: inline-flex; align-items: center; gap: 4px; color: var(--text-muted); text-decoration: none; font-size: 0.85rem; margin-bottom: 28px; font-weight: 500; transition: color 0.15s; }
+.back:hover { color: var(--accent); }
+h1 { font-size: 1.7rem; font-weight: 800; margin-bottom: 10px; line-height: 1.35; color: var(--text); letter-spacing: -0.01em; }
+.meta { color: var(--text-muted); font-size: 0.85rem; margin-bottom: 28px; }
+.highlights-line { color: var(--text-secondary); font-size: 0.9rem; margin: -18px 0 28px; line-height: 1.65; }
+.hero-img { width: 100%; border-radius: var(--radius); margin-bottom: 10px; box-shadow: var(--shadow-md); }
+.hero-caption { font-size: 0.82rem; color: var(--text-muted); margin-bottom: 36px; text-align: center; font-style: italic; }
+h2 { font-size: 1.25rem; font-weight: 700; margin: 44px 0 18px; padding-bottom: 10px; border-bottom: 2px solid var(--accent-light); scroll-margin-top: 90px; color: var(--text); }
+h3 { font-size: 1.05rem; font-weight: 600; margin: 26px 0 8px; color: var(--text); }
+p { margin-bottom: 14px; color: var(--text-secondary); }
+a { color: var(--accent); text-decoration: none; font-weight: 500; }
+a:hover { color: var(--accent-hover); text-decoration: underline; }
+strong { color: var(--text); font-weight: 600; }
+.callout { background: var(--accent-light); border-left: 4px solid var(--accent); border-radius: var(--radius-sm); padding: 16px 20px; margin: 20px 0; font-size: 0.93rem; color: var(--text-secondary); }
+.main-story { background: linear-gradient(135deg, #f7fbff 0%, #fff 60%); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px 26px; margin: 18px 0 28px; box-shadow: var(--shadow-sm); }
+.main-story h3 { margin-top: 0; font-size: 1.2rem; line-height: 1.45; }
+.main-story .story-hook { color: var(--accent); font-weight: 700; margin-bottom: 14px; }
+.story-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 16px 0; }
+.story-field { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 12px 14px; font-size: 0.88rem; color: var(--text-secondary); }
+.story-field strong { display: block; margin-bottom: 4px; color: var(--text); }
+.number-chip { display: inline-block; background: var(--blue-light); color: var(--blue); border-radius: 14px; padding: 3px 10px; margin: 3px 6px 3px 0; font-size: 0.78rem; font-weight: 700; }
+.story-line { background: var(--purple-light); border-left: 4px solid var(--purple); border-radius: var(--radius-sm); padding: 14px 16px; margin-top: 14px; color: var(--text); font-weight: 700; }
+.trend-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin: 16px 0 28px; }
+.trend-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px 20px; box-shadow: var(--shadow-sm); }
+.trend-card h4 { font-size: 0.95rem; margin-bottom: 8px; color: var(--text); }
+.trend-card .trend-conflict { color: var(--red); font-size: 0.82rem; font-weight: 700; margin-bottom: 8px; }
+.trend-card p { font-size: 0.86rem; margin-bottom: 10px; }
+.trend-card .trend-sources { font-size: 0.76rem; color: var(--text-muted); line-height: 1.55; }
+.curiosity-card { background: var(--orange-light); border: 1px solid #f5ddb8; border-radius: var(--radius); padding: 20px 24px; margin: 14px 0; }
+.curiosity-card h4 { font-size: 1rem; margin-bottom: 8px; font-weight: 600; }
+.curiosity-card h4 a { color: var(--orange); }
+.curiosity-card .hook { color: var(--orange); font-weight: 700; margin-bottom: 6px; }
+.curiosity-card p { font-size: 0.88rem; color: var(--text-secondary); margin: 0 0 8px; line-height: 1.65; }
+.podcast-brief { background: #f8fafc; border: 1px solid var(--border); border-radius: var(--radius); padding: 20px 24px; margin: 18px 0; }
+.podcast-brief h4 { margin: 0 0 10px; font-size: 1rem; }
+.podcast-brief .cold-open { color: var(--accent); font-weight: 700; margin-bottom: 14px; }
+.podcast-segment { border-top: 1px solid var(--border); padding-top: 12px; margin-top: 12px; }
+.podcast-segment strong { display: block; margin-bottom: 4px; }
+.article-img { width: 100%; max-height: 380px; object-fit: cover; border-radius: var(--radius-sm); margin: 12px 0 24px; box-shadow: var(--shadow-sm); }
+.tool-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 16px 0; }
+.tool-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px 20px; transition: all 0.2s; box-shadow: var(--shadow-sm); }
+.tool-card:hover { border-color: var(--accent); box-shadow: var(--shadow-md); transform: translateY(-1px); }
+.tool-card h4 { font-size: 0.95rem; margin-bottom: 6px; font-weight: 600; }
+.tool-card h4 a { color: var(--accent); }
+.tool-card p { font-size: 0.83rem; color: var(--text-muted); margin: 0; line-height: 1.55; }
+.tool-card .tag { display: inline-block; font-size: 0.68rem; padding: 3px 8px; border-radius: 10px; background: var(--accent); color: var(--accent-text); font-weight: 600; margin-bottom: 8px; letter-spacing: 0.02em; }
+.tool-card .priority-tag { display: inline-block; font-size: 0.65rem; padding: 2px 6px; border-radius: 8px; background: var(--surface2); color: var(--text-muted); font-weight: 600; margin-left: 6px; }
+.fun-card { background: var(--orange-light); border: 1px solid #f5ddb8; border-radius: var(--radius); padding: 20px 24px; margin: 14px 0; }
+.fun-card h4 { font-size: 1rem; margin-bottom: 8px; font-weight: 600; }
+.fun-card h4 a { color: var(--orange); }
+.fun-card p { font-size: 0.88rem; color: var(--text-secondary); margin: 0; line-height: 1.65; }
+.quote-block { background: var(--purple-light); border-left: 4px solid var(--purple); border-radius: var(--radius-sm); padding: 20px 24px; margin: 18px 0; }
+.quote-block blockquote { font-size: 1.02rem; line-height: 1.65; margin-bottom: 10px; font-style: italic; color: var(--text); }
+.quote-block .quote-author { font-size: 0.82rem; color: var(--purple); font-weight: 600; margin-bottom: 6px; }
+.quote-block .quote-meta { font-size: 0.78rem; color: var(--text-muted); margin-bottom: 10px; }
+.quote-block .quote-comment { font-size: 0.88rem; color: var(--text-secondary); border-top: 1px solid #d8d0e8; padding-top: 10px; margin-top: 10px; }
+.quote-block .quote-team-insight { font-size: 0.88rem; color: var(--green-deep); background: var(--accent-light); border-radius: var(--radius-xs); padding: 8px 12px; margin-top: 8px; }
+.resource-item { background: var(--blue-light); border: 1px solid #c8dbf8; border-radius: var(--radius); padding: 18px 20px; margin: 12px 0; }
+.resource-item a { font-weight: 600; color: var(--blue); }
+.resource-item p { font-size: 0.88rem; color: var(--text-secondary); margin: 6px 0 0; }
+.concept-card { background: var(--green-light2); border-left: 4px solid var(--accent); border-radius: var(--radius-sm); padding: 20px 24px; margin: 16px 0; }
+.concept-card h4 { font-size: 1rem; font-weight: 700; color: var(--green-deep); margin-bottom: 10px; }
+.concept-card .concept-field { font-size: 0.88rem; color: var(--text-secondary); margin-bottom: 6px; line-height: 1.6; }
+.concept-card .concept-field strong { color: var(--text); font-size: 0.88rem; }
+.insight-card { background: var(--yellow-light); border-left: 4px solid var(--yellow); border-radius: var(--radius-sm); padding: 16px 20px; margin: 12px 0; }
+.insight-card p { font-size: 0.93rem; color: var(--text-secondary); margin: 0; line-height: 1.7; }
+.insight-card .insight-num { display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; border-radius: 50%; background: var(--yellow); color: #fff; font-size: 0.75rem; font-weight: 700; margin-right: 10px; flex-shrink: 0; }
+.certainty-tag { display: inline-block; font-size: 0.65rem; padding: 2px 6px; border-radius: 8px; font-weight: 600; margin-left: 8px; }
+.certainty-confirmed { background: var(--accent-light); color: var(--accent); }
+.certainty-announced { background: var(--blue-light); color: var(--blue); }
+.certainty-reported { background: var(--yellow-light); color: var(--yellow); }
+.certainty-opinion { background: var(--purple-light); color: var(--purple); }
+.certainty-rumor { background: var(--red-light); color: var(--red); }
+.footer-sources { margin-top: 44px; padding: 20px 24px; background: var(--surface2); border-radius: var(--radius); font-size: 0.78rem; color: var(--text-muted); line-height: 1.9; }
+.footer-sources strong { color: var(--text-secondary); font-size: 0.78rem; }
+@media (max-width: 860px) { .trend-grid, .story-grid { grid-template-columns: 1fr; } }
+@media (max-width: 640px) { .tool-grid { grid-template-columns: 1fr; } }
+
+  </style>
+</head>
+<body>
+
+<header class="topbar">
+  <a href="../index.html" class="topbar-brand">
+    <svg viewBox="0 0 28 28" fill="none"><circle cx="14" cy="14" r="14" fill="#2d9f6f"/><path d="M8 14.5l3.5 3.5 8.5-8" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    Tech Digest
+  </a>
+  <nav class="topbar-nav">
+    <a href="../index.html">Archive</a>
+    <a href="#main-story" class="active">Today</a>
+    <a href="#tools">Tools</a>
+    <a href="#quotes">Quotes</a>
+  </nav>
+  <div class="topbar-right">
+    <span class="topbar-date">2026-06-12</span>
+  </div>
+</header>
+
+<details class="toc-mobile">
+  <summary>📑 目录导航</summary>
+  <div class="toc-dropdown">
+    <a href="#main-story">🔥 主故事</a>
+    <a href="#trends">⚡ 冲突趋势</a>
+    <a href="#tech-news">📰 科技动态</a>
+    <a href="#ai">🤖 AI 相关</a>
+    <a href="#articles">📝 文章推荐</a>
+    <a href="#tools">🛠️ 工具推荐</a>
+    <a href="#ai-tools">🧠 AI 工具</a>
+    <a href="#concepts">🧩 本期概念库</a>
+    <a href="#curiosity">🎲 好奇心入口</a>
+    <a href="#resources">📚 资源</a>
+    <a href="#quotes">💬 言论</a>
+    <a href="#podcast">🎙️ 播客提纲</a>
+    <a href="#team-insights">✅ 对团队的启发</a>
+  </div>
+</details>
+
+<div class="page">
+  <nav class="toc">
+    <div class="toc-title">本期目录</div>
+    <a href="#main-story">🔥 主故事</a>
+    <a href="#trends">⚡ 冲突趋势</a>
+    <a href="#tech-news">📰 科技动态</a>
+    <a href="#ai">🤖 AI 相关</a>
+    <a href="#articles">📝 文章推荐</a>
+    <a href="#tools">🛠️ 工具推荐</a>
+    <a href="#ai-tools">🧠 AI 工具</a>
+    <a href="#concepts">🧩 本期概念库</a>
+    <a href="#curiosity">🎲 好奇心入口</a>
+    <a href="#resources">📚 资源</a>
+    <a href="#quotes">💬 言论</a>
+    <a href="#podcast">🎙️ 播客提纲</a>
+    <a href="#team-insights">✅ 对团队的启发</a>
+  </nav>
+
+  <main class="container">
+    <a href="../index.html" class="back">← 返回目录</a>
+    <h1>第 35 期：Agent 开始有工位、有钱包、有供应链权限——可信边界成了新护城河</h1>
+    <div class="meta">第 35 期 · 2026年6月12日，星期五</div>
+    <p class="highlights-line"><strong>✨ 本期亮点：</strong>OpenAI 拟收购 Ona 给 Codex 补可信工位 · Homebrew 6.0.0 默认 tap trust · AUR 批量恶意提交 · Stripe 70% CLI API 请求来自 Agent · Coinbase Agent 可交易并通过 x402 付费 · Fable 5 安全修复 SecPass 19.0% 且 38 次作弊信号</p>
+
+    <img class="hero-img" src="https://opengraph.githubassets.com/1/XiaomiMiMo/MiMo-Code" alt="MiMo Code GitHub open graph">
+    <div class="hero-caption">长程 Agent、可信工作空间、显式信任边界，正在汇成同一条产品主线。</div>
+
+    <div class="callout">
+      <strong>🎯 本期核心判断：</strong>Agent 正从「会话里的助手」变成「长期运行的基础设施」；模型能力之外，可信工作空间、显式信任和预算边界会成为新护城河。
+    </div>
+
+    <div class="callout">
+      <strong>⏱ 本期建议阅读顺序</strong><br>
+      先读主故事，理解 OpenAI-Ona 背后的 Agent 工作空间之争。<br>
+      再读 Homebrew、AUR、Stripe、Coinbase，抓住「自动化越强，信任越贵」这条主线。<br>
+      最后读概念库和团队启发，把今天的信息转成内部 Agent 治理清单。
+    </div>
+
+    <h2 id="main-story">🔥 主故事</h2>
+        <article class="main-story">
+      <h3>OpenAI 拟收购 Ona：Codex 不再只需要模型，还需要一个可信工位</h3>
+      <p class="story-hook">当一个 Agent 可以连续干几小时甚至几天，问题就不再是「它会不会写代码」，而是「它到底在哪里工作、拿着谁的钥匙、留下什么审计记录」。</p>
+      <p>OpenAI 在 6 月 11 日宣布拟收购 Ona，把安全云执行和编排能力并入 Codex 生态。官方给出的理由很直接：Codex 每周用户已超过 500 万，较今年早些时候增长 400%；它的高价值任务正在从几分钟的代码补全，变成跨小时、跨天的持续工作。</p>
+      <div class="story-grid">
+        <div class="story-field"><strong>核心冲突</strong>Agent 的价值来自长期委托，但企业的安全体系习惯于短会话、个人设备和人工审批。模型越能干，越需要可控的执行环境、凭证边界、日志和审查流；否则「让 Agent 干活」很快会变成「不知道 Agent 改了什么」。</div>
+        <div class="story-field"><strong>转折点</strong>Ona 的价值不在于再做一个 IDE，而在于给 Agent 一个可复现、可审计、客户可控的云环境。OpenAI 明确说，交易仍需满足惯常交割条件和监管审批，交割前两家公司保持独立。</div>
+        <div class="story-field"><strong>为什么现在发生</strong>同一天附近，Stripe 说 Agent 流量已经占其文档流量近 40%，70% 的 Stripe CLI API 请求来自 Agent；Coinbase 也让 Agent 进入交易和付费研究场景。Agent 正从「帮我写一段」走向「替我运行一个流程」，运行边界自然成了新战场。</div>
+        <div class="story-field"><strong>对团队的启发</strong>团队应把 Agent 运行环境当成基础设施设计：默认开发环境、最小权限凭证、预算上限、任务日志、产物 diff、人工审批关卡，一个都不能靠口头约定。</div>
+      </div>
+      <p><span class="number-chip">500万+ 每周 Codex 用户</span><span class="number-chip">较年初增长 400%</span><span class="number-chip">Ona 服务过 200万 开发者</span></p>
+      <p><strong>我的判断：</strong>我的判断是：Agent 产品的下一轮竞争，不会只拼模型分数，而会拼「可信工作空间」。谁能把长期任务、权限、预算、凭证、日志和人工复核做成默认能力，谁才有资格进入生产系统。</p>
+      <div class="story-line">Agent 不缺脑子了，缺的是一张可审计的工位证。</div>
+      <p><strong>来源：</strong><a href="https://openai.com/index/openai-to-acquire-ona/" target="_blank" rel="noopener noreferrer">openai.com</a></p>
+    </article>
+
+    <h2 id="trends">⚡ 冲突趋势</h2>
+        <div class="trend-grid">
+      <div class="trend-card">
+        <h4>Agent 有工位 vs 企业有边界</h4>
+        <div class="trend-conflict">OpenAI 买 Ona、Stripe 做 Projects、Zed 做 DeltaDB，指向同一个问题：Agent 要长期干活，但企业不能把生产权限裸给一个会话。</div>
+        <p>Agent 下一轮竞争不是谁更聪明，而是谁能在受控环境里干完整件事。</p>
+        <div class="trend-sources">openai.com · stripe.com · zed.dev</div>
+      </div>
+      <div class="trend-card">
+        <h4>自动化越强 vs 信任越贵</h4>
+        <div class="trend-conflict">Homebrew 要求 tap trust，AUR 批量清理恶意包，Coinbase 让 Agent 动钱。工具越自动，信任边界越不能隐形。</div>
+        <p>默认信任正在死亡，显式授权会成为开发工具的基础交互。</p>
+        <div class="trend-sources">brew.sh · lists.archlinux.org · techcrunch.com</div>
+      </div>
+      <div class="trend-card">
+        <h4>模型高分 vs 真实能力</h4>
+        <div class="trend-conflict">Fable 5 一边被宣传为 Mythos-class，一边在安全修复 Benchmark 中只有 19.0% SecPass，还出现训练记忆作弊信号。</div>
+        <p>Agent 评测的核心不再是通过率，而是证明它没有背答案、绕规则、偷环境。</p>
+        <div class="trend-sources">endorlabs.com · simonwillison.net</div>
+      </div>
+    </div>
+
+    <h2 id="tech-news">📰 科技动态</h2>
+    <h3>1、<a href="https://brew.sh/2026/06/11/homebrew-6.0.0/" target="_blank" rel="noopener noreferrer">Homebrew 6.0.0 发布，第三方 tap 进入显式信任时代</a> <span class="certainty-tag certainty-confirmed">confirmed</span></h3>
+    <p>Homebrew 6.0.0 最大变化不是版本号，而是 tap trust：第三方 tap 中的 Ruby 代码会在本机执行，今后必须显式信任。它还默认启用更小更快的内部 JSON API、Linux 沙箱和 macOS 27 初始支持。</p>
+    <img class="article-img" src="https://opengraph.githubassets.com/1/Homebrew/brew" alt="">
+    <h3>2、<a href="https://lists.archlinux.org/archives/list/aur-general@lists.archlinux.org/thread/FGXPCB3ZVCJIV7FX323SBAX2JHYB7ZS4/" target="_blank" rel="noopener noreferrer">Arch AUR 出现批量恶意提交，维护者紧急重置并封禁账号</a> <span class="certainty-tag certainty-reported">reported</span></h3>
+    <p>AUR 维护者在公开线程中请求社区集中上报恶意包，表示正在重置或删除恶意提交并封禁账号。线程下快速堆出数十条受影响包名，提醒我们：社区包仓库的弱点不是没有签名，而是信任链太分散。</p>
+    <img class="article-img" src="https://opengraph.githubassets.com/1/archlinux/aurweb" alt="">
+    <h3>3、<a href="https://stripe.com/blog/stripe-projects-adds-new-agents-providers-developer-controls" target="_blank" rel="noopener noreferrer">Stripe Projects 把 Agent 基建接入 49 个服务商，并加入预算与环境边界</a> <span class="certainty-tag certainty-confirmed">confirmed</span></h3>
+    <p>Stripe 称 Agent 已占其文档流量近 40%，70% 的 Stripe CLI API 资源请求来自 Agent。Projects 现在接入 49 个服务商，支持按 provider 设置花费上限、隔离凭证和命名环境，让 Agent 能搭产品但默认不碰生产。</p>
+    <h3>4、<a href="https://techcrunch.com/2026/06/11/coinbase-debuts-mcp-for-agent-trading/" target="_blank" rel="noopener noreferrer">Coinbase 推出可交易、可付费买研究的 Agent，x402 支付协议进入实战</a> <span class="certainty-tag certainty-reported">reported</span></h3>
+    <p>Coinbase 的新 Agent 可接入主账号或沙箱，执行加密现货和衍生品交易，并通过 x402 为研究数据 API 和按需算力付费。后续还会增加最大交易额、可交互服务和预算限制。</p>
+    <h3>5、<a href="https://www.amazon.science/blog/ec2s-formally-verified-isolation-engine-provides-mathematical-assurance-of-virtual-machine-isolation" target="_blank" rel="noopener noreferrer">AWS Nitro Isolation Engine 成为商用云里的形式化验证隔离内核</a> <span class="certainty-tag certainty-confirmed">confirmed</span></h3>
+    <p>AWS 把 Nitro Hypervisor 的隔离逻辑拆成 Nitro Isolation Engine，并用 Isabelle/HOL 做了 33 万行机器检查数学证明。它会在 Graviton5 用户的生产硬件上作为 always-on 功能运行。</p>
+    <h3>6、<a href="https://zed.dev/blog/introducing-deltadb" target="_blank" rel="noopener noreferrer">Zed 推出 DeltaDB：协作不该只发生在 commit 之后</a> <span class="certainty-tag certainty-confirmed">confirmed</span></h3>
+    <p>Zed 的 DeltaDB 把「每一次操作」而不是「每一次 commit」作为协作对象。它背后的判断很有意思：代码现在也是对话，PR 只审快照，已经跟不上人和 Agent 在同一工作区里协作的速度。</p>
+    <img class="article-img" src="https://opengraph.githubassets.com/1/zed-industries/zed" alt="">
+    <h3>7、<a href="https://techcrunch.com/2026/06/11/jeff-bezoss-prometheus-raises-12b-to-build-an-artificial-general-engineer-for-the-physical-world/" target="_blank" rel="noopener noreferrer">Prometheus 融资 120 亿美元：物理世界成了 AI 资本的新叙事</a> <span class="certainty-tag certainty-reported">reported</span></h3>
+    <p>Jeff Bezos 与 Vik Bajaj 共同创立的 Prometheus 据报完成 120 亿美元融资，估值 410 亿美元，目标是为制造、航空航天和药物设计打造「人工通用工程师」。这是本周最夸张的 AI 资本故事之一。</p>
+
+    <h2 id="ai">🤖 AI 相关</h2>
+    <h3>1、<a href="https://www.theverge.com/ai-artificial-intelligence/948280/anthropic-claude-fable-invisible-distillation-guardrail" target="_blank" rel="noopener noreferrer">续报：Anthropic 承认 Fable 5 隐形 guardrail 取舍错误，将改为可见降级</a> <span class="certainty-tag certainty-reported">reported</span></h3>
+    <p>Fable 5 发布后的争议从「拒答太多」升级为「悄悄降级」。Anthropic 承认在 frontier LLM development 场景使用不可见保护是错误取舍，后续会让用户看到何时回退到 Opus 4.8 或被拒绝。</p>
+    <h3>2、<a href="https://www.endorlabs.com/learn/claude-fable-5-mythos-grade-hype" target="_blank" rel="noopener noreferrer">Endor Labs 测 Fable 5：功能 59.8%，安全修复 19.0%，还出现 38 次作弊信号</a> <span class="certainty-tag certainty-reported">reported</span></h3>
+    <p>Endor Labs 用 200 个真实漏洞修复任务测试 Fable 5 + Claude Code，结论很尴尬：FuncPass 59.8%，SecPass 19.0%；但它也解出 4 个此前无人解出的任务。最刺眼的是 38/200 个实例被判定有作弊信号，主要来自训练记忆。</p>
+    <img class="article-img" src="https://opengraph.githubassets.com/1/endorlabs/monorepo" alt="">
+    <h3>3、<a href="https://github.com/XiaomiMiMo/MiMo-Code" target="_blank" rel="noopener noreferrer">小米 MiMo Code 开源：长程编码 Agent 开始拼跨会话记忆</a> <span class="certainty-tag certainty-confirmed">confirmed</span></h3>
+    <p>MiMo Code 是终端原生开源编码 Agent，强调跨会话记忆：能读写代码、运行命令、管理 Git，并维护项目理解。官方长文称它面向数十到数百步的长程自动编程任务。</p>
+    <img class="article-img" src="https://opengraph.githubassets.com/1/XiaomiMiMo/MiMo-Code" alt="">
+    <h3>4、<a href="https://openai.com/index/using-codex-to-simulate-black-holes/" target="_blank" rel="noopener noreferrer">OpenAI 案例：用 Codex 帮黑洞模拟寻找可测试算法</a> <span class="certainty-tag certainty-confirmed">confirmed</span></h3>
+    <p>天体物理学家 Chi-kwan Chan 用 Codex 推导并测试黑洞等离子体模拟算法。关键不是让 AI 直接给结论，而是让它生成可检查、可复现实验的候选数值方案。</p>
+    <h3>5、<a href="https://huggingface.co/blog/torch-mlp-fusion" target="_blank" rel="noopener noreferrer">Hugging Face PyTorch Profiling Part 2：从 nn.Linear 到 fused MLP</a> <span class="certainty-tag certainty-confirmed">confirmed</span></h3>
+    <p>这篇不是大新闻，却很实用：用 profiler 看清 PyTorch 中 nn.Linear 到 fused MLP 的性能路径。AI 工程进入成本阶段后，这类底层 profiling 比发布会更能省钱。</p>
+    <img class="article-img" src="https://opengraph.githubassets.com/1/huggingface/transformers" alt="">
+    <h3>6、<a href="https://github.com/huggingface/open-r1" target="_blank" rel="noopener noreferrer">Open reproduction of DeepSeek-R1 登上 HN：开源复现仍是模型生态的硬通货</a> <span class="certainty-tag certainty-confirmed">confirmed</span></h3>
+    <p>Hugging Face 的 open-r1 项目继续获得社区关注。它的价值不是又一个榜单数字，而是把推理模型训练、数据、评测和复现链条摊开，让团队能学习而不是只消费模型。</p>
+    <img class="article-img" src="https://opengraph.githubassets.com/1/huggingface/open-r1" alt="">
+
+    <h2 id="articles">📝 文章推荐</h2>
+    <h3>1、<a href="https://curlewis.co.nz/posts/lines-of-code-got-a-better-publicist/" target="_blank" rel="noopener noreferrer">Lines of code got a better publicist</a></h3>
+    <p>代码行数以前常被嘲笑成错误指标，但 AI 时代它换了个名字又回来了：大家开始用「AI 写了多少代码」讲生产力。值得读的点在于，它提醒团队不要把产出体积误认为工程质量。</p>
+    <h3>2、<a href="https://tombedor.dev/human-attention-and-human-effort/" target="_blank" rel="noopener noreferrer">If you are asking for human attention, demonstrate human effort</a></h3>
+    <p>这篇短文适合放进团队协作规范：当你要求别人投入注意力，你也要先展示自己的努力。AI 生成内容越便宜，人类注意力越贵，发 PR、提 issue、写需求都该体现这一点。</p>
+    <h3>3、<a href="https://web.mit.edu/nelsonr/www/Repenning=Sterman_CMR_su01_.pdf" target="_blank" rel="noopener noreferrer">Nobody ever gets credit for fixing problems that never happened</a></h3>
+    <p>2001 年的系统动力学老文在 HN 重新火了。它解释了为什么预防型工作总是难拿 credit：事故没发生，组织就以为风险本来不存在。对 SRE、风控和安全团队非常有现实感。</p>
+    <h3>4、<a href="https://wiki.alopex.li/ReuseLessSoftware" target="_blank" rel="noopener noreferrer">Reuse Less Software</a></h3>
+    <p>在供应链事件密集的一周，这个标题很刺耳但有用：复用软件当然重要，但过度复用会把别人的维护风险、许可风险和攻击面一起搬进来。它适合作为依赖治理讨论材料。</p>
+
+    <h2 id="tools">🛠️ 工具推荐</h2>
+    <div class="tool-grid">
+      <div class="tool-card">
+        <h4><a href="https://github.com/Latias94/merman" target="_blank" rel="noopener noreferrer">merman</a> <span class="priority-tag">P2</span></h4>
+        <p>Mermaid.js 的 headless Rust 实现，适合在 CI、文档生成和服务端渲染里跑图表。</p>
+      </div>
+      <div class="tool-card">
+        <h4><a href="https://simonwillison.net/2026/Jun/11/datasette/" target="_blank" rel="noopener noreferrer">Datasette 1.0a33</a> <span class="priority-tag">P2</span></h4>
+        <p>Simon Willison 的轻量数据发布工具继续接近 1.0，适合内部数据集快速可视化和探索。</p>
+      </div>
+      <div class="tool-card">
+        <h4><a href="https://simonwillison.net/2026/Jun/11/asyncinject/" target="_blank" rel="noopener noreferrer">asyncinject 0.7</a> <span class="priority-tag">P3</span></h4>
+        <p>面向 Python async 场景的依赖注入小工具，适合拆解轻量服务和测试夹具。</p>
+      </div>
+      <div class="tool-card">
+        <h4><a href="https://github.com/squeezlabs/crankgpt" target="_blank" rel="noopener noreferrer">CrankGPT voice agent</a> <span class="priority-tag">P3</span></h4>
+        <p>手摇供电的本地语音 Agent 项目，更多是边缘小模型和低功耗系统设计灵感。</p>
+      </div>
+    </div>
+
+    <h2 id="ai-tools">🧠 AI 工具</h2>
+    <div class="tool-grid">
+      <div class="tool-card">
+        <span class="tag">编码</span>
+        <h4><a href="https://mimo.xiaomi.com/mimocode" target="_blank" rel="noopener noreferrer">MiMo Code</a></h4>
+        <p>开源终端 coding agent，主打跨会话记忆和长程任务状态连续性。</p>
+      </div>
+      <div class="tool-card">
+        <span class="tag">基建</span>
+        <h4><a href="https://projects.dev/" target="_blank" rel="noopener noreferrer">Stripe Projects</a></h4>
+        <p>让 Agent 用 CLI 配基础设施、账单和观测，并通过 spend limit 与环境隔离控制风险。</p>
+      </div>
+      <div class="tool-card">
+        <span class="tag">交易</span>
+        <h4><a href="https://www.coinbase.com/developer-platform/products/agentkit" target="_blank" rel="noopener noreferrer">Coinbase for Agents</a></h4>
+        <p>交易、支付、研究数据购买都进入 Agent 权限模型，适合观察金融 Agent 风控边界。</p>
+      </div>
+      <div class="tool-card">
+        <span class="tag">工作空间</span>
+        <h4><a href="https://ona.com" target="_blank" rel="noopener noreferrer">OpenAI Codex + Ona</a></h4>
+        <p>拟把安全、持久、客户可控的云执行环境并入 Codex。</p>
+      </div>
+    </div>
+
+    <h2 id="concepts">🧩 本期概念库</h2>
+    <div class="concept-card">
+      <h4>1. 可信 Agent 工作空间</h4>
+      <div class="concept-field"><strong>一句话解释：</strong>让 Agent 在受控云环境中长期运行，同时记录权限、日志、产物和人工审批。</div>
+      <div class="concept-field"><strong>背景来源：</strong>OpenAI 拟收购 Ona</div>
+      <div class="concept-field"><strong>为什么重要：</strong>Agent 从短会话进入生产任务后，运行环境本身就是安全产品。</div>
+      <div class="concept-field"><strong>团队应用场景：</strong>为内部 Agent 统一创建隔离环境、审计日志和最小权限凭证。</div>
+    </div>
+    <div class="concept-card">
+      <h4>2. 显式信任边界</h4>
+      <div class="concept-field"><strong>一句话解释：</strong>第三方代码、插件、tap、MCP server 默认不可信，必须由用户或组织显式授权。</div>
+      <div class="concept-field"><strong>背景来源：</strong>Homebrew 6.0.0 tap trust / AUR 恶意包</div>
+      <div class="concept-field"><strong>为什么重要：</strong>供应链攻击越来越靠近开发者机器，默认信任会放大爆炸半径。</div>
+      <div class="concept-field"><strong>团队应用场景：</strong>建立开发环境白名单和第三方源审批流程。</div>
+    </div>
+    <div class="concept-card">
+      <h4>3. Agentic Spend Control</h4>
+      <div class="concept-field"><strong>一句话解释：</strong>给 Agent 调用模型、云服务、交易和外部 API 时设置预算、额度、环境和审计。</div>
+      <div class="concept-field"><strong>背景来源：</strong>Stripe Projects / Coinbase for Agents</div>
+      <div class="concept-field"><strong>为什么重要：</strong>Agent 可以花钱、开资源、下单后，成本控制就是权限控制。</div>
+      <div class="concept-field"><strong>团队应用场景：</strong>为每个 Agent 设置 provider 级预算上限和环境级凭证。</div>
+    </div>
+    <div class="concept-card">
+      <h4>4. 训练记忆作弊</h4>
+      <div class="concept-field"><strong>一句话解释：</strong>模型通过记住训练集中见过的上游补丁或答案获得高分，而不是现场推理解决问题。</div>
+      <div class="concept-field"><strong>背景来源：</strong>Endor Labs Fable 5 Benchmark</div>
+      <div class="concept-field"><strong>为什么重要：</strong>污染的 Benchmark 会让团队误判 Agent 的真实修复能力。</div>
+      <div class="concept-field"><strong>团队应用场景：</strong>自建私有评测集，加入反作弊、相似度和泄漏检测。</div>
+    </div>
+    <div class="concept-card">
+      <h4>5. 商用形式化验证</h4>
+      <div class="concept-field"><strong>一句话解释：</strong>把关键隔离逻辑缩小到可证明核心，并用机器检查证明支撑生产级安全承诺。</div>
+      <div class="concept-field"><strong>背景来源：</strong>AWS Nitro Isolation Engine</div>
+      <div class="concept-field"><strong>为什么重要：</strong>高价值多租户系统不能只靠测试覆盖率解释信任。</div>
+      <div class="concept-field"><strong>团队应用场景：</strong>优先对资金、权限和隔离核心做小型化规格和形式化检查。</div>
+    </div>
+
+    <h2 id="curiosity">🎲 好奇心入口</h2>
+    <div class="curiosity-card">
+      <h4><a href="https://www.theregister.com/offbeat/2026/06/11/hand-cranked-ai-box-lets-you-get-a-workout-while-you-wait-for-answers/5254333" target="_blank" rel="noopener noreferrer">CrankGPT：一个你必须手摇才能继续回答的 AI 盒子</a></h4>
+      <div class="hook">你可以真的「感觉到推理」：模型生成时，手摇阻力会变大。</div>
+      <p>The Register 报道的 CrankGPT 用 Raspberry Pi 5、本地小模型和手摇发电机做语音 Agent，电容只够约 20 秒免摇运行。它像一个玩笑，但提醒我们：不是所有 AI 都该跑在巨型云端。 团队暗线：把任务切小、模型做专、部署到边缘，可能比盲目上大模型更工程化。</p>
+    </div>
+    <div class="curiosity-card">
+      <h4><a href="https://www.404media.co/amazon-data-centers-in-mississippi-have-already-raised-electricity-rates-for-local-customers-report-suggests/" target="_blank" rel="noopener noreferrer">Amazon 数据中心疑似已经推高 Mississippi 本地电价</a></h4>
+      <div class="hook">AI 基建账单不只在云厂商发票里，也可能出现在居民电费里。</div>
+      <p>404 Media 报道，当地报告认为 Amazon 数据中心已对 Mississippi 用户电价造成压力。它不是工程细节，却是 AI 算力扩张最现实的社会成本样本。 团队暗线：算力规划要把电力、社区和监管成本纳入长期风险，而不只是看 GPU 单价。</p>
+    </div>
+    <div class="curiosity-card">
+      <h4><a href="https://github.com/icitry/FPS.cob" target="_blank" rel="noopener noreferrer">FPS.cob：有人用 COBOL 写了第一人称射击游戏</a></h4>
+      <div class="hook">当所有人都在讨论 Agent 写代码，有人选择让 COBOL 开枪。</div>
+      <p>这个 HN 热门项目不重要但有趣：它提醒我们，语言和工具的边界常常比想象中松。对工程文化来说，玩具项目也是理解系统限制的一种方式。 团队暗线：保留极客实验空间，有助于团队形成更强的系统直觉。</p>
+    </div>
+
+    <h2 id="resources">📚 资源</h2>
+    <div class="resource-item">
+      <a href="https://docs.brew.sh/Tap-Trust" target="_blank" rel="noopener noreferrer">Homebrew Tap Trust 文档</a>
+      <p>理解 Homebrew 为什么要求第三方 tap 显式信任，可直接转化为内部包源治理规范。</p>
+    </div>
+    <div class="resource-item">
+      <a href="https://mimo.xiaomi.com/blog/mimo-code-long-horizon" target="_blank" rel="noopener noreferrer">MiMo Code 长程任务设计文章</a>
+      <p>小米 MiMo 团队对 computation、memory、evolution 三层 Agent 设计的技术解释。</p>
+    </div>
+    <div class="resource-item">
+      <a href="https://www.amazon.science/blog/tag/automated-reasoning" target="_blank" rel="noopener noreferrer">AWS Nitro Isolation Engine 形式化验证文章</a>
+      <p>学习如何把隔离逻辑拆小、规格化，并用 Isabelle/HOL 证明关键安全属性。</p>
+    </div>
+    <div class="resource-item">
+      <a href="https://www.endorlabs.com/agent-security-league" target="_blank" rel="noopener noreferrer">Endor Labs Agent Security League</a>
+      <p>观察 AI 编码 Agent 在漏洞修复任务上的反作弊评测方法。</p>
+    </div>
+
+    <h2 id="quotes">💬 言论：本期 8 个认知增量</h2>
+    <div class="quote-block">
+      <blockquote>安全保护如果不可见，就会让研发者无法判断模型到底是在推理、拒绝，还是偷偷换路。</blockquote>
+      <div class="quote-author">—— Simon Willison 对 Fable 5 事件的点评</div>
+      <div class="quote-meta">来源：<a href="https://simonwillison.net/2026/Jun/11/anthropic-walks-back-policy/" target="_blank" rel="noopener noreferrer">simonwillison.net</a> · 类型：摘要式转述 · 关键词：AI Workflow · 模型治理</div>
+      <div class="quote-comment">💭 这句话的价值在于把 AI 安全从道德讨论拉回工程可观测性：不可见行为不能被评测，也不能被治理。</div>
+      <div class="quote-team-insight">🎯 团队启发：记录模型拒答、回退和安全策略版本，把它们纳入评测报告。</div>
+    </div>
+    <div class="quote-block">
+      <blockquote>第三方 tap 不是配置文件，它可能是在你机器上运行的代码。</blockquote>
+      <div class="quote-author">—— Homebrew Tap Trust 文档</div>
+      <div class="quote-meta">来源：<a href="https://news.ycombinator.com/item?id=48490024" target="_blank" rel="noopener noreferrer">news.ycombinator.com</a> · 类型：摘要式转述 · 关键词：供应链安全 · 开发环境</div>
+      <div class="quote-comment">💭 这非常适合作为内部开发环境治理的第一条原则：会执行的东西，就不能只按链接管理。</div>
+      <div class="quote-team-insight">🎯 团队启发：把 Homebrew tap、npm registry、MCP server 都纳入同一类显式信任清单。</div>
+    </div>
+    <div class="quote-block">
+      <blockquote>Agent 能独立写代码和集成 API，但旁边那些开账号、配凭证、管预算的步骤仍然很难。</blockquote>
+      <div class="quote-author">—— Stripe Projects 产品更新</div>
+      <div class="quote-meta">来源：<a href="https://docs.stripe.com/projects" target="_blank" rel="noopener noreferrer">docs.stripe.com</a> · 类型：摘要式转述 · 关键词：Agentic Commerce · FinOps</div>
+      <div class="quote-comment">💭 这解释了为什么 Agent 基建的价值不在「更会写」，而在补齐真实上线前后的杂活。</div>
+      <div class="quote-team-insight">🎯 团队启发：为 Agent 平台先做 credential / spend / environment 三件套，再谈自主上线。</div>
+    </div>
+    <div class="quote-block">
+      <blockquote>大模型给出的补丁可能不是现场推理，而是训练集中见过答案。</blockquote>
+      <div class="quote-author">—— Endor Labs Benchmark 结论</div>
+      <div class="quote-meta">来源：<a href="https://news.ycombinator.com/item?id=48492210" target="_blank" rel="noopener noreferrer">news.ycombinator.com</a> · 类型：摘要式转述 · 关键词：Benchmark · 安全修复</div>
+      <div class="quote-comment">💭 团队最容易被「通过率」骗到。真正的评测要问：这个答案是理解出来的，还是背出来的？</div>
+      <div class="quote-team-insight">🎯 团队启发：自建私有、未公开、带泄漏检测的代码修复评测集。</div>
+    </div>
+    <div class="quote-block">
+      <blockquote>真正稀缺的稳定性成果，常常是那些最后没有发生的事故。</blockquote>
+      <div class="quote-author">—— Repenning &amp; Sterman 经典系统动力学论文</div>
+      <div class="quote-meta">来源：<a href="https://news.ycombinator.com/item?id=48498385" target="_blank" rel="noopener noreferrer">news.ycombinator.com</a> · 类型：摘要式转述 · 关键词：稳定性 · 管理认知</div>
+      <div class="quote-comment">💭 这对 SRE 和安全团队是日常困境：做得越好，越像没有做事。</div>
+      <div class="quote-team-insight">🎯 团队启发：把预防性工作量化为风险消减，而不是只用事故数反推价值。</div>
+    </div>
+    <div class="quote-block">
+      <blockquote>软件不是只在 commit 时被制造出来，commit 之间的讨论和操作同样是源代码的一部分。</blockquote>
+      <div class="quote-author">—— Zed DeltaDB 发布文章</div>
+      <div class="quote-meta">来源：<a href="https://news.ycombinator.com/item?id=48492533" target="_blank" rel="noopener noreferrer">news.ycombinator.com</a> · 类型：摘要式转述 · 关键词：代码审查 · AI Workflow</div>
+      <div class="quote-comment">💭 Agent 时代尤其如此。只审最终 diff，会丢掉中间决策、失败路径和真实上下文。</div>
+      <div class="quote-team-insight">🎯 团队启发：在 Agent 任务里保存关键中间状态和决策日志，不只保存最终 patch。</div>
+    </div>
+    <div class="quote-block">
+      <blockquote>要求别人投入注意力之前，先展示自己已经投入了努力。</blockquote>
+      <div class="quote-author">—— Tom Bedor</div>
+      <div class="quote-meta">来源：<a href="https://news.ycombinator.com/item?id=48497609" target="_blank" rel="noopener noreferrer">news.ycombinator.com</a> · 类型：译文 · 关键词：协作 · 管理认知</div>
+      <div class="quote-comment">💭 AI 让低成本文本泛滥之后，认真准备会变成一种新的协作礼仪。</div>
+      <div class="quote-team-insight">🎯 团队启发：规范 PR、需求和事故复盘模板，要求写清已尝试路径和未解决问题。</div>
+    </div>
+    <div class="quote-block">
+      <blockquote>形式化验证最强的地方，不是证明整个世界正确，而是把关键边界缩小到可以证明。</blockquote>
+      <div class="quote-author">—— Amazon Science Nitro 文章</div>
+      <div class="quote-meta">来源：<a href="https://www.amazon.science/research-areas/automated-reasoning" target="_blank" rel="noopener noreferrer">amazon.science</a> · 类型：摘要式转述 · 关键词：形式化验证 · 基础设施</div>
+      <div class="quote-comment">💭 这比泛泛地说「加强测试」更可执行：先找系统里最小但最关键的不可错边界。</div>
+      <div class="quote-team-insight">🎯 团队启发：挑交易权限、资金状态机和多租户隔离做小范围规格化验证。</div>
+    </div>
+
+    <h2 id="podcast">🎙️ 播客提纲</h2>
+    <div class="podcast-brief">
+      <h4>Agent 开始有工位、有钱包、有供应链权限</h4>
+      <div class="cold-open">今天最值得警惕的不是 Agent 会不会写代码，而是它正在拿到工位、钱包和供应链入口。</div>
+      <div class="podcast-segment">
+        <strong>主故事：Codex 为什么需要 Ona</strong>
+        <p>500 万周活之后，Codex 的问题变成了「在哪里持续工作」。</p>
+        <p>把 Agent 工作空间当作基础设施，不要当作个人工具。</p>
+      </div>      <div class="podcast-segment">
+        <strong>支付与交易：Agent 开始动钱</strong>
+        <p>Stripe 说 70% 的 CLI API 请求来自 Agent，Coinbase 让 Agent 进交易账户。</p>
+        <p>先做 spend limit 和环境隔离，再谈自主执行。</p>
+      </div>      <div class="podcast-segment">
+        <strong>供应链：默认信任正在退场</strong>
+        <p>Homebrew 6.0.0 的 tap trust 和 AUR 恶意包，是同一件事的两面。</p>
+        <p>建立开发环境白名单，把非官方源纳入准入流程。</p>
+      </div>      <div class="podcast-segment">
+        <strong>评测：别把背答案当能力</strong>
+        <p>Fable 5 同时有 hall-of-fame 解决和 38 次作弊信号。</p>
+        <p>用私有评测集验证 Agent，而不是只看公开榜单。</p>
+      </div>
+      <p>Agent 的能力在变强，但真正决定它能否进生产的，是可信边界。今天就从工位、钱包、供应链三件事查起。</p>
+    </div>
+
+    <h2 id="team-insights">✅ 对团队的启发</h2>
+    <div class="insight-card">
+      <p><span class="insight-num">1</span>为所有 Agent 任务建立「开发环境默认、生产环境需审批」的隔离策略。</p>
+    </div>
+    <div class="insight-card">
+      <p><span class="insight-num">2</span>把第三方 tap、MCP server、CLI 插件统一纳入显式信任清单。</p>
+    </div>
+    <div class="insight-card">
+      <p><span class="insight-num">3</span>给 Agent 调用模型、云服务和交易 API 设置 provider 级预算与额度。</p>
+    </div>
+    <div class="insight-card">
+      <p><span class="insight-num">4</span>建设私有 AI 代码修复评测集，加入训练记忆与 workspace 泄漏检测。</p>
+    </div>
+    <div class="insight-card">
+      <p><span class="insight-num">5</span>把长期 Agent 的中间日志、命令、凭证使用和最终 diff 一起纳入审查。</p>
+    </div>
+
+    <div class="footer-sources">
+      <strong>📋 数据来源说明</strong><br>
+      本情报来自 66 个全球精选科技 / AI / 工程 / 系统可靠性信息源的每日更新。<br>
+      由 Cursor AI 自动生成，信息截止至 2026年6月12日，星期五。
+    </div>
+  </main>
+</div>
+
+<script>
+(function(){
+  const toc=document.querySelector('.toc');if(!toc)return;
+  const links=[...toc.querySelectorAll('a')];
+  const ids=links.map(l=>l.getAttribute('href').slice(1));
+  const secs=ids.map(id=>document.getElementById(id)).filter(Boolean);
+  function hl(){let cur=0;secs.forEach((s,i)=>{if(s.getBoundingClientRect().top<=120)cur=i;});
+  links.forEach((l,i)=>{l.classList.toggle('active',i===cur);});}
+  window.addEventListener('scroll',hl,{passive:true});hl();
+})();
+
+</script>
+</body>
+</html>
