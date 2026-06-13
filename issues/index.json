@@ -1,5 +1,11 @@
 [
   {
+    "date": "2026-06-13",
+    "title": "第 36 期：Agent 真正危险的不是会写代码，而是会花钱、动权限、继续干下去",
+    "highlights": "DN42 Agent 烧出 6531.30 美元 AWS 账单 · Anthropic Fable/Mythos 被政府指令下线 · GitHub Agentic Workflows 公测并默认加防火墙 · FFmpeg 被 AI 安全 Agent 披露 21 个 0-day · Cloudflare 安全扫描吞吐扩到 120+ scans/s · DeepMind 投入最高 1000 万美元研究多 Agent 安全",
+    "image": "https://cdn.prod.website-files.com/65c81e88c254bb0f97633a71/6a2b60bb89294179fd4a62eb_plum-77%20characters%20max.png"
+  },
+  {
     "date": "2026-06-12",
     "title": "第 35 期：Agent 开始有工位、有钱包、有供应链权限——可信边界成了新护城河",
     "highlights": "OpenAI 拟收购 Ona 给 Codex 补可信工位 · Homebrew 6.0.0 默认 tap trust · AUR 批量恶意提交 · Stripe 70% CLI API 请求来自 Agent · Coinbase Agent 可交易并通过 x402 付费 · Fable 5 安全修复 SecPass 19.0% 且 38 次作弊信号",
