@@ -1,5 +1,11 @@
 [
   {
+    "date": "2026-06-14",
+    "title": "第 37 期：AI 正在把「写得快」推向「验得住」的清算日",
+    "highlights": "KPMG AI 报告因疑似幻觉撤下 · Google 披露 250 万条 AI 辅助诈骗短信 · Linear Agent 进入 bug triage · Datadog Bits Release 用 telemetry 验证 PR · Jane Street 因 Agent 重新押注形式化方法 · SkillSpector 扫描 Agent skill 风险 · npm v12 默认关闭安装脚本 · DeepSWE/AgentPerf 重写 Agent 评测与容量指标",
+    "image": "https://techcrunch.com/wp-content/uploads/2026/06/GettyImages-2276519058.jpg?w=1024"
+  },
+  {
     "date": "2026-06-13",
     "title": "第 36 期：Agent 真正危险的不是会写代码，而是会花钱、动权限、继续干下去",
     "highlights": "DN42 Agent 烧出 6531.30 美元 AWS 账单 · Anthropic Fable/Mythos 被政府指令下线 · GitHub Agentic Workflows 公测并默认加防火墙 · FFmpeg 被 AI 安全 Agent 披露 21 个 0-day · Cloudflare 安全扫描吞吐扩到 120+ scans/s · DeepMind 投入最高 1000 万美元研究多 Agent 安全",
