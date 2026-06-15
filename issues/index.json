@@ -1,5 +1,11 @@
 [
   {
+    "date": "2026-06-15",
+    "title": "第 38 期：云不是天上的，Agent 也不是魔法：抽象层越高，越要追到底层",
+    "highlights": "Google Cloud 印度入口网络因第三方数据中心火灾持续退化 · OpenAI 推 Partner Network 并投入 1.5 亿美元培训交付生态 · NormalTech 反驳“AI 已替代工程师”的叙事 · Rio 397B 模型被指疑似权重合并 · Linear Agent 自动修 bug 命中率进入真实 triage · Vercel AI SDK 7 推 HarnessAgent · Uber 用 Data Abstraction Layer 收敛数据访问 · FINAL-Bench Quantum 把 verified 与 reported 分轨",
+    "image": "https://image.theregister.com/254908.jpg?imageId=254908&x=0&y=0&cropw=100&croph=100&panox=0&panoy=0&panow=100&panoh=100&width=1200&height=683"
+  },
+  {
     "date": "2026-06-14",
     "title": "第 37 期：AI 正在把「写得快」推向「验得住」的清算日",
     "highlights": "KPMG AI 报告因疑似幻觉撤下 · Google 披露 250 万条 AI 辅助诈骗短信 · Linear Agent 进入 bug triage · Datadog Bits Release 用 telemetry 验证 PR · Jane Street 因 Agent 重新押注形式化方法 · SkillSpector 扫描 Agent skill 风险 · npm v12 默认关闭安装脚本 · DeepSWE/AgentPerf 重写 Agent 评测与容量指标",
