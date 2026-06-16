@@ -1,5 +1,11 @@
 [
   {
+    "date": "2026-06-16",
+    "title": "第 39 期：Agent 进了真实世界，边界比能力更值钱",
+    "highlights": "LinkedIn 招聘仓库后门通过 npm prepare 诱导执行 · LangChain 细化 coding agent 实时预算和 100x trace judge · Modal VM Sandboxes 加真实 Linux kernel、域名白名单和 RBAC · GitHub 发布 4000万+仓库多语言元数据集 · Cloudflare 吸收 Ensemble AI 人才压低推理成本 · Vercel Functions 最长 30 分钟 · Salesforce 拟 36 亿美元收购 Fin · Cisco SD-WAN CVE-2026-20262 已遭利用",
+    "image": "https://roman.pt/posts/linkedin-backdoor/splash.png"
+  },
+  {
     "date": "2026-06-15",
     "title": "第 38 期：云不是天上的，Agent 也不是魔法：抽象层越高，越要追到底层",
     "highlights": "Google Cloud 印度入口网络因第三方数据中心火灾持续退化 · OpenAI 推 Partner Network 并投入 1.5 亿美元培训交付生态 · NormalTech 反驳“AI 已替代工程师”的叙事 · Rio 397B 模型被指疑似权重合并 · Linear Agent 自动修 bug 命中率进入真实 triage · Vercel AI SDK 7 推 HarnessAgent · Uber 用 Data Abstraction Layer 收敛数据访问 · FINAL-Bench Quantum 把 verified 与 reported 分轨",
