@@ -1,5 +1,17 @@
 [
   {
+    "date": "2026-06-18",
+    "title": "第 41 期：AI 开始走进实验室，真正的护城河变成反馈闭环",
+    "highlights": "OpenAI + Molecule.one AI 化学家跑 10,080 次反应 · LifeSciBench 用 750 个专家任务重写生命科学评测 · Vercel Connect/eve 补 Agent 短期凭证、沙箱和审批 · GLM-5.2 以 1M context 追长程 coding · MolmoMotion 开放 3D motion forecasting 数据与模型 · HF ARD 把工具发现层标准化 · Tailscale 日志流支持 Azure Blob Storage",
+    "image": "https://images.ctfassets.net/kftzwdyauwt9/QgPPg4etNE5C4Ao0G94sk/e5f2a50e5de4619d0e0fe8483698718b/molecule-one-art-card.png?fm=webp&q=90&w=3840"
+  },
+  {
+    "date": "2026-06-17",
+    "title": "第 40 期：Agent 的上限不再只是模型，而是控制面",
+    "highlights": "Anthropic 分析约 40 万个 Claude Code 会话 · Vercel Sandbox 最长 24 小时 · Uber Eats 公开购物 Agent 状态图 · Tailscale Aperture 做身份感知 AI 栈 · LangChain 提出 Loop Engineering · SemiAnalysis 拆解 RL trainer/generator 吞吐匹配 · Figma MCP 进入设计生产流 · Honda Civic 车机暴露 Android 测试密钥风险",
+    "image": "https://www.anthropic.com/api/opengraph-illustration?name=Hand%20Abacus&backgroundColor=cactus"
+  },
+  {
     "date": "2026-06-16",
     "title": "第 39 期：Agent 进了真实世界，边界比能力更值钱",
     "highlights": "LinkedIn 招聘仓库后门通过 npm prepare 诱导执行 · LangChain 细化 coding agent 实时预算和 100x trace judge · Modal VM Sandboxes 加真实 Linux kernel、域名白名单和 RBAC · GitHub 发布 4000万+仓库多语言元数据集 · Cloudflare 吸收 Ensemble AI 人才压低推理成本 · Vercel Functions 最长 30 分钟 · Salesforce 拟 36 亿美元收购 Fin · Cisco SD-WAN CVE-2026-20262 已遭利用",
