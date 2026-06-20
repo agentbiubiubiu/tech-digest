@@ -1,5 +1,11 @@
 [
   {
+    "date": "2026-06-20",
+    "title": "第 42 期：Agent 开始走出屏幕，控制面比能力更关键",
+    "highlights": "Claude Opus 4.7 接机器狗做 Project Fetch 平均 12分7秒 · DeepMind 发布 AI Control Roadmap · Cloudflare 把漏洞发现 Agent 做成持久化 harness · Netflix Data Canary 要在 10 分钟内阻断坏数据 · MosaicLeaks 把研究 Agent 查询泄漏从 34.0% 降到 9.9% · OpenAI/GitHub 同步强化 AI credit 用量治理 · Modal DFlash 让 Qwen 3.5 122B-A10B 在 B200 上超过 1000 tok/s",
+    "image": "https://www.anthropic.com/api/opengraph-illustration?name=Hand%20Knobs&backgroundColor=cactus"
+  },
+  {
     "date": "2026-06-18",
     "title": "第 41 期：AI 开始走进实验室，真正的护城河变成反馈闭环",
     "highlights": "OpenAI + Molecule.one AI 化学家跑 10,080 次反应 · LifeSciBench 用 750 个专家任务重写生命科学评测 · Vercel Connect/eve 补 Agent 短期凭证、沙箱和审批 · GLM-5.2 以 1M context 追长程 coding · MolmoMotion 开放 3D motion forecasting 数据与模型 · HF ARD 把工具发现层标准化 · Tailscale 日志流支持 Azure Blob Storage",
