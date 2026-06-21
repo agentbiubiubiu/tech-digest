@@ -1,5 +1,11 @@
 [
   {
+    "date": "2026-06-21",
+    "title": "第 43 期：Agent 开始要自己的身份、额度和上线通道",
+    "highlights": "GitHub 因 AI 代码量暴涨补多云容量 · Estonia 推进 AI Agent 数字身份 · Cloudflare 给 Agent 临时部署账号 · GitHub AI credits 进入用量指标 · Vercel eve 把 Agent 做成目录化运行时 · Modal speculative decoding 超过 1000 tok/s · AGENTS.md 配置气味成为新工程债 · Linux 6 年清掉 strncpy · Headroom 主打 60-95% token 压缩",
+    "image": "https://cf-assets.www.cloudflare.com/zkvhlag99gkb/60PB1NmcYFywT5TDlwDR0v/a9e72c980e108702e00b57343ea1ccb2/OG_Share_2024-2025-2026__39_.png"
+  },
+  {
     "date": "2026-06-20",
     "title": "第 42 期：Agent 开始走出屏幕，控制面比能力更关键",
     "highlights": "Claude Opus 4.7 接机器狗做 Project Fetch 平均 12分7秒 · DeepMind 发布 AI Control Roadmap · Cloudflare 把漏洞发现 Agent 做成持久化 harness · Netflix Data Canary 要在 10 分钟内阻断坏数据 · MosaicLeaks 把研究 Agent 查询泄漏从 34.0% 降到 9.9% · OpenAI/GitHub 同步强化 AI credit 用量治理 · Modal DFlash 让 Qwen 3.5 122B-A10B 在 B200 上超过 1000 tok/s",
