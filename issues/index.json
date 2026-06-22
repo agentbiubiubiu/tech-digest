@@ -1,5 +1,11 @@
 [
   {
+    "date": "2026-06-22",
+    "title": "第 44 期：AI 开始验明正身，验证比生成更稀缺",
+    "highlights": "Claude 身份验证引发 AI 门禁讨论 · GitHub PR limits 把 AI PR 计入贡献限流 · Nature 警告 AI 依赖可能造成技能退化 · GitHub Qubot 展示企业数据 Agent 形态 · Hugging Face 测量工具是否足够 Agentic · Cloudflare vulnerability harness 把安全 Agent 平台化 · Recall 和 codebase-memory-mcp 走向本地 Agent 记忆 · Apertus 把主权 AI 做成开放合规叙事",
+    "image": "https://downloads.intercomcdn.com/i/o/lupk8zyo/792494/717b10d3ebd874823db64841659b/76f3062d78ebbb04863fb1de3ef9cca0.png"
+  },
+  {
     "date": "2026-06-21",
     "title": "第 43 期：Agent 开始要自己的身份、额度和上线通道",
     "highlights": "GitHub 因 AI 代码量暴涨补多云容量 · Estonia 推进 AI Agent 数字身份 · Cloudflare 给 Agent 临时部署账号 · GitHub AI credits 进入用量指标 · Vercel eve 把 Agent 做成目录化运行时 · Modal speculative decoding 超过 1000 tok/s · AGENTS.md 配置气味成为新工程债 · Linux 6 年清掉 strncpy · Headroom 主打 60-95% token 压缩",
