@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>第 45 期：AI 安全的瓶颈从发现漏洞，转向交付补丁</title>
+  <meta property="og:title" content="Tech Digest #45 · AI 安全的瓶颈从发现漏洞，转向交付补丁">
+  <meta property="og:description" content="Patch the Planet 把 AI 漏洞发现推到补丁闭环；Vercel Flags 把发布治理平台化；Prompt Injection 被重新解释为角色混淆；开放模型和推理成本开始挤压闭源编码智能。">
+  <meta property="og:image" content="https://cf-assets.www.cloudflare.com/zkvhlag99gkb/2QsMQWQPZ5tqju5AHwfCL1/803907dd72b265d4be0b753ec5ef495d/BLOG-3318_OG.png">
+  <style>
+:root {
+  --bg: #f5f6f8; --surface: #ffffff; --surface2: #f0f2f5;
+  --border: #e8ecf1; --border-hover: #c5cdd8;
+  --text: #1a1d21; --text-secondary: #3d4550; --text-muted: #8c95a1;
+  --accent: #2d9f6f; --accent-light: #e8f5ef; --accent-hover: #248a5e;
+  --accent-text: #ffffff;
+  --purple: #7c5cbf; --purple-light: #f3effc;
+  --orange: #e58e26; --orange-light: #fef5e7;
+  --blue: #3a82f7; --blue-light: #eef4fe;
+  --red: #e74c3c; --red-light: #fdecea;
+  --green-deep: #1a7a4c; --green-light2: #e0f5ea;
+  --yellow: #d4a017; --yellow-light: #fef9e7;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.06);
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.06), 0 2px 4px rgba(0,0,0,0.04);
+  --shadow-lg: 0 10px 30px rgba(0,0,0,0.08);
+  --radius: 12px; --radius-sm: 8px; --radius-xs: 6px;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Helvetica, Arial, sans-serif; background: var(--bg); color: var(--text); line-height: 1.75; font-size: 15px; -webkit-font-smoothing: antialiased; }
+.topbar { background: var(--surface); border-bottom: 1px solid var(--border); padding: 12px 32px; display: flex; align-items: center; gap: 16px; position: sticky; top: 0; z-index: 200; box-shadow: var(--shadow-sm); }
+.topbar-brand { font-size: 1.1rem; font-weight: 700; color: var(--accent); text-decoration: none; display: flex; align-items: center; gap: 8px; }
+.topbar-brand svg { width: 28px; height: 28px; }
+.topbar-nav { display: flex; gap: 4px; margin-left: 24px; }
+.topbar-nav a { padding: 6px 16px; border-radius: 20px; font-size: 0.85rem; font-weight: 500; color: var(--text-secondary); text-decoration: none; transition: all 0.2s; }
+.topbar-nav a:hover { background: var(--surface2); color: var(--text); }
+.topbar-nav a.active { background: var(--accent-light); color: var(--accent); font-weight: 600; }
+.topbar-right { margin-left: auto; display: flex; align-items: center; gap: 12px; }
+.topbar-date { font-size: 0.82rem; color: var(--text-muted); background: var(--surface2); padding: 5px 12px; border-radius: 16px; }
+.page { display: flex; max-width: 1200px; margin: 0 auto; padding: 24px 24px 0; gap: 24px; }
+.toc { width: 220px; flex-shrink: 0; position: sticky; top: 80px; height: calc(100vh - 104px); overflow-y: auto; background: var(--surface); border-radius: var(--radius); padding: 20px 16px; box-shadow: var(--shadow-sm); border: 1px solid var(--border); }
+.toc-title { font-size: 0.72rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 14px; padding-left: 12px; }
+.toc a { display: block; padding: 7px 12px; margin-bottom: 2px; font-size: 0.82rem; color: var(--text-muted); text-decoration: none; border-radius: var(--radius-xs); transition: all 0.15s; font-weight: 500; }
+.toc a:hover { color: var(--accent); background: var(--accent-light); }
+.toc a.active { color: var(--accent); background: var(--accent-light); font-weight: 600; }
+.toc-mobile { display: none; position: sticky; top: 57px; z-index: 100; background: var(--surface); border-bottom: 1px solid var(--border); padding: 10px 16px; box-shadow: var(--shadow-sm); }
+.toc-mobile summary { cursor: pointer; font-size: 0.85rem; color: var(--accent); font-weight: 600; list-style: none; }
+.toc-mobile summary::-webkit-details-marker { display: none; }
+.toc-mobile .toc-dropdown { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 8px; margin-top: 8px; max-height: 60vh; overflow-y: auto; box-shadow: var(--shadow-md); }
+.toc-mobile .toc-dropdown a { display: block; padding: 8px 12px; font-size: 0.88rem; color: var(--text-secondary); text-decoration: none; border-radius: var(--radius-xs); }
+.toc-mobile .toc-dropdown a:hover { color: var(--accent); background: var(--accent-light); }
+@media (max-width: 860px) { .toc { display: none; } .toc-mobile { display: block; } .topbar-nav { display: none; } .page { flex-direction: column; padding: 16px 12px 0; gap: 16px; } .container { padding: 20px 16px 60px; } }
+.container { flex: 1; min-width: 0; background: var(--surface); border-radius: var(--radius); padding: 36px 40px 60px; box-shadow: var(--shadow-sm); border: 1px solid var(--border); margin-bottom: 40px; }
+.back { display: inline-flex; align-items: center; gap: 4px; color: var(--text-muted); text-decoration: none; font-size: 0.85rem; margin-bottom: 28px; font-weight: 500; transition: color 0.15s; }
+.back:hover { color: var(--accent); }
+h1 { font-size: 1.7rem; font-weight: 800; margin-bottom: 10px; line-height: 1.35; color: var(--text); letter-spacing: -0.01em; }
+.meta { color: var(--text-muted); font-size: 0.85rem; margin-bottom: 28px; }
+.highlights-line { color: var(--text-secondary); font-size: 0.9rem; margin: -18px 0 28px; line-height: 1.65; }
+.hero-img { width: 100%; border-radius: var(--radius); margin-bottom: 10px; box-shadow: var(--shadow-md); }
+.hero-caption { font-size: 0.82rem; color: var(--text-muted); margin-bottom: 36px; text-align: center; font-style: italic; }
+h2 { font-size: 1.25rem; font-weight: 700; margin: 44px 0 18px; padding-bottom: 10px; border-bottom: 2px solid var(--accent-light); scroll-margin-top: 90px; color: var(--text); }
+h3 { font-size: 1.05rem; font-weight: 600; margin: 26px 0 8px; color: var(--text); }
+p { margin-bottom: 14px; color: var(--text-secondary); }
+a { color: var(--accent); text-decoration: none; font-weight: 500; }
+a:hover { color: var(--accent-hover); text-decoration: underline; }
+strong { color: var(--text); font-weight: 600; }
+.callout { background: var(--accent-light); border-left: 4px solid var(--accent); border-radius: var(--radius-sm); padding: 16px 20px; margin: 20px 0; font-size: 0.93rem; color: var(--text-secondary); }
+.main-story { background: linear-gradient(135deg, #f7fbff 0%, #fff 60%); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px 26px; margin: 18px 0 28px; box-shadow: var(--shadow-sm); }
+.main-story h3 { margin-top: 0; font-size: 1.2rem; line-height: 1.45; }
+.main-story .story-hook { color: var(--accent); font-weight: 700; margin-bottom: 14px; }
+.story-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 16px 0; }
+.story-field { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 12px 14px; font-size: 0.88rem; color: var(--text-secondary); }
+.story-field strong { display: block; margin-bottom: 4px; color: var(--text); }
+.number-chip { display: inline-block; background: var(--blue-light); color: var(--blue); border-radius: 14px; padding: 3px 10px; margin: 3px 6px 3px 0; font-size: 0.78rem; font-weight: 700; }
+.story-line { background: var(--purple-light); border-left: 4px solid var(--purple); border-radius: var(--radius-sm); padding: 14px 16px; margin-top: 14px; color: var(--text); font-weight: 700; }
+.trend-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin: 16px 0 28px; }
+.trend-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px 20px; box-shadow: var(--shadow-sm); }
+.trend-card h4 { font-size: 0.95rem; margin-bottom: 8px; color: var(--text); }
+.trend-card .trend-conflict { color: var(--red); font-size: 0.82rem; font-weight: 700; margin-bottom: 8px; }
+.trend-card p { font-size: 0.86rem; margin-bottom: 10px; }
+.trend-card .trend-sources { font-size: 0.76rem; color: var(--text-muted); line-height: 1.55; }
+.curiosity-card { background: var(--orange-light); border: 1px solid #f5ddb8; border-radius: var(--radius); padding: 20px 24px; margin: 14px 0; }
+.curiosity-card h4 { font-size: 1rem; margin-bottom: 8px; font-weight: 600; }
+.curiosity-card h4 a { color: var(--orange); }
+.curiosity-card .hook { color: var(--orange); font-weight: 700; margin-bottom: 6px; }
+.curiosity-card p { font-size: 0.88rem; color: var(--text-secondary); margin: 0 0 8px; line-height: 1.65; }
+.podcast-brief { background: #f8fafc; border: 1px solid var(--border); border-radius: var(--radius); padding: 20px 24px; margin: 18px 0; }
+.podcast-brief h4 { margin: 0 0 10px; font-size: 1rem; }
+.podcast-brief .cold-open { color: var(--accent); font-weight: 700; margin-bottom: 14px; }
+.podcast-segment { border-top: 1px solid var(--border); padding-top: 12px; margin-top: 12px; }
+.podcast-segment strong { display: block; margin-bottom: 4px; }
+.article-img { width: 100%; max-height: 380px; object-fit: cover; border-radius: var(--radius-sm); margin: 12px 0 24px; box-shadow: var(--shadow-sm); }
+.tool-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 16px 0; }
+.tool-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px 20px; transition: all 0.2s; box-shadow: var(--shadow-sm); }
+.tool-card:hover { border-color: var(--accent); box-shadow: var(--shadow-md); transform: translateY(-1px); }
+.tool-card h4 { font-size: 0.95rem; margin-bottom: 6px; font-weight: 600; }
+.tool-card h4 a { color: var(--accent); }
+.tool-card p { font-size: 0.83rem; color: var(--text-muted); margin: 0; line-height: 1.55; }
+.tool-card .tag { display: inline-block; font-size: 0.68rem; padding: 3px 8px; border-radius: 10px; background: var(--accent); color: var(--accent-text); font-weight: 600; margin-bottom: 8px; letter-spacing: 0.02em; }
+.tool-card .priority-tag { display: inline-block; font-size: 0.65rem; padding: 2px 6px; border-radius: 8px; background: var(--surface2); color: var(--text-muted); font-weight: 600; margin-left: 6px; }
+.fun-card { background: var(--orange-light); border: 1px solid #f5ddb8; border-radius: var(--radius); padding: 20px 24px; margin: 14px 0; }
+.fun-card h4 { font-size: 1rem; margin-bottom: 8px; font-weight: 600; }
+.fun-card h4 a { color: var(--orange); }
+.fun-card p { font-size: 0.88rem; color: var(--text-secondary); margin: 0; line-height: 1.65; }
+.quote-block { background: var(--purple-light); border-left: 4px solid var(--purple); border-radius: var(--radius-sm); padding: 20px 24px; margin: 18px 0; }
+.quote-block blockquote { font-size: 1.02rem; line-height: 1.65; margin-bottom: 10px; font-style: italic; color: var(--text); }
+.quote-block .quote-author { font-size: 0.82rem; color: var(--purple); font-weight: 600; margin-bottom: 6px; }
+.quote-block .quote-meta { font-size: 0.78rem; color: var(--text-muted); margin-bottom: 10px; }
+.quote-block .quote-comment { font-size: 0.88rem; color: var(--text-secondary); border-top: 1px solid #d8d0e8; padding-top: 10px; margin-top: 10px; }
+.quote-block .quote-team-insight { font-size: 0.88rem; color: var(--green-deep); background: var(--accent-light); border-radius: var(--radius-xs); padding: 8px 12px; margin-top: 8px; }
+.resource-item { background: var(--blue-light); border: 1px solid #c8dbf8; border-radius: var(--radius); padding: 18px 20px; margin: 12px 0; }
+.resource-item a { font-weight: 600; color: var(--blue); }
+.resource-item p { font-size: 0.88rem; color: var(--text-secondary); margin: 6px 0 0; }
+.concept-card { background: var(--green-light2); border-left: 4px solid var(--accent); border-radius: var(--radius-sm); padding: 20px 24px; margin: 16px 0; }
+.concept-card h4 { font-size: 1rem; font-weight: 700; color: var(--green-deep); margin-bottom: 10px; }
+.concept-card .concept-field { font-size: 0.88rem; color: var(--text-secondary); margin-bottom: 6px; line-height: 1.6; }
+.concept-card .concept-field strong { color: var(--text); font-size: 0.88rem; }
+.insight-card { background: var(--yellow-light); border-left: 4px solid var(--yellow); border-radius: var(--radius-sm); padding: 16px 20px; margin: 12px 0; }
+.insight-card p { font-size: 0.93rem; color: var(--text-secondary); margin: 0; line-height: 1.7; }
+.insight-card .insight-num { display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; border-radius: 50%; background: var(--yellow); color: #fff; font-size: 0.75rem; font-weight: 700; margin-right: 10px; flex-shrink: 0; }
+.certainty-tag { display: inline-block; font-size: 0.65rem; padding: 2px 6px; border-radius: 8px; font-weight: 600; margin-left: 8px; }
+.certainty-confirmed { background: var(--accent-light); color: var(--accent); }
+.certainty-announced { background: var(--blue-light); color: var(--blue); }
+.certainty-reported { background: var(--yellow-light); color: var(--yellow); }
+.certainty-opinion { background: var(--purple-light); color: var(--purple); }
+.certainty-rumor { background: var(--red-light); color: var(--red); }
+.footer-sources { margin-top: 44px; padding: 20px 24px; background: var(--surface2); border-radius: var(--radius); font-size: 0.78rem; color: var(--text-muted); line-height: 1.9; }
+.footer-sources strong { color: var(--text-secondary); font-size: 0.78rem; }
+@media (max-width: 860px) { .trend-grid, .story-grid { grid-template-columns: 1fr; } }
+@media (max-width: 640px) { .tool-grid { grid-template-columns: 1fr; } }
+
+  </style>
+</head>
+<body>
+
+<header class="topbar">
+  <a href="../index.html" class="topbar-brand">
+    <svg viewBox="0 0 28 28" fill="none"><circle cx="14" cy="14" r="14" fill="#2d9f6f"/><path d="M8 14.5l3.5 3.5 8.5-8" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    Tech Digest
+  </a>
+  <nav class="topbar-nav">
+    <a href="../index.html">Archive</a>
+    <a href="#main-story" class="active">Today</a>
+    <a href="#tools">Tools</a>
+    <a href="#quotes">Quotes</a>
+  </nav>
+  <div class="topbar-right">
+    <span class="topbar-date">2026-06-23</span>
+  </div>
+</header>
+
+<details class="toc-mobile">
+  <summary>📑 目录导航</summary>
+  <div class="toc-dropdown">
+    <a href="#main-story">🔥 主故事</a>
+    <a href="#trends">⚡ 冲突趋势</a>
+    <a href="#tech-news">📰 科技动态</a>
+    <a href="#ai">🤖 AI 相关</a>
+    <a href="#articles">📝 文章推荐</a>
+    <a href="#tools">🛠️ 工具推荐</a>
+    <a href="#ai-tools">🧠 AI 工具</a>
+    <a href="#concepts">🧩 本期概念库</a>
+    <a href="#curiosity">🎲 好奇心入口</a>
+    <a href="#resources">📚 资源</a>
+    <a href="#quotes">💬 言论</a>
+    <a href="#podcast">🎙️ 播客提纲</a>
+    <a href="#team-insights">✅ 对团队的启发</a>
+  </div>
+</details>
+
+<div class="page">
+  <nav class="toc">
+    <div class="toc-title">本期目录</div>
+    <a href="#main-story">🔥 主故事</a>
+    <a href="#trends">⚡ 冲突趋势</a>
+    <a href="#tech-news">📰 科技动态</a>
+    <a href="#ai">🤖 AI 相关</a>
+    <a href="#articles">📝 文章推荐</a>
+    <a href="#tools">🛠️ 工具推荐</a>
+    <a href="#ai-tools">🧠 AI 工具</a>
+    <a href="#concepts">🧩 本期概念库</a>
+    <a href="#curiosity">🎲 好奇心入口</a>
+    <a href="#resources">📚 资源</a>
+    <a href="#quotes">💬 言论</a>
+    <a href="#podcast">🎙️ 播客提纲</a>
+    <a href="#team-insights">✅ 对团队的启发</a>
+  </nav>
+
+  <main class="container">
+    <a href="../index.html" class="back">← 返回目录</a>
+    <h1>第 45 期：AI 安全的瓶颈从发现漏洞，转向交付补丁</h1>
+    <div class="meta">第 45 期 · 2026年6月23日，星期二</div>
+    <p class="highlights-line"><strong>✨ 本期亮点：</strong>Patch the Planet 首周 64 PR/51 issue/37 合并补丁 · Vercel Flags 把发布治理平台化 · Role Confusion 解释 Prompt Injection 新机制 · Moebius 用 0.2B 挑战 10B 级图像修复 · GLM-5.2 挤压闭源编码模型价格空间 · InferenceX 拆出每百万 token 成本差 · Deno Desktop 让 Web runtime 进入桌面工具</p>
+
+    <img class="hero-img" src="https://cf-assets.www.cloudflare.com/zkvhlag99gkb/2QsMQWQPZ5tqju5AHwfCL1/803907dd72b265d4be0b753ec5ef495d/BLOG-3318_OG.png" alt="Cloudflare engineering visual used as issue hero">
+    <div class="hero-caption">今天的共同主题不是生成更快，而是把 AI 的发现、发布和权限放进可验证闭环。</div>
+
+    <div class="callout">
+      <strong>🎯 本期核心判断：</strong>AI 工程正在从「能生成、能发现」进入「能验证、能修复、能灰度、能计成本」阶段；真正稀缺的不是模型给出的答案，而是把答案安全地合入生产系统的闭环能力。
+    </div>
+
+    <div class="callout">
+      <strong>⏱ 本期建议阅读顺序</strong><br>
+      先看主故事：Patch the Planet 为什么把 AI 安全从扫描器带进补丁生产线。<br>
+      再看三条冲突趋势：补丁闭环、发布控制面、角色混淆。<br>
+      最后看工具与概念库：把今天的信号转成团队可落地的发布、安全和模型成本治理动作。
+    </div>
+
+    <h2 id="main-story">🔥 主故事</h2>
+        <article class="main-story">
+      <h3>Patch the Planet：AI 找到漏洞之后，真正的工作才刚开始</h3>
+      <p class="story-hook">如果一个 AI 安全系统一周内推来 64 个 PR、51 个 issue，开源维护者应该开心，还是先深吸一口气？</p>
+      <p>Trail of Bits 与 OpenAI 的 Daybreak initiative 合作推出 Patch the Planet，目标不是再造一个只会报告漏洞的扫描器，而是把 frontier model 发现的问题交给安全工程师 triage，再和维护者一起写补丁、补测试、补 fuzzing harness、补 CI 安全扫描和供应链工具。首周覆盖 19 个关键开源项目，30 多个项目已加入。</p>
+      <div class="story-grid">
+        <div class="story-field"><strong>核心冲突</strong>机器速度的漏洞发现 vs 已经被 issue、误报和维护债压住的开源维护者；AI 能扩大安全发现吞吐，但如果没有修复闭环，也可能只是制造新的待办洪水。</div>
+        <div class="story-field"><strong>转折点</strong>这件事的转折点在于项目明确强调「patches, not just findings」：AI 不是把报告扔给维护者就结束，而是要把发现转成可审查、可测试、可合并的工程改动。</div>
+        <div class="story-field"><strong>为什么现在发生</strong>frontier models 已经能以机器速度发现大量潜在问题，但开源维护体系的瓶颈仍是 triage、误报判断、补丁质量、回归测试和长期维护。AI 安全如果继续只比拼发现数量，会把风险从代码库挪到维护队列。</div>
+        <div class="story-field"><strong>对团队的启发</strong>团队接入 SAST、依赖扫描或 AI 安全 Agent 时，不要只看告警数；必须把修复 PR、测试覆盖、owner SLA、风险分级和回滚机制放进同一个闭环。</div>
+      </div>
+      <p><span class="number-chip">64 个 PR</span><span class="number-chip">51 个 issue</span><span class="number-chip">19 个首周项目</span><span class="number-chip">37 个补丁已合并</span><span class="number-chip">30+ 项目加入</span></p>
+      <p><strong>我的判断：</strong>我的判断是，AI 安全工具的下一个硬指标会从「发现了多少」转向「合并了多少、回归了多少、降低了多少维护者处理成本」。这也是内部工程 Agent 的共同命运：没有 owner、测试、回滚和验收链路，生成再快也只是库存。</p>
+      <div class="story-line">AI 安全的下一道门槛不是发现漏洞，而是把漏洞变成可合并的补丁。</div>
+      <p><strong>来源：</strong><a href="https://blog.trailofbits.com/2026/06/22/introducing-patch-the-planet/" target="_blank" rel="noopener noreferrer">blog.trailofbits.com</a></p>
+    </article>
+
+    <h2 id="trends">⚡ 冲突趋势</h2>
+        <div class="trend-grid">
+      <div class="trend-card">
+        <h4>安全扫描不再稀缺，补丁吞吐开始稀缺</h4>
+        <div class="trend-conflict">机器发现速度 vs 维护者可合并吞吐</div>
+        <p>AI 安全的价值会从报告数量迁移到可合并修复率、误报成本和回归质量。</p>
+        <div class="trend-sources">blog.trailofbits.com</div>
+      </div>
+      <div class="trend-card">
+        <h4>发布不再等于部署，控制面开始前移到平台</h4>
+        <div class="trend-conflict">持续合并代码的速度 vs 用户侧发布风险</div>
+        <p>Vercel Flags、WebSocket 和 Blob signed URLs 都在把前端平台从托管页面升级成发布、实时和权限控制面。</p>
+        <div class="trend-sources">vercel.com · vercel.com</div>
+      </div>
+      <div class="trend-card">
+        <h4>Prompt Injection 的本质，可能不是恶意文本，而是角色边界失效</h4>
+        <div class="trend-conflict">人类看得懂的语义边界 vs 模型内部学到的角色/风格边界</div>
+        <p>Role Confusion 研究提醒我们，Agent 安全不能只靠提示词规则，还要审计模型如何识别谁在说话、谁有权限说话。</p>
+        <div class="trend-sources">role-confusion.github.io</div>
+      </div>
+    </div>
+
+    <h2 id="tech-news">📰 科技动态</h2>
+    <h3>1、<a href="https://www.chevron.com/newsroom/2026/q2/chevron-signs-20-year-power-agreement-with-microsoft-for-west-texas-data-center" target="_blank" rel="noopener noreferrer">Chevron 与 Microsoft 签 20 年数据中心电力协议：AI 基建开始锁定能源期权</a> <span class="certainty-tag certainty-announced">announced</span></h3>
+    <p>AI 数据中心的下一场竞争不只在 GPU，也在电力。Chevron 宣布与 Microsoft 达成 West Texas 数据中心 20 年电力协议，TechCrunch 称这是美国最大级别的燃气供电数据中心项目之一。对 AI 公司来说，能源长期合约正在变成算力供应链的一部分。</p>
+    <h3>2、<a href="https://vercel.com/changelog/websocket-support-is-now-in-public-beta" target="_blank" rel="noopener noreferrer">Vercel WebSocket Public Beta：Serverless 平台开始补实时连接短板</a> <span class="certainty-tag certainty-confirmed">confirmed</span></h3>
+    <p>Vercel Functions 现在可以直接服务 WebSocket 连接，适合 AI 流式交互、聊天、协同应用和实时状态。真正值得看的是它跑在 Fluid compute 上，并按 Active CPU 计费，空闲连接时间不按消息处理 CPU 计。</p>
+    <img class="article-img" src="https://assets.vercel.com/image/upload/contentful/image/e5382hct74si/7r8ITCR9ZtuLImYJq2HmgM/ade9a44a39f5e935072cd1c40d26df5b/Websockets_1_.png" alt="">
+    <h3>3、<a href="https://github.blog/changelog/2026-06-22-new-features-and-claude-as-agent-provider-preview-in-jetbrains-ides" target="_blank" rel="noopener noreferrer">GitHub Copilot 在 JetBrains 预览 Claude Agent Provider：IDE 内 Agent 供应商开始可替换</a> <span class="certainty-tag certainty-announced">announced</span></h3>
+    <p>GitHub 在 JetBrains IDE 的 Copilot 更新中加入 Claude as agent provider preview，并补了 agent prompt、commit message generation、image attachments 等能力。它的信号是：IDE 内 Agent 不是一个固定模型，而会逐渐变成可替换 provider 的产品面。</p>
+    <img class="article-img" src="https://github.blog/wp-content/themes/github-2021-child/dist/img/social-v3-improvements.jpg" alt="">
+    <h3>4、<a href="https://blog.cloudflare.com/hyper-bug/" target="_blank" rel="noopener noreferrer">Cloudflare Hyperdrive bug 复盘：缓存系统的收益和边界都要被看见</a> <span class="certainty-tag certainty-confirmed">confirmed</span></h3>
+    <p>Cloudflare 复盘 Hyperdrive 相关 bug，核心价值不在单个故障，而在它展示了连接池、缓存、数据库代理和边缘网络之间的隐性耦合。缓存可以把延迟压下去，也会把不正确状态传播得更快。</p>
+    <img class="article-img" src="https://cf-assets.www.cloudflare.com/zkvhlag99gkb/10nV803PbKM5F8AbfYbYHH/0a45d9f97d1f745641cd61e6488e4f85/image1.png" alt="">
+
+    <h2 id="ai">🤖 AI 相关</h2>
+    <h3>1、<a href="https://role-confusion.github.io" target="_blank" rel="noopener noreferrer">Prompt Injection as Role Confusion：攻击成功率可以从 61% 被降到 10%</a> <span class="certainty-tag certainty-reported">reported</span></h3>
+    <p>这项研究把 prompt injection 解释为模型对角色边界的混淆：模型不是只读语义，也会把「像推理」「像系统消息」的风格误当成自己的角色线索。研究者做 destyling 后，平均攻击成功率从 61% 降到 10%，说明看似微小的措辞风格会显著改变模型的角色感知。</p>
+    <img class="article-img" src="https://role-confusion.github.io/assets/figures/role-perception.png" alt="">
+    <h3>2、<a href="https://hustvl.github.io/Moebius/" target="_blank" rel="noopener noreferrer">Moebius：0.2B 图像修复模型逼近 10B 级效果</a> <span class="certainty-tag certainty-reported">reported</span></h3>
+    <p>Moebius 用 0.2B 参数做图像 inpainting，却在展示中逼近 10B 级模型效果。它提醒我们，小模型并没有退出舞台；只要任务边界清晰、数据和架构合适，专用模型仍然能在浏览器、本地和低成本场景里很有竞争力。</p>
+    <img class="article-img" src="https://hustvl.github.io/Moebius/image_assets/method/pipeline.png" alt="">
+    <h3>3、<a href="https://www.interconnects.ai/p/glm-52-is-the-step-change-for-open" target="_blank" rel="noopener noreferrer">GLM-5.2 继续挤压闭源编码模型的价格空间</a> <span class="certainty-tag certainty-opinion">opinion</span></h3>
+    <p>Nathan Lambert 把 GLM-5.2 看作开放权重长程编码的一次阶跃：不是又一个榜单分数，而是开源模型开始对高价闭源编码智能施加定价压力。对工程团队来说，真正的问题会变成：哪些任务必须用前沿闭源，哪些任务可以路由到开放模型。</p>
+    <img class="article-img" src="https://substack-post-media.s3.amazonaws.com/public/images/267cdc82-6fbc-4f68-bcba-160091396dfd_3182x1790.png" alt="">
+    <h3>4、<a href="https://inferencex.semianalysis.com/compare-per-dollar/deepseek-r1-h200-vs-mi325x" target="_blank" rel="noopener noreferrer">InferenceX：同一模型在 H200 与 MI325X 上每百万 token 成本可差 3 倍以上</a> <span class="certainty-tag certainty-reported">reported</span></h3>
+    <p>InferenceX 按 benchmark 和 TCO 对 DeepSeek R1 在 H200 与 MI325X 上的推理成本做比较。默认 1K/1K、FP8、50 tok/s/user 场景下，H200 为每百万 token 0.47 美元，MI325X 为 1.57 美元，差距达到 230%。</p>
+    <h3>5、<a href="https://huggingface.co/blog/PaddlePaddle/pp-ocrv6" target="_blank" rel="noopener noreferrer">PP-OCRv6：50 语言 OCR 小模型家族继续证明专用模型的生命力</a> <span class="certainty-tag certainty-confirmed">confirmed</span></h3>
+    <p>PaddleOCR 在 Hugging Face 发布 PP-OCRv6，提供 1.5M 到 34.5M 参数的 tiny/small/medium 三档，支持 50 种语言和多后端部署。大 VLM 很热，但文档、截图、表单和工单抽取仍需要这种低成本、结构化、可控的小模型。</p>
+
+    <h2 id="articles">📝 文章推荐</h2>
+    <h3>1、<a href="https://vercel.com/blog/vercel-flags-platform-native-feature-flags" target="_blank" rel="noopener noreferrer">Vercel Flags：把发布、灰度、回滚变成平台原生能力</a></h3>
+    <p>一次数据库迁移，最后的 cutover 不是重新部署，而是翻一个 flag。Vercel Flags 的价值在于把 flag 放进部署平台、框架、CLI 和 CDN 路径里，默认服务端求值，避免客户端闪烁和布局抖动；它把代码合并和用户侧发布拆成两个动作。</p>
+    <img class="article-img" src="https://assets.vercel.com/image/upload/contentful/image/e5382hct74si/4B0lxaMpvpVkxBY6KHCeNB/c8145107d4b00f27da4688030ff62dad/vercel_flags_for_feature_management_og_card.jpg" alt="">
+    <h3>2、<a href="https://docs.deno.com/runtime/desktop/" target="_blank" rel="noopener noreferrer">Deno Desktop：把 Web 技术带进原生桌面应用的新尝试</a></h3>
+    <p>Deno Desktop 让开发者用 Deno、Web API 和系统能力构建桌面应用。它不是 Electron 替代品这么简单，而是在提醒工具链：AI 时代大量内部工具、Agent 控制台和轻量客户端可能更需要快速、可权限化、可分发的桌面壳。</p>
+    <img class="article-img" src="https://docs.deno.com/runtime/desktop/index.png" alt="">
+    <h3>3、<a href="https://www.crunchydata.com/blog/british-columbia-and-time-zone-changes" target="_blank" rel="noopener noreferrer">British Columbia, Time Zones, and Postgres：时区是产品需求，不是后端细节</a></h3>
+    <p>Crunchy Data 用 British Columbia 时区变化讲 Postgres 与 tzdata 的现实问题：时区不是静态常识，而是政治和产品逻辑的一部分。对交易、日历、计费和跨地区运营系统来说，时间处理必须可更新、可测试、可回放。</p>
+    <h3>4、<a href="https://www.davidrevoy.com/article1154/why-drawing-tablet-brands-wont-collaborate-on-linux-floss-drivers" target="_blank" rel="noopener noreferrer">Why Drawing Tablet Brands Won't Collaborate on Linux FLOSS Drivers</a></h3>
+    <p>这篇从绘图板驱动讲开源硬件生态：用户需要稳定 FLOSS driver，品牌却因为商业、支持成本和生态控制不愿协作。它适合作为技术产品的反面教材：如果接口和驱动层不开放，硬件创新会被软件体验拖住。</p>
+
+    <h2 id="tools">🛠️ 工具推荐</h2>
+    <div class="tool-grid">
+      <div class="tool-card">
+        <h4><a href="https://github.com/denoland/deno_desktop" target="_blank" rel="noopener noreferrer">Deno Desktop</a> <span class="priority-tag">P1</span></h4>
+        <p>用 Deno 和 Web 技术构建桌面应用，适合快速做内部工具、Agent 控制台和轻量客户端。建议 P1 试用。</p>
+      </div>
+      <div class="tool-card">
+        <h4><a href="https://oak.space/oak/oak" target="_blank" rel="noopener noreferrer">Oak</a> <span class="priority-tag">P2</span></h4>
+        <p>面向 Agent 工作流设计的 Git 替代/实验工具，适合观察版本控制如何适配机器生成变更。建议 P2 研究。</p>
+      </div>
+      <div class="tool-card">
+        <h4><a href="https://simonwillison.net/2026/Jun/21/sqlite-utils-40rc1/" target="_blank" rel="noopener noreferrer">sqlite-utils 4.0rc1</a> <span class="priority-tag">P2</span></h4>
+        <p>新增 migrations 和 nested transactions，适合本地数据工具、轻量 ETL 和 Agent 记忆存储。建议 P2 试用。</p>
+      </div>
+      <div class="tool-card">
+        <h4><a href="https://vercel.com/changelog/vercel-cli-now-supports-signing-blob-urls" target="_blank" rel="noopener noreferrer">Vercel Blob signed URLs</a> <span class="priority-tag">P1</span></h4>
+        <p>CLI 生成单操作、单路径、最长 7 天的短时 Blob 权限，适合上传、临时导出和 Agent 文件访问降权。建议 P1 关注。</p>
+      </div>
+      <div class="tool-card">
+        <h4><a href="https://github.com/dorukkumkumoglu/optocamzero" target="_blank" rel="noopener noreferrer">Optocam Zero</a> <span class="priority-tag">P3</span></h4>
+        <p>基于 Raspberry Pi Zero 的开源数码相机项目，适合好奇心和硬件原型观察。建议 P3 收藏。</p>
+      </div>
+    </div>
+
+    <h2 id="ai-tools">🧠 AI 工具</h2>
+    <div class="tool-grid">
+      <div class="tool-card">
+        <span class="tag">安全</span>
+        <h4><a href="https://openai.com/index/patch-the-planet/" target="_blank" rel="noopener noreferrer">Patch the Planet</a></h4>
+        <p>OpenAI 与 Trail of Bits 推动的开源安全修复 initiative，重点是从漏洞发现走向补丁、测试和供应链加固闭环。</p>
+      </div>
+      <div class="tool-card">
+        <span class="tag">视觉</span>
+        <h4><a href="https://github.com/SheldonTsui/Moebius" target="_blank" rel="noopener noreferrer">Moebius</a></h4>
+        <p>0.2B 图像修复模型，适合评估小模型在本地/浏览器视觉编辑中的实际价值。</p>
+      </div>
+      <div class="tool-card">
+        <span class="tag">模型路由</span>
+        <h4><a href="https://vercel.com/changelog/sakana-fugu-ultra-now-available-on-ai-gateway" target="_blank" rel="noopener noreferrer">Sakana Fugu Ultra on Vercel AI Gateway</a></h4>
+        <p>多模型/多 Agent 协同能力接入 AI Gateway，提供统一 API、用量跟踪、重试、failover、预算和 BYOK。</p>
+      </div>
+      <div class="tool-card">
+        <span class="tag">原型</span>
+        <h4><a href="https://vercel.com/changelog/claude-design-and-vercel" target="_blank" rel="noopener noreferrer">Claude Design to Vercel</a></h4>
+        <p>Claude Design 产物可发送到 Vercel 并生成 live URL，适合快速原型验收。</p>
+      </div>
+    </div>
+
+    <h2 id="concepts">🧩 本期概念库</h2>
+    <div class="concept-card">
+      <h4>1. Patch-through Security</h4>
+      <div class="concept-field"><strong>一句话解释：</strong>安全治理从发现问题推进到提交可合并补丁、补测试、补 CI 门禁和验证修复的端到端模式。</div>
+      <div class="concept-field"><strong>背景来源：</strong>Patch the Planet</div>
+      <div class="concept-field"><strong>为什么重要：</strong>AI 会放大发现吞吐，但只有补丁闭环能真正降低系统风险。</div>
+      <div class="concept-field"><strong>团队应用场景：</strong>内部安全扫描和依赖治理要默认绑定修复 PR、回归测试、owner SLA 和风险分级。</div>
+    </div>
+    <div class="concept-card">
+      <h4>2. Maintainer-Centric AI Security</h4>
+      <div class="concept-field"><strong>一句话解释：</strong>评估 AI 安全工具时，把维护者处理成本、误报率、可合并修复率和长期可维护性放到中心。</div>
+      <div class="concept-field"><strong>背景来源：</strong>Trail of Bits 与 OpenAI 的合作模式</div>
+      <div class="concept-field"><strong>为什么重要：</strong>开源生态最稀缺的资源往往不是报告，而是可信协作和维护时间。</div>
+      <div class="concept-field"><strong>团队应用场景：</strong>引入安全 Agent 前，先定义告警准入、人工 triage、修复质量和回滚要求。</div>
+    </div>
+    <div class="concept-card">
+      <h4>3. 部署与发布解耦</h4>
+      <div class="concept-field"><strong>一句话解释：</strong>代码可以持续进入生产构建，但用户是否看到、哪些用户看到、如何回滚，由平台化 flag 控制。</div>
+      <div class="concept-field"><strong>背景来源：</strong>Vercel Flags</div>
+      <div class="concept-field"><strong>为什么重要：</strong>AI 加速开发后，发布治理会比合并速度更决定稳定性。</div>
+      <div class="concept-field"><strong>团队应用场景：</strong>高风险功能、模型切流、供应商切换和 DB cutover 默认必须有 flag、灰度和 kill switch。</div>
+    </div>
+    <div class="concept-card">
+      <h4>4. Role Confusion</h4>
+      <div class="concept-field"><strong>一句话解释：</strong>LLM 可能通过风格、模板和上下文线索误判谁在说话，导致外部内容被当成更高权限指令。</div>
+      <div class="concept-field"><strong>背景来源：</strong>Prompt Injection as Role Confusion</div>
+      <div class="concept-field"><strong>为什么重要：</strong>这把 prompt injection 从提示词技巧问题推进到模型角色感知问题。</div>
+      <div class="concept-field"><strong>团队应用场景：</strong>Agent 工具输出要做隔离、转义、降权和工具调用审计，不能只靠系统提示词。</div>
+    </div>
+    <div class="concept-card">
+      <h4>5. Inference Cost Envelope</h4>
+      <div class="concept-field"><strong>一句话解释：</strong>推理成本由模型、硬件、精度、上下文长度、tok/s/user、框架和供应商效率共同决定。</div>
+      <div class="concept-field"><strong>背景来源：</strong>InferenceX 与 GLM-5.2 讨论</div>
+      <div class="concept-field"><strong>为什么重要：</strong>AI 预算会从 API 单价管理升级为模型路由和基础设施账本。</div>
+      <div class="concept-field"><strong>团队应用场景：</strong>建立内部任务分级：哪些请求用前沿闭源，哪些用开放模型，哪些用小模型或缓存。</div>
+    </div>
+
+    <h2 id="curiosity">🎲 好奇心入口</h2>
+    <div class="curiosity-card">
+      <h4><a href="https://ipvm.com/reports/police-chiefs-track" target="_blank" rel="noopener noreferrer">Flock-Powered Police Chiefs：车牌摄像头被用来跟踪女性</a></h4>
+      <div class="hook">监控系统最可怕的滥用，不一定来自黑客，也可能来自有权限的人。</div>
+      <p>IPVM 报道 Flock 摄像头数据被警长用于跟踪女性，HN 讨论迅速升温。这类故事提醒我们，任何强查询系统都需要审计、审批、最小权限和异常行为报警。 团队暗线：内部后台、客服系统、风控系统也一样：只要能查人，就必须能追责。</p>
+    </div>
+    <div class="curiosity-card">
+      <h4><a href="https://arstechnica.com/tech-policy/2026/06/polymarkets-viral-videos-showed-people-winning-big-but-the-bets-were-fake/" target="_blank" rel="noopener noreferrer">Polymarket viral videos：看起来像中了大奖，其实下注是假的</a></h4>
+      <div class="hook">增长视频里最危险的不是夸张，而是用户以为它代表真实市场。</div>
+      <p>Ars Technica 报道 Polymarket 病毒视频中展示的中奖下注并非真实下注。预测市场、交易产品和金融营销都要处理同一个问题：增长叙事不能越过真实性边界。 团队暗线：交易相关产品的演示、营销和 KOL 内容需要标注真实/模拟/回测，避免把用户带进错误预期。</p>
+    </div>
+    <div class="curiosity-card">
+      <h4><a href="https://lmao.center/blog/wiggle-accidents/" target="_blank" rel="noopener noreferrer">help i accidentally a wigglegram：一次意外做出的视觉小玩具</a></h4>
+      <div class="hook">不是每个技术灵感都来自 roadmap，有时候来自一次手滑。</div>
+      <p>这篇小文在 HN 和 Lobsters 都很热，讲作者误打误撞做出 wigglegram 的过程。它不重要，但很健康：工具和创作系统应该给偶然性留空间。 团队暗线：内部工具不要把所有路径都做成流程图，适度保留探索空间会带来意外产物。</p>
+    </div>
+
+    <h2 id="resources">📚 资源</h2>
+    <div class="resource-item">
+      <a href="https://github.com/trailofbits/patch-the-planet" target="_blank" rel="noopener noreferrer">Patch the Planet public findings</a>
+      <p>Patch the Planet 的公开 issue/PR 入口，适合观察 AI 安全发现如何被转成真实补丁。</p>
+    </div>
+    <div class="resource-item">
+      <a href="https://arxiv.org/abs/2606.14483" target="_blank" rel="noopener noreferrer">Role Confusion arXiv</a>
+      <p>Prompt Injection as Role Confusion 的论文版本，适合深入理解角色感知、CoT Forgery 和攻击成功预测。</p>
+    </div>
+    <div class="resource-item">
+      <a href="https://github.com/denoland/deno_desktop/tree/main/examples" target="_blank" rel="noopener noreferrer">Deno Desktop examples</a>
+      <p>Deno Desktop 的示例入口，适合快速看内部工具桌面化的代码结构。</p>
+    </div>
+
+    <h2 id="quotes">💬 言论：本期 7 个认知增量</h2>
+    <div class="quote-block">
+      <blockquote>AI 安全的价值不在于把更多报告扔给维护者，而在于把发现变成补丁、测试和可合并的改动。</blockquote>
+      <div class="quote-author">—— OpenAI / Patch the Planet</div>
+      <div class="quote-meta">来源：<a href="https://openai.com/security/" target="_blank" rel="noopener noreferrer">openai.com</a> · 类型：摘要式转述 · 关键词：安全供应链 · AI Workflow</div>
+      <div class="quote-comment">💭 这是今天最重要的工程判断：发现能力一旦廉价，交付能力就会变贵。</div>
+      <div class="quote-team-insight">🎯 团队启发：安全工具选型要加入可合并修复率和维护者处理成本。</div>
+    </div>
+    <div class="quote-block">
+      <blockquote>一个对人类几乎等价的措辞变化，可能让模型对角色的判断完全改变。</blockquote>
+      <div class="quote-author">—— Charles Ye, Jasmine Cui, Dylan Hadfield-Menell</div>
+      <div class="quote-meta">来源：<a href="https://role-confusion.github.io/#destyling" target="_blank" rel="noopener noreferrer">role-confusion.github.io</a> · 类型：摘要式转述 · 关键词：Agent 安全 · Prompt Injection</div>
+      <div class="quote-comment">💭 Prompt Injection 的难点不只是恶意内容，而是模型如何把风格误读成权限。</div>
+      <div class="quote-team-insight">🎯 团队启发：把外部内容接入 Agent 前，先做数据隔离和工具调用审计。</div>
+    </div>
+    <div class="quote-block">
+      <blockquote>发布不是部署完成后的顺手动作，而是需要独立建模、灰度、观测和回滚的控制面。</blockquote>
+      <div class="quote-author">—— Vercel Flags</div>
+      <div class="quote-meta">来源：<a href="https://vercel.com/docs/flags" target="_blank" rel="noopener noreferrer">vercel.com</a> · 类型：摘要式转述 · 关键词：前端工程 · 稳定性</div>
+      <div class="quote-comment">💭 这句话不是官方原文，是从 Vercel Flags 体系里提炼出的工程结论。</div>
+      <div class="quote-team-insight">🎯 团队启发：高风险变更必须默认带 flag 和 kill switch。</div>
+    </div>
+    <div class="quote-block">
+      <blockquote>开源模型这次不是追排行榜，而是在追账单。</blockquote>
+      <div class="quote-author">—— Interconnects / Nathan Lambert</div>
+      <div class="quote-meta">来源：<a href="https://www.interconnects.ai/p/open-weights-models-roadmap" target="_blank" rel="noopener noreferrer">interconnects.ai</a> · 类型：摘要式转述 · 关键词：模型路由 · 成本治理</div>
+      <div class="quote-comment">💭 GLM-5.2 的真正压力在商业侧：它让团队重新计算哪些编码任务不必跑在最贵模型上。</div>
+      <div class="quote-team-insight">🎯 团队启发：建立任务级模型路由策略，而不是把所有请求交给同一个高价模型。</div>
+    </div>
+    <div class="quote-block">
+      <blockquote>推理成本不是一个价格，而是一组工程条件下的结果。</blockquote>
+      <div class="quote-author">—— InferenceX / SemiAnalysis</div>
+      <div class="quote-meta">来源：<a href="https://semianalysis.com/inferencex/" target="_blank" rel="noopener noreferrer">semianalysis.com</a> · 类型：摘要式转述 · 关键词：AI 成本 · 推理工程</div>
+      <div class="quote-comment">💭 这比任何单一 API 价格都更接近真实成本：硬件、速度目标、精度和框架都会改写账单。</div>
+      <div class="quote-team-insight">🎯 团队启发：AI 成本看板要从供应商账单下钻到任务、模型、上下文和延迟目标。</div>
+    </div>
+    <div class="quote-block">
+      <blockquote>时间不是字段类型，是业务规则。</blockquote>
+      <div class="quote-author">—— Crunchy Data</div>
+      <div class="quote-meta">来源：<a href="https://www.crunchydata.com/blog/time-zones-and-postgres" target="_blank" rel="noopener noreferrer">crunchydata.com</a> · 类型：摘要式转述 · 关键词：数据库 · 可靠性</div>
+      <div class="quote-comment">💭 时区文章的启发很朴素：技术系统里最像常量的东西，常常背后是政策和业务变化。</div>
+      <div class="quote-team-insight">🎯 团队启发：涉及交易、日历、计费和跨区运营的时间逻辑要有回放测试。</div>
+    </div>
+    <div class="quote-block">
+      <blockquote>Agent 的隐私风险不只在它说了什么，也在它查了什么。</blockquote>
+      <div class="quote-author">—— Hugging Face / ServiceNow MosaicLeaks</div>
+      <div class="quote-meta">来源：<a href="https://huggingface.co/papers/2606.15971" target="_blank" rel="noopener noreferrer">huggingface.co</a> · 类型：摘要式转述 · 关键词：Agent 安全 · 隐私</div>
+      <div class="quote-comment">💭 虽然 MosaicLeaks 已在前几期出现过，但这个判断仍值得沉淀：工具调用日志本身就是安全边界。</div>
+      <div class="quote-team-insight">🎯 团队启发：内部知识库 Agent 要审计外部搜索词和工具调用，不只审计最终回答。</div>
+    </div>
+
+    <h2 id="podcast">🎙️ 播客提纲</h2>
+    <div class="podcast-brief">
+      <h4>Tech Digest #45：AI 找到漏洞之后，谁来合补丁？</h4>
+      <div class="cold-open">如果一个 AI 安全系统一周给开源项目推来 64 个 PR、51 个 issue，这到底是在帮维护者，还是在给维护者制造新的工作队列？今天的关键词不是生成，而是闭环。</div>
+      <div class="podcast-segment">
+        <strong>主故事：Patch the Planet</strong>
+        <p>AI 安全的战场从发现漏洞，转向交付补丁。</p>
+        <p>安全扫描必须绑定修复 PR、测试、owner 和回滚机制。</p>
+      </div>      <div class="podcast-segment">
+        <strong>发布控制面：Vercel Flags 与 WebSocket</strong>
+        <p>一次生产 DB 切换，最后可能不是发版，而是翻 flag。</p>
+        <p>高风险功能默认放在 flag 后面，实时能力要同步评估成本和降级路径。</p>
+      </div>      <div class="podcast-segment">
+        <strong>Agent 安全：Role Confusion</strong>
+        <p>对人类几乎一样的句子，对模型可能是完全不同的权限信号。</p>
+        <p>外部内容进 Agent 前必须隔离、转义、降权并记录工具调用。</p>
+      </div>      <div class="podcast-segment">
+        <strong>模型成本：GLM-5.2 与 InferenceX</strong>
+        <p>开源模型这次不是追排行榜，而是在追账单。</p>
+        <p>把 AI 请求按价值和复杂度分层路由，别让所有任务都跑在最贵路径。</p>
+      </div>
+      <p>今天的共同判断很简单：AI 已经能更快发现、生成和部署，但团队真正要建设的是验证、补丁、发布、权限和成本闭环。没有闭环，速度只会变成库存。</p>
+    </div>
+
+    <h2 id="team-insights">✅ 对团队的启发</h2>
+    <div class="insight-card">
+      <p><span class="insight-num">1</span>把 AI 安全工具从「发现数量」评估改成「可合并修复率、误报处理成本、测试补全率、owner SLA」评估。</p>
+    </div>
+    <div class="insight-card">
+      <p><span class="insight-num">2</span>所有高风险发布默认要求 flag、灰度、kill switch、监控指标和回滚演练，尤其是模型路由、供应商切换和数据库 cutover。</p>
+    </div>
+    <div class="insight-card">
+      <p><span class="insight-num">3</span>Agent 接外部网页、邮件、文档、仓库内容时，先做角色隔离和工具输出降权，不把系统提示词当安全边界。</p>
+    </div>
+    <div class="insight-card">
+      <p><span class="insight-num">4</span>建立模型成本分层：前沿闭源负责高价值复杂任务，开放模型负责可控重复任务，小模型负责专用结构化任务。</p>
+    </div>
+    <div class="insight-card">
+      <p><span class="insight-num">5</span>对交易、后台和客服系统的查询权限做行为审计；任何能查用户、订单、资产的入口都要能追责。</p>
+    </div>
+
+    <div class="footer-sources">
+      <strong>📋 数据来源说明</strong><br>
+      本情报来自 66 个全球精选科技 / AI / 工程 / 系统可靠性信息源的每日更新。<br>
+      由 Cursor AI 自动生成，信息截止至 2026年6月23日，星期二。
+    </div>
+  </main>
+</div>
+
+<script>
+(function(){
+  const toc=document.querySelector('.toc');if(!toc)return;
+  const links=[...toc.querySelectorAll('a')];
+  const ids=links.map(l=>l.getAttribute('href').slice(1));
+  const secs=ids.map(id=>document.getElementById(id)).filter(Boolean);
+  function hl(){let cur=0;secs.forEach((s,i)=>{if(s.getBoundingClientRect().top<=120)cur=i;});
+  links.forEach((l,i)=>{l.classList.toggle('active',i===cur);});}
+  window.addEventListener('scroll',hl,{passive:true});hl();
+})();
+
+</script>
+</body>
+</html>

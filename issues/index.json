@@ -1,5 +1,11 @@
 [
   {
+    "date": "2026-06-23",
+    "title": "第 45 期：AI 安全的瓶颈从发现漏洞，转向交付补丁",
+    "highlights": "Patch the Planet 首周 64 PR/51 issue/37 合并补丁 · Vercel Flags 把发布治理平台化 · Role Confusion 解释 Prompt Injection 新机制 · Moebius 用 0.2B 挑战 10B 级图像修复 · GLM-5.2 挤压闭源编码模型价格空间 · InferenceX 拆出每百万 token 成本差 · Deno Desktop 让 Web runtime 进入桌面工具",
+    "image": "https://cf-assets.www.cloudflare.com/zkvhlag99gkb/2QsMQWQPZ5tqju5AHwfCL1/803907dd72b265d4be0b753ec5ef495d/BLOG-3318_OG.png"
+  },
+  {
     "date": "2026-06-22",
     "title": "第 44 期：AI 开始验明正身，验证比生成更稀缺",
     "highlights": "Claude 身份验证引发 AI 门禁讨论 · GitHub PR limits 把 AI PR 计入贡献限流 · Nature 警告 AI 依赖可能造成技能退化 · GitHub Qubot 展示企业数据 Agent 形态 · Hugging Face 测量工具是否足够 Agentic · Cloudflare vulnerability harness 把安全 Agent 平台化 · Recall 和 codebase-memory-mcp 走向本地 Agent 记忆 · Apertus 把主权 AI 做成开放合规叙事",
