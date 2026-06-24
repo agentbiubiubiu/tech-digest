@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>第 46 期：Bot 时代的 Web 要重新证明「谁在访问」</title>
+  <meta property="og:title" content="Tech Digest #46 · Bot 时代的 Web 要重新证明「谁在访问」">
+  <meta property="og:description" content="Cloudflare、Mozilla、Chrome、Edge 与 Shopify 推进 PACT：在 AI Agent 流量增长后，开放 Web 需要隐私友好的访问证明。">
+  <meta property="og:image" content="https://hacks.mozilla.org/wp-content/uploads/2026/06/pact-drawings-5.excalidraw21-scaled.png">
+  <style>
+:root {
+  --bg: #f5f6f8; --surface: #ffffff; --surface2: #f0f2f5;
+  --border: #e8ecf1; --border-hover: #c5cdd8;
+  --text: #1a1d21; --text-secondary: #3d4550; --text-muted: #8c95a1;
+  --accent: #2d9f6f; --accent-light: #e8f5ef; --accent-hover: #248a5e;
+  --accent-text: #ffffff;
+  --purple: #7c5cbf; --purple-light: #f3effc;
+  --orange: #e58e26; --orange-light: #fef5e7;
+  --blue: #3a82f7; --blue-light: #eef4fe;
+  --red: #e74c3c; --red-light: #fdecea;
+  --green-deep: #1a7a4c; --green-light2: #e0f5ea;
+  --yellow: #d4a017; --yellow-light: #fef9e7;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.06);
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.06), 0 2px 4px rgba(0,0,0,0.04);
+  --shadow-lg: 0 10px 30px rgba(0,0,0,0.08);
+  --radius: 12px; --radius-sm: 8px; --radius-xs: 6px;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Helvetica, Arial, sans-serif; background: var(--bg); color: var(--text); line-height: 1.75; font-size: 15px; -webkit-font-smoothing: antialiased; }
+.topbar { background: var(--surface); border-bottom: 1px solid var(--border); padding: 12px 32px; display: flex; align-items: center; gap: 16px; position: sticky; top: 0; z-index: 200; box-shadow: var(--shadow-sm); }
+.topbar-brand { font-size: 1.1rem; font-weight: 700; color: var(--accent); text-decoration: none; display: flex; align-items: center; gap: 8px; }
+.topbar-brand svg { width: 28px; height: 28px; }
+.topbar-nav { display: flex; gap: 4px; margin-left: 24px; }
+.topbar-nav a { padding: 6px 16px; border-radius: 20px; font-size: 0.85rem; font-weight: 500; color: var(--text-secondary); text-decoration: none; transition: all 0.2s; }
+.topbar-nav a:hover { background: var(--surface2); color: var(--text); }
+.topbar-nav a.active { background: var(--accent-light); color: var(--accent); font-weight: 600; }
+.topbar-right { margin-left: auto; display: flex; align-items: center; gap: 12px; }
+.topbar-date { font-size: 0.82rem; color: var(--text-muted); background: var(--surface2); padding: 5px 12px; border-radius: 16px; }
+.page { display: flex; max-width: 1200px; margin: 0 auto; padding: 24px 24px 0; gap: 24px; }
+.toc { width: 220px; flex-shrink: 0; position: sticky; top: 80px; height: calc(100vh - 104px); overflow-y: auto; background: var(--surface); border-radius: var(--radius); padding: 20px 16px; box-shadow: var(--shadow-sm); border: 1px solid var(--border); }
+.toc-title { font-size: 0.72rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 14px; padding-left: 12px; }
+.toc a { display: block; padding: 7px 12px; margin-bottom: 2px; font-size: 0.82rem; color: var(--text-muted); text-decoration: none; border-radius: var(--radius-xs); transition: all 0.15s; font-weight: 500; }
+.toc a:hover { color: var(--accent); background: var(--accent-light); }
+.toc a.active { color: var(--accent); background: var(--accent-light); font-weight: 600; }
+.toc-mobile { display: none; position: sticky; top: 57px; z-index: 100; background: var(--surface); border-bottom: 1px solid var(--border); padding: 10px 16px; box-shadow: var(--shadow-sm); }
+.toc-mobile summary { cursor: pointer; font-size: 0.85rem; color: var(--accent); font-weight: 600; list-style: none; }
+.toc-mobile summary::-webkit-details-marker { display: none; }
+.toc-mobile .toc-dropdown { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 8px; margin-top: 8px; max-height: 60vh; overflow-y: auto; box-shadow: var(--shadow-md); }
+.toc-mobile .toc-dropdown a { display: block; padding: 8px 12px; font-size: 0.88rem; color: var(--text-secondary); text-decoration: none; border-radius: var(--radius-xs); }
+.toc-mobile .toc-dropdown a:hover { color: var(--accent); background: var(--accent-light); }
+@media (max-width: 860px) { .toc { display: none; } .toc-mobile { display: block; } .topbar-nav { display: none; } .page { flex-direction: column; padding: 16px 12px 0; gap: 16px; } .container { padding: 20px 16px 60px; } }
+.container { flex: 1; min-width: 0; background: var(--surface); border-radius: var(--radius); padding: 36px 40px 60px; box-shadow: var(--shadow-sm); border: 1px solid var(--border); margin-bottom: 40px; }
+.back { display: inline-flex; align-items: center; gap: 4px; color: var(--text-muted); text-decoration: none; font-size: 0.85rem; margin-bottom: 28px; font-weight: 500; transition: color 0.15s; }
+.back:hover { color: var(--accent); }
+h1 { font-size: 1.7rem; font-weight: 800; margin-bottom: 10px; line-height: 1.35; color: var(--text); letter-spacing: -0.01em; }
+.meta { color: var(--text-muted); font-size: 0.85rem; margin-bottom: 28px; }
+.highlights-line { color: var(--text-secondary); font-size: 0.9rem; margin: -18px 0 28px; line-height: 1.65; }
+.hero-img { width: 100%; border-radius: var(--radius); margin-bottom: 10px; box-shadow: var(--shadow-md); }
+.hero-caption { font-size: 0.82rem; color: var(--text-muted); margin-bottom: 36px; text-align: center; font-style: italic; }
+h2 { font-size: 1.25rem; font-weight: 700; margin: 44px 0 18px; padding-bottom: 10px; border-bottom: 2px solid var(--accent-light); scroll-margin-top: 90px; color: var(--text); }
+h3 { font-size: 1.05rem; font-weight: 600; margin: 26px 0 8px; color: var(--text); }
+p { margin-bottom: 14px; color: var(--text-secondary); }
+a { color: var(--accent); text-decoration: none; font-weight: 500; }
+a:hover { color: var(--accent-hover); text-decoration: underline; }
+strong { color: var(--text); font-weight: 600; }
+.callout { background: var(--accent-light); border-left: 4px solid var(--accent); border-radius: var(--radius-sm); padding: 16px 20px; margin: 20px 0; font-size: 0.93rem; color: var(--text-secondary); }
+.main-story { background: linear-gradient(135deg, #f7fbff 0%, #fff 60%); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px 26px; margin: 18px 0 28px; box-shadow: var(--shadow-sm); }
+.main-story h3 { margin-top: 0; font-size: 1.2rem; line-height: 1.45; }
+.main-story .story-hook { color: var(--accent); font-weight: 700; margin-bottom: 14px; }
+.story-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 16px 0; }
+.story-field { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 12px 14px; font-size: 0.88rem; color: var(--text-secondary); }
+.story-field strong { display: block; margin-bottom: 4px; color: var(--text); }
+.number-chip { display: inline-block; background: var(--blue-light); color: var(--blue); border-radius: 14px; padding: 3px 10px; margin: 3px 6px 3px 0; font-size: 0.78rem; font-weight: 700; }
+.story-line { background: var(--purple-light); border-left: 4px solid var(--purple); border-radius: var(--radius-sm); padding: 14px 16px; margin-top: 14px; color: var(--text); font-weight: 700; }
+.trend-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin: 16px 0 28px; }
+.trend-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px 20px; box-shadow: var(--shadow-sm); }
+.trend-card h4 { font-size: 0.95rem; margin-bottom: 8px; color: var(--text); }
+.trend-card .trend-conflict { color: var(--red); font-size: 0.82rem; font-weight: 700; margin-bottom: 8px; }
+.trend-card p { font-size: 0.86rem; margin-bottom: 10px; }
+.trend-card .trend-sources { font-size: 0.76rem; color: var(--text-muted); line-height: 1.55; }
+.curiosity-card { background: var(--orange-light); border: 1px solid #f5ddb8; border-radius: var(--radius); padding: 20px 24px; margin: 14px 0; }
+.curiosity-card h4 { font-size: 1rem; margin-bottom: 8px; font-weight: 600; }
+.curiosity-card h4 a { color: var(--orange); }
+.curiosity-card .hook { color: var(--orange); font-weight: 700; margin-bottom: 6px; }
+.curiosity-card p { font-size: 0.88rem; color: var(--text-secondary); margin: 0 0 8px; line-height: 1.65; }
+.podcast-brief { background: #f8fafc; border: 1px solid var(--border); border-radius: var(--radius); padding: 20px 24px; margin: 18px 0; }
+.podcast-brief h4 { margin: 0 0 10px; font-size: 1rem; }
+.podcast-brief .cold-open { color: var(--accent); font-weight: 700; margin-bottom: 14px; }
+.podcast-segment { border-top: 1px solid var(--border); padding-top: 12px; margin-top: 12px; }
+.podcast-segment strong { display: block; margin-bottom: 4px; }
+.article-img { width: 100%; max-height: 380px; object-fit: cover; border-radius: var(--radius-sm); margin: 12px 0 24px; box-shadow: var(--shadow-sm); }
+.tool-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 16px 0; }
+.tool-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px 20px; transition: all 0.2s; box-shadow: var(--shadow-sm); }
+.tool-card:hover { border-color: var(--accent); box-shadow: var(--shadow-md); transform: translateY(-1px); }
+.tool-card h4 { font-size: 0.95rem; margin-bottom: 6px; font-weight: 600; }
+.tool-card h4 a { color: var(--accent); }
+.tool-card p { font-size: 0.83rem; color: var(--text-muted); margin: 0; line-height: 1.55; }
+.tool-card .tag { display: inline-block; font-size: 0.68rem; padding: 3px 8px; border-radius: 10px; background: var(--accent); color: var(--accent-text); font-weight: 600; margin-bottom: 8px; letter-spacing: 0.02em; }
+.tool-card .priority-tag { display: inline-block; font-size: 0.65rem; padding: 2px 6px; border-radius: 8px; background: var(--surface2); color: var(--text-muted); font-weight: 600; margin-left: 6px; }
+.fun-card { background: var(--orange-light); border: 1px solid #f5ddb8; border-radius: var(--radius); padding: 20px 24px; margin: 14px 0; }
+.fun-card h4 { font-size: 1rem; margin-bottom: 8px; font-weight: 600; }
+.fun-card h4 a { color: var(--orange); }
+.fun-card p { font-size: 0.88rem; color: var(--text-secondary); margin: 0; line-height: 1.65; }
+.quote-block { background: var(--purple-light); border-left: 4px solid var(--purple); border-radius: var(--radius-sm); padding: 20px 24px; margin: 18px 0; }
+.quote-block blockquote { font-size: 1.02rem; line-height: 1.65; margin-bottom: 10px; font-style: italic; color: var(--text); }
+.quote-block .quote-author { font-size: 0.82rem; color: var(--purple); font-weight: 600; margin-bottom: 6px; }
+.quote-block .quote-meta { font-size: 0.78rem; color: var(--text-muted); margin-bottom: 10px; }
+.quote-block .quote-comment { font-size: 0.88rem; color: var(--text-secondary); border-top: 1px solid #d8d0e8; padding-top: 10px; margin-top: 10px; }
+.quote-block .quote-team-insight { font-size: 0.88rem; color: var(--green-deep); background: var(--accent-light); border-radius: var(--radius-xs); padding: 8px 12px; margin-top: 8px; }
+.resource-item { background: var(--blue-light); border: 1px solid #c8dbf8; border-radius: var(--radius); padding: 18px 20px; margin: 12px 0; }
+.resource-item a { font-weight: 600; color: var(--blue); }
+.resource-item p { font-size: 0.88rem; color: var(--text-secondary); margin: 6px 0 0; }
+.concept-card { background: var(--green-light2); border-left: 4px solid var(--accent); border-radius: var(--radius-sm); padding: 20px 24px; margin: 16px 0; }
+.concept-card h4 { font-size: 1rem; font-weight: 700; color: var(--green-deep); margin-bottom: 10px; }
+.concept-card .concept-field { font-size: 0.88rem; color: var(--text-secondary); margin-bottom: 6px; line-height: 1.6; }
+.concept-card .concept-field strong { color: var(--text); font-size: 0.88rem; }
+.insight-card { background: var(--yellow-light); border-left: 4px solid var(--yellow); border-radius: var(--radius-sm); padding: 16px 20px; margin: 12px 0; }
+.insight-card p { font-size: 0.93rem; color: var(--text-secondary); margin: 0; line-height: 1.7; }
+.insight-card .insight-num { display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; border-radius: 50%; background: var(--yellow); color: #fff; font-size: 0.75rem; font-weight: 700; margin-right: 10px; flex-shrink: 0; }
+.certainty-tag { display: inline-block; font-size: 0.65rem; padding: 2px 6px; border-radius: 8px; font-weight: 600; margin-left: 8px; }
+.certainty-confirmed { background: var(--accent-light); color: var(--accent); }
+.certainty-announced { background: var(--blue-light); color: var(--blue); }
+.certainty-reported { background: var(--yellow-light); color: var(--yellow); }
+.certainty-opinion { background: var(--purple-light); color: var(--purple); }
+.certainty-rumor { background: var(--red-light); color: var(--red); }
+.footer-sources { margin-top: 44px; padding: 20px 24px; background: var(--surface2); border-radius: var(--radius); font-size: 0.78rem; color: var(--text-muted); line-height: 1.9; }
+.footer-sources strong { color: var(--text-secondary); font-size: 0.78rem; }
+@media (max-width: 860px) { .trend-grid, .story-grid { grid-template-columns: 1fr; } }
+@media (max-width: 640px) { .tool-grid { grid-template-columns: 1fr; } }
+
+  </style>
+</head>
+<body>
+
+<header class="topbar">
+  <a href="../index.html" class="topbar-brand">
+    <svg viewBox="0 0 28 28" fill="none"><circle cx="14" cy="14" r="14" fill="#2d9f6f"/><path d="M8 14.5l3.5 3.5 8.5-8" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    Tech Digest
+  </a>
+  <nav class="topbar-nav">
+    <a href="../index.html">Archive</a>
+    <a href="#main-story" class="active">Today</a>
+    <a href="#tools">Tools</a>
+    <a href="#quotes">Quotes</a>
+  </nav>
+  <div class="topbar-right">
+    <span class="topbar-date">2026-06-24</span>
+  </div>
+</header>
+
+<details class="toc-mobile">
+  <summary>📑 目录导航</summary>
+  <div class="toc-dropdown">
+    <a href="#main-story">🔥 主故事</a>
+    <a href="#trends">⚡ 冲突趋势</a>
+    <a href="#tech-news">📰 科技动态</a>
+    <a href="#ai">🤖 AI 相关</a>
+    <a href="#articles">📝 文章推荐</a>
+    <a href="#tools">🛠️ 工具推荐</a>
+    <a href="#ai-tools">🧠 AI 工具</a>
+    <a href="#concepts">🧩 本期概念库</a>
+    <a href="#curiosity">🎲 好奇心入口</a>
+    <a href="#resources">📚 资源</a>
+    <a href="#quotes">💬 言论</a>
+    <a href="#podcast">🎙️ 播客提纲</a>
+    <a href="#team-insights">✅ 对团队的启发</a>
+  </div>
+</details>
+
+<div class="page">
+  <nav class="toc">
+    <div class="toc-title">本期目录</div>
+    <a href="#main-story">🔥 主故事</a>
+    <a href="#trends">⚡ 冲突趋势</a>
+    <a href="#tech-news">📰 科技动态</a>
+    <a href="#ai">🤖 AI 相关</a>
+    <a href="#articles">📝 文章推荐</a>
+    <a href="#tools">🛠️ 工具推荐</a>
+    <a href="#ai-tools">🧠 AI 工具</a>
+    <a href="#concepts">🧩 本期概念库</a>
+    <a href="#curiosity">🎲 好奇心入口</a>
+    <a href="#resources">📚 资源</a>
+    <a href="#quotes">💬 言论</a>
+    <a href="#podcast">🎙️ 播客提纲</a>
+    <a href="#team-insights">✅ 对团队的启发</a>
+  </nav>
+
+  <main class="container">
+    <a href="../index.html" class="back">← 返回目录</a>
+    <h1>第 46 期：Bot 时代的 Web 要重新证明「谁在访问」</h1>
+    <div class="meta">第 46 期 · 2026年6月24日，星期三</div>
+    <p class="highlights-line"><strong>✨ 本期亮点：</strong>PACT 试图让人类与授权 Agent 在不暴露身份下证明非恶意 · GPT-5 Pro 帮免疫学家重启 3 年 T 细胞谜题 · Claude Tag 把 AI 推进 Slack 团队流 · GitHub Copilot App 支持 BYOK · Hugging Face 用 AI+人审把 hub 发布改为每周节奏 · Cloudflare 把后量子迁移 deadline 拉到 2030/2031</p>
+
+    <img class="hero-img" src="https://hacks.mozilla.org/wp-content/uploads/2026/06/pact-drawings-5.excalidraw21-scaled.png" alt="PACT anonymous credential system diagram from Mozilla Hacks">
+    <div class="hero-caption">Mozilla Hacks 的 PACT 系统图：Anchors、Moderator 与 Credentials 把“稀缺性证明”和“匿名访问”拆开。</div>
+
+    <div class="callout">
+      <strong>🎯 本期核心判断：</strong>AI Agent 和自动化流量正在把 Web 从「默认人类点击」推向「需要隐私证明的访问控制」阶段；下一轮基础设施竞争，不是谁能拦住更多 bot，而是谁能在不追踪用户的前提下区分人类、授权 Agent 和恶意自动化。
+    </div>
+
+    <div class="callout">
+      <strong>⏱ 本期建议阅读顺序</strong><br>
+      先看主故事：PACT 为什么把 CAPTCHA、反爬和 AI Agent 访问放到同一个问题里。<br>
+      再看三条冲突趋势：开放 Web、企业 Agent、AI 工程质量。<br>
+      最后看工具和概念库：BYOK、可观测性、发布自动化和后量子迁移。
+    </div>
+
+    <h2 id="main-story">🔥 主故事</h2>
+        <article class="main-story">
+      <h3>PACT：当 AI Agent 开始上网，开放 Web 需要新的访问证明</h3>
+      <p class="story-hook">过去网站问的是“这个请求是不是人点的”；现在更难的问题是：它可能是人授权的 Agent，也可能是规模化滥用。</p>
+      <p>Cloudflare 在 6 月 22 日宣布与 Mozilla Firefox、Google Chrome、Microsoft Edge 和 Shopify 合作，推进 Private Access Control Tokens（PACT）并提交标准化。Mozilla 随后用技术文章把问题拆开：隐私浏览器正在减少 IP、指纹、三方 Cookie 这类被滥用的被动信号，但网站的反滥用压力没有消失；AI Agent 又让“人类访问”和“自动化访问”的边界变得更模糊。</p>
+      <div class="story-grid">
+        <div class="story-field"><strong>核心冲突</strong>开放 Web 与反滥用的冲突被 AI 放大：越保护隐私，传统风控越失明；越依赖登录墙、指纹和 CAPTCHA，Web 越像封闭花园。</div>
+        <div class="story-field"><strong>转折点</strong>PACT 的思路不是让设备厂商证明你运行的是“被批准的软件”，而是让用户已经拥有的稀缺关系（账号、订阅、电话号码、可信站点关系）通过匿名凭证转化为跨站 rate-limit 信号。站点只需要知道“这个访问在可接受额度内”，不需要知道你是谁、来自哪个 Anchor、访问过哪些站点。</div>
+        <div class="story-field"><strong>为什么现在发生</strong>AI Agent 正在从聊天窗口走向浏览器和业务流程，CAPTCHA 又越来越容易被模型绕过；如果没有隐私友好的访问证明，内容站、电商、交易平台和新浏览器/Agent 都会被迫在更强追踪和更高误杀之间二选一。</div>
+        <div class="story-field"><strong>对团队的启发</strong>做 Web 产品、风控、爬虫、Agent 自动化和开放 API 的团队，都要提前把“授权 Agent 流量”纳入身份、限流、审计和反滥用模型，而不是把所有非人类点击都粗暴归入恶意 bot。</div>
+      </div>
+      <p><span class="number-chip">Mozilla / Chrome / Edge</span><span class="number-chip">Shopify</span><span class="number-chip">PACT</span><span class="number-chip">Anchor / Moderator / Credential</span><span class="number-chip">W3C + IETF 标准化路径</span></p>
+      <p><strong>我的判断：</strong>这不是一个 CAPTCHA 替代品，而是 Web 权限模型的升级信号。未来的访问控制会从“识别你是谁”转向“证明你在某个上下文里有足够可信的访问额度”。它对 Agent 友好，也对隐私友好，但前提是生态不能把 Anchor 或 Moderator 变成新的中心化门神。</p>
+      <div class="story-line">Agent 时代的 Web，不是要证明你是谁，而是要证明这次访问没有越过人类尺度。</div>
+      <p><strong>来源：</strong><a href="https://www.cloudflare.com/press/press-releases/2026/cloudflare-collaborates-with-leading-browsers-to-develop-a-privacy-first-protocol-for-the-global-internet/" target="_blank" rel="noopener noreferrer">cloudflare.com</a></p>
+    </article>
+
+    <h2 id="trends">⚡ 冲突趋势</h2>
+        <div class="trend-grid">
+      <div class="trend-card">
+        <h4>开放 Web vs 反滥用基础设施</h4>
+        <div class="trend-conflict">隐私保护让传统识别信号减少，bot 和 Agent 又让自动化访问变多。</div>
+        <p>PACT 的真正目标，是避免 Web 在反 bot 压力下退回登录墙、设备认证和跨站追踪。</p>
+        <div class="trend-sources">blog.mozilla.org · hacks.mozilla.org</div>
+      </div>
+      <div class="trend-card">
+        <h4>个人副驾 vs 团队成员</h4>
+        <div class="trend-conflict">Claude Tag、Copilot BYOK 和终端 Agent 都在把 AI 从个人工具推向组织工作流。</div>
+        <p>AI 工具的价值正在从“模型多强”迁移到权限、记忆、上下文和多人协作边界。</p>
+        <div class="trend-sources">anthropic.com · github.blog</div>
+      </div>
+      <div class="trend-card">
+        <h4>生成速度 vs 生产可信度</h4>
+        <div class="trend-conflict">AI 让代码、发布说明、漏洞报告和实验假设更快涌现，但验证与上线责任没有自动消失。</div>
+        <p>Hugging Face 的每周发布流水线、Filippo 的漏洞报告反思和后量子迁移 deadline 都指向同一件事：速度要被可审计流程接住。</p>
+        <div class="trend-sources">huggingface.co · words.filippo.io · blog.cloudflare.com</div>
+      </div>
+    </div>
+
+    <h2 id="tech-news">📰 科技动态</h2>
+    <h3>1、<a href="https://blog.cloudflare.com/post-quantum-eo-2026/" target="_blank" rel="noopener noreferrer">Cloudflare：美国后量子 EO 把敏感系统迁移 deadline 压到 2030/2031</a> <span class="certainty-tag certainty-confirmed">confirmed</span></h3>
+    <p>Cloudflare 解读 6 月 22 日签署的美国后量子行政令：联邦最敏感系统需在 2030-12-31 前迁到后量子加密，认证迁移 deadline 是 2031-12-31，承包商也会被 FIPS 要求拉进迁移链。Cloudflare 同时披露其浏览器流量已有超过三分之二使用后量子加密保护。</p>
+    <img class="article-img" src="https://cf-assets.www.cloudflare.com/zkvhlag99gkb/zFUAcxijyOtuwtQpix988/d03281ce08e06e9281bd252baf29a0ac/BLOG-3360_OG.png" alt="">
+    <h3>2、<a href="https://github.blog/changelog/2026-06-23-github-copilot-app-support-for-byok/" target="_blank" rel="noopener noreferrer">GitHub Copilot App 支持 BYOK：本地模型和企业网关进入 Agent 会话</a> <span class="certainty-tag certainty-confirmed">confirmed</span></h3>
+    <p>GitHub Copilot App 新增 bring your own key，可接 OpenAI、Azure OpenAI、Microsoft Foundry、Anthropic、LM Studio、Ollama 和 OpenAI-compatible endpoint。Provider key 存在本机 OS keychain，模型可和 Copilot-hosted 模型一起出现在 picker 中。</p>
+    <img class="article-img" src="https://github.blog/wp-content/uploads/2026/06/611890547-137b83f0-b0cd-40ab-a891-c3c11562f740.jpg" alt="">
+    <h3>3、<a href="https://netflixtechblog.com/how-netflix-simplified-batch-compute-with-kueue-87860682629c" target="_blank" rel="noopener noreferrer">Netflix 用 Kueue 简化 batch compute：把自研排队调度收回 Kubernetes 生态</a> <span class="certainty-tag certainty-confirmed">confirmed</span></h3>
+    <p>Netflix 介绍将 Compute Managed Batch 的排队和调度能力迁到 Kueue 的过程：保留 Titus 调度 profile，同时支持多租户 quota、异构硬件、preemption、all-or-nothing scheduling 和 topology-aware scheduling。迁移原则是用户零改造、吞吐不回退、底层替换。</p>
+    <h3>4、<a href="https://apnews.com/article/germany-trains-halted-communications-radio-problem-deutsche-bahn-e8fd970b2d889f3ae7ce03322d5c726b" target="_blank" rel="noopener noreferrer">德国铁路因 GSM-R 通信系统故障全国停运约 2.5 小时</a> <span class="certainty-tag certainty-confirmed">confirmed</span></h3>
+    <p>德国铁路因 GSM-R 数字通信系统故障在全国范围暂停列车，约 2.5 小时后逐步恢复。事件凸显关键基础设施里“通信平面”作为单点依赖的现实风险。</p>
+    <img class="article-img" src="https://dims.apnews.com/dims4/default/7e2236d/2147483647/strip/true/crop/8256x5501+0+1/resize/980x653!/quality/90/?url=https%3A%2F%2Fassets.apnews.com%2F44%2F51%2F6348ee1716222d26c9325fdd1ded%2F23356268e9814180beebf9654c48a2da" alt="">
+
+    <h2 id="ai">🤖 AI 相关</h2>
+    <h3>1、<a href="https://openai.com/index/gpt-5-immunology-mystery/" target="_blank" rel="noopener noreferrer">GPT-5 Pro 帮免疫学家重启一个 3 年 T 细胞谜题</a> <span class="certainty-tag certainty-reported">reported</span></h3>
+    <p>OpenAI 案例称，免疫学家 Derya Unutmaz 用 GPT-5 Pro 重新分析 2022 年搁置的 T 细胞实验，模型提出 deoxyglucose 可能通过 IL-2/Th17 机制解释异常结果，并正确预测一个未发表的 CD8+ 淋巴瘤实验方向。OpenAI 也强调科学结论仍需要专家判断与生物安全治理。</p>
+    <h3>2、<a href="https://www.anthropic.com/news/introducing-claude-tag" target="_blank" rel="noopener noreferrer">Anthropic 发布 Claude Tag：把 @Claude 放进 Slack 团队流</a> <span class="certainty-tag certainty-announced">announced</span></h3>
+    <p>Claude Tag 让团队在 Slack 频道里直接 @Claude，并按频道配置工具、数据、代码库、记忆和权限边界。Anthropic 称内部版已参与创建 65% 产品团队代码；外部 beta 面向 Claude Enterprise 和 Team，运行在 Opus 4.8 上。</p>
+    <img class="article-img" src="https://cdn.sanity.io/images/4zrzovbb/website/b9ba85fd4d8beaf4efe04a4cf6cec14761e52c78-2400x1260.jpg" alt="">
+    <h3>3、<a href="https://openai.com/index/helping-build-shared-standards-for-advanced-ai/" target="_blank" rel="noopener noreferrer">OpenAI 参与创立 Appia Foundation：高级 AI 评估进入可互认标准层</a> <span class="certainty-tag certainty-confirmed">confirmed</span></h3>
+    <p>OpenAI 宣布参与创立由 Linux Foundation 托管的 Appia Foundation，目标是把国际标准和既有框架转成可执行、可复用的 AI 评估规范，形成第三方评估可以互信的技术证据层。</p>
+    <h3>4、<a href="https://huggingface.co/blog/ibm-research/cuga-apps" target="_blank" rel="noopener noreferrer">Hugging Face / IBM：CUGA 用 24 个单文件应用展示轻量 Agent Harness</a> <span class="certainty-tag certainty-announced">announced</span></h3>
+    <p>IBM Research 在 Hugging Face 发布 CUGA apps：24 个单文件 FastAPI 示例，展示用 CUGA 把工具、状态、规划、反思和执行循环封装成企业 Agent harness。重点不是再造框架，而是让开发者只写工具列表和提示词。</p>
+    <img class="article-img" src="https://cdn-uploads.huggingface.co/production/uploads/649d9ad1500fd8d51a675a93/p9JwFYkZS7fB9g2PMFMft.png" alt="">
+    <h3>5、<a href="https://huggingface.co/blog/huggingface-hub-release-ci" target="_blank" rel="noopener noreferrer">Hugging Face：用 AI + 人审把 huggingface_hub 改成每周发布</a> <span class="certainty-tag certainty-confirmed">confirmed</span></h3>
+    <p>Hugging Face 公开 huggingface_hub 的发布流水线：从 4-6 周发布一次改成每周发布，GitHub Actions 负责编排，OpenCode + GLM-5.2 草拟 release notes 和 Slack 公告，确定性脚本检查，人类最终审核。</p>
+    <img class="article-img" src="https://huggingface.co/blog/assets/huggingface-hub-release-ci/thumbnail.png" alt="">
+
+    <h2 id="articles">📝 文章推荐</h2>
+    <h3>1、<a href="https://lucumr.pocoo.org/2026/6/23/the-coming-loop/" target="_blank" rel="noopener noreferrer">The Coming Loop</a></h3>
+    <p>Armin Ronacher 认为 AI 编程的重心正在从“直接 prompt 模型”转向“设计会反复驱动模型的外层 loop”：队列、harness、验证、重启、换模型和持续反馈会变成工程能力本身。</p>
+    <img class="article-img" src="https://lucumr.pocoo.org/social/2026-06-23-the-coming-loop-social.png" alt="">
+    <h3>2、<a href="https://words.filippo.io/vuln-reports/" target="_blank" rel="noopener noreferrer">Vulnerability Reports Are Not Special Anymore</a></h3>
+    <p>Filippo Valsorda 的核心判断是：LLM 让潜在漏洞发现变得廉价后，安全报告不再天然享有最高优先级；维护者更需要可信分流、复现、影响判断和修复 SLA。</p>
+    <img class="article-img" src="https://assets.buttondown.email/images/1ec4ddf5-598f-4d72-8d55-10dc1328aa76.jpeg?w=960&amp;fit=max" alt="">
+    <h3>3、<a href="https://00f.net/2026/06/23/webassembly-runtimes-2026/" target="_blank" rel="noopener noreferrer">Performance of WebAssembly runtimes in 2026</a></h3>
+    <p>00f.net 对 2026 年 WebAssembly runtimes 做性能比较。它不是热点发布，但对理解 Wasm 在 server-side、plugin sandbox 和多语言执行环境里的真实成本很有参考价值。</p>
+    <h3>4、<a href="https://newsletter.pragmaticengineer.com/p/slow-down-to-speed-up" target="_blank" rel="noopener noreferrer">Slow Down to Speed Up</a></h3>
+    <p>The Pragmatic Engineer 把 AI Agent 带来的个体效率提升与团队质量、可靠性和管理结构压力放在同一条线里讨论。适合作为“AI 编程工具引入后为什么还要加强 review、测试和 on-call”的组织视角补充。</p>
+
+    <h2 id="tools">🛠️ 工具推荐</h2>
+    <div class="tool-grid">
+      <div class="tool-card">
+        <h4><a href="https://github.com/baidu/Unlimited-OCR" target="_blank" rel="noopener noreferrer">Unlimited OCR</a> <span class="priority-tag">新项目</span></h4>
+        <p>百度开源的一次性长视野 OCR 项目，在 HN 高热。适合关注文档解析、截图理解和长页面视觉识别的团队评估。</p>
+      </div>
+      <div class="tool-card">
+        <h4><a href="https://tikz.dev/editor/" target="_blank" rel="noopener noreferrer">TikZ Editor</a> <span class="priority-tag">可试用</span></h4>
+        <p>在线 TikZ 编辑器，把 LaTeX 图形绘制流程做成更快的交互式工作台，适合论文、技术文档和系统图。</p>
+      </div>
+      <div class="tool-card">
+        <h4><a href="https://swipe.futo.tech/" target="_blank" rel="noopener noreferrer">FUTO Swipe</a> <span class="priority-tag">移动输入</span></h4>
+        <p>FUTO 推出的滑动输入法项目，适合关注本地优先、隐私友好移动输入体验的用户试用。</p>
+      </div>
+      <div class="tool-card">
+        <h4><a href="https://github.com/y-times-y/y" target="_blank" rel="noopener noreferrer">Y coding-agent desktop app</a> <span class="priority-tag">Agent 桌面</span></h4>
+        <p>HN 上出现的 coding-agent desktop app，代表 Agent 工具继续从 CLI/IDE 扩展到桌面工作台。</p>
+      </div>
+      <div class="tool-card">
+        <h4><a href="https://simonwillison.net/2026/Jun/23/datasette-1a35/" target="_blank" rel="noopener noreferrer">Datasette 1.0a35</a> <span class="priority-tag">数据工具</span></h4>
+        <p>Simon Willison 发布 Datasette 1.0a35，适合仍在使用轻量数据发布和 SQLite 浏览工作流的团队关注。</p>
+      </div>
+    </div>
+
+    <h2 id="ai-tools">🧠 AI 工具</h2>
+    <div class="tool-grid">
+      <div class="tool-card">
+        <span class="tag">CLI Agent</span>
+        <h4><a href="https://github.blog/changelog/2026-06-23-copilot-cli-new-terminal-interface-is-generally-available/" target="_blank" rel="noopener noreferrer">GitHub Copilot CLI 新终端界面 GA</a></h4>
+        <p>这次 GA 的是 Build 2026 预览的新终端界面：Issue、PR、Gist 以 tab 形式进入 CLI，会话内可配置工具。注意不是 Copilot CLI 产品首次 GA。</p>
+      </div>
+      <div class="tool-card">
+        <span class="tag">Quality API</span>
+        <h4><a href="https://github.blog/changelog/2026-06-23-fetch-code-quality-findings-via-rest-api/" target="_blank" rel="noopener noreferrer">GitHub Code Quality findings REST API</a></h4>
+        <p>GitHub 为 Code Quality findings 发布 repository-level REST API public preview，并明确提到可服务 tooling 和 agentic remediation workflows。</p>
+      </div>
+      <div class="tool-card">
+        <span class="tag">Browser AI</span>
+        <h4><a href="https://huggingface.co/blog/cross-origin-storage" target="_blank" rel="noopener noreferrer">Transformers.js Cross-Origin Storage demo</a></h4>
+        <p>用 Transformers.js 演示 Cross-Origin Storage API 提案：同一模型资源跨 origin 复用缓存，减少浏览器 AI 的重复下载和存储。</p>
+      </div>
+      <div class="tool-card">
+        <span class="tag">AI Observability</span>
+        <h4><a href="https://www.datadoghq.com/blog/using-evaluation-frameworks-with-agent-observability/" target="_blank" rel="noopener noreferrer">Datadog Agent Observability + DeepEval</a></h4>
+        <p>Datadog 展示如何把 DeepEval/Pydantic Evals 接进 Agent Observability experiments，让 LLM eval 从 notebook 进入生产 trace。</p>
+      </div>
+    </div>
+
+    <h2 id="concepts">🧩 本期概念库</h2>
+    <div class="concept-card">
+      <h4>1. Private Access Control Tokens（PACT）</h4>
+      <div class="concept-field"><strong>一句话解释：</strong>一种面向开放 Web 的隐私友好访问证明方案，用匿名凭证表达“访问没有超出可信额度”，而不是暴露用户身份。</div>
+      <div class="concept-field"><strong>背景来源：</strong>Cloudflare / Mozilla PACT</div>
+      <div class="concept-field"><strong>为什么重要：</strong>它把 CAPTCHA、反 bot、Agent 访问和隐私保护放进同一个协议问题里。</div>
+      <div class="concept-field"><strong>团队应用场景：</strong>设计 Web 风控、授权 Agent、限流策略和开放 API 时，应把“人类授权的自动化”作为独立流量类别。</div>
+    </div>
+    <div class="concept-card">
+      <h4>2. Anchor / Moderator / Credential</h4>
+      <div class="concept-field"><strong>一句话解释：</strong>PACT 中 Anchor 提供稀缺性背书，Moderator 处理 rate-limit 状态，Credential 则在访问时匿名证明额度。</div>
+      <div class="concept-field"><strong>背景来源：</strong>Mozilla Hacks PACT 技术文章</div>
+      <div class="concept-field"><strong>为什么重要：</strong>它把跨站信任拆成不同角色，避免单一设备证明成为中心化入口。</div>
+      <div class="concept-field"><strong>团队应用场景：</strong>内部系统也可借鉴：把身份来源、策略执行和访问凭证拆开，降低耦合和滥权风险。</div>
+    </div>
+    <div class="concept-card">
+      <h4>3. BYOK Agent Routing</h4>
+      <div class="concept-field"><strong>一句话解释：</strong>开发工具允许企业把自有模型、云租户、本地模型或 OpenAI-compatible endpoint 接入同一 Agent 工作流。</div>
+      <div class="concept-field"><strong>背景来源：</strong>GitHub Copilot App BYOK</div>
+      <div class="concept-field"><strong>为什么重要：</strong>模型供应商与开发工作流壳层开始分离，企业可控性提升。</div>
+      <div class="concept-field"><strong>团队应用场景：</strong>选 AI 编程工具时同时评估上下文能力、模型路由、密钥存储、区域合规和成本策略。</div>
+    </div>
+    <div class="concept-card">
+      <h4>4. Human-in-the-loop Release Automation</h4>
+      <div class="concept-field"><strong>一句话解释：</strong>模型负责发布说明和公告第一稿，确定性脚本负责校验，人类负责最终判断。</div>
+      <div class="concept-field"><strong>背景来源：</strong>Hugging Face huggingface_hub release CI</div>
+      <div class="concept-field"><strong>为什么重要：</strong>这是一种比“全自动发布”更稳的 AI 工程落地形态。</div>
+      <div class="concept-field"><strong>团队应用场景：</strong>内部 SDK、组件库、模型服务和业务系统发布都可从“AI 草拟 + CI 校验 + 人类批准”开始。</div>
+    </div>
+    <div class="concept-card">
+      <h4>5. Quantum Impact Inventory</h4>
+      <div class="concept-field"><strong>一句话解释：</strong>在后量子迁移前，先盘点哪些系统、证书、协议、数据保留期和供应商依赖会受量子攻击影响。</div>
+      <div class="concept-field"><strong>背景来源：</strong>Cloudflare post-quantum EO</div>
+      <div class="concept-field"><strong>为什么重要：</strong>监管 deadline 已经具体到 2030/2031，迁移项目不能等到算法替换时才启动。</div>
+      <div class="concept-field"><strong>团队应用场景：</strong>金融、身份、交易和长期敏感数据系统应建立密码资产清单，并将供应商 PQC 支持纳入采购条件。</div>
+    </div>
+
+    <h2 id="curiosity">🎲 好奇心入口</h2>
+    <div class="curiosity-card">
+      <h4><a href="https://www.wired.com/story/meta-pauses-employee-tracking-program-following-internal-security-breach/" target="_blank" rel="noopener noreferrer">Meta 暂停员工追踪项目：AI 训练数据的组织边界</a></h4>
+      <div class="hook">为了训练 AI 学人操作电脑，公司先把员工电脑变成训练场。</div>
+      <p>WIRED 报道称 Meta 暂停 MCI 员工追踪项目，该工具面向美国员工收集鼠标移动、点击、键击和屏幕内容，用于训练能像人一样操作软件的 AI；部分数据曾被内部过度暴露。 团队暗线：引入工作流采集、录屏或 Agent 训练数据前，必须先设计告知、最小权限、保留期和审计。</p>
+    </div>
+    <div class="curiosity-card">
+      <h4><a href="https://techcrunch.com/2026/06/23/superhuman-acquires-ai-detection-startup-gptzero/" target="_blank" rel="noopener noreferrer">Superhuman 收购 GPTZero：办公软件开始争夺“真实性层”</a></h4>
+      <div class="hook">当 AI 写作成为默认能力，检测 AI 也被收进生产力套件。</div>
+      <p>TechCrunch 报道 Superhuman 收购 AI 检测创业公司 GPTZero；GPTZero 已拥有超过 1900 万注册用户和约 3000 万美元 ARR。 团队暗线：内容生产、招聘、教育和客服场景都需要把生成、修改、来源和证明纳入工作流。</p>
+    </div>
+    <div class="curiosity-card">
+      <h4><a href="http://www.jerrysmap.com/the-map" target="_blank" rel="noopener noreferrer">Jerry’s Map：一个人手绘世界几十年的长期系统</a></h4>
+      <div class="hook">不是所有值得看的系统都来自软件，有些来自几十年的手工增量。</div>
+      <p>HN 今日热帖把 Jerry’s Map 带回视野：它是一张持续扩展的手绘地图，像一个低技术版本的无限世界状态机。 团队暗线：长期复利系统不一定需要高技术，但一定需要稳定规则、持续输入和可扩展结构。</p>
+    </div>
+
+    <h2 id="resources">📚 资源</h2>
+    <div class="resource-item">
+      <a href="https://hacks.mozilla.org/2026/06/pact-anonymous-credentials-for-the-web/" target="_blank" rel="noopener noreferrer">Mozilla Hacks：PACT 技术 companion</a>
+      <p>详细解释 Anchor、Moderator、Credential、issuer blinding 与 WebAPI 标准化路径。</p>
+    </div>
+    <div class="resource-item">
+      <a href="https://appiafoundation.org/" target="_blank" rel="noopener noreferrer">Appia Foundation</a>
+      <p>OpenAI 参与创立、Linux Foundation 托管的高级 AI 标准与评估规范组织。</p>
+    </div>
+    <div class="resource-item">
+      <a href="https://googleprojectzero.blogspot.com/p/reporting-transparency.html" target="_blank" rel="noopener noreferrer">Google Project Zero Reporting Transparency</a>
+      <p>把漏洞报告、修复、用户受保护和逾期状态做成公开队列的参考样板。</p>
+    </div>
+
+    <h2 id="quotes">💬 言论：本期 7 个认知增量</h2>
+    <div class="quote-block">
+      <blockquote>Mozilla 的判断是：浏览器保护隐私越有效，网站越难用旧信号区分正常访客和 bot；PACT 要解决的是这个结构性矛盾。</blockquote>
+      <div class="quote-author">—— Mozilla Blog</div>
+      <div class="quote-meta">来源：<a href="https://blog.mozilla.org/en/privacy-security/keeping-the-web-open-and-private-in-the-bot-era/" target="_blank" rel="noopener noreferrer">blog.mozilla.org</a> · 类型：摘要式转述 · 关键词：PACT · privacy · bot era</div>
+      <div class="quote-comment">💭 这把反 bot 从产品体验问题提升成 Web 协议问题。</div>
+      <div class="quote-team-insight">🎯 团队启发：不要只靠 IP、设备指纹和登录墙做风控，提前设计授权 Agent 的隐私友好限流。</div>
+    </div>
+    <div class="quote-block">
+      <blockquote>Claude Tag 的信号不是“Slack 里多一个聊天机器人”，而是同一个 AI 身份开始拥有频道记忆、工具边界和团队级审计。</blockquote>
+      <div class="quote-author">—— Anthropic</div>
+      <div class="quote-meta">来源：<a href="https://www.claude.com/product/claude-tag" target="_blank" rel="noopener noreferrer">claude.com</a> · 类型：摘要式转述 · 关键词：Claude Tag · team AI · Slack</div>
+      <div class="quote-comment">💭 组织级 Agent 的核心是权限和上下文，而不是对话入口。</div>
+      <div class="quote-team-insight">🎯 团队启发：如果把 AI 放进群组工作流，要先定义频道级权限、预算上限和操作日志。</div>
+    </div>
+    <div class="quote-block">
+      <blockquote>GitHub 的 BYOK 让 Copilot 更像开发工作流壳层：模型可以来自企业自己的云、本地运行时或开放兼容端点。</blockquote>
+      <div class="quote-author">—— GitHub Changelog</div>
+      <div class="quote-meta">来源：<a href="https://docs.github.com/en/copilot/get-started/using-your-own-llm-models-with-github-copilot" target="_blank" rel="noopener noreferrer">docs.github.com</a> · 类型：摘要式转述 · 关键词：BYOK · model routing · developer tools</div>
+      <div class="quote-comment">💭 模型供应和开发体验开始拆开。</div>
+      <div class="quote-team-insight">🎯 团队启发：AI 编程平台选型要把模型路由、密钥存储、上下文权限和供应商合同一起评估。</div>
+    </div>
+    <div class="quote-block">
+      <blockquote>漏洞报告被 LLM 放大以后，维护者最缺的不是更多发现，而是可信分流、复现证据和能合入的修复。</blockquote>
+      <div class="quote-author">—— Filippo Valsorda</div>
+      <div class="quote-meta">来源：<a href="https://buttondown.com/cryptography-dispatches/archive/vulnerability-reports-are-not-special-anymore/" target="_blank" rel="noopener noreferrer">buttondown.com</a> · 类型：摘要式转述 · 关键词：security · vulnerability triage · LLM</div>
+      <div class="quote-comment">💭 这是昨天 Patch the Planet 主线的反向约束。</div>
+      <div class="quote-team-insight">🎯 团队启发：把安全扫描结果接入统一队列，按可信度、影响面和修复可行性排序。</div>
+    </div>
+    <div class="quote-block">
+      <blockquote>后量子迁移的第一步不是换算法，而是知道哪些长期敏感数据、证书、协议和供应商依赖会被量子时钟影响。</blockquote>
+      <div class="quote-author">—— Cloudflare</div>
+      <div class="quote-meta">来源：<a href="https://www.cloudflare.com/learning/ssl/what-is-post-quantum-cryptography/" target="_blank" rel="noopener noreferrer">cloudflare.com</a> · 类型：摘要式转述 · 关键词：PQC · crypto inventory · compliance</div>
+      <div class="quote-comment">💭 政策 deadline 把密码敏捷性从安全团队任务变成管理层路线图。</div>
+      <div class="quote-team-insight">🎯 团队启发：建立 Quantum Impact Inventory，把证书、TLS、签名、供应商和数据保留期放进迁移清单。</div>
+    </div>
+    <div class="quote-block">
+      <blockquote>Agent 工作流的可观测性不能只看日志；真正有价值的是把每一步输入、输出、工具调用和评估结果放回同一条 trace。</blockquote>
+      <div class="quote-author">—— Vercel Workflows</div>
+      <div class="quote-meta">来源：<a href="https://vercel.com/changelog/redesigned-trace-viewer-for-vercel-workflows" target="_blank" rel="noopener noreferrer">vercel.com</a> · 类型：摘要式转述 · 关键词：workflow · trace · agent observability</div>
+      <div class="quote-comment">💭 Agent 平台的竞争会长在调试体验里。</div>
+      <div class="quote-team-insight">🎯 团队启发：多步骤 AI 流程上线前，应先设计可回放、可搜索、可审计的 trace。</div>
+    </div>
+    <div class="quote-block">
+      <blockquote>当 AI 让代码生成更便宜，形式化规格、测试、评审和运行时证据会成为新的发布瓶颈。</blockquote>
+      <div class="quote-author">—— Jane Street</div>
+      <div class="quote-meta">来源：<a href="https://blog.janestreet.com/formal-methods-at-jane-street-index/" target="_blank" rel="noopener noreferrer">blog.janestreet.com</a> · 类型：摘要式转述 · 关键词：formal methods · AI coding · verification</div>
+      <div class="quote-comment">💭 AI 编程越快，验证能力越要前置。</div>
+      <div class="quote-team-insight">🎯 团队启发：关键链路不要只扩充生成能力，要同步建设规格、属性测试和故障语义验收。</div>
+    </div>
+
+    <h2 id="podcast">🎙️ 播客提纲</h2>
+    <div class="podcast-brief">
+      <h4>Tech Digest #46：Agent 上网以后，谁来证明它不是 bot？</h4>
+      <div class="cold-open">想象明天早上，你让一个 AI Agent 替你改签机票、订早餐、顺手补一张发票。对你来说，这是授权助手；对网站来说，它只是一串自动化请求。今天的主线就是：开放 Web 怎么在不追踪你的前提下，知道这次访问不是恶意 bot？</div>
+      <div class="podcast-segment">
+        <strong>主故事：PACT</strong>
+        <p>Cloudflare、Mozilla、Chrome、Edge 和 Shopify 推进 Private Access Control Tokens。</p>
+        <p>它不是新的验证码，而是把稀缺关系做成匿名访问额度：用户仍然保护隐私，网站仍然能做 rate-limit。</p>
+      </div>      <div class="podcast-segment">
+        <strong>AI 工作流：从个人工具到团队成员</strong>
+        <p>Claude Tag 进入 Slack，Copilot 支持 BYOK，GitHub CLI 把 Issue/PR 带进终端。</p>
+        <p>组织级 Agent 的核心是上下文、权限、预算和审计，不是多一个聊天入口。</p>
+      </div>      <div class="podcast-segment">
+        <strong>工程质量：速度要被流程接住</strong>
+        <p>Hugging Face 用 AI 草拟发布材料但保留人审，漏洞报告被 LLM 放大后更需要分流，后量子 deadline 也要求迁移流程。</p>
+        <p>AI 让输入变多，团队要建设的是可验证、可回滚、可审计的生产闭环。</p>
+      </div>      <div class="podcast-segment">
+        <strong>可靠性提醒：通信平面也是生产路径</strong>
+        <p>德国铁路因 GSM-R 通信系统故障全国停运约 2.5 小时。</p>
+        <p>交易、支付、调度系统也要把控制链路、旁路和降级演练纳入高可用设计。</p>
+      </div>
+      <p>今天的判断很简单：Agent 时代的 Web 和工程系统都在进入“证明”阶段。证明访问可信，证明模型输出可用，证明发布可回滚，证明系统在故障下还能工作。没有这些证明，AI 带来的速度只会放大风险。</p>
+    </div>
+
+    <h2 id="team-insights">✅ 对团队的启发</h2>
+    <div class="insight-card">
+      <p><span class="insight-num">1</span>把“人类授权的 Agent 流量”从恶意 bot 中拆出来，单独设计身份、限流、审计和撤销机制。</p>
+    </div>
+    <div class="insight-card">
+      <p><span class="insight-num">2</span>AI 编程工具选型不要只比较模型能力，要评估 BYOK、密钥存储、上下文权限、工作流集成和本地资源成本。</p>
+    </div>
+    <div class="insight-card">
+      <p><span class="insight-num">3</span>把 release notes、公告、依赖更新和质量发现改造成“AI 草拟 + 确定性校验 + 人类批准”的流水线。</p>
+    </div>
+    <div class="insight-card">
+      <p><span class="insight-num">4</span>后量子迁移现在就要做资产盘点：长期敏感数据、证书、签名、TLS/IPsec、供应商 FIPS 支持都应进入清单。</p>
+    </div>
+    <div class="insight-card">
+      <p><span class="insight-num">5</span>Agent 工作流上线前必须有 trace、eval、回放和 kill switch；没有可观测性，自动化越强，排障越慢。</p>
+    </div>
+
+    <div class="footer-sources">
+      <strong>📋 数据来源说明</strong><br>
+      本情报来自 66 个全球精选科技 / AI / 工程 / 系统可靠性信息源的每日更新。<br>
+      由 Cursor AI 自动生成，信息截止至 2026年6月24日，星期三。
+    </div>
+  </main>
+</div>
+
+<script>
+(function(){
+  const toc=document.querySelector('.toc');if(!toc)return;
+  const links=[...toc.querySelectorAll('a')];
+  const ids=links.map(l=>l.getAttribute('href').slice(1));
+  const secs=ids.map(id=>document.getElementById(id)).filter(Boolean);
+  function hl(){let cur=0;secs.forEach((s,i)=>{if(s.getBoundingClientRect().top<=120)cur=i;});
+  links.forEach((l,i)=>{l.classList.toggle('active',i===cur);});}
+  window.addEventListener('scroll',hl,{passive:true});hl();
+})();
+
+</script>
+</body>
+</html>

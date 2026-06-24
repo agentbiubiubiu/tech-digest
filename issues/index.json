@@ -1,5 +1,11 @@
 [
   {
+    "date": "2026-06-24",
+    "title": "第 46 期：Bot 时代的 Web 要重新证明「谁在访问」",
+    "highlights": "PACT 试图让人类与授权 Agent 在不暴露身份下证明非恶意 · GPT-5 Pro 帮免疫学家重启 3 年 T 细胞谜题 · Claude Tag 把 AI 推进 Slack 团队流 · GitHub Copilot App 支持 BYOK · Hugging Face 用 AI+人审把 hub 发布改为每周节奏 · Cloudflare 把后量子迁移 deadline 拉到 2030/2031",
+    "image": "https://hacks.mozilla.org/wp-content/uploads/2026/06/pact-drawings-5.excalidraw21-scaled.png"
+  },
+  {
     "date": "2026-06-23",
     "title": "第 45 期：AI 安全的瓶颈从发现漏洞，转向交付补丁",
     "highlights": "Patch the Planet 首周 64 PR/51 issue/37 合并补丁 · Vercel Flags 把发布治理平台化 · Role Confusion 解释 Prompt Injection 新机制 · Moebius 用 0.2B 挑战 10B 级图像修复 · GLM-5.2 挤压闭源编码模型价格空间 · InferenceX 拆出每百万 token 成本差 · Deno Desktop 让 Web runtime 进入桌面工具",
