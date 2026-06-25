@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>第 47 期：AI 的瓶颈从模型能力，转向推理工厂</title>
+  <meta property="og:title" content="Tech Digest #47 · AI 的瓶颈从模型能力，转向推理工厂">
+  <meta property="og:description" content="OpenAI 与 Broadcom 发布 Jalapeño 推理芯片，Qualcomm 收购 Modular，Cloudflare OAuth、GitHub 凭证吊销和 Datadog 迁移共同指向 AI 基础设施的控制面竞争。">
+  <meta property="og:image" content="https://blogs.nvidia.com/wp-content/uploads/2026/06/45CLiquidCooling.jpg">
+  <style>
+:root {
+  --bg: #f5f6f8; --surface: #ffffff; --surface2: #f0f2f5;
+  --border: #e8ecf1; --border-hover: #c5cdd8;
+  --text: #1a1d21; --text-secondary: #3d4550; --text-muted: #8c95a1;
+  --accent: #2d9f6f; --accent-light: #e8f5ef; --accent-hover: #248a5e;
+  --accent-text: #ffffff;
+  --purple: #7c5cbf; --purple-light: #f3effc;
+  --orange: #e58e26; --orange-light: #fef5e7;
+  --blue: #3a82f7; --blue-light: #eef4fe;
+  --red: #e74c3c; --red-light: #fdecea;
+  --green-deep: #1a7a4c; --green-light2: #e0f5ea;
+  --yellow: #d4a017; --yellow-light: #fef9e7;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.06);
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.06), 0 2px 4px rgba(0,0,0,0.04);
+  --shadow-lg: 0 10px 30px rgba(0,0,0,0.08);
+  --radius: 12px; --radius-sm: 8px; --radius-xs: 6px;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Helvetica, Arial, sans-serif; background: var(--bg); color: var(--text); line-height: 1.75; font-size: 15px; -webkit-font-smoothing: antialiased; }
+.topbar { background: var(--surface); border-bottom: 1px solid var(--border); padding: 12px 32px; display: flex; align-items: center; gap: 16px; position: sticky; top: 0; z-index: 200; box-shadow: var(--shadow-sm); }
+.topbar-brand { font-size: 1.1rem; font-weight: 700; color: var(--accent); text-decoration: none; display: flex; align-items: center; gap: 8px; }
+.topbar-brand svg { width: 28px; height: 28px; }
+.topbar-nav { display: flex; gap: 4px; margin-left: 24px; }
+.topbar-nav a { padding: 6px 16px; border-radius: 20px; font-size: 0.85rem; font-weight: 500; color: var(--text-secondary); text-decoration: none; transition: all 0.2s; }
+.topbar-nav a:hover { background: var(--surface2); color: var(--text); }
+.topbar-nav a.active { background: var(--accent-light); color: var(--accent); font-weight: 600; }
+.topbar-right { margin-left: auto; display: flex; align-items: center; gap: 12px; }
+.topbar-date { font-size: 0.82rem; color: var(--text-muted); background: var(--surface2); padding: 5px 12px; border-radius: 16px; }
+.page { display: flex; max-width: 1200px; margin: 0 auto; padding: 24px 24px 0; gap: 24px; }
+.toc { width: 220px; flex-shrink: 0; position: sticky; top: 80px; height: calc(100vh - 104px); overflow-y: auto; background: var(--surface); border-radius: var(--radius); padding: 20px 16px; box-shadow: var(--shadow-sm); border: 1px solid var(--border); }
+.toc-title { font-size: 0.72rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 14px; padding-left: 12px; }
+.toc a { display: block; padding: 7px 12px; margin-bottom: 2px; font-size: 0.82rem; color: var(--text-muted); text-decoration: none; border-radius: var(--radius-xs); transition: all 0.15s; font-weight: 500; }
+.toc a:hover { color: var(--accent); background: var(--accent-light); }
+.toc a.active { color: var(--accent); background: var(--accent-light); font-weight: 600; }
+.toc-mobile { display: none; position: sticky; top: 57px; z-index: 100; background: var(--surface); border-bottom: 1px solid var(--border); padding: 10px 16px; box-shadow: var(--shadow-sm); }
+.toc-mobile summary { cursor: pointer; font-size: 0.85rem; color: var(--accent); font-weight: 600; list-style: none; }
+.toc-mobile summary::-webkit-details-marker { display: none; }
+.toc-mobile .toc-dropdown { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 8px; margin-top: 8px; max-height: 60vh; overflow-y: auto; box-shadow: var(--shadow-md); }
+.toc-mobile .toc-dropdown a { display: block; padding: 8px 12px; font-size: 0.88rem; color: var(--text-secondary); text-decoration: none; border-radius: var(--radius-xs); }
+.toc-mobile .toc-dropdown a:hover { color: var(--accent); background: var(--accent-light); }
+@media (max-width: 860px) { .toc { display: none; } .toc-mobile { display: block; } .topbar-nav { display: none; } .page { flex-direction: column; padding: 16px 12px 0; gap: 16px; } .container { padding: 20px 16px 60px; } }
+.container { flex: 1; min-width: 0; background: var(--surface); border-radius: var(--radius); padding: 36px 40px 60px; box-shadow: var(--shadow-sm); border: 1px solid var(--border); margin-bottom: 40px; }
+.back { display: inline-flex; align-items: center; gap: 4px; color: var(--text-muted); text-decoration: none; font-size: 0.85rem; margin-bottom: 28px; font-weight: 500; transition: color 0.15s; }
+.back:hover { color: var(--accent); }
+h1 { font-size: 1.7rem; font-weight: 800; margin-bottom: 10px; line-height: 1.35; color: var(--text); letter-spacing: -0.01em; }
+.meta { color: var(--text-muted); font-size: 0.85rem; margin-bottom: 28px; }
+.highlights-line { color: var(--text-secondary); font-size: 0.9rem; margin: -18px 0 28px; line-height: 1.65; }
+.hero-img { width: 100%; border-radius: var(--radius); margin-bottom: 10px; box-shadow: var(--shadow-md); }
+.hero-caption { font-size: 0.82rem; color: var(--text-muted); margin-bottom: 36px; text-align: center; font-style: italic; }
+h2 { font-size: 1.25rem; font-weight: 700; margin: 44px 0 18px; padding-bottom: 10px; border-bottom: 2px solid var(--accent-light); scroll-margin-top: 90px; color: var(--text); }
+h3 { font-size: 1.05rem; font-weight: 600; margin: 26px 0 8px; color: var(--text); }
+p { margin-bottom: 14px; color: var(--text-secondary); }
+a { color: var(--accent); text-decoration: none; font-weight: 500; }
+a:hover { color: var(--accent-hover); text-decoration: underline; }
+strong { color: var(--text); font-weight: 600; }
+.callout { background: var(--accent-light); border-left: 4px solid var(--accent); border-radius: var(--radius-sm); padding: 16px 20px; margin: 20px 0; font-size: 0.93rem; color: var(--text-secondary); }
+.main-story { background: linear-gradient(135deg, #f7fbff 0%, #fff 60%); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px 26px; margin: 18px 0 28px; box-shadow: var(--shadow-sm); }
+.main-story h3 { margin-top: 0; font-size: 1.2rem; line-height: 1.45; }
+.main-story .story-hook { color: var(--accent); font-weight: 700; margin-bottom: 14px; }
+.story-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 16px 0; }
+.story-field { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 12px 14px; font-size: 0.88rem; color: var(--text-secondary); }
+.story-field strong { display: block; margin-bottom: 4px; color: var(--text); }
+.number-chip { display: inline-block; background: var(--blue-light); color: var(--blue); border-radius: 14px; padding: 3px 10px; margin: 3px 6px 3px 0; font-size: 0.78rem; font-weight: 700; }
+.story-line { background: var(--purple-light); border-left: 4px solid var(--purple); border-radius: var(--radius-sm); padding: 14px 16px; margin-top: 14px; color: var(--text); font-weight: 700; }
+.trend-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin: 16px 0 28px; }
+.trend-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px 20px; box-shadow: var(--shadow-sm); }
+.trend-card h4 { font-size: 0.95rem; margin-bottom: 8px; color: var(--text); }
+.trend-card .trend-conflict { color: var(--red); font-size: 0.82rem; font-weight: 700; margin-bottom: 8px; }
+.trend-card p { font-size: 0.86rem; margin-bottom: 10px; }
+.trend-card .trend-sources { font-size: 0.76rem; color: var(--text-muted); line-height: 1.55; }
+.curiosity-card { background: var(--orange-light); border: 1px solid #f5ddb8; border-radius: var(--radius); padding: 20px 24px; margin: 14px 0; }
+.curiosity-card h4 { font-size: 1rem; margin-bottom: 8px; font-weight: 600; }
+.curiosity-card h4 a { color: var(--orange); }
+.curiosity-card .hook { color: var(--orange); font-weight: 700; margin-bottom: 6px; }
+.curiosity-card p { font-size: 0.88rem; color: var(--text-secondary); margin: 0 0 8px; line-height: 1.65; }
+.podcast-brief { background: #f8fafc; border: 1px solid var(--border); border-radius: var(--radius); padding: 20px 24px; margin: 18px 0; }
+.podcast-brief h4 { margin: 0 0 10px; font-size: 1rem; }
+.podcast-brief .cold-open { color: var(--accent); font-weight: 700; margin-bottom: 14px; }
+.podcast-segment { border-top: 1px solid var(--border); padding-top: 12px; margin-top: 12px; }
+.podcast-segment strong { display: block; margin-bottom: 4px; }
+.article-img { width: 100%; max-height: 380px; object-fit: cover; border-radius: var(--radius-sm); margin: 12px 0 24px; box-shadow: var(--shadow-sm); }
+.tool-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 16px 0; }
+.tool-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px 20px; transition: all 0.2s; box-shadow: var(--shadow-sm); }
+.tool-card:hover { border-color: var(--accent); box-shadow: var(--shadow-md); transform: translateY(-1px); }
+.tool-card h4 { font-size: 0.95rem; margin-bottom: 6px; font-weight: 600; }
+.tool-card h4 a { color: var(--accent); }
+.tool-card p { font-size: 0.83rem; color: var(--text-muted); margin: 0; line-height: 1.55; }
+.tool-card .tag { display: inline-block; font-size: 0.68rem; padding: 3px 8px; border-radius: 10px; background: var(--accent); color: var(--accent-text); font-weight: 600; margin-bottom: 8px; letter-spacing: 0.02em; }
+.tool-card .priority-tag { display: inline-block; font-size: 0.65rem; padding: 2px 6px; border-radius: 8px; background: var(--surface2); color: var(--text-muted); font-weight: 600; margin-left: 6px; }
+.fun-card { background: var(--orange-light); border: 1px solid #f5ddb8; border-radius: var(--radius); padding: 20px 24px; margin: 14px 0; }
+.fun-card h4 { font-size: 1rem; margin-bottom: 8px; font-weight: 600; }
+.fun-card h4 a { color: var(--orange); }
+.fun-card p { font-size: 0.88rem; color: var(--text-secondary); margin: 0; line-height: 1.65; }
+.quote-block { background: var(--purple-light); border-left: 4px solid var(--purple); border-radius: var(--radius-sm); padding: 20px 24px; margin: 18px 0; }
+.quote-block blockquote { font-size: 1.02rem; line-height: 1.65; margin-bottom: 10px; font-style: italic; color: var(--text); }
+.quote-block .quote-author { font-size: 0.82rem; color: var(--purple); font-weight: 600; margin-bottom: 6px; }
+.quote-block .quote-meta { font-size: 0.78rem; color: var(--text-muted); margin-bottom: 10px; }
+.quote-block .quote-comment { font-size: 0.88rem; color: var(--text-secondary); border-top: 1px solid #d8d0e8; padding-top: 10px; margin-top: 10px; }
+.quote-block .quote-team-insight { font-size: 0.88rem; color: var(--green-deep); background: var(--accent-light); border-radius: var(--radius-xs); padding: 8px 12px; margin-top: 8px; }
+.resource-item { background: var(--blue-light); border: 1px solid #c8dbf8; border-radius: var(--radius); padding: 18px 20px; margin: 12px 0; }
+.resource-item a { font-weight: 600; color: var(--blue); }
+.resource-item p { font-size: 0.88rem; color: var(--text-secondary); margin: 6px 0 0; }
+.concept-card { background: var(--green-light2); border-left: 4px solid var(--accent); border-radius: var(--radius-sm); padding: 20px 24px; margin: 16px 0; }
+.concept-card h4 { font-size: 1rem; font-weight: 700; color: var(--green-deep); margin-bottom: 10px; }
+.concept-card .concept-field { font-size: 0.88rem; color: var(--text-secondary); margin-bottom: 6px; line-height: 1.6; }
+.concept-card .concept-field strong { color: var(--text); font-size: 0.88rem; }
+.insight-card { background: var(--yellow-light); border-left: 4px solid var(--yellow); border-radius: var(--radius-sm); padding: 16px 20px; margin: 12px 0; }
+.insight-card p { font-size: 0.93rem; color: var(--text-secondary); margin: 0; line-height: 1.7; }
+.insight-card .insight-num { display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; border-radius: 50%; background: var(--yellow); color: #fff; font-size: 0.75rem; font-weight: 700; margin-right: 10px; flex-shrink: 0; }
+.certainty-tag { display: inline-block; font-size: 0.65rem; padding: 2px 6px; border-radius: 8px; font-weight: 600; margin-left: 8px; }
+.certainty-confirmed { background: var(--accent-light); color: var(--accent); }
+.certainty-announced { background: var(--blue-light); color: var(--blue); }
+.certainty-reported { background: var(--yellow-light); color: var(--yellow); }
+.certainty-opinion { background: var(--purple-light); color: var(--purple); }
+.certainty-rumor { background: var(--red-light); color: var(--red); }
+.footer-sources { margin-top: 44px; padding: 20px 24px; background: var(--surface2); border-radius: var(--radius); font-size: 0.78rem; color: var(--text-muted); line-height: 1.9; }
+.footer-sources strong { color: var(--text-secondary); font-size: 0.78rem; }
+@media (max-width: 860px) { .trend-grid, .story-grid { grid-template-columns: 1fr; } }
+@media (max-width: 640px) { .tool-grid { grid-template-columns: 1fr; } }
+
+  </style>
+</head>
+<body>
+
+<header class="topbar">
+  <a href="../index.html" class="topbar-brand">
+    <svg viewBox="0 0 28 28" fill="none"><circle cx="14" cy="14" r="14" fill="#2d9f6f"/><path d="M8 14.5l3.5 3.5 8.5-8" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    Tech Digest
+  </a>
+  <nav class="topbar-nav">
+    <a href="../index.html">Archive</a>
+    <a href="#main-story" class="active">Today</a>
+    <a href="#tools">Tools</a>
+    <a href="#quotes">Quotes</a>
+  </nav>
+  <div class="topbar-right">
+    <span class="topbar-date">2026-06-25</span>
+  </div>
+</header>
+
+<details class="toc-mobile">
+  <summary>📑 目录导航</summary>
+  <div class="toc-dropdown">
+    <a href="#main-story">🔥 主故事</a>
+    <a href="#trends">⚡ 冲突趋势</a>
+    <a href="#tech-news">📰 科技动态</a>
+    <a href="#ai">🤖 AI 相关</a>
+    <a href="#articles">📝 文章推荐</a>
+    <a href="#tools">🛠️ 工具推荐</a>
+    <a href="#ai-tools">🧠 AI 工具</a>
+    <a href="#concepts">🧩 本期概念库</a>
+    <a href="#curiosity">🎲 好奇心入口</a>
+    <a href="#resources">📚 资源</a>
+    <a href="#quotes">💬 言论</a>
+    <a href="#podcast">🎙️ 播客提纲</a>
+    <a href="#team-insights">✅ 对团队的启发</a>
+  </div>
+</details>
+
+<div class="page">
+  <nav class="toc">
+    <div class="toc-title">本期目录</div>
+    <a href="#main-story">🔥 主故事</a>
+    <a href="#trends">⚡ 冲突趋势</a>
+    <a href="#tech-news">📰 科技动态</a>
+    <a href="#ai">🤖 AI 相关</a>
+    <a href="#articles">📝 文章推荐</a>
+    <a href="#tools">🛠️ 工具推荐</a>
+    <a href="#ai-tools">🧠 AI 工具</a>
+    <a href="#concepts">🧩 本期概念库</a>
+    <a href="#curiosity">🎲 好奇心入口</a>
+    <a href="#resources">📚 资源</a>
+    <a href="#quotes">💬 言论</a>
+    <a href="#podcast">🎙️ 播客提纲</a>
+    <a href="#team-insights">✅ 对团队的启发</a>
+  </nav>
+
+  <main class="container">
+    <a href="../index.html" class="back">← 返回目录</a>
+    <h1>第 47 期：AI 的瓶颈从模型能力，转向推理工厂</h1>
+    <div class="meta">第 47 期 · 2026年6月25日，星期四</div>
+    <p class="highlights-line"><strong>✨ 本期亮点：</strong>OpenAI/Broadcom 发布 Jalapeño 推理芯片 · Qualcomm 收购 Modular 强化跨硬件 AI 软件栈 · Cloudflare 开放 self-managed OAuth · GitHub 推出企业级 break-glass 凭证吊销 · Gemini Computer Use 进入 3.5 Flash 公测 · Krea 2 开放 12B 图像模型权重 · Datadog 用 Claude/Cursor 迁移实时路由系统 · 企业开始从 tokenmaxxing 转向 token rationing</p>
+
+    <img class="hero-img" src="https://blogs.nvidia.com/wp-content/uploads/2026/06/45CLiquidCooling.jpg" alt="NVIDIA 45 Celsius liquid cooling design for AI factories">
+    <div class="hero-caption">NVIDIA 45°C 液冷官方图：当推理规模进入 gigawatt 级，芯片、冷却、网络和调度都成为 AI 产品体验的一部分。</div>
+
+    <div class="callout">
+      <strong>🎯 本期核心判断：</strong>AI 竞争正在从“谁的模型更强”进入“谁能把推理成本、芯片、网络、冷却、权限和预算控制成可运营系统”的阶段；下一轮护城河会长在推理工厂和控制面里。
+    </div>
+
+    <div class="callout">
+      <strong>⏱ 本期建议阅读顺序</strong><br>
+      先看主故事：Jalapeño 为什么意味着模型公司开始下沉到芯片、网络和调度层。<br>
+      再看三条冲突趋势：推理工厂、授权控制面、AI 辅助生产迁移。<br>
+      最后看工具和文章：RubyLLM、Nub、Vercel、Krea 2、Greptile 与企业 AI 预算。
+    </div>
+
+    <h2 id="main-story">🔥 主故事</h2>
+        <article class="main-story">
+      <h3>Jalapeño：OpenAI 开始把模型公司做成推理工厂</h3>
+      <p class="story-hook">过去模型公司最重要的问题是“模型能不能更聪明”；现在 OpenAI 把问题改写成：“每一次推理能不能更便宜、更稳定、更低延迟地送到用户面前？”</p>
+      <p>OpenAI 与 Broadcom 在 6 月 24 日发布 Jalapeño，称其为 OpenAI 第一颗 Intelligence Processor，也是双方多代计算平台的第一颗 AI 加速器。官方信息显示，这颗芯片从设计到 tape-out 用了 9 个月，由 OpenAI 模型加速部分设计流程，工程样片已经在实验室按生产目标频率和功耗运行 ML 工作负载，包括 GPT-5.3-Codex-Spark。Broadcom 和 Celestica 参与芯片实现、板卡、机架系统集成、高性能网络和规模化生产。</p>
+      <div class="story-grid">
+        <div class="story-field"><strong>核心冲突</strong>前沿 AI 的核心矛盾正在从模型能力不足，转向推理成本、功耗、延迟、供应链和数据中心容量不足。模型越像实时服务，硬件和控制面就越像产品边界。</div>
+        <div class="story-field"><strong>转折点</strong>OpenAI 不只是采购 GPU，而是把芯片架构、kernel、内存移动、网络、调度、部署系统和产品体验放进同一个优化循环；更好的模型也被用来加速下一代硬件设计。</div>
+        <div class="story-field"><strong>为什么现在发生</strong>ChatGPT、Codex、API 和未来 Agent 产品把推理变成高频生产负载。企业端同一天也在讨论 token 预算、授权 OAuth、凭证吊销和成本可观测性，说明“算得起、管得住、审得清”已经变成 AI 落地的硬约束。</div>
+        <div class="story-field"><strong>对团队的启发</strong>团队做 AI 产品时，不能只把模型当 SaaS 接口看。需要从第一天记录 token 成本、延迟 SLO、模型路由、凭证边界、预算阈值和降级策略，否则规模一上来，产品体验会被基础设施账单和控制面风险反向定义。</div>
+      </div>
+      <p><span class="number-chip">9 个月 tape-out</span><span class="number-chip">gigawatt scale</span><span class="number-chip">2026 年开始部署</span><span class="number-chip">GPT-5.3-Codex-Spark</span><span class="number-chip">performance per watt 优于当前 SOTA（早期测试）</span></p>
+      <p><strong>我的判断：</strong>Jalapeño 的意义不只是 OpenAI 有了一颗芯片，而是模型公司开始拥有“从产品需求到硬件约束”的完整反馈回路。未来 AI 应用的差距会越来越少来自 prompt 技巧，越来越多来自单位推理成本、尾延迟、可用容量和权限控制。</p>
+      <div class="story-line">AI 的下一个护城河，不是多会回答，而是能不能把每一次回答便宜、稳定、低延迟地送到用户面前。</div>
+      <p><strong>来源：</strong><a href="https://openai.com/index/openai-broadcom-jalapeno-inference-chip/" target="_blank" rel="noopener noreferrer">openai.com</a></p>
+    </article>
+
+    <h2 id="trends">⚡ 冲突趋势</h2>
+        <div class="trend-grid">
+      <div class="trend-card">
+        <h4>模型能力 vs 推理工厂</h4>
+        <div class="trend-conflict">模型越来越强，但真正限制规模的开始是电力、冷却、网络、芯片供应和单位 token 成本。</div>
+        <p>Jalapeño、NVIDIA 45°C 液冷和 Qualcomm/Modular 都说明：AI 的竞争正在从模型层沉到工厂层。</p>
+        <div class="trend-sources">openai.com · blogs.nvidia.com · investor.qualcomm.com</div>
+      </div>
+      <div class="trend-card">
+        <h4>API token 时代 vs 授权控制面</h4>
+        <div class="trend-conflict">Agent 和集成越多，长期 API token 越像不可治理的影子权限。</div>
+        <p>Cloudflare OAuth、GitHub break-glass 吊销和 Vercel OIDC audience 都在把“谁能代表谁做事”变成平台基础能力。</p>
+        <div class="trend-sources">blog.cloudflare.com · github.blog · vercel.com</div>
+      </div>
+      <div class="trend-card">
+        <h4>AI 写代码 vs AI 进生产迁移</h4>
+        <div class="trend-conflict">AI 能快速生成代码，但生产系统需要测试、蓝绿验证、性能优化和人类架构判断。</div>
+        <p>Datadog 的经验不是“把迁移交给 AI”，而是把 AI 放进窄上下文、强测试、真人决策的迁移流水线。</p>
+        <div class="trend-sources">datadoghq.com · greptile.com</div>
+      </div>
+    </div>
+
+    <h2 id="tech-news">📰 科技动态</h2>
+    <h3>1、<a href="https://investor.qualcomm.com/news-events/press-releases/news-details/2026/Qualcomm-to-Acquire-Modular/default.aspx" target="_blank" rel="noopener noreferrer">Qualcomm 宣布收购 Modular：AI 软件栈成为数据中心战略核心</a> <span class="certainty-tag certainty-confirmed">confirmed</span></h3>
+    <p>Qualcomm 宣布已达成收购 Modular 的协议，目标是强化从设备、边缘到数据中心的生成式与 Agentic AI 软件基础。官方强调 Modular 的平台能在 CPU、GPU、NPU 和 custom ASIC 上运行模型，减少为不同加速器重写代码。交易预计在 2026 年下半年完成。</p>
+    <img class="article-img" src="https://www.qualcomm.com/content/dam/qcomm-martech/dm-assets/images/press-releases/managed-images/QualcommModular1.png" alt="">
+    <h3>2、<a href="https://blog.cloudflare.com/oauth-for-all/" target="_blank" rel="noopener noreferrer">Cloudflare 开放 self-managed OAuth：Agentic 工具不再只靠 API token</a> <span class="certainty-tag certainty-confirmed">confirmed</span></h3>
+    <p>Cloudflare 宣布 self-managed OAuth 面向所有客户开放，让开发者能创建 OAuth 应用，用户通过标准授权流授予 scoped access。Cloudflare 还披露了 Hydra 迁移后的性能数据：API P95 从 185ms 降到 101ms，Go heap allocation 降 40%，CPU 从 1.07 cores 降到 0.67 cores。</p>
+    <img class="article-img" src="https://cf-assets.www.cloudflare.com/zkvhlag99gkb/6fEPzehWZ8mfroJDIf30mC/636b651767a7cc41dd8b4e7093490a11/OG_Share_2024-2025-2026__40_.png" alt="">
+    <h3>3、<a href="https://github.blog/changelog/2026-06-24-self-service-credential-revocation-for-incident-response/" target="_blank" rel="noopener noreferrer">GitHub 企业级 break-glass：一次性吊销用户全部凭证</a> <span class="certainty-tag certainty-confirmed">confirmed</span></h3>
+    <p>GitHub Enterprise owners 现在可以在安全事件中对某个用户或全体用户执行批量凭证操作，包括撤销 SSO authorization、删除 token 和 SSH key、通过 org-level REST API 做组织级撤销，并通过 audit logs 和邮件通知追踪结果。</p>
+    <img class="article-img" src="https://github.blog/wp-content/uploads/2026/06/612140645-88678c0d-6cea-4c02-809d-9c73bbf918a3.png" alt="">
+    <h3>4、<a href="https://blogs.nvidia.com/blog/liquid-cooling-ai-factories/" target="_blank" rel="noopener noreferrer">NVIDIA 45°C 液冷：AI factory 的冷却也变成战略变量</a> <span class="certainty-tag certainty-confirmed">confirmed</span></h3>
+    <p>NVIDIA 介绍 Rubin 代 AI 基础设施的 45°C 液冷设计：100% 液冷、闭环系统、无风扇；在有利气候下可通过 dry cooler 免 chiller 运转，把传统冷却塔系统每 MW 每年约 260 万加仑的设施冷却用水降到接近 0。</p>
+    <h3>5、<a href="https://www.datadoghq.com/blog/engineering/ai-assisted-storage-migration/" target="_blank" rel="noopener noreferrer">Datadog：用 Claude/Cursor 迁移实时路由系统，但测试和蓝绿验证说了算</a> <span class="certainty-tag certainty-confirmed">confirmed</span></h3>
+    <p>Datadog 复盘 Stream Router 存储迁移：从 FoundationDB KV 模型迁到 PostgreSQL + DuckDB，用 Claude 和 Cursor 做方法级重构，但架构设计、SQL 性能优化和生产验证仍由工程师掌控。迁移后，部分 45 分钟操作降到约 1 秒，数据集缩小 40 倍，数据库成本下降 90%。</p>
+    <img class="article-img" src="https://web-assets.dd-static.net/42588/1779896619-stream-router-storage-migration-hero_resized.jpg" alt="">
+
+    <h2 id="ai">🤖 AI 相关</h2>
+    <h3>1、<a href="https://ai.google.dev/gemini-api/docs/changelog" target="_blank" rel="noopener noreferrer">Gemini API：Computer Use 进入 Gemini 3.5 Flash 公测</a> <span class="certainty-tag certainty-confirmed">confirmed</span></h3>
+    <p>Google 在 Gemini API release notes 中宣布，Computer Use tool 已在 Gemini 3.5 Flash 上进入 public preview，包含带 intent 的简化动作、浏览器/移动端/桌面环境支持、可配置安全策略和 prompt injection detection。</p>
+    <h3>2、<a href="https://www.krea.ai/blog/krea-2-technical-report" target="_blank" rel="noopener noreferrer">Krea 2 技术报告：开放 12B 图像模型权重，主打审美多样性与控制</a> <span class="certainty-tag certainty-announced">announced</span></h3>
+    <p>Krea 发布 Krea 2 技术报告，介绍面向 creative exploration 的图像基础模型，覆盖数据治理、架构、多阶段训练和分布式基础设施。模型权重和推理以 permissive license 发布，目标是摆脱单一默认审美，让创作者在更大风格空间里搜索。</p>
+    <img class="article-img" src="https://s.krea.ai/blog-posts/krea-2-technical-report/agent/1782227962641-krea2-hero-new.jpg" alt="">
+    <h3>3、<a href="https://huggingface.co/blog/nvidia/accelerating-fine-tuning-nvidia-nemo-automodel" target="_blank" rel="noopener noreferrer">Hugging Face + NVIDIA：NeMo AutoModel 把 MoE 微调做成同 API 加速路径</a> <span class="certainty-tag certainty-confirmed">confirmed</span></h3>
+    <p>Hugging Face 与 NVIDIA 介绍 NeMo AutoModel：在保持 Transformers v5 类似 from_pretrained() 接口的同时，加入 Expert Parallelism、DeepEP fused all-to-all dispatch 和 TransformerEngine kernels。官方测试显示，在 Qwen3-30B-A3B 和 Nemotron 3 Nano 30B-A3B 上训练吞吐提升 3.4-3.7 倍，GPU 内存降低 29-32%。</p>
+    <h3>4、<a href="https://netflixtechblog.com/toward-more-controllable-ai-video-editing-an-early-research-exploration-at-netflix-eb8160ed60a2" target="_blank" rel="noopener noreferrer">Netflix 研究可控 AI 视频编辑：从生成视频转向“可编辑现实”</a> <span class="certainty-tag certainty-announced">announced</span></h3>
+    <p>Netflix TechBlog 发布早期研究探索，关注更可控的 AI 视频编辑，让创作者在既有视频上做更细粒度、可约束的修改，而不是只依赖文本生成整段视频。</p>
+    <h3>5、<a href="https://techcrunch.com/2026/06/24/companies-are-scrambling-to-stop-employees-from-maxing-out-ai-budgets-with-small-tasks/" target="_blank" rel="noopener noreferrer">企业从 tokenmaxxing 转向 token rationing：AI 成本进入 CFO 视野</a> <span class="certainty-tag certainty-reported">reported</span></h3>
+    <p>TechCrunch 报道企业开始限制员工把 AI 用在 PDF 转 PPT 等基础任务上，并引用 404 Media 关于 Accenture 内部 token reserve 管理的报道。文章把这一阶段称为从 tokenmaxxing 进入 token rationing：AI 预算不可预测，CFO/COO/CIO 开始追问价值和可见性。</p>
+
+    <h2 id="articles">📝 文章推荐</h2>
+    <h3>1、<a href="https://www.greptile.com/blog/prs-on-openclaw" target="_blank" rel="noopener noreferrer">PR spam today looks like email spam in the early 2000s</a></h3>
+    <p>Greptile 分析 OpenClaw 的 PR 激增：从每周 2 个 PR 变成 3400 个，合并率从约 48% 降到 9.3% 以下；AI 生成低成本 PR 让开源开始需要贡献者信誉、过滤和验证机制。</p>
+    <h3>2、<a href="https://techcrunch.com/2026/06/24/ai-was-supposed-to-kill-engineering-jobs-but-new-data-suggests-theyre-the-most-resilient/" target="_blank" rel="noopener noreferrer">AI 没有先杀死工程岗位，反而让工程招聘更有韧性？</a></h3>
+    <p>TechCrunch 引用 SignalFire 对数百万员工和 8000 万家公司职业轨迹的分析：大型科技公司总招聘较 2019 年下降 25%，工程岗位只下降 11%；12 家 Tech Majors 中，工程师占 2025 年新招聘 55%，高于 2019 年的 46%。</p>
+    <h3>3、<a href="https://ben-mini.com/2026/stealing-is-a-skill" target="_blank" rel="noopener noreferrer">Stealing Is a Skill</a></h3>
+    <p>一篇关于“借鉴能力”的短文：高手不是盲目复制，而是能识别别人作品中真正可迁移的结构、约束和判断。对 AI 时代尤其重要，因为模型让表层复制变容易，深层理解更稀缺。</p>
+    <h3>4、<a href="https://ngrok.com/blog/aol-was-down-1996" target="_blank" rel="noopener noreferrer">A human postmortem of the 1996 AOL outage</a></h3>
+    <p>ngrok 回看 1996 年 AOL 大规模宕机，把技术事件写成有人味的事故复盘：系统故障不只是日志和指标，也包括组织沟通、用户情绪和恢复叙事。</p>
+
+    <h2 id="tools">🛠️ 工具推荐</h2>
+    <div class="tool-grid">
+      <div class="tool-card">
+        <h4><a href="https://rubyllm.com/" target="_blank" rel="noopener noreferrer">RubyLLM</a> <span class="priority-tag">AI Framework</span></h4>
+        <p>Ruby 生态的一站式 AI 框架，覆盖 chat、tools、streaming、embeddings、image、audio、agents、Rails integration，并支持 OpenAI、Anthropic、Gemini、Bedrock、Ollama、OpenRouter 等提供方。</p>
+      </div>
+      <div class="tool-card">
+        <h4><a href="https://github.com/nubjs/nub" target="_blank" rel="noopener noreferrer">Nub</a> <span class="priority-tag">Node Toolkit</span></h4>
+        <p>一个 Bun-like 的 Node.js all-in-one 工具集，可通过 curl/Homebrew/npm 安装，并提供 GitHub Actions 的 setup-nub 替代 setup-node。</p>
+      </div>
+      <div class="tool-card">
+        <h4><a href="https://slint.dev/blog/slint-1.17-released" target="_blank" rel="noopener noreferrer">Slint 1.17</a> <span class="priority-tag">UI Toolkit</span></h4>
+        <p>Slint 1.17 发布，适合关注跨平台原生 UI、嵌入式 UI 和 Rust/C++/JS 绑定的团队跟进。</p>
+      </div>
+      <div class="tool-card">
+        <h4><a href="https://vercel.com/changelog/deploy-node-servers-with-zero-configuration" target="_blank" rel="noopener noreferrer">Vercel Node servers zero config</a> <span class="priority-tag">Deploy</span></h4>
+        <p>Vercel 现在可自动识别根目录或 src/server.ts，把 Node.js server 作为 Node app 部署，vc dev 和 vc deploy 都无需额外配置。</p>
+      </div>
+      <div class="tool-card">
+        <h4><a href="https://huggingface.co/blog/ffasr-leaderboard" target="_blank" rel="noopener noreferrer">FFASR Leaderboard</a> <span class="priority-tag">Benchmark</span></h4>
+        <p>Hugging Face 新的 FFASR leaderboard 用于更贴近真实环境地比较 ASR 模型，语音产品团队可用来避免只看干净测试集。</p>
+      </div>
+    </div>
+
+    <h2 id="ai-tools">🧠 AI 工具</h2>
+    <div class="tool-grid">
+      <div class="tool-card">
+        <span class="tag">LLM Gateway</span>
+        <h4><a href="https://vercel.com/changelog/glm-5-2-fast-via-wafer-now-available-on-ai-gateway" target="_blank" rel="noopener noreferrer">Vercel AI Gateway: GLM 5.2 Fast via Wafer</a></h4>
+        <p>Vercel 称 Wafer 上的 GLM 5.2 Fast 在小上下文和大上下文场景达到 170+ / 200+ tok/s，并可通过 AI SDK 使用 zai/glm-5.2-fast，同时接入 usage/cost tracking、budgets、retries 和 failover。</p>
+      </div>
+      <div class="tool-card">
+        <span class="tag">Image Model</span>
+        <h4><a href="https://huggingface.co/krea/Krea-2-Turbo" target="_blank" rel="noopener noreferrer">Krea 2 Turbo on Hugging Face</a></h4>
+        <p>Krea 2 Turbo 模型卡显示 12B Diffusion Transformer、Krea 2 Raw/Turbo 两个 checkpoint，可通过 diffusers、SGLang 和官方代码运行，适合做视觉生成实验。</p>
+      </div>
+      <div class="tool-card">
+        <span class="tag">Computer Use</span>
+        <h4><a href="https://ai.google.dev/gemini-api/docs/computer-use" target="_blank" rel="noopener noreferrer">Gemini Computer Use docs</a></h4>
+        <p>Gemini API 的 Computer Use 文档入口，适合评估浏览器、移动端、桌面环境中的模型操作能力、安全策略和 prompt injection 防护。</p>
+      </div>
+      <div class="tool-card">
+        <span class="tag">Identity</span>
+        <h4><a href="https://vercel.com/changelog/custom-oidc-token-audiences" target="_blank" rel="noopener noreferrer">Vercel Custom OIDC Token Audiences</a></h4>
+        <p>Vercel OIDC issuer 支持自定义 audience，部署可把 OIDC token 换成面向下游服务的 aud claim，并保留可审计 delegation chain。</p>
+      </div>
+    </div>
+
+    <h2 id="concepts">🧩 本期概念库</h2>
+    <div class="concept-card">
+      <h4>1. Intelligence Processor</h4>
+      <div class="concept-field"><strong>一句话解释：</strong>OpenAI 对 Jalapeño 的称呼，强调它不是通用加速器，而是围绕 LLM inference 的芯片、网络和服务模式做全栈优化。</div>
+      <div class="concept-field"><strong>背景来源：</strong>OpenAI/Broadcom Jalapeño announcement</div>
+      <div class="concept-field"><strong>为什么重要：</strong>它把模型服务的成本、延迟和硬件利用率直接变成产品竞争力。</div>
+      <div class="concept-field"><strong>团队应用场景：</strong>在 AI 产品评审中加入单位推理成本、尾延迟、模型路由和容量预案。</div>
+    </div>
+    <div class="concept-card">
+      <h4>2. Performance per watt</h4>
+      <div class="concept-field"><strong>一句话解释：</strong>单位功耗下能完成多少有效计算或推理，是 AI 数据中心最核心的经济指标之一。</div>
+      <div class="concept-field"><strong>背景来源：</strong>OpenAI/Broadcom、Qualcomm、NVIDIA 同日信号</div>
+      <div class="concept-field"><strong>为什么重要：</strong>当电力和冷却成为瓶颈，性能绝对值不如“每瓦产出”能决定可规模化程度。</div>
+      <div class="concept-field"><strong>团队应用场景：</strong>做模型选型时不只比较质量，还要比较成本、吞吐、延迟和能否被调度系统稳定利用。</div>
+    </div>
+    <div class="concept-card">
+      <h4>3. Blue/green validation</h4>
+      <div class="concept-field"><strong>一句话解释：</strong>把新旧系统并行运行，用真实生产请求持续比对输出，再逐步切流。</div>
+      <div class="concept-field"><strong>背景来源：</strong>Datadog Stream Router migration</div>
+      <div class="concept-field"><strong>为什么重要：</strong>AI 辅助迁移可以提高实现速度，但最终信任来自可重复测试和线上对照验证。</div>
+      <div class="concept-field"><strong>团队应用场景：</strong>关键系统改造时先设计验证闭环，再决定能让 AI 承担哪些窄任务。</div>
+    </div>
+    <div class="concept-card">
+      <h4>4. Token rationing</h4>
+      <div class="concept-field"><strong>一句话解释：</strong>企业从鼓励无限使用 AI，转向给任务、团队或员工设置 token 预算、阈值和成本可见性。</div>
+      <div class="concept-field"><strong>背景来源：</strong>TechCrunch enterprise AI budget reporting</div>
+      <div class="concept-field"><strong>为什么重要：</strong>AI 成本开始从创新预算进入 CFO、COO、CIO 的管理视野。</div>
+      <div class="concept-field"><strong>团队应用场景：</strong>为内部 AI 工具增加 per-task cost、预算告警、模型降级和缓存策略。</div>
+    </div>
+    <div class="concept-card">
+      <h4>5. Delegated access control plane</h4>
+      <div class="concept-field"><strong>一句话解释：</strong>用 OAuth、OIDC、短期凭证、audience 和 revocation 统一管理应用、Agent 和人员之间的代表关系。</div>
+      <div class="concept-field"><strong>背景来源：</strong>Cloudflare OAuth、GitHub credential revocation、Vercel OIDC</div>
+      <div class="concept-field"><strong>为什么重要：</strong>Agent 越多，权限越不能靠长期 token 和口头流程管理。</div>
+      <div class="concept-field"><strong>团队应用场景：</strong>把 Agent 权限视为生产身份，纳入授权、审计、吊销和最小权限策略。</div>
+    </div>
+
+    <h2 id="curiosity">🎲 好奇心入口</h2>
+    <div class="curiosity-card">
+      <h4><a href="https://www.qualcomm.com/news/releases/2026/06/qualcomm-and-meta-announce-strategic-multi-generation-agreement-" target="_blank" rel="noopener noreferrer">Qualcomm 与 Meta 签署数据中心 CPU 多代合作</a></h4>
+      <div class="hook">AI 工厂不只有 GPU，CPU 也在重新排位。</div>
+      <p>Qualcomm 与 Meta 宣布围绕数据中心 CPU 产品的多代路线合作，第一代 Dragonfly C1000 CPU 计划 2028 年下半年投产。 团队暗线：AI infrastructure 的竞争会扩展到 CPU、networking、software stack 和 power envelope。</p>
+    </div>
+    <div class="curiosity-card">
+      <h4><a href="https://binaryigor.com/the-joy-and-power-of-understanding.html" target="_blank" rel="noopener noreferrer">The Joy and Power of Understanding</a></h4>
+      <div class="hook">理解本身是一种生产力。</div>
+      <p>这篇短文强调理解系统、概念和约束带来的复利。放在 AI 代码生成时代看，它提醒我们：能提出好问题的人，仍然来自深理解。 团队暗线：团队不要把“让 AI 写完”误当成“我们已经理解”。</p>
+    </div>
+    <div class="curiosity-card">
+      <h4><a href="https://apps.apple.com/us/app/t9-keyboard-text-like-its-04/id6765738931" target="_blank" rel="noopener noreferrer">T9 Texting Is Back on iPhone</a></h4>
+      <div class="hook">旧交互模式也可能因为新硬件和怀旧需求回潮。</div>
+      <p>一个把 2004 年式 T9 输入带回 iPhone 的小应用提醒我们：界面效率不是线性进步，特定场景会重新召回旧范式。 团队暗线：做工具时不要只问“新不新”，也要问“这个动作在什么姿态下最快”。</p>
+    </div>
+
+    <h2 id="resources">📚 资源</h2>
+    <div class="resource-item">
+      <a href="https://investors.broadcom.com/news-releases/news-release-details/openai-and-broadcom-unveil-llm-optimized-intelligence-processor" target="_blank" rel="noopener noreferrer">Broadcom: OpenAI and Broadcom unveil LLM-optimized Intelligence Processor</a>
+      <p>Broadcom 官方投资者发布，用来交叉核验 OpenAI Jalapeño 的合作、部署和硬件表述。</p>
+    </div>
+    <div class="resource-item">
+      <a href="https://developers.cloudflare.com/fundamentals/oauth-apps/" target="_blank" rel="noopener noreferrer">Cloudflare OAuth Apps docs</a>
+      <p>Cloudflare self-managed OAuth 的产品文档入口，适合后续研究 scoped delegated access 如何落地。</p>
+    </div>
+    <div class="resource-item">
+      <a href="https://docs.github.com/en/enterprise-cloud@latest/admin/managing-accounts-and-repositories/managing-users-in-your-enterprise/reviewing-and-revoking-user-credentials-in-your-enterprise" target="_blank" rel="noopener noreferrer">GitHub: Responding to security incidents in your enterprise</a>
+      <p>GitHub 企业凭证审查和撤销文档，适合安全团队把 break-glass 操作写入 incident response runbook。</p>
+    </div>
+
+    <h2 id="quotes">💬 言论：本期 7 个认知增量</h2>
+    <div class="quote-block">
+      <blockquote>自研芯片的重点不是品牌露出，而是把 cost-per-token、供给和延迟纳入产品路线图。</blockquote>
+      <div class="quote-author">—— Tech Digest 编辑判断</div>
+      <div class="quote-meta">来源：<a href="https://techcrunch.com/2026/06/24/openai-unveils-its-first-custom-chip-built-by-broadcom/" target="_blank" rel="noopener noreferrer">techcrunch.com</a> · 类型：editorial_inference · 关键词：OpenAI · Broadcom · inference cost</div>
+      <div class="quote-comment">💭 媒体报道把 Jalapeño 放进更大的自研芯片叙事里；真正要看的是它能否改变推理经济性。</div>
+      <div class="quote-team-insight">🎯 团队启发：每个 AI 产品都要有“单位任务成本”而不是只看总调用量。</div>
+    </div>
+    <div class="quote-block">
+      <blockquote>HN 对 OpenAI custom chip 的讨论热度超过 500 points，这说明开发者已经把基础设施当作模型新闻的一部分。</blockquote>
+      <div class="quote-author">—— Hacker News signal</div>
+      <div class="quote-meta">来源：<a href="https://news.ycombinator.com/item?id=48663324" target="_blank" rel="noopener noreferrer">news.ycombinator.com</a> · 类型：community_signal · 关键词：HN · custom chip · infrastructure</div>
+      <div class="quote-comment">💭 社区关心的不只是发布本身，还有供应链、NVIDIA 替代和是否真能影响 token 成本。</div>
+      <div class="quote-team-insight">🎯 团队启发：基础设施变化会传导到 SDK、产品成本和商业模型，不能只让 Infra 团队关注。</div>
+    </div>
+    <div class="quote-block">
+      <blockquote>RubyLLM 的受欢迎，说明多模型、多供应商抽象开始进入每个语言生态。</blockquote>
+      <div class="quote-author">—— Hacker News signal</div>
+      <div class="quote-meta">来源：<a href="https://news.ycombinator.com/item?id=48660711" target="_blank" rel="noopener noreferrer">news.ycombinator.com</a> · 类型：community_signal · 关键词：RubyLLM · provider abstraction</div>
+      <div class="quote-comment">💭 AI 应用开发者正在寻找“同一套接口接多家模型”的工程稳定性。</div>
+      <div class="quote-team-insight">🎯 团队启发：内部 AI SDK 也应屏蔽 provider 差异，避免业务代码绑定单一模型 API。</div>
+    </div>
+    <div class="quote-block">
+      <blockquote>AI PR spam 把开源维护者从“看代码”推向“先判断贡献者信誉”。</blockquote>
+      <div class="quote-author">—— Hacker News signal</div>
+      <div class="quote-meta">来源：<a href="https://news.ycombinator.com/item?id=48660579" target="_blank" rel="noopener noreferrer">news.ycombinator.com</a> · 类型：community_signal · 关键词：AI PR · open source · reputation</div>
+      <div class="quote-comment">💭 当生成成本下降，验证和信誉系统就会上升为基础设施。</div>
+      <div class="quote-team-insight">🎯 团队启发：内部 code review 也需要区分高信任自动化改动和低信任批量改动。</div>
+    </div>
+    <div class="quote-block">
+      <blockquote>45°C 液冷的社区讨论提醒我们，AI 工厂的瓶颈会出现在水、电、审批和物理空间里。</blockquote>
+      <div class="quote-author">—— Hacker News signal</div>
+      <div class="quote-meta">来源：<a href="https://news.ycombinator.com/item?id=48660178" target="_blank" rel="noopener noreferrer">news.ycombinator.com</a> · 类型：community_signal · 关键词：liquid cooling · AI factories · water</div>
+      <div class="quote-comment">💭 物理世界约束正在成为 AI scaling 的公开议题。</div>
+      <div class="quote-team-insight">🎯 团队启发：面向大客户交付 AI 能力时，要提前理解区域容量和能耗约束。</div>
+    </div>
+    <div class="quote-block">
+      <blockquote>工程岗位数据的反直觉之处在于：AI 提升效率后，需求并没有自动减少，问题空间反而扩大。</blockquote>
+      <div class="quote-author">—— Tech Digest 摘要</div>
+      <div class="quote-meta">来源：<a href="https://www.signalfire.com/state-of-talent-report/" target="_blank" rel="noopener noreferrer">signalfire.com</a> · 类型：data_context · 关键词：engineering hiring · Jevons paradox</div>
+      <div class="quote-comment">💭 TechCrunch 引用 SignalFire 数据显示工程招聘较其他岗位更有韧性。</div>
+      <div class="quote-team-insight">🎯 团队启发：用 AI 不等于减少工程判断，反而要重新定义工程师的杠杆位置。</div>
+    </div>
+    <div class="quote-block">
+      <blockquote>如果 Qualcomm 对 Modular 的收购被市场视为 40 亿美元级动作，说明 AI 软件 portability 已经有硬件级战略价值。</blockquote>
+      <div class="quote-author">—— Tech Digest 摘要</div>
+      <div class="quote-meta">来源：<a href="https://www.reuters.com/business/qualcomm-buy-ai-startup-modular-2026-06-24/" target="_blank" rel="noopener noreferrer">reuters.com</a> · 类型：market_signal · 关键词：Qualcomm · Modular · AI software stack</div>
+      <div class="quote-comment">💭 官方发布未披露金额，Reuters 报道提供了市场估值口径；本期正文采用官方事实，金额只作为媒体信号。</div>
+      <div class="quote-team-insight">🎯 团队启发：跨硬件运行时、compiler 和部署层会变成 AI 平台的重要资产。</div>
+    </div>
+
+    <h2 id="podcast">🎙️ 播客提纲</h2>
+    <div class="podcast-brief">
+      <h4>3-5 分钟口播：AI 的瓶颈从模型能力，转向推理工厂</h4>
+      <div class="cold-open">今天最重要的新闻不是又一个更会聊天的模型，而是一颗芯片。OpenAI 和 Broadcom 发布 Jalapeño，说明 AI 战争正在从模型榜单下沉到芯片、冷却、网络、权限和预算控制。</div>
+      <div class="podcast-segment">
+        <strong>第一段：Jalapeño 的信号</strong>
+        <p>OpenAI 第一颗 Intelligence Processor 用 9 个月 tape-out，样片已经跑 GPT-5.3-Codex-Spark。</p>
+        <p>把推理视为生产能力，而不是 API 账单。</p>
+      </div>      <div class="podcast-segment">
+        <strong>第二段：同一天的基础设施拼图</strong>
+        <p>Qualcomm 收 Modular、NVIDIA 谈 45°C 液冷、Cloudflare 开 OAuth、GitHub 推 break-glass 吊销。</p>
+        <p>AI 工程的边界已经扩展到硬件、身份、权限和资源治理。</p>
+      </div>      <div class="podcast-segment">
+        <strong>第三段：企业开始管 token</strong>
+        <p>TechCrunch 把企业从 tokenmaxxing 到 token rationing 的变化写得很直白：CFO/COO/CIO 开始问每笔 AI 花费值不值。</p>
+        <p>内部 AI 平台必须交付成本可见性、预算阈值和模型路由。</p>
+      </div>      <div class="podcast-segment">
+        <strong>第四段：AI 进入生产迁移的正确姿势</strong>
+        <p>Datadog 的迁移不是让 AI 接管，而是让 Claude/Cursor 在测试和蓝绿验证之间做窄任务。</p>
+        <p>测试质量决定你能把多少实现工作交给 AI。</p>
+      </div>
+      <p>今天的核心判断：下一轮 AI 护城河不只是模型能力，而是谁能把每一次推理以可控成本、可靠权限和稳定体验送到用户面前。</p>
+    </div>
+
+    <h2 id="team-insights">✅ 对团队的启发</h2>
+    <div class="insight-card">
+      <p><span class="insight-num">1</span>AI 项目立项时，把 token 成本、延迟 SLO、模型降级和预算阈值写进需求，而不是上线后再补账。</p>
+    </div>
+    <div class="insight-card">
+      <p><span class="insight-num">2</span>任何 Agent 或自动化工具接入生产系统，都要优先设计 OAuth/OIDC、短期凭证、audience、审计和吊销路径。</p>
+    </div>
+    <div class="insight-card">
+      <p><span class="insight-num">3</span>AI 辅助重构适合“窄函数 + 强测试 + 明确旧实现 + 新 schema”的收敛问题，不适合让模型独立做高层架构决策。</p>
+    </div>
+    <div class="insight-card">
+      <p><span class="insight-num">4</span>评估模型供应商时，不只比较质量榜单，还要比较吞吐、缓存、模型路由、cost visibility 和供应链韧性。</p>
+    </div>
+    <div class="insight-card">
+      <p><span class="insight-num">5</span>开源和内部协作都需要为 AI 生成贡献建立信誉与验证机制，维护者注意力才是最终瓶颈。</p>
+    </div>
+
+    <div class="footer-sources">
+      <strong>📋 数据来源说明</strong><br>
+      本情报来自 66 个全球精选科技 / AI / 工程 / 系统可靠性信息源的每日更新。<br>
+      由 Cursor AI 自动生成，信息截止至 2026年6月25日，星期四。
+    </div>
+  </main>
+</div>
+
+<script>
+(function(){
+  const toc=document.querySelector('.toc');if(!toc)return;
+  const links=[...toc.querySelectorAll('a')];
+  const ids=links.map(l=>l.getAttribute('href').slice(1));
+  const secs=ids.map(id=>document.getElementById(id)).filter(Boolean);
+  function hl(){let cur=0;secs.forEach((s,i)=>{if(s.getBoundingClientRect().top<=120)cur=i;});
+  links.forEach((l,i)=>{l.classList.toggle('active',i===cur);});}
+  window.addEventListener('scroll',hl,{passive:true});hl();
+})();
+
+</script>
+</body>
+</html>

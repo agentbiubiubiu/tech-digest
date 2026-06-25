@@ -1,5 +1,11 @@
 [
   {
+    "date": "2026-06-25",
+    "title": "第 47 期：AI 的瓶颈从模型能力，转向推理工厂",
+    "highlights": "OpenAI/Broadcom 发布 Jalapeño 推理芯片 · Qualcomm 收购 Modular 强化跨硬件 AI 软件栈 · Cloudflare 开放 self-managed OAuth · GitHub 推出企业级 break-glass 凭证吊销 · Gemini Computer Use 进入 3.5 Flash 公测 · Krea 2 开放 12B 图像模型权重 · Datadog 用 Claude/Cursor 迁移实时路由系统 · 企业开始从 tokenmaxxing 转向 token rationing",
+    "image": "https://blogs.nvidia.com/wp-content/uploads/2026/06/45CLiquidCooling.jpg"
+  },
+  {
     "date": "2026-06-24",
     "title": "第 46 期：Bot 时代的 Web 要重新证明「谁在访问」",
     "highlights": "PACT 试图让人类与授权 Agent 在不暴露身份下证明非恶意 · GPT-5 Pro 帮免疫学家重启 3 年 T 细胞谜题 · Claude Tag 把 AI 推进 Slack 团队流 · GitHub Copilot App 支持 BYOK · Hugging Face 用 AI+人审把 hub 发布改为每周节奏 · Cloudflare 把后量子迁移 deadline 拉到 2030/2031",
