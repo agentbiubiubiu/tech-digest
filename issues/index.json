@@ -1,5 +1,11 @@
 [
   {
+    "date": "2026-06-26",
+    "title": "第 48 期：Agent 开始把工作量从对话，改写成工时",
+    "highlights": "OpenAI 披露 Codex 在 OpenAI 内部占 99.8% weekly output tokens · 80.6% 个人用户发起过超过 30 分钟人类工作量的 Codex 请求 · Vercel AI SDK 7 把 Agent 开发、运行、Harness、观测做成生产栈 · GitHub Actions 支持 job 内并行 step · Cloudflare Workflows 支持 saga rollback · npm 高影响账号敏感变更后 72 小时只读 · HF Jobs 一条命令起 vLLM 私有端点 · IBM 发布 0.7nm/7 Å nanostack 芯片技术 · Vesuvius Challenge 首次完整读出一卷赫库兰尼姆卷轴",
+    "image": "https://assets.vercel.com/image/upload/contentful/image/e5382hct74si/6VYAcpdshRWO13BWbyk59I/9b06cd0363925fa4fc69b6d57da697c8/og.png"
+  },
+  {
     "date": "2026-06-25",
     "title": "第 47 期：AI 的瓶颈从模型能力，转向推理工厂",
     "highlights": "OpenAI/Broadcom 发布 Jalapeño 推理芯片 · Qualcomm 收购 Modular 强化跨硬件 AI 软件栈 · Cloudflare 开放 self-managed OAuth · GitHub 推出企业级 break-glass 凭证吊销 · Gemini Computer Use 进入 3.5 Flash 公测 · Krea 2 开放 12B 图像模型权重 · Datadog 用 Claude/Cursor 迁移实时路由系统 · 企业开始从 tokenmaxxing 转向 token rationing",
