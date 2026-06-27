@@ -1,5 +1,11 @@
 [
   {
+    "date": "2026-06-27",
+    "title": "第 49 期：前沿模型开始进入准入制时代",
+    "highlights": "OpenAI 预览 GPT-5.6 Sol 并从 trusted partners 开始 · GPT-5.6 System Card 把 safeguards、monitoring、tripwires 前置 · Reuters 称美国允许 Anthropic Mythos 向 trusted partners 开放 · Vercel Ship 2026 聚焦 Agentic Infrastructure · AWS Lambda MicroVMs 提供 VM 级隔离沙箱 · GitHub Copilot 报表开始按 adoption phase 统计合并 PR · 2,000 人/6,000 次尝试未攻破一个 AI 助手挑战 · GitHub Desktop 3.6 支持 worktrees 与 Copilot 冲突解决",
+    "image": "https://deploymentsafety.openai.com/assets/deploymentsafety-social.png"
+  },
+  {
     "date": "2026-06-26",
     "title": "第 48 期：Agent 开始把工作量从对话，改写成工时",
     "highlights": "OpenAI 披露 Codex 在 OpenAI 内部占 99.8% weekly output tokens · 80.6% 个人用户发起过超过 30 分钟人类工作量的 Codex 请求 · Vercel AI SDK 7 把 Agent 开发、运行、Harness、观测做成生产栈 · GitHub Actions 支持 job 内并行 step · Cloudflare Workflows 支持 saga rollback · npm 高影响账号敏感变更后 72 小时只读 · HF Jobs 一条命令起 vLLM 私有端点 · IBM 发布 0.7nm/7 Å nanostack 芯片技术 · Vesuvius Challenge 首次完整读出一卷赫库兰尼姆卷轴",
