@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>第 50 期：开源模型开始把安全能力卷成成本问题</title>
+  <meta property="og:title" content="第 50 期：开源模型开始把安全能力卷成成本问题">
+  <meta property="og:description" content="Semgrep 的 IDOR 基准显示，GLM-5.2 在特定安全检测任务上以低成本追近甚至超过部分 Claude Code 配置；真正的变量不只是模型，而是任务 harness、数据边界和单位漏洞成本。">
+  <meta property="og:image" content="https://opengraph.githubassets.com/tech-digest-50/lateos-ai/npm-scan">
+  <style>
+:root {
+  --bg: #f5f6f8; --surface: #ffffff; --surface2: #f0f2f5;
+  --border: #e8ecf1; --border-hover: #c5cdd8;
+  --text: #1a1d21; --text-secondary: #3d4550; --text-muted: #8c95a1;
+  --accent: #2d9f6f; --accent-light: #e8f5ef; --accent-hover: #248a5e;
+  --accent-text: #ffffff;
+  --purple: #7c5cbf; --purple-light: #f3effc;
+  --orange: #e58e26; --orange-light: #fef5e7;
+  --blue: #3a82f7; --blue-light: #eef4fe;
+  --red: #e74c3c; --red-light: #fdecea;
+  --green-deep: #1a7a4c; --green-light2: #e0f5ea;
+  --yellow: #d4a017; --yellow-light: #fef9e7;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.06);
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.06), 0 2px 4px rgba(0,0,0,0.04);
+  --shadow-lg: 0 10px 30px rgba(0,0,0,0.08);
+  --radius: 12px; --radius-sm: 8px; --radius-xs: 6px;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Helvetica, Arial, sans-serif; background: var(--bg); color: var(--text); line-height: 1.75; font-size: 15px; -webkit-font-smoothing: antialiased; }
+.topbar { background: var(--surface); border-bottom: 1px solid var(--border); padding: 12px 32px; display: flex; align-items: center; gap: 16px; position: sticky; top: 0; z-index: 200; box-shadow: var(--shadow-sm); }
+.topbar-brand { font-size: 1.1rem; font-weight: 700; color: var(--accent); text-decoration: none; display: flex; align-items: center; gap: 8px; }
+.topbar-brand svg { width: 28px; height: 28px; }
+.topbar-nav { display: flex; gap: 4px; margin-left: 24px; }
+.topbar-nav a { padding: 6px 16px; border-radius: 20px; font-size: 0.85rem; font-weight: 500; color: var(--text-secondary); text-decoration: none; transition: all 0.2s; }
+.topbar-nav a:hover { background: var(--surface2); color: var(--text); }
+.topbar-nav a.active { background: var(--accent-light); color: var(--accent); font-weight: 600; }
+.topbar-right { margin-left: auto; display: flex; align-items: center; gap: 12px; }
+.topbar-date { font-size: 0.82rem; color: var(--text-muted); background: var(--surface2); padding: 5px 12px; border-radius: 16px; }
+.page { display: flex; max-width: 1200px; margin: 0 auto; padding: 24px 24px 0; gap: 24px; }
+.toc { width: 220px; flex-shrink: 0; position: sticky; top: 80px; height: calc(100vh - 104px); overflow-y: auto; background: var(--surface); border-radius: var(--radius); padding: 20px 16px; box-shadow: var(--shadow-sm); border: 1px solid var(--border); }
+.toc-title { font-size: 0.72rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 14px; padding-left: 12px; }
+.toc a { display: block; padding: 7px 12px; margin-bottom: 2px; font-size: 0.82rem; color: var(--text-muted); text-decoration: none; border-radius: var(--radius-xs); transition: all 0.15s; font-weight: 500; }
+.toc a:hover { color: var(--accent); background: var(--accent-light); }
+.toc a.active { color: var(--accent); background: var(--accent-light); font-weight: 600; }
+.toc-mobile { display: none; position: sticky; top: 57px; z-index: 100; background: var(--surface); border-bottom: 1px solid var(--border); padding: 10px 16px; box-shadow: var(--shadow-sm); }
+.toc-mobile summary { cursor: pointer; font-size: 0.85rem; color: var(--accent); font-weight: 600; list-style: none; }
+.toc-mobile summary::-webkit-details-marker { display: none; }
+.toc-mobile .toc-dropdown { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 8px; margin-top: 8px; max-height: 60vh; overflow-y: auto; box-shadow: var(--shadow-md); }
+.toc-mobile .toc-dropdown a { display: block; padding: 8px 12px; font-size: 0.88rem; color: var(--text-secondary); text-decoration: none; border-radius: var(--radius-xs); }
+.toc-mobile .toc-dropdown a:hover { color: var(--accent); background: var(--accent-light); }
+@media (max-width: 860px) { .toc { display: none; } .toc-mobile { display: block; } .topbar-nav { display: none; } .page { flex-direction: column; padding: 16px 12px 0; gap: 16px; } .container { padding: 20px 16px 60px; } }
+.container { flex: 1; min-width: 0; background: var(--surface); border-radius: var(--radius); padding: 36px 40px 60px; box-shadow: var(--shadow-sm); border: 1px solid var(--border); margin-bottom: 40px; }
+.back { display: inline-flex; align-items: center; gap: 4px; color: var(--text-muted); text-decoration: none; font-size: 0.85rem; margin-bottom: 28px; font-weight: 500; transition: color 0.15s; }
+.back:hover { color: var(--accent); }
+h1 { font-size: 1.7rem; font-weight: 800; margin-bottom: 10px; line-height: 1.35; color: var(--text); letter-spacing: -0.01em; }
+.meta { color: var(--text-muted); font-size: 0.85rem; margin-bottom: 28px; }
+.highlights-line { color: var(--text-secondary); font-size: 0.9rem; margin: -18px 0 28px; line-height: 1.65; }
+.hero-img { width: 100%; border-radius: var(--radius); margin-bottom: 10px; box-shadow: var(--shadow-md); }
+.hero-caption { font-size: 0.82rem; color: var(--text-muted); margin-bottom: 36px; text-align: center; font-style: italic; }
+h2 { font-size: 1.25rem; font-weight: 700; margin: 44px 0 18px; padding-bottom: 10px; border-bottom: 2px solid var(--accent-light); scroll-margin-top: 90px; color: var(--text); }
+h3 { font-size: 1.05rem; font-weight: 600; margin: 26px 0 8px; color: var(--text); }
+p { margin-bottom: 14px; color: var(--text-secondary); }
+a { color: var(--accent); text-decoration: none; font-weight: 500; }
+a:hover { color: var(--accent-hover); text-decoration: underline; }
+strong { color: var(--text); font-weight: 600; }
+.callout { background: var(--accent-light); border-left: 4px solid var(--accent); border-radius: var(--radius-sm); padding: 16px 20px; margin: 20px 0; font-size: 0.93rem; color: var(--text-secondary); }
+.main-story { background: linear-gradient(135deg, #f7fbff 0%, #fff 60%); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px 26px; margin: 18px 0 28px; box-shadow: var(--shadow-sm); }
+.main-story h3 { margin-top: 0; font-size: 1.2rem; line-height: 1.45; }
+.main-story .story-hook { color: var(--accent); font-weight: 700; margin-bottom: 14px; }
+.story-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 16px 0; }
+.story-field { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 12px 14px; font-size: 0.88rem; color: var(--text-secondary); }
+.story-field strong { display: block; margin-bottom: 4px; color: var(--text); }
+.number-chip { display: inline-block; background: var(--blue-light); color: var(--blue); border-radius: 14px; padding: 3px 10px; margin: 3px 6px 3px 0; font-size: 0.78rem; font-weight: 700; }
+.story-line { background: var(--purple-light); border-left: 4px solid var(--purple); border-radius: var(--radius-sm); padding: 14px 16px; margin-top: 14px; color: var(--text); font-weight: 700; }
+.trend-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin: 16px 0 28px; }
+.trend-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px 20px; box-shadow: var(--shadow-sm); }
+.trend-card h4 { font-size: 0.95rem; margin-bottom: 8px; color: var(--text); }
+.trend-card .trend-conflict { color: var(--red); font-size: 0.82rem; font-weight: 700; margin-bottom: 8px; }
+.trend-card p { font-size: 0.86rem; margin-bottom: 10px; }
+.trend-card .trend-sources { font-size: 0.76rem; color: var(--text-muted); line-height: 1.55; }
+.curiosity-card { background: var(--orange-light); border: 1px solid #f5ddb8; border-radius: var(--radius); padding: 20px 24px; margin: 14px 0; }
+.curiosity-card h4 { font-size: 1rem; margin-bottom: 8px; font-weight: 600; }
+.curiosity-card h4 a { color: var(--orange); }
+.curiosity-card .hook { color: var(--orange); font-weight: 700; margin-bottom: 6px; }
+.curiosity-card p { font-size: 0.88rem; color: var(--text-secondary); margin: 0 0 8px; line-height: 1.65; }
+.podcast-brief { background: #f8fafc; border: 1px solid var(--border); border-radius: var(--radius); padding: 20px 24px; margin: 18px 0; }
+.podcast-brief h4 { margin: 0 0 10px; font-size: 1rem; }
+.podcast-brief .cold-open { color: var(--accent); font-weight: 700; margin-bottom: 14px; }
+.podcast-segment { border-top: 1px solid var(--border); padding-top: 12px; margin-top: 12px; }
+.podcast-segment strong { display: block; margin-bottom: 4px; }
+.article-img { width: 100%; max-height: 380px; object-fit: cover; border-radius: var(--radius-sm); margin: 12px 0 24px; box-shadow: var(--shadow-sm); }
+.tool-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 16px 0; }
+.tool-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px 20px; transition: all 0.2s; box-shadow: var(--shadow-sm); }
+.tool-card:hover { border-color: var(--accent); box-shadow: var(--shadow-md); transform: translateY(-1px); }
+.tool-card h4 { font-size: 0.95rem; margin-bottom: 6px; font-weight: 600; }
+.tool-card h4 a { color: var(--accent); }
+.tool-card p { font-size: 0.83rem; color: var(--text-muted); margin: 0; line-height: 1.55; }
+.tool-card .tag { display: inline-block; font-size: 0.68rem; padding: 3px 8px; border-radius: 10px; background: var(--accent); color: var(--accent-text); font-weight: 600; margin-bottom: 8px; letter-spacing: 0.02em; }
+.tool-card .priority-tag { display: inline-block; font-size: 0.65rem; padding: 2px 6px; border-radius: 8px; background: var(--surface2); color: var(--text-muted); font-weight: 600; margin-left: 6px; }
+.fun-card { background: var(--orange-light); border: 1px solid #f5ddb8; border-radius: var(--radius); padding: 20px 24px; margin: 14px 0; }
+.fun-card h4 { font-size: 1rem; margin-bottom: 8px; font-weight: 600; }
+.fun-card h4 a { color: var(--orange); }
+.fun-card p { font-size: 0.88rem; color: var(--text-secondary); margin: 0; line-height: 1.65; }
+.quote-block { background: var(--purple-light); border-left: 4px solid var(--purple); border-radius: var(--radius-sm); padding: 20px 24px; margin: 18px 0; }
+.quote-block blockquote { font-size: 1.02rem; line-height: 1.65; margin-bottom: 10px; font-style: italic; color: var(--text); }
+.quote-block .quote-author { font-size: 0.82rem; color: var(--purple); font-weight: 600; margin-bottom: 6px; }
+.quote-block .quote-meta { font-size: 0.78rem; color: var(--text-muted); margin-bottom: 10px; }
+.quote-block .quote-comment { font-size: 0.88rem; color: var(--text-secondary); border-top: 1px solid #d8d0e8; padding-top: 10px; margin-top: 10px; }
+.quote-block .quote-team-insight { font-size: 0.88rem; color: var(--green-deep); background: var(--accent-light); border-radius: var(--radius-xs); padding: 8px 12px; margin-top: 8px; }
+.resource-item { background: var(--blue-light); border: 1px solid #c8dbf8; border-radius: var(--radius); padding: 18px 20px; margin: 12px 0; }
+.resource-item a { font-weight: 600; color: var(--blue); }
+.resource-item p { font-size: 0.88rem; color: var(--text-secondary); margin: 6px 0 0; }
+.concept-card { background: var(--green-light2); border-left: 4px solid var(--accent); border-radius: var(--radius-sm); padding: 20px 24px; margin: 16px 0; }
+.concept-card h4 { font-size: 1rem; font-weight: 700; color: var(--green-deep); margin-bottom: 10px; }
+.concept-card .concept-field { font-size: 0.88rem; color: var(--text-secondary); margin-bottom: 6px; line-height: 1.6; }
+.concept-card .concept-field strong { color: var(--text); font-size: 0.88rem; }
+.insight-card { background: var(--yellow-light); border-left: 4px solid var(--yellow); border-radius: var(--radius-sm); padding: 16px 20px; margin: 12px 0; }
+.insight-card p { font-size: 0.93rem; color: var(--text-secondary); margin: 0; line-height: 1.7; }
+.insight-card .insight-num { display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; border-radius: 50%; background: var(--yellow); color: #fff; font-size: 0.75rem; font-weight: 700; margin-right: 10px; flex-shrink: 0; }
+.certainty-tag { display: inline-block; font-size: 0.65rem; padding: 2px 6px; border-radius: 8px; font-weight: 600; margin-left: 8px; }
+.certainty-confirmed { background: var(--accent-light); color: var(--accent); }
+.certainty-announced { background: var(--blue-light); color: var(--blue); }
+.certainty-reported { background: var(--yellow-light); color: var(--yellow); }
+.certainty-opinion { background: var(--purple-light); color: var(--purple); }
+.certainty-rumor { background: var(--red-light); color: var(--red); }
+.footer-sources { margin-top: 44px; padding: 20px 24px; background: var(--surface2); border-radius: var(--radius); font-size: 0.78rem; color: var(--text-muted); line-height: 1.9; }
+.footer-sources strong { color: var(--text-secondary); font-size: 0.78rem; }
+@media (max-width: 860px) { .trend-grid, .story-grid { grid-template-columns: 1fr; } }
+@media (max-width: 640px) { .tool-grid { grid-template-columns: 1fr; } }
+
+  </style>
+</head>
+<body>
+
+<header class="topbar">
+  <a href="../index.html" class="topbar-brand">
+    <svg viewBox="0 0 28 28" fill="none"><circle cx="14" cy="14" r="14" fill="#2d9f6f"/><path d="M8 14.5l3.5 3.5 8.5-8" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    Tech Digest
+  </a>
+  <nav class="topbar-nav">
+    <a href="../index.html">Archive</a>
+    <a href="#main-story" class="active">Today</a>
+    <a href="#tools">Tools</a>
+    <a href="#quotes">Quotes</a>
+  </nav>
+  <div class="topbar-right">
+    <span class="topbar-date">2026-06-29</span>
+  </div>
+</header>
+
+<details class="toc-mobile">
+  <summary>📑 目录导航</summary>
+  <div class="toc-dropdown">
+    <a href="#main-story">🔥 主故事</a>
+    <a href="#trends">⚡ 冲突趋势</a>
+    <a href="#tech-news">📰 科技动态</a>
+    <a href="#ai">🤖 AI 相关</a>
+    <a href="#articles">📝 文章推荐</a>
+    <a href="#tools">🛠️ 工具推荐</a>
+    <a href="#ai-tools">🧠 AI 工具</a>
+    <a href="#concepts">🧩 本期概念库</a>
+    <a href="#curiosity">🎲 好奇心入口</a>
+    <a href="#resources">📚 资源</a>
+    <a href="#quotes">💬 言论</a>
+    <a href="#podcast">🎙️ 播客提纲</a>
+    <a href="#team-insights">✅ 对团队的启发</a>
+  </div>
+</details>
+
+<div class="page">
+  <nav class="toc">
+    <div class="toc-title">本期目录</div>
+    <a href="#main-story">🔥 主故事</a>
+    <a href="#trends">⚡ 冲突趋势</a>
+    <a href="#tech-news">📰 科技动态</a>
+    <a href="#ai">🤖 AI 相关</a>
+    <a href="#articles">📝 文章推荐</a>
+    <a href="#tools">🛠️ 工具推荐</a>
+    <a href="#ai-tools">🧠 AI 工具</a>
+    <a href="#concepts">🧩 本期概念库</a>
+    <a href="#curiosity">🎲 好奇心入口</a>
+    <a href="#resources">📚 资源</a>
+    <a href="#quotes">💬 言论</a>
+    <a href="#podcast">🎙️ 播客提纲</a>
+    <a href="#team-insights">✅ 对团队的启发</a>
+  </nav>
+
+  <main class="container">
+    <a href="../index.html" class="back">← 返回目录</a>
+    <h1>第 50 期：开源模型开始把安全能力卷成成本问题</h1>
+    <div class="meta">第 50 期 · 2026 年 6 月 29 日</div>
+    <p class="highlights-line"><strong>✨ 本期亮点：</strong>GLM-5.2 在 Semgrep IDOR 基准中以 39% F1 进入第一梯队 · Semgrep 强调 endpoint discovery / harness 才是最大差距 · Z.AI 发布 1M context 的 GLM-5.2 · DeepSeek 开源 DeepSpec/DSpark speculative decoding · OpenAI Codex 仍有敏感文件排除需求被追问 · KIDS Act 引发线上年龄验证争议 · Brown 教授公开批评考试中的大规模 AI 作弊 · TOP500 出现 ISC 2026 新第一</p>
+
+    <img class="hero-img" src="https://semgrep.dev/assets/blog/glm-5.2-beats-claude-in-our-cybersecurity-benchmarks.png" alt="Semgrep cyber benchmark chart for GLM-5.2">
+    <div class="hero-caption">Semgrep 把开源权重模型放进 IDOR 漏洞检测基准，焦点从“谁最聪明”转向“谁能以什么成本稳定发现漏洞”。</div>
+
+    <div class="callout">
+      <strong>🎯 本期核心判断：</strong>AI 安全和代码智能的竞争正在从“最强闭源模型”转向“模型能力 + 专用 harness + 可部署成本 + 数据边界”的组合战；开源权重模型不再只是备胎，而开始在垂直任务上改写采购和架构选择。
+    </div>
+
+    <div class="callout">
+      <strong>⏱ 本期建议阅读顺序</strong><br>
+      先读主故事：把 Semgrep / GLM-5.2 的结果放回“安全任务 harness”里理解，不把单一 benchmark 误读成通用能力排名。<br>
+      再看 AI 相关：Z.AI、DeepSeek、OpenAI Codex issue 和 Claude Code MRI 共同说明，长上下文、推理加速、敏感文件边界和人机责任边界正在同时升温。<br>
+      最后扫工具与文章：从 npm 扫描、Mux 到 Reddit 反垃圾内部机制，今天的工程信号都指向一个主题：自动化越强，边界和审计越值钱。
+    </div>
+
+    <h2 id="main-story">🔥 主故事</h2>
+        <article class="main-story">
+      <h3>GLM-5.2 在安全基准里反超 Claude：开源权重开始卷到“每个漏洞多少钱”</h3>
+      <p class="story-hook">最值得注意的不是“某个模型赢了”，而是安全团队第一次可以把开源权重模型、闭源 agent、专用 harness 和单位漏洞成本放在同一张表上算账。</p>
+      <p>Semgrep 把热门开源/开源权重模型放进自己的 IDOR 漏洞检测 benchmark。结果里，GLM-5.2 在 prompt-only 配置下达到 39% F1，压过一组 Claude Code 配置，并被估算到约 0.17 美元发现一个漏洞。与此同时，带有 endpoint discovery 和多模态上下文的 Semgrep 自家配置依然显著领先。</p>
+      <div class="story-grid">
+        <div class="story-field"><strong>核心冲突</strong>过去安全团队默认把高风险代码审计交给最强闭源模型；现在开源权重模型开始在窄任务里给出可审计、可本地部署、可按漏洞计价的替代方案。</div>
+        <div class="story-field"><strong>转折点</strong>榜单不是简单模型对模型，而是模型 + harness 对模型 + harness。Semgrep 自己也强调，真正拉开距离的是端点发现、上下文组织和任务编排，而不是裸模型名。</div>
+        <div class="story-field"><strong>为什么现在发生</strong>GLM-5.2 这类模型同时给出 1M 上下文、较低调用成本和可自部署权重；安全场景又天然重视代码/日志不出域，因此“够强且能进内网”会成为采购变量。</div>
+        <div class="story-field"><strong>对团队的启发</strong>如果团队正在做代码安全、权限校验或 PR 审查，不应只问“用哪个大模型”，而要先定义 benchmark、召回/误报指标、敏感文件边界和人工复核闭环。</div>
+      </div>
+      <p><span class="number-chip">39% F1</span><span class="number-chip">$0.17 / vulnerability</span><span class="number-chip">1M context</span><span class="number-chip">约 750B 参数</span><span class="number-chip">40B active / token</span></p>
+      <p><strong>我的判断：</strong>这不证明 GLM-5.2 通用能力强于 Claude；它证明在可控任务上，专用流程可以把开源权重模型放大到足以进入生产讨论。未来工程团队买的不是一个聊天模型，而是一套可度量的任务产线。</p>
+      <div class="story-line">模型排行榜会告诉你谁更聪明；生产 benchmark 会告诉你谁更划算、更可控、更能进你的边界。</div>
+      <p><strong>来源：</strong><a href="https://semgrep.dev/blog/2026/we-have-mythos-at-home-glm-52-beats-claude-in-our-cyber-benchmarks/" target="_blank" rel="noopener noreferrer">semgrep.dev</a></p>
+    </article>
+
+    <h2 id="trends">⚡ 冲突趋势</h2>
+        <div class="trend-grid">
+      <div class="trend-card">
+        <h4>开源权重 vs 闭源代理</h4>
+        <div class="trend-conflict">能力差距仍在，但部署边界和单位成本开始改变采购顺序。</div>
+        <p>安全、金融、代码资产这些高敏场景，会先奖励“能进边界且可度量”的模型栈。</p>
+        <div class="trend-sources"></div>
+      </div>
+      <div class="trend-card">
+        <h4>长上下文 vs 任务漂移</h4>
+        <div class="trend-conflict">1M context 能装下更多证据，也会放大目标遗忘、上下文污染和审计难度。</div>
+        <p>长上下文不是免费午餐，真正可用的长任务系统需要记忆选择、阶段检查和失败回滚。</p>
+        <div class="trend-sources"></div>
+      </div>
+      <div class="trend-card">
+        <h4>AI 生产力 vs AI 责任边界</h4>
+        <div class="trend-conflict">从 MRI 二次意见到大学考试作弊，AI 已经进入高责任场景，但制度还在补课。</div>
+        <p>下一阶段的 AI 产品设计，会越来越像权限系统和审计系统，而不是单纯的输入框。</p>
+        <div class="trend-sources"></div>
+      </div>
+    </div>
+
+    <h2 id="tech-news">📰 科技动态</h2>
+    <h3>1、<a href="https://techcrunch.com/2026/06/27/asian-ai-startups-launch-mythos-like-models-as-anthropics-export-ban-drags-on/" target="_blank" rel="noopener noreferrer">TechCrunch：亚洲 AI 创业公司推出类 Mythos 模型，Anthropic 出口禁令继续发酵</a> <span class="certainty-tag certainty-confirmed">confirmed</span></h3>
+    <p>TechCrunch 把亚洲模型公司的新品放在 Anthropic Mythos 出口限制背景下观察：模型能力竞争正在和地缘、供应链、企业可访问性绑定。对团队来说，供应商选择不再只是效果对比，也包括区域可用性、合规边界和替代方案。</p>
+    <img class="article-img" src="https://techcrunch.com/wp-content/uploads/2026/06/GettyImages-2278736523.jpeg?resize=1200,798" alt="">
+    <h3>2、<a href="https://english.elpais.com/education/2026-06-28/ai-fraud-at-brown-university-academic-integrity-is-at-risk.html" target="_blank" rel="noopener noreferrer">Brown 教授公开批评考试中的大规模 AI 作弊</a> <span class="certainty-tag certainty-confirmed">confirmed</span></h3>
+    <p>EL PAÍS 报道 Brown University 教授公开谴责一次考试中的大规模 AI 欺诈。教育场景的核心问题不是“要不要用 AI”，而是评价体系仍假设答案生产稀缺；当答案生成近乎免费，考核就必须转向过程、口头复盘和真实能力证据。</p>
+    <img class="article-img" src="https://imagenes.elpais.com/resizer/v2/J6ITLVPHQNHI3BHNR3FPIX5URE.jpg?auth=29cc39cd3e10fbe5a5266dd40100f1d61e4fe145ccd2e4ab13b6a6bd0b67f1dd&amp;width=1200" alt="">
+    <h3>3、<a href="https://www.eff.org/deeplinks/2026/06/kids-act-would-require-age-checks-get-online" target="_blank" rel="noopener noreferrer">EFF：KIDS Act 可能把年龄验证变成上网入口检查</a> <span class="certainty-tag certainty-confirmed">confirmed</span></h3>
+    <p>EFF 反对 KIDS Act 中可能要求线上服务进行年龄检查的设计，认为这会把隐私、匿名性和表达自由推入高摩擦验证流程。AI 内容治理之后，互联网治理的下一个大争议可能是“谁有权要求你证明自己是谁”。</p>
+    <img class="article-img" src="https://www.eff.org/files/banner_library/ageverificationbanner-3.png" alt="">
+    <h3>4、<a href="https://chipsandcheese.com/p/top500-at-isc26-we-have-a-new-number" target="_blank" rel="noopener noreferrer">TOP500 at ISC 2026：新第一名超级计算机出现</a> <span class="certainty-tag certainty-confirmed">confirmed</span></h3>
+    <p>Chips and Cheese 解读 ISC 2026 TOP500 新榜首。AI 训练和科学计算的边界继续推高互连、内存带宽和能耗管理的重要性；这也解释了为什么从 HBM 到 on-die DRAM 的硬件路线会持续成为模型成本竞争的底层变量。</p>
+
+    <h2 id="ai">🤖 AI 相关</h2>
+    <h3>1、<a href="https://docs.z.ai/release-notes/new-released" target="_blank" rel="noopener noreferrer">Z.AI：GLM-5.2 发布，主打 1M lossless context 与 long-horizon 任务</a> <span class="certainty-tag certainty-confirmed">confirmed</span></h3>
+    <p>Z.AI 的 6 月 16 日发布说明称 GLM-5.2 支持 1M lossless context，并强化长程任务能力，减少上下文漂移和目标遗忘。和 Semgrep 结果放在一起看，长上下文已经从“演示参数”进入代码、安全和 agent 任务的生产变量。</p>
+    <h3>2、<a href="https://github.com/deepseek-ai/DeepSpec" target="_blank" rel="noopener noreferrer">DeepSeek DeepSpec / DSpark：speculative decoding 继续走向系统化</a> <span class="certainty-tag certainty-confirmed">confirmed</span></h3>
+    <p>DeepSeek 开源 DeepSpec，用于训练和评测 speculative decoding 算法；其中 DSpark 论文关注推理加速。大模型成本优化正在从“换更便宜模型”扩展到解码、缓存、路由和 serving 栈的系统工程。</p>
+    <img class="article-img" src="https://opengraph.githubassets.com/27546ba2016f827967dbdbdf41fa91ec1fda13c5d0c9d2f451f594c4abf51014/deepseek-ai/DeepSpec" alt="">
+    <h3>3、<a href="https://github.com/openai/codex/issues/2847" target="_blank" rel="noopener noreferrer">OpenAI Codex issue：敏感文件排除能力仍被开发者追问</a> <span class="certainty-tag certainty-reported">reported</span></h3>
+    <p>GitHub issue #2847 继续讨论 Codex 如何排除敏感文件。这个问题和今天主线高度一致：AI 编码工具进入真实仓库后，最关键的不是能不能读更多文件，而是能否证明哪些文件绝不会被读、被传、被记住。</p>
+    <img class="article-img" src="https://opengraph.githubassets.com/7b7bb2af7fcb510bee57e8ba3bb86fd185111dcca5f1636175d10a942fdce5c3/openai/codex/issues/2847" alt="">
+    <h3>4、<a href="https://antoine.fi/mri-analysis-using-claude-code-opus" target="_blank" rel="noopener noreferrer">开发者用 Claude Code 对 MRI 做二次意见：高责任场景的边界提醒</a> <span class="certainty-tag certainty-reported">reported</span></h3>
+    <p>一位开发者记录了用 Claude Code 辅助分析 MRI 的经历。这里不能把模型输出当医疗诊断，但它清楚展示了通用 coding agent 正被用户拖进专业场景；产品和组织必须提前设计“辅助、解释、转诊、拒答、留痕”的责任边界。</p>
+
+    <h2 id="articles">📝 文章推荐</h2>
+    <h3>1、<a href="https://w.pitula.me/fintech-engineering-handbook/" target="_blank" rel="noopener noreferrer">Fintech Engineering Handbook</a></h3>
+    <p>一份关于处理资金系统的工程手册。核心价值是把金额、幂等、账务一致性、审计和失败恢复从“经验”写成工程约束。</p>
+    <h3>2、<a href="https://lyra.horse/blog/2026/06/reddit-spam-internals/" target="_blank" rel="noopener noreferrer">A peek into Reddit’s anti-spam internals</a></h3>
+    <p>对 Reddit 反垃圾内部机制的观察。它提醒我们，任何大规模 UGC 或 agent 平台最终都会变成对抗系统，需要规则、模型、人工和数据回路同时工作。</p>
+    <h3>3、<a href="https://blog.weineng.me/posts/slowest_add/" target="_blank" rel="noopener noreferrer">I made the slowest possible add function and CPUs got angry</a></h3>
+    <p>一篇用反直觉实验解释 CPU 行为的文章。适合作为性能直觉训练：你不能只看代码复杂度，还要理解执行模型和硬件层面的惩罚。</p>
+    <h3>4、<a href="https://nlnetlabs.nl/llm-policy/" target="_blank" rel="noopener noreferrer">NLnet Labs LLM Policy</a></h3>
+    <p>NLnet Labs 公开自己的 LLM 使用政策。相比口号式“拥抱 AI”，这种明确边界、责任和数据处理原则的内部政策更值得工程组织参考。</p>
+
+    <h2 id="tools">🛠️ 工具推荐</h2>
+    <div class="tool-grid">
+      <div class="tool-card">
+        <h4><a href="https://github.com/librepods-org/librepods" target="_blank" rel="noopener noreferrer">LibrePods</a> <span class="priority-tag">P2</span></h4>
+        <p>面向开放生态的耳机控制工具。它的价值不在功能多炫，而在说明硬件体验也可以被社区重新接管。</p>
+      </div>
+      <div class="tool-card">
+        <h4><a href="https://github.com/kamaludu/bash4llm/" target="_blank" rel="noopener noreferrer">bash4llm+</a> <span class="priority-tag">P2</span></h4>
+        <p>把 shell 命令组织成更适合 LLM 调用的接口。适合关注 agent 工具协议、命令语义和本地自动化边界的团队。</p>
+      </div>
+      <div class="tool-card">
+        <h4><a href="https://github.com/JustVugg/nanoeuler" target="_blank" rel="noopener noreferrer">NanoEuler</a> <span class="priority-tag">P3</span></h4>
+        <p>一个极简数学/Project Euler 风格项目。可作为工程师训练小而完整问题建模的素材。</p>
+      </div>
+      <div class="tool-card">
+        <h4><a href="https://github.com/lateos-ai/npm-scan" target="_blank" rel="noopener noreferrer">npm-scan</a> <span class="priority-tag">P1</span></h4>
+        <p>面向 npm 依赖风险扫描的工具。今天的安全主线提醒我们，供应链扫描和 AI 代码审查会逐步合流。</p>
+      </div>
+      <div class="tool-card">
+        <h4><a href="https://github.com/fashton28/mux" target="_blank" rel="noopener noreferrer">Mux</a> <span class="priority-tag">P2</span></h4>
+        <p>一个用于管理 Claude Code sessions 的 tmux overlay。适合多 agent / 多任务并行时保持可见状态和切换成本。</p>
+      </div>
+    </div>
+
+    <h2 id="ai-tools">🧠 AI 工具</h2>
+    <div class="tool-grid">
+      <div class="tool-card">
+        <span class="tag">Inference</span>
+        <h4><a href="https://github.com/deepseek-ai/DeepSpec/blob/main/DSpark_paper.pdf" target="_blank" rel="noopener noreferrer">DSpark paper</a></h4>
+        <p>DeepSeek 关于 speculative decoding 的论文入口。重点看它如何把推理加速变成可训练、可评测的系统问题。</p>
+      </div>
+      <div class="tool-card">
+        <span class="tag">Model</span>
+        <h4><a href="https://huggingface.co/zai-org/GLM-5.2" target="_blank" rel="noopener noreferrer">GLM-5.2 Hugging Face model card</a></h4>
+        <p>GLM-5.2 的模型入口。适合进一步评估许可证、权重、上下文窗口和本地部署可行性。</p>
+      </div>
+      <div class="tool-card">
+        <span class="tag">Media</span>
+        <h4><a href="https://betterimagesofai.org/" target="_blank" rel="noopener noreferrer">Better Images of AI</a></h4>
+        <p>一个用于改善 AI 视觉表达的图库/倡议。AI 叙事越来越影响公共理解，配图质量也是认知基础设施的一部分。</p>
+      </div>
+    </div>
+
+    <h2 id="concepts">🧩 本期概念库</h2>
+    <div class="concept-card">
+      <h4>1. Harness Delta</h4>
+      <div class="concept-field"><strong>一句话解释：</strong>同一个模型在不同任务编排、上下文组织和工具调用方式下产生的性能差距。</div>
+      <div class="concept-field"><strong>背景来源：</strong>Semgrep IDOR benchmark</div>
+      <div class="concept-field"><strong>为什么重要：</strong>它解释了为什么“模型名”不是生产效果的充分条件。</div>
+      <div class="concept-field"><strong>团队应用场景：</strong>评估 AI 代码审查时，要把 prompt、检索、文件选择、端点发现和人工复核一起纳入 benchmark。</div>
+    </div>
+    <div class="concept-card">
+      <h4>2. Per-Bug Economics</h4>
+      <div class="concept-field"><strong>一句话解释：</strong>用每发现一个真实漏洞的成本，而不是单次调用价格衡量安全 AI。</div>
+      <div class="concept-field"><strong>背景来源：</strong>Semgrep 对 GLM-5.2 的成本估算</div>
+      <div class="concept-field"><strong>为什么重要：</strong>安全团队买的是有效召回和可接受误报，不是便宜 token。</div>
+      <div class="concept-field"><strong>团队应用场景：</strong>把 AI 安全工具预算从“月费”拆到“有效漏洞、误报处理、人工复核小时”。</div>
+    </div>
+    <div class="concept-card">
+      <h4>3. Sensitive Context Boundary</h4>
+      <div class="concept-field"><strong>一句话解释：</strong>定义 AI 工具永远不能读取、上传、记忆或推断的仓库/文件/数据边界。</div>
+      <div class="concept-field"><strong>背景来源：</strong>OpenAI Codex sensitive files issue</div>
+      <div class="concept-field"><strong>为什么重要：</strong>AI 编码工具越能读全仓库，边界证明越关键。</div>
+      <div class="concept-field"><strong>团队应用场景：</strong>把 .env、密钥、客户数据、生产日志和内部策略文档纳入默认拒读清单，并保留审计证据。</div>
+    </div>
+    <div class="concept-card">
+      <h4>4. Benchmark Narrowness</h4>
+      <div class="concept-field"><strong>一句话解释：</strong>一个 benchmark 只证明模型在该任务定义下的表现，不能直接外推为通用智能排名。</div>
+      <div class="concept-field"><strong>背景来源：</strong>GLM-5.2 / Claude Code 对比的解读限制</div>
+      <div class="concept-field"><strong>为什么重要：</strong>避免把营销结论带进架构决策。</div>
+      <div class="concept-field"><strong>团队应用场景：</strong>每次引用外部榜单，都标注任务范围、数据集、指标、样本规模和是否可复现。</div>
+    </div>
+    <div class="concept-card">
+      <h4>5. AI Assessment Redesign</h4>
+      <div class="concept-field"><strong>一句话解释：</strong>当答案生成变便宜后，考核从结果提交转向过程、解释、约束下操作和现场复盘。</div>
+      <div class="concept-field"><strong>背景来源：</strong>Brown University AI cheating case</div>
+      <div class="concept-field"><strong>为什么重要：</strong>教育和企业考核都要适配 AI 时代的能力证据。</div>
+      <div class="concept-field"><strong>团队应用场景：</strong>面试、培训和绩效评估要减少“可外包答案”，增加真实问题拆解和口头追问。</div>
+    </div>
+
+    <h2 id="curiosity">🎲 好奇心入口</h2>
+    <div class="curiosity-card">
+      <h4><a href="https://pudding.cool/2026/06/menu-story/" target="_blank" rel="noopener noreferrer">The Pudding：5,000 份菜单里的食物叙事</a></h4>
+      <div class="hook">数据新闻也可以像故事书一样读。</div>
+      <p>The Pudding 用菜单数据讲述食物、价格和文化变化。 团队暗线：好产品不是把数据堆出来，而是把结构转成可被记住的故事。</p>
+    </div>
+    <div class="curiosity-card">
+      <h4><a href="https://dam.stanford.edu/memory-prices.html" target="_blank" rel="noopener noreferrer">Stanford：Memory Prices over Time</a></h4>
+      <div class="hook">今天的 AI 成本，很多年前就埋在内存价格曲线里。</div>
+      <p>历史内存价格曲线帮助理解为什么带宽、容量和成本会持续塑造计算形态。 团队暗线：看技术趋势时，不要只看模型，要看它依赖的资源曲线。</p>
+    </div>
+    <div class="curiosity-card">
+      <h4><a href="https://www.openra.net/" target="_blank" rel="noopener noreferrer">OpenRA</a></h4>
+      <div class="hook">老游戏也可以成为开源工程的长期主义样本。</div>
+      <p>OpenRA 继续维护经典 RTS 的开源重制体验。 团队暗线：社区软件的生命力来自清晰边界、可贡献路径和长期维护节奏。</p>
+    </div>
+
+    <h2 id="resources">📚 资源</h2>
+    <div class="resource-item">
+      <a href="https://www.artificialanalysis.ai/models/glm-5-2" target="_blank" rel="noopener noreferrer">Artificial Analysis: GLM-5.2 profile</a>
+      <p>用第三方模型分析页补充 GLM-5.2 的性能与成本视角，适合和 Semgrep 安全 benchmark 交叉阅读。</p>
+    </div>
+    <div class="resource-item">
+      <a href="https://z.ai/blog/glm-5.2" target="_blank" rel="noopener noreferrer">Z.AI Blog: GLM-5.2</a>
+      <p>GLM-5.2 官方博客入口。关注 1M context、long-horizon task 和开源权重策略。</p>
+    </div>
+    <div class="resource-item">
+      <a href="https://12gramsofcarbon.com/p/agentics-tech-things-tokenmaxxing" target="_blank" rel="noopener noreferrer">Agentics: tokenmaxxing</a>
+      <p>关于 agent 使用 token 的产品/工程反思。适合和长上下文、成本控制、任务编排一起读。</p>
+    </div>
+
+    <h2 id="quotes">💬 言论：本期 6 个认知增量</h2>
+    <div class="quote-block">
+      <blockquote>这次比较的重点不是谁赢了通用模型赛，而是谁能在特定安全任务里形成可复制的产线。</blockquote>
+      <div class="quote-author">—— Tech Digest 解读 Semgrep GLM-5.2 benchmark</div>
+      <div class="quote-meta">来源：<a href="https://news.ycombinator.com/item?id=48709670" target="_blank" rel="noopener noreferrer">news.ycombinator.com</a> · 类型：判断 · 关键词：GLM-5.2 · security benchmark · harness</div>
+      <div class="quote-comment">💭 HN 的讨论热度说明，工程师已经开始用任务成本而不是品牌心智看模型。</div>
+      <div class="quote-team-insight">🎯 团队启发：内部选型要先建自己的 benchmark，外部榜单只能作为候选集。</div>
+    </div>
+    <div class="quote-block">
+      <blockquote>1M context 的真正考验不是能装多少，而是能不能在长任务中不忘目标。</blockquote>
+      <div class="quote-author">—— Tech Digest 摘要 Simon Willison / Z.AI 信息</div>
+      <div class="quote-meta">来源：<a href="https://simonwillison.net/2026/jun/17/glm-52/" target="_blank" rel="noopener noreferrer">simonwillison.net</a> · 类型：观察 · 关键词：long context · GLM-5.2 · agent</div>
+      <div class="quote-comment">💭 长上下文会降低检索摩擦，也会制造新的上下文治理问题。</div>
+      <div class="quote-team-insight">🎯 团队启发：对长任务 agent 增加阶段性摘要、目标核对和失败恢复点。</div>
+    </div>
+    <div class="quote-block">
+      <blockquote>敏感文件排除不是功能小项，而是 AI 编码工具进入真实仓库的准入门槛。</blockquote>
+      <div class="quote-author">—— Tech Digest 解读 Codex issue</div>
+      <div class="quote-meta">来源：<a href="https://news.ycombinator.com/item?id=48706714" target="_blank" rel="noopener noreferrer">news.ycombinator.com</a> · 类型：风险 · 关键词：Codex · sensitive files · privacy</div>
+      <div class="quote-comment">💭 当 agent 能自动探索项目，边界控制必须比能力展示更早设计。</div>
+      <div class="quote-team-insight">🎯 团队启发：在启用任何代码 agent 前，先完成拒读规则、日志留存和最小权限策略。</div>
+    </div>
+    <div class="quote-block">
+      <blockquote>推理加速会越来越像数据库优化：不是一个技巧，而是一整套执行计划。</blockquote>
+      <div class="quote-author">—— Tech Digest 解读 DSpark</div>
+      <div class="quote-meta">来源：<a href="https://news.ycombinator.com/item?id=48696585" target="_blank" rel="noopener noreferrer">news.ycombinator.com</a> · 类型：技术趋势 · 关键词：speculative decoding · inference · serving</div>
+      <div class="quote-comment">💭 成本竞争会从模型层扩散到 decoding、routing、cache 和硬件。</div>
+      <div class="quote-team-insight">🎯 团队启发：做 AI 产品预算时，把推理栈优化列为路线图，不要只谈换模型。</div>
+    </div>
+    <div class="quote-block">
+      <blockquote>当用户把 coding agent 拖进医疗材料，产品边界必须先于增长叙事。</blockquote>
+      <div class="quote-author">—— Tech Digest 解读 Claude Code MRI 案例</div>
+      <div class="quote-meta">来源：<a href="https://news.ycombinator.com/item?id=48708941" target="_blank" rel="noopener noreferrer">news.ycombinator.com</a> · 类型：伦理 · 关键词：medical AI · Claude Code · responsibility</div>
+      <div class="quote-comment">💭 这不是医疗建议，而是高责任场景正在被通用工具意外触达的信号。</div>
+      <div class="quote-team-insight">🎯 团队启发：高风险输入要有明确免责声明、拒答策略和转人工路径。</div>
+    </div>
+    <div class="quote-block">
+      <blockquote>年龄验证把安全问题改写成身份问题，也会把隐私成本推给每个普通用户。</blockquote>
+      <div class="quote-author">—— Tech Digest 解读 KIDS Act 讨论</div>
+      <div class="quote-meta">来源：<a href="https://news.ycombinator.com/item?id=48706560" target="_blank" rel="noopener noreferrer">news.ycombinator.com</a> · 类型：政策 · 关键词：age verification · privacy · internet policy</div>
+      <div class="quote-comment">💭 内容治理常常以保护为名引入新的身份基础设施。</div>
+      <div class="quote-team-insight">🎯 团队启发：面向未成年人或高风险内容的产品，要提前评估身份验证、数据最小化和地区差异。</div>
+    </div>
+
+    <h2 id="podcast">🎙️ 播客提纲</h2>
+    <div class="podcast-brief">
+      <h4>开源模型把安全能力卷成成本问题</h4>
+      <div class="cold-open">今天最值得记住的一句话：模型排行榜告诉你谁更聪明，生产 benchmark 告诉你谁更划算、更可控。</div>
+      <div class="podcast-segment">
+        <strong>第一段：Semgrep 把 GLM-5.2 放进安全基准</strong>
+        <p>GLM-5.2 在 IDOR benchmark 中拿到 39% F1，并把每个漏洞的发现成本打到讨论中心。</p>
+        <p>不要把它解读成通用能力碾压 Claude，要解读成专用 harness 正在放大开源权重模型。</p>
+      </div>      <div class="podcast-segment">
+        <strong>第二段：为什么 harness 比模型名更重要</strong>
+        <p>Semgrep 自家的 endpoint discovery 配置仍然领先，说明上下文组织和任务编排是生产效果的关键。</p>
+        <p>做内部 benchmark 时，把文件选择、端点发现、复核链路和成本指标纳入同一张表。</p>
+      </div>      <div class="podcast-segment">
+        <strong>第三段：边界问题同时升温</strong>
+        <p>Codex 敏感文件排除、KIDS Act 年龄验证、Claude Code MRI 案例都在问同一个问题：AI 到底能接触什么？</p>
+        <p>AI 产品的下一层竞争力不是更会回答，而是更会证明边界、权限和责任。</p>
+      </div>
+      <p>今天的结论：未来团队买到的不是“一个聪明模型”，而是一条可度量、可审计、可控制成本的任务产线。</p>
+    </div>
+
+    <h2 id="team-insights">✅ 对团队的启发</h2>
+    <div class="insight-card">
+      <p><span class="insight-num">1</span>模型评估不要从“谁最强”开始，而要从“我们要完成什么任务、用什么指标证明完成”开始。</p>
+    </div>
+    <div class="insight-card">
+      <p><span class="insight-num">2</span>安全/代码 agent 的第一批生产约束应包括拒读文件、审计日志、最小权限、人工复核和失败回滚。</p>
+    </div>
+    <div class="insight-card">
+      <p><span class="insight-num">3</span>长上下文能力进入生产后，要建立上下文预算、目标检查点和污染隔离机制。</p>
+    </div>
+    <div class="insight-card">
+      <p><span class="insight-num">4</span>教育、面试和内部培训需要从答案验证转向过程验证，否则 AI 会持续击穿旧考核方式。</p>
+    </div>
+    <div class="insight-card">
+      <p><span class="insight-num">5</span>推理成本优化要进入产品路线图：模型选择、解码策略、缓存和硬件利用率都应被持续度量。</p>
+    </div>
+
+    <div class="footer-sources">
+      <strong>📋 数据来源说明</strong><br>
+      本情报来自 66 个全球精选科技 / AI / 工程 / 系统可靠性信息源的每日更新。<br>
+      由 Cursor AI 自动生成，信息截止至 2026 年 6 月 29 日。
+    </div>
+  </main>
+</div>
+
+<script>
+(function(){
+  const toc=document.querySelector('.toc');if(!toc)return;
+  const links=[...toc.querySelectorAll('a')];
+  const ids=links.map(l=>l.getAttribute('href').slice(1));
+  const secs=ids.map(id=>document.getElementById(id)).filter(Boolean);
+  function hl(){let cur=0;secs.forEach((s,i)=>{if(s.getBoundingClientRect().top<=120)cur=i;});
+  links.forEach((l,i)=>{l.classList.toggle('active',i===cur);});}
+  window.addEventListener('scroll',hl,{passive:true});hl();
+})();
+
+</script>
+</body>
+</html>

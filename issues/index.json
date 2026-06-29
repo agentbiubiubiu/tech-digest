@@ -1,5 +1,11 @@
 [
   {
+    "date": "2026-06-29",
+    "title": "第 50 期：开源模型开始把安全能力卷成成本问题",
+    "highlights": "GLM-5.2 在 Semgrep IDOR 基准中以 39% F1 进入第一梯队 · Semgrep 强调 endpoint discovery / harness 才是最大差距 · Z.AI 发布 1M context 的 GLM-5.2 · DeepSeek 开源 DeepSpec/DSpark speculative decoding · OpenAI Codex 仍有敏感文件排除需求被追问 · KIDS Act 引发线上年龄验证争议 · Brown 教授公开批评考试中的大规模 AI 作弊 · TOP500 出现 ISC 2026 新第一",
+    "image": "https://semgrep.dev/assets/blog/glm-5.2-beats-claude-in-our-cybersecurity-benchmarks.png"
+  },
+  {
     "date": "2026-06-27",
     "title": "第 49 期：前沿模型开始进入准入制时代",
     "highlights": "OpenAI 预览 GPT-5.6 Sol 并从 trusted partners 开始 · GPT-5.6 System Card 把 safeguards、monitoring、tripwires 前置 · Reuters 称美国允许 Anthropic Mythos 向 trusted partners 开放 · Vercel Ship 2026 聚焦 Agentic Infrastructure · AWS Lambda MicroVMs 提供 VM 级隔离沙箱 · GitHub Copilot 报表开始按 adoption phase 统计合并 PR · 2,000 人/6,000 次尝试未攻破一个 AI 助手挑战 · GitHub Desktop 3.6 支持 worktrees 与 Copilot 冲突解决",
