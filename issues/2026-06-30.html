@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>第 51 期：模型 API 里开始长出协作层</title>
+  <meta property="og:title" content="第 51 期：模型 API 里开始长出协作层">
+  <meta property="og:description" content="vLLM Semantic Router 把 vllm-sr/auto 变成 bounded micro-agent runtime：模型 API 不再只是转发请求，而开始根据任务形状选择协作模式、预算、fallback 和输出契约。">
+  <meta property="og:image" content="https://opengraph.githubassets.com/tech-digest-51/SMJAI/open-memory-protocol">
+  <style>
+:root {
+  --bg: #f5f6f8; --surface: #ffffff; --surface2: #f0f2f5;
+  --border: #e8ecf1; --border-hover: #c5cdd8;
+  --text: #1a1d21; --text-secondary: #3d4550; --text-muted: #8c95a1;
+  --accent: #2d9f6f; --accent-light: #e8f5ef; --accent-hover: #248a5e;
+  --accent-text: #ffffff;
+  --purple: #7c5cbf; --purple-light: #f3effc;
+  --orange: #e58e26; --orange-light: #fef5e7;
+  --blue: #3a82f7; --blue-light: #eef4fe;
+  --red: #e74c3c; --red-light: #fdecea;
+  --green-deep: #1a7a4c; --green-light2: #e0f5ea;
+  --yellow: #d4a017; --yellow-light: #fef9e7;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.06);
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.06), 0 2px 4px rgba(0,0,0,0.04);
+  --shadow-lg: 0 10px 30px rgba(0,0,0,0.08);
+  --radius: 12px; --radius-sm: 8px; --radius-xs: 6px;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Helvetica, Arial, sans-serif; background: var(--bg); color: var(--text); line-height: 1.75; font-size: 15px; -webkit-font-smoothing: antialiased; }
+.topbar { background: var(--surface); border-bottom: 1px solid var(--border); padding: 12px 32px; display: flex; align-items: center; gap: 16px; position: sticky; top: 0; z-index: 200; box-shadow: var(--shadow-sm); }
+.topbar-brand { font-size: 1.1rem; font-weight: 700; color: var(--accent); text-decoration: none; display: flex; align-items: center; gap: 8px; }
+.topbar-brand svg { width: 28px; height: 28px; }
+.topbar-nav { display: flex; gap: 4px; margin-left: 24px; }
+.topbar-nav a { padding: 6px 16px; border-radius: 20px; font-size: 0.85rem; font-weight: 500; color: var(--text-secondary); text-decoration: none; transition: all 0.2s; }
+.topbar-nav a:hover { background: var(--surface2); color: var(--text); }
+.topbar-nav a.active { background: var(--accent-light); color: var(--accent); font-weight: 600; }
+.topbar-right { margin-left: auto; display: flex; align-items: center; gap: 12px; }
+.topbar-date { font-size: 0.82rem; color: var(--text-muted); background: var(--surface2); padding: 5px 12px; border-radius: 16px; }
+.page { display: flex; max-width: 1200px; margin: 0 auto; padding: 24px 24px 0; gap: 24px; }
+.toc { width: 220px; flex-shrink: 0; position: sticky; top: 80px; height: calc(100vh - 104px); overflow-y: auto; background: var(--surface); border-radius: var(--radius); padding: 20px 16px; box-shadow: var(--shadow-sm); border: 1px solid var(--border); }
+.toc-title { font-size: 0.72rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 14px; padding-left: 12px; }
+.toc a { display: block; padding: 7px 12px; margin-bottom: 2px; font-size: 0.82rem; color: var(--text-muted); text-decoration: none; border-radius: var(--radius-xs); transition: all 0.15s; font-weight: 500; }
+.toc a:hover { color: var(--accent); background: var(--accent-light); }
+.toc a.active { color: var(--accent); background: var(--accent-light); font-weight: 600; }
+.toc-mobile { display: none; position: sticky; top: 57px; z-index: 100; background: var(--surface); border-bottom: 1px solid var(--border); padding: 10px 16px; box-shadow: var(--shadow-sm); }
+.toc-mobile summary { cursor: pointer; font-size: 0.85rem; color: var(--accent); font-weight: 600; list-style: none; }
+.toc-mobile summary::-webkit-details-marker { display: none; }
+.toc-mobile .toc-dropdown { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 8px; margin-top: 8px; max-height: 60vh; overflow-y: auto; box-shadow: var(--shadow-md); }
+.toc-mobile .toc-dropdown a { display: block; padding: 8px 12px; font-size: 0.88rem; color: var(--text-secondary); text-decoration: none; border-radius: var(--radius-xs); }
+.toc-mobile .toc-dropdown a:hover { color: var(--accent); background: var(--accent-light); }
+@media (max-width: 860px) { .toc { display: none; } .toc-mobile { display: block; } .topbar-nav { display: none; } .page { flex-direction: column; padding: 16px 12px 0; gap: 16px; } .container { padding: 20px 16px 60px; } }
+.container { flex: 1; min-width: 0; background: var(--surface); border-radius: var(--radius); padding: 36px 40px 60px; box-shadow: var(--shadow-sm); border: 1px solid var(--border); margin-bottom: 40px; }
+.back { display: inline-flex; align-items: center; gap: 4px; color: var(--text-muted); text-decoration: none; font-size: 0.85rem; margin-bottom: 28px; font-weight: 500; transition: color 0.15s; }
+.back:hover { color: var(--accent); }
+h1 { font-size: 1.7rem; font-weight: 800; margin-bottom: 10px; line-height: 1.35; color: var(--text); letter-spacing: -0.01em; }
+.meta { color: var(--text-muted); font-size: 0.85rem; margin-bottom: 28px; }
+.highlights-line { color: var(--text-secondary); font-size: 0.9rem; margin: -18px 0 28px; line-height: 1.65; }
+.hero-img { width: 100%; border-radius: var(--radius); margin-bottom: 10px; box-shadow: var(--shadow-md); }
+.hero-caption { font-size: 0.82rem; color: var(--text-muted); margin-bottom: 36px; text-align: center; font-style: italic; }
+h2 { font-size: 1.25rem; font-weight: 700; margin: 44px 0 18px; padding-bottom: 10px; border-bottom: 2px solid var(--accent-light); scroll-margin-top: 90px; color: var(--text); }
+h3 { font-size: 1.05rem; font-weight: 600; margin: 26px 0 8px; color: var(--text); }
+p { margin-bottom: 14px; color: var(--text-secondary); }
+a { color: var(--accent); text-decoration: none; font-weight: 500; }
+a:hover { color: var(--accent-hover); text-decoration: underline; }
+strong { color: var(--text); font-weight: 600; }
+.callout { background: var(--accent-light); border-left: 4px solid var(--accent); border-radius: var(--radius-sm); padding: 16px 20px; margin: 20px 0; font-size: 0.93rem; color: var(--text-secondary); }
+.main-story { background: linear-gradient(135deg, #f7fbff 0%, #fff 60%); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px 26px; margin: 18px 0 28px; box-shadow: var(--shadow-sm); }
+.main-story h3 { margin-top: 0; font-size: 1.2rem; line-height: 1.45; }
+.main-story .story-hook { color: var(--accent); font-weight: 700; margin-bottom: 14px; }
+.story-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 16px 0; }
+.story-field { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 12px 14px; font-size: 0.88rem; color: var(--text-secondary); }
+.story-field strong { display: block; margin-bottom: 4px; color: var(--text); }
+.number-chip { display: inline-block; background: var(--blue-light); color: var(--blue); border-radius: 14px; padding: 3px 10px; margin: 3px 6px 3px 0; font-size: 0.78rem; font-weight: 700; }
+.story-line { background: var(--purple-light); border-left: 4px solid var(--purple); border-radius: var(--radius-sm); padding: 14px 16px; margin-top: 14px; color: var(--text); font-weight: 700; }
+.trend-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin: 16px 0 28px; }
+.trend-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px 20px; box-shadow: var(--shadow-sm); }
+.trend-card h4 { font-size: 0.95rem; margin-bottom: 8px; color: var(--text); }
+.trend-card .trend-conflict { color: var(--red); font-size: 0.82rem; font-weight: 700; margin-bottom: 8px; }
+.trend-card p { font-size: 0.86rem; margin-bottom: 10px; }
+.trend-card .trend-sources { font-size: 0.76rem; color: var(--text-muted); line-height: 1.55; }
+.curiosity-card { background: var(--orange-light); border: 1px solid #f5ddb8; border-radius: var(--radius); padding: 20px 24px; margin: 14px 0; }
+.curiosity-card h4 { font-size: 1rem; margin-bottom: 8px; font-weight: 600; }
+.curiosity-card h4 a { color: var(--orange); }
+.curiosity-card .hook { color: var(--orange); font-weight: 700; margin-bottom: 6px; }
+.curiosity-card p { font-size: 0.88rem; color: var(--text-secondary); margin: 0 0 8px; line-height: 1.65; }
+.podcast-brief { background: #f8fafc; border: 1px solid var(--border); border-radius: var(--radius); padding: 20px 24px; margin: 18px 0; }
+.podcast-brief h4 { margin: 0 0 10px; font-size: 1rem; }
+.podcast-brief .cold-open { color: var(--accent); font-weight: 700; margin-bottom: 14px; }
+.podcast-segment { border-top: 1px solid var(--border); padding-top: 12px; margin-top: 12px; }
+.podcast-segment strong { display: block; margin-bottom: 4px; }
+.article-img { width: 100%; max-height: 380px; object-fit: cover; border-radius: var(--radius-sm); margin: 12px 0 24px; box-shadow: var(--shadow-sm); }
+.tool-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 16px 0; }
+.tool-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px 20px; transition: all 0.2s; box-shadow: var(--shadow-sm); }
+.tool-card:hover { border-color: var(--accent); box-shadow: var(--shadow-md); transform: translateY(-1px); }
+.tool-card h4 { font-size: 0.95rem; margin-bottom: 6px; font-weight: 600; }
+.tool-card h4 a { color: var(--accent); }
+.tool-card p { font-size: 0.83rem; color: var(--text-muted); margin: 0; line-height: 1.55; }
+.tool-card .tag { display: inline-block; font-size: 0.68rem; padding: 3px 8px; border-radius: 10px; background: var(--accent); color: var(--accent-text); font-weight: 600; margin-bottom: 8px; letter-spacing: 0.02em; }
+.tool-card .priority-tag { display: inline-block; font-size: 0.65rem; padding: 2px 6px; border-radius: 8px; background: var(--surface2); color: var(--text-muted); font-weight: 600; margin-left: 6px; }
+.fun-card { background: var(--orange-light); border: 1px solid #f5ddb8; border-radius: var(--radius); padding: 20px 24px; margin: 14px 0; }
+.fun-card h4 { font-size: 1rem; margin-bottom: 8px; font-weight: 600; }
+.fun-card h4 a { color: var(--orange); }
+.fun-card p { font-size: 0.88rem; color: var(--text-secondary); margin: 0; line-height: 1.65; }
+.quote-block { background: var(--purple-light); border-left: 4px solid var(--purple); border-radius: var(--radius-sm); padding: 20px 24px; margin: 18px 0; }
+.quote-block blockquote { font-size: 1.02rem; line-height: 1.65; margin-bottom: 10px; font-style: italic; color: var(--text); }
+.quote-block .quote-author { font-size: 0.82rem; color: var(--purple); font-weight: 600; margin-bottom: 6px; }
+.quote-block .quote-meta { font-size: 0.78rem; color: var(--text-muted); margin-bottom: 10px; }
+.quote-block .quote-comment { font-size: 0.88rem; color: var(--text-secondary); border-top: 1px solid #d8d0e8; padding-top: 10px; margin-top: 10px; }
+.quote-block .quote-team-insight { font-size: 0.88rem; color: var(--green-deep); background: var(--accent-light); border-radius: var(--radius-xs); padding: 8px 12px; margin-top: 8px; }
+.resource-item { background: var(--blue-light); border: 1px solid #c8dbf8; border-radius: var(--radius); padding: 18px 20px; margin: 12px 0; }
+.resource-item a { font-weight: 600; color: var(--blue); }
+.resource-item p { font-size: 0.88rem; color: var(--text-secondary); margin: 6px 0 0; }
+.concept-card { background: var(--green-light2); border-left: 4px solid var(--accent); border-radius: var(--radius-sm); padding: 20px 24px; margin: 16px 0; }
+.concept-card h4 { font-size: 1rem; font-weight: 700; color: var(--green-deep); margin-bottom: 10px; }
+.concept-card .concept-field { font-size: 0.88rem; color: var(--text-secondary); margin-bottom: 6px; line-height: 1.6; }
+.concept-card .concept-field strong { color: var(--text); font-size: 0.88rem; }
+.insight-card { background: var(--yellow-light); border-left: 4px solid var(--yellow); border-radius: var(--radius-sm); padding: 16px 20px; margin: 12px 0; }
+.insight-card p { font-size: 0.93rem; color: var(--text-secondary); margin: 0; line-height: 1.7; }
+.insight-card .insight-num { display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; border-radius: 50%; background: var(--yellow); color: #fff; font-size: 0.75rem; font-weight: 700; margin-right: 10px; flex-shrink: 0; }
+.certainty-tag { display: inline-block; font-size: 0.65rem; padding: 2px 6px; border-radius: 8px; font-weight: 600; margin-left: 8px; }
+.certainty-confirmed { background: var(--accent-light); color: var(--accent); }
+.certainty-announced { background: var(--blue-light); color: var(--blue); }
+.certainty-reported { background: var(--yellow-light); color: var(--yellow); }
+.certainty-opinion { background: var(--purple-light); color: var(--purple); }
+.certainty-rumor { background: var(--red-light); color: var(--red); }
+.footer-sources { margin-top: 44px; padding: 20px 24px; background: var(--surface2); border-radius: var(--radius); font-size: 0.78rem; color: var(--text-muted); line-height: 1.9; }
+.footer-sources strong { color: var(--text-secondary); font-size: 0.78rem; }
+@media (max-width: 860px) { .trend-grid, .story-grid { grid-template-columns: 1fr; } }
+@media (max-width: 640px) { .tool-grid { grid-template-columns: 1fr; } }
+
+  </style>
+</head>
+<body>
+
+<header class="topbar">
+  <a href="../index.html" class="topbar-brand">
+    <svg viewBox="0 0 28 28" fill="none"><circle cx="14" cy="14" r="14" fill="#2d9f6f"/><path d="M8 14.5l3.5 3.5 8.5-8" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    Tech Digest
+  </a>
+  <nav class="topbar-nav">
+    <a href="../index.html">Archive</a>
+    <a href="#main-story" class="active">Today</a>
+    <a href="#tools">Tools</a>
+    <a href="#quotes">Quotes</a>
+  </nav>
+  <div class="topbar-right">
+    <span class="topbar-date">2026-06-30</span>
+  </div>
+</header>
+
+<details class="toc-mobile">
+  <summary>📑 目录导航</summary>
+  <div class="toc-dropdown">
+    <a href="#main-story">🔥 主故事</a>
+    <a href="#trends">⚡ 冲突趋势</a>
+    <a href="#tech-news">📰 科技动态</a>
+    <a href="#ai">🤖 AI 相关</a>
+    <a href="#articles">📝 文章推荐</a>
+    <a href="#tools">🛠️ 工具推荐</a>
+    <a href="#ai-tools">🧠 AI 工具</a>
+    <a href="#concepts">🧩 本期概念库</a>
+    <a href="#curiosity">🎲 好奇心入口</a>
+    <a href="#resources">📚 资源</a>
+    <a href="#quotes">💬 言论</a>
+    <a href="#podcast">🎙️ 播客提纲</a>
+    <a href="#team-insights">✅ 对团队的启发</a>
+  </div>
+</details>
+
+<div class="page">
+  <nav class="toc">
+    <div class="toc-title">本期目录</div>
+    <a href="#main-story">🔥 主故事</a>
+    <a href="#trends">⚡ 冲突趋势</a>
+    <a href="#tech-news">📰 科技动态</a>
+    <a href="#ai">🤖 AI 相关</a>
+    <a href="#articles">📝 文章推荐</a>
+    <a href="#tools">🛠️ 工具推荐</a>
+    <a href="#ai-tools">🧠 AI 工具</a>
+    <a href="#concepts">🧩 本期概念库</a>
+    <a href="#curiosity">🎲 好奇心入口</a>
+    <a href="#resources">📚 资源</a>
+    <a href="#quotes">💬 言论</a>
+    <a href="#podcast">🎙️ 播客提纲</a>
+    <a href="#team-insights">✅ 对团队的启发</a>
+  </nav>
+
+  <main class="container">
+    <a href="../index.html" class="back">← 返回目录</a>
+    <h1>第 51 期：模型 API 里开始长出协作层</h1>
+    <div class="meta">第 51 期 · 2026 年 6 月 30 日，星期二</div>
+    <p class="highlights-line"><strong>✨ 本期亮点：</strong>vLLM Semantic Router 把模型 API 做成 bounded micro-agent runtime · VSR Closed 在 vLLM 博客 scorecard 中达到 LiveCodeBench 92.6 / GPQA-Diamond 96.0 · Qwen 3.6 27B 成为本地开发热议模型 · Ornith-1.0 让模型学习生成任务 harness · GitHub Copilot 预览 Claude Opus 4.8 fast mode · Netflix GenPage 探索端到端生成首页 · Rocket Lab 与 Iridium 达成约 80 亿美元收购协议 · 美国最高法院要求 geofence warrants 具备宪法隐私保护</p>
+
+    <img class="hero-img" src="https://vllm.ai/blog-assets/figures/2026-06-29-micro-agent-frontier-models/looper-micro-agents.png" alt="vLLM Micro-Agent collaboration diagram">
+    <div class="hero-caption">vLLM Semantic Router 的 micro-agent 叙事，把“模型选择”升级成“任务形状 → 协作 recipe → 可观测执行”的 serving 层能力。</div>
+
+    <div class="callout">
+      <strong>🎯 本期核心判断：</strong>AI 基础设施的竞争正在从“单模型更强”转向“路由层更会组织模型”：真正的能力开始藏在 recipe、quorum、fallback、trace 和成本预算这些 serving 细节里。
+    </div>
+
+    <div class="callout">
+      <strong>⏱ 本期建议阅读顺序</strong><br>
+      先读主故事：vLLM 把 Semantic Router 写成 bounded micro-agent runtime，这解释了为什么“一个模型名”后面会藏着多个协作 recipe。<br>
+      再看 AI 相关：Qwen 3.6、Ornith-1.0、LongCat-2.0、Claude Opus 4.8 fast mode 和 Vercel voice agents 都在把能力竞争推向部署侧。<br>
+      最后读工程文章：Netflix GenPage、性能收益阈值、形式化验证和 htmx 的 AI 例子，都在提醒我们不要只迷信模型输出，要看系统闭环。
+    </div>
+
+    <h2 id="main-story">🔥 主故事</h2>
+        <article class="main-story">
+      <h3>vLLM 把模型 API 做成 micro-agent：下一层能力可能不在模型里，而在路由器里</h3>
+      <p class="story-hook">一个看似普通的 model name，现在可能不是一个模型，而是一套带预算、投票、fallback 和 trace 的小型工作流。</p>
+      <p>vLLM 在 6 月 29 日发布 Micro-Agent 文章，解释 Semantic Router 如何把 vllm-sr/auto 变成 bounded micro-agent runtime。它不再只负责“把请求发给哪个模型”，而是根据任务形状选择 Confidence、Ratings、ReMoM、Fusion、Workflows 等协作 recipe。</p>
+      <div class="story-grid">
+        <div class="story-field"><strong>核心冲突</strong>过去 AI serving 的默认问题是“哪个模型最强”；现在问题变成“同一个请求到底该用单模型、投票、互评、修复、合成还是 fallback”。能力从模型权重迁移到模型之间的组织方式。</div>
+        <div class="story-field"><strong>转折点</strong>vLLM 的表述很直接：vllm-sr/auto 不应该等于“总是跑最大的 loop”，而应该是“选择适合当前任务的 recipe”。这把 router 从负载均衡器变成了任务编排器。</div>
+        <div class="story-field"><strong>为什么现在发生</strong>模型供应越来越多、价格和延迟差异越来越大，企业又需要可控预算、可观测 trace 和明确失败模式。单模型 API 无法表达这些约束，serving 层必须承担更多决策。</div>
+        <div class="story-field"><strong>对团队的启发</strong>如果团队在做 AI Gateway、内部 agent 平台或代码助手，不要只封装模型列表；要把 routing policy、quorum、timeout、fallback、输出契约和审计标签变成一等配置。</div>
+      </div>
+      <p><span class="number-chip">LiveCodeBench 92.6</span><span class="number-chip">GPQA-Diamond 96.0</span><span class="number-chip">HLE 50.0</span><span class="number-chip">6 类 recipe</span><span class="number-chip">bounded runtime</span></p>
+      <p><strong>我的判断：</strong>这是今天最值得抓住的架构信号：未来“调用一个模型”会越来越像“提交一个任务给小型执行计划”。模型变多以后，真正稀缺的是会组织模型的控制面。</p>
+      <div class="story-line">AI 的下一层护城河，可能不是更会回答的模型，而是更会安排模型干活的路由器。</div>
+      <p><strong>来源：</strong><a href="https://vllm.ai/blog/2026-06-29-micro-agent-frontier-models" target="_blank" rel="noopener noreferrer">vllm.ai</a></p>
+    </article>
+
+    <h2 id="trends">⚡ 冲突趋势</h2>
+        <div class="trend-grid">
+      <div class="trend-card">
+        <h4>单模型 API vs 模型协作控制面</h4>
+        <div class="trend-conflict">模型越多，单次调用越难表达预算、质量和失败策略。</div>
+        <p>下一代 AI Gateway 不只是 proxy，而会变成带策略、审计和执行计划的任务控制面。</p>
+        <div class="trend-sources">vllm.ai · vercel.com</div>
+      </div>
+      <div class="trend-card">
+        <h4>本地模型甜点位 vs 云端 frontier 依赖</h4>
+        <div class="trend-conflict">Qwen 3.6 27B 这类模型把“够用的本地智能”推到开发者桌面，但价格/速度/上下文仍有取舍。</div>
+        <p>团队的 AI 架构会从“全云端”变成“本地、私有、云端按任务分层”。</p>
+        <div class="trend-sources">quesma.com · artificialanalysis.ai</div>
+      </div>
+      <div class="trend-card">
+        <h4>AI 生成结果 vs 可验证系统闭环</h4>
+        <div class="trend-conflict">Netflix、htmx 和形式化验证讨论都在说同一件事：模型能生成，但系统必须能证明、评估和回滚。</div>
+        <p>AI 工程的瓶颈会从“生成”转向“确认生成物在真实约束里工作”。</p>
+        <div class="trend-sources">netflixtechblog.com · htmx.org</div>
+      </div>
+    </div>
+
+    <h2 id="tech-news">📰 科技动态</h2>
+    <h3>1、<a href="https://investors.rocketlabcorp.com/news-releases/news-release-details/rocket-lab-acquire-iridium-historic-deal-creating-fully" target="_blank" rel="noopener noreferrer">Rocket Lab 与 Iridium 达成约 80 亿美元收购协议，预计 2027 年中完成</a> <span class="certainty-tag certainty-announced">announced</span></h3>
+    <p>这不是“已经收购”，而是“达成协议、待股东和监管批准”。Rocket Lab 宣布拟以约 80 亿美元收购 Iridium，交易若完成，会把火箭、卫星制造、空间系统和全球通信网络揉成一个纵向整合公司。团队要看的不是太空八卦，而是基础设施公司正在把“制造 + 网络 + 服务”打包成端到端平台。</p>
+    <h3>2、<a href="https://www.theguardian.com/us-news/2026/jun/29/supreme-court-geofence-warrants-case-decision" target="_blank" rel="noopener noreferrer">美国最高法院：geofence warrants 需要宪法级隐私保护</a> <span class="certainty-tag certainty-reported">reported</span></h3>
+    <p>一次位置数据查询，可能扫进一大片无辜手机。Guardian 报道，美国最高法院裁定执法部门使用 geofence warrants 扫取手机位置数据时需要隐私保护。对产品团队的提醒很直接：地理位置、设备轨迹和时间线不是普通日志，它们会越来越接近“需要法律级边界”的敏感资产。</p>
+    <h3>3、<a href="https://arstechnica.com/ai/2026/06/south-korea-to-spend-1t-on-more-memory-chip-production-and-humanoid-robots/" target="_blank" rel="noopener noreferrer">韩国计划投入 1 万亿美元级资源推动存储芯片和人形机器人</a> <span class="certainty-tag certainty-reported">reported</span></h3>
+    <p>AI 竞争最后会落到内存、制造和实体机器人。Ars Technica 报道，韩国计划围绕存储芯片、供应链和人形机器人投入大规模资源，目标包括到 2028 年推进机器人商业化。它提醒我们：模型新闻很热，但国家级 AI 战略真正押注的是硬件产能、供应链和可落地的 physical AI。</p>
+    <img class="article-img" src="https://cdn.arstechnica.net/wp-content/uploads/2026/06/Screenshot-2026-06-29-at-4.36.13-PM-1152x648.png" alt="">
+    <h3>4、<a href="https://github.blog/changelog/2026-06-29-restrict-issue-creation-to-collaborators-only/" target="_blank" rel="noopener noreferrer">GitHub 允许仓库把 issue 创建限制为 collaborator</a> <span class="certainty-tag certainty-announced">announced</span></h3>
+    <p>当开源维护者被垃圾 issue、自动化噪音和 AI 生成请求压住时，权限开关就成了产品能力。GitHub 新增仓库设置，允许管理员将 issue 创建限制为拥有 write access 的 collaborator。它不是炫技功能，而是开源协作从“默认开放”走向“可控开放”的信号。</p>
+    <img class="article-img" src="https://github.blog/wp-content/uploads/2026/06/RestrictToCollaboratorsOnly_Improvement_Unfurl_LeftAlign.png" alt="">
+
+    <h2 id="ai">🤖 AI 相关</h2>
+    <h3>1、<a href="https://quesma.com/blog/qwen-36-is-awesome/" target="_blank" rel="noopener noreferrer">Qwen 3.6 27B 成为本地开发热议模型：甜点位来自“够强 + 可跑 + 可控”</a> <span class="certainty-tag certainty-opinion">opinion</span></h3>
+    <p>一个模型让开发者愿意重新认真看本地 coding。Quesma 的体验文称 Qwen 3.6 27B 是本地开发的 sweet spot；Artificial Analysis 页面则显示该模型有 262k context，Intelligence Index 37，同时价格和速度也有明显取舍。结论不是“本地模型全胜”，而是本地智能终于开始进入真实工作流的候选层。</p>
+    <img class="article-img" src="https://quesma.com/_astro/thermal_master_p3_macbook.DJG2GL38.jpg" alt="">
+    <h3>2、<a href="https://deep-reinforce.com/ornith_1_0.html" target="_blank" rel="noopener noreferrer">Ornith-1.0：模型不只生成答案，还学习生成 task-specific harness</a> <span class="certainty-tag certainty-announced">announced</span></h3>
+    <p>昨天我们看到 harness 放大模型，今天 Ornith 把 harness 写进训练目标。DeepReinforce 介绍 Ornith-1.0，覆盖 9B Dense、31B Dense、35B MoE 和 397B MoE，强调模型学习生成 solution rollouts 以及任务专属 harness。它的价值在于把“会解题”推进到“会给自己搭解题脚手架”。</p>
+    <img class="article-img" src="https://deep-reinforce.com/ornith/assets/cover.png" alt="">
+    <h3>3、<a href="https://longcat.chat/blog/longcat-2.0/" target="_blank" rel="noopener noreferrer">LongCat-2.0 登上 HN：1.6T total / 48B active 的 MoE 竞争继续升温</a> <span class="certainty-tag certainty-reported">reported</span></h3>
+    <p>大 MoE 还在继续往“总参数更大、激活参数可控”的方向卷。LongCat-2.0 今日出现在 HN 前排，标题披露其为 1.6T total、48B active 的大规模 MoE。对工程团队来说，值得关注的不是参数数字本身，而是 serving 成本、路由策略和长上下文稳定性如何被产品化。</p>
+    <h3>4、<a href="https://github.blog/changelog/2026-06-29-claude-opus-4-8-fast-mode-is-now-in-preview-for-github-copilot/" target="_blank" rel="noopener noreferrer">GitHub Copilot 预览 Claude Opus 4.8 fast mode</a> <span class="certainty-tag certainty-announced">announced</span></h3>
+    <p>同样的智能，交互速度也会变成产品卖点。GitHub Changelog 称 Claude Opus 4.8 fast mode 开始在 Copilot 预览，面向需要响应速度的交互式编码和 agentic workflow。AI 编程工具的竞争会越来越细：模型质量、输出 token 速度、计费模式和 IDE 反馈循环都会影响真实体验。</p>
+    <img class="article-img" src="https://github.blog/wp-content/uploads/2026/06/613831660-028f47b7-63fe-419c-9fc2-71933d522f4c.png" alt="">
+    <h3>5、<a href="https://vercel.com/blog/realtime-voice-agents-on-ai-gateway" target="_blank" rel="noopener noreferrer">Vercel AI Gateway 支持实时语音 agent</a> <span class="certainty-tag certainty-announced">announced</span></h3>
+    <p>语音 agent 正在从 demo 走向一把 API key 后面的基础能力。Vercel 宣布 AI Gateway 支持 realtime voice、speech-to-text 和 text-to-speech，并可结合 AI SDK 构建低延迟语音 agent。对前端团队来说，语音交互不再只是 App SDK 问题，而会进入 Web 工程、网关、延迟和计费设计。</p>
+    <img class="article-img" src="https://assets.vercel.com/image/upload/contentful/image/e5382hct74si/3mJ8KeEa6zs5AdvusO6PMC/bbb9898f546843fec6bf2e71000efbd8/Voice-agents-AI_gateway.png" alt="">
+
+    <h2 id="articles">📝 文章推荐</h2>
+    <h3>1、<a href="https://netflixtechblog.com/genpage-towards-end-to-end-generative-homepage-construction-at-netflix-77146fba8a08" target="_blank" rel="noopener noreferrer">Netflix GenPage：端到端生成首页，而不是拼多个推荐列表</a></h3>
+    <p>首页不是一个榜单，而是一个二维结构。Netflix TechBlog 介绍 GenPage，把用户历史和请求上下文当 prompt，自回归生成 rows、entities 和 layout。它的启发是：AI 推荐系统不只是生成内容，也可以直接生成产品界面结构。</p>
+    <img class="article-img" src="https://cdn-images-1.medium.com/proxy/1*TGH72Nnw24QL3iV9IOm4VA.png" alt="">
+    <h3>2、<a href="https://blog.colinbreck.com/when-impressive-performance-gains-do-not-matter/" target="_blank" rel="noopener noreferrer">When Impressive Performance Gains Do Not Matter</a></h3>
+    <p>把 10 分钟优化到 1 分钟很厉害，但用户可能还是会离开。Colin Breck 用“10 秒注意力阈值”解释为什么数量级性能提升也可能没有产品效果。性能优化不能只看倍率，要看是否跨过用户行为阈值。</p>
+    <img class="article-img" src="https://storage.ghost.io/c/d3/13/d313bae5-6633-4ef2-8565-d9e72c1a5da1/content/images/size/w1200/2026/06/vondelpark.jpg" alt="">
+    <h3>3、<a href="https://htmx.org/essays/working-with-ai/" target="_blank" rel="noopener noreferrer">Working With AI: A Concrete Example</a></h3>
+    <p>一篇比“AI 会不会替代程序员”更有用的文章：Carson Gross 通过 hyperscript bug fix 说明 AI 在哪里帮上忙，哪里会误导，以及为什么懂系统的人仍然是闭环的关键。</p>
+    <h3>4、<a href="https://queue.acm.org/detail.cfm?id=3819084" target="_blank" rel="noopener noreferrer">You Don’t Know Jack About Formal Verification</a></h3>
+    <p>ACM Queue 的形式化验证文章今天在 HN/Lobsters 讨论升温。它适合和 AI 生成代码放在一起读：当代码越来越容易生成，哪些性质可以被证明、哪些只能测试、哪些需要系统设计来保证，会变得更重要。</p>
+
+    <h2 id="tools">🛠️ 工具推荐</h2>
+    <div class="tool-grid">
+      <div class="tool-card">
+        <h4><a href="https://probablymarcus.com/blocks/2026/06/28/native-graphical-shell-for-SSH.html" target="_blank" rel="noopener noreferrer">Outer Shell</a> <span class="priority-tag">P2</span></h4>
+        <p>一个“原生图形化 SSH shell”的实验。它提醒我们，终端不是只能继续堆字符协议，远程机器操作体验还可以有新的 UI 层。</p>
+      </div>
+      <div class="tool-card">
+        <h4><a href="https://vercel.com/changelog/query-speed-insights-from-the-vercel-cli" target="_blank" rel="noopener noreferrer">Vercel Speed Insights CLI</a> <span class="priority-tag">P2</span></h4>
+        <p>用 Vercel CLI 查询 Core Web Vitals 和 Speed Insights 数据。适合把性能观察从 dashboard 拉进脚本和 CI 例行检查。</p>
+      </div>
+      <div class="tool-card">
+        <h4><a href="https://github.com/SMJAI/open-memory-protocol" target="_blank" rel="noopener noreferrer">Open Memory Protocol</a> <span class="priority-tag">P2</span></h4>
+        <p>试图为 Claude、ChatGPT、Cursor 等工具提供统一记忆存储协议。今天的路由层主题之外，记忆层也正在被协议化。</p>
+      </div>
+      <div class="tool-card">
+        <h4><a href="https://fil-c.org/context_switches" target="_blank" rel="noopener noreferrer">Fil-C memory safe context switching</a> <span class="priority-tag">P3</span></h4>
+        <p>Fil-C 关于 setjmp/longjmp 和 memory-safe context switching 的技术说明。适合关注 C 生态安全边界和低层运行时的人阅读。</p>
+      </div>
+      <div class="tool-card">
+        <h4><a href="https://humphri.es/blog/WATaBoy/" target="_blank" rel="noopener noreferrer">WATaBoy</a> <span class="priority-tag">P3</span></h4>
+        <p>把 Game Boy 指令 JIT 到 Wasm，并击败 native interpreter 的极客项目。它很小，但很适合训练“解释器、JIT、Wasm”之间的工程直觉。</p>
+      </div>
+    </div>
+
+    <h2 id="ai-tools">🧠 AI 工具</h2>
+    <div class="tool-grid">
+      <div class="tool-card">
+        <span class="tag">Serving</span>
+        <h4><a href="https://github.com/vllm-project/semantic-router" target="_blank" rel="noopener noreferrer">vLLM Semantic Router</a></h4>
+        <p>今天主故事背后的开源项目入口。重点不是“路由到哪个模型”，而是把 recipe、trace、fallback、策略变成 AI serving 的核心对象。</p>
+      </div>
+      <div class="tool-card">
+        <span class="tag">Research</span>
+        <h4><a href="https://huggingface.co/blog/allenai/discoformer" target="_blank" rel="noopener noreferrer">DiScoFormer</a></h4>
+        <p>Ai2 在 Hugging Face 发布的研究介绍：用一个 transformer 做 density 与 score estimation。适合作为生成建模/分布建模的新研究线索。</p>
+      </div>
+      <div class="tool-card">
+        <span class="tag">Model</span>
+        <h4><a href="https://www.artificialanalysis.ai/models/qwen3-6-27b" target="_blank" rel="noopener noreferrer">Qwen3.6 27B model analysis</a></h4>
+        <p>Artificial Analysis 对 Qwen3.6 27B 的质量、价格、速度和上下文分析。适合评估本地/私有模型是否进入开发工作流候选集。</p>
+      </div>
+    </div>
+
+    <h2 id="concepts">🧩 本期概念库</h2>
+    <div class="concept-card">
+      <h4>1. Task-shaped Routing</h4>
+      <div class="concept-field"><strong>一句话解释：</strong>路由器根据任务形状选择不同模型协作 recipe，而不是固定调用一个模型。</div>
+      <div class="concept-field"><strong>背景来源：</strong>vLLM Semantic Router</div>
+      <div class="concept-field"><strong>为什么重要：</strong>它把 AI Gateway 从流量转发层升级为任务执行控制面。</div>
+      <div class="concept-field"><strong>团队应用场景：</strong>为内部 AI 平台设计 routing policy、fallback、quorum 和 trace，而不只是维护模型列表。</div>
+    </div>
+    <div class="concept-card">
+      <h4>2. Behavioral Performance Threshold</h4>
+      <div class="concept-field"><strong>一句话解释：</strong>性能改善只有跨过用户行为阈值时才真正改变体验，例如 30 秒到 10 秒以下。</div>
+      <div class="concept-field"><strong>背景来源：</strong>Colin Breck 性能文章</div>
+      <div class="concept-field"><strong>为什么重要：</strong>它防止团队沉迷漂亮的倍率，忽略用户是否真的改变行为。</div>
+      <div class="concept-field"><strong>团队应用场景：</strong>性能目标应绑定业务行为阈值，如等待不切走、转化率、操作连续性。</div>
+    </div>
+    <div class="concept-card">
+      <h4>3. Self-scaffolding Models</h4>
+      <div class="concept-field"><strong>一句话解释：</strong>模型不只生成答案，还学习生成指导自己完成任务的 harness 或 scaffold。</div>
+      <div class="concept-field"><strong>背景来源：</strong>Ornith-1.0</div>
+      <div class="concept-field"><strong>为什么重要：</strong>它让训练目标从“解题能力”扩展到“搭建解题过程”的能力。</div>
+      <div class="concept-field"><strong>团队应用场景：</strong>评估 agent 时关注它是否能创建检查清单、测试、复核路径，而不是只看最终回答。</div>
+    </div>
+    <div class="concept-card">
+      <h4>4. Whole-page Generation</h4>
+      <div class="concept-field"><strong>一句话解释：</strong>推荐系统直接生成页面结构，而不是先生成多个列表再拼装。</div>
+      <div class="concept-field"><strong>背景来源：</strong>Netflix GenPage</div>
+      <div class="concept-field"><strong>为什么重要：</strong>它把生成式 AI 从内容层推进到产品布局和策略层。</div>
+      <div class="concept-field"><strong>团队应用场景：</strong>复杂首页/工作台可以尝试把布局、排序和模块选择纳入统一优化，而不是多模型流水线各管一段。</div>
+    </div>
+    <div class="concept-card">
+      <h4>5. Controlled Openness</h4>
+      <div class="concept-field"><strong>一句话解释：</strong>开放协作系统通过更细权限控制减少噪音和滥用，而不是简单关闭入口。</div>
+      <div class="concept-field"><strong>背景来源：</strong>GitHub restrict issue creation</div>
+      <div class="concept-field"><strong>为什么重要：</strong>AI 噪音时代，社区入口的默认开放需要治理能力支撑。</div>
+      <div class="concept-field"><strong>团队应用场景：</strong>对公开反馈、工单、社区 issue 建立分层入口和自动化限流，而不是等垃圾内容淹没维护者。</div>
+    </div>
+
+    <h2 id="curiosity">🎲 好奇心入口</h2>
+    <div class="curiosity-card">
+      <h4><a href="https://hccf.onmy.cloud/2026/06/21/reclaiming-our-digital-selves-hccfs-vision-for-a-human-centered-top-level-domain/" target="_blank" rel="noopener noreferrer">.self：一个为 self-hosting 设计的新顶级域叙事</a></h4>
+      <div class="hook">连域名后缀都开始变成“数字自主权”的产品表达。</div>
+      <p>HCCF 介绍 .self 顶级域愿景，希望围绕个人托管和人本计算重塑身份入口。 团队暗线：基础设施产品如果想被记住，需要把协议、身份和叙事打包成用户能理解的象征。</p>
+    </div>
+    <div class="curiosity-card">
+      <h4><a href="https://hackaday.com/2026/06/29/hard-drive-speakers-crank-out-classic-demo/" target="_blank" rel="noopener noreferrer">Hard Drive Speakers：硬盘也能当扬声器</a></h4>
+      <div class="hook">有些项目的价值不是实用，而是让你重新理解硬件可以怎样被“误用”。</div>
+      <p>Hackaday 展示用硬盘驱动结构播放经典 demo 的极客项目。 团队暗线：工程创造力常来自把一个系统的副作用当成另一个系统的主功能。</p>
+    </div>
+    <div class="curiosity-card">
+      <h4><a href="https://weblog.rogueamoeba.com/2026/06/26/free-the-icons/" target="_blank" rel="noopener noreferrer">Free the Icons：图标自由也是软件自由的一部分</a></h4>
+      <div class="hook">一个小图标，背后也有平台控制、审美和用户选择权。</div>
+      <p>Rogue Amoeba 讨论应用图标自由的问题，今天在 HN 继续被讨论。 团队暗线：产品细节不是装饰，往往是平台权力和用户自主权的交界处。</p>
+    </div>
+
+    <h2 id="resources">📚 资源</h2>
+    <div class="resource-item">
+      <a href="https://github.com/vllm-project/vllm" target="_blank" rel="noopener noreferrer">vLLM project repository</a>
+      <p>主故事相关的开源 serving 项目入口，用于理解 vLLM 生态如何从推理引擎扩展到路由与控制面。</p>
+    </div>
+    <div class="resource-item">
+      <a href="https://simonwillison.net/2026/Jun/29/ornith/" target="_blank" rel="noopener noreferrer">Simon Willison：Ornith-1.0</a>
+      <p>Simon 对 Ornith-1.0 的记录和背景链接，适合快速跟进 agentic coding 模型这条线。</p>
+    </div>
+    <div class="resource-item">
+      <a href="https://news.ycombinator.com/item?id=48727116" target="_blank" rel="noopener noreferrer">HN 讨论：LongCat-2.0</a>
+      <p>围绕 1.6T total / 48B active MoE 的社区讨论，适合作为参数规模和 serving 成本的补充视角。</p>
+    </div>
+
+    <h2 id="quotes">💬 言论：本期 6 个认知增量</h2>
+    <div class="quote-block">
+      <blockquote>vllm-sr/auto 不应该意味着总是跑最大的循环，而应该意味着选择适合这个任务的 recipe。</blockquote>
+      <div class="quote-author">—— vLLM Micro-Agent 文章</div>
+      <div class="quote-meta">来源：<a href="https://news.ycombinator.com/item?id=48722802" target="_blank" rel="noopener noreferrer">news.ycombinator.com</a> · 类型：译文 · 关键词：AI Serving · Routing · Agent</div>
+      <div class="quote-comment">💭 这是今天最关键的一句话：router 不是模型选择器，而是执行计划选择器。</div>
+      <div class="quote-team-insight">🎯 团队启发：内部 AI 网关要把任务类型和执行 recipe 显式建模。</div>
+    </div>
+    <div class="quote-block">
+      <blockquote>本地模型真正进入工作流的标志，不是它能跑，而是开发者愿意把真实项目交给它试。</blockquote>
+      <div class="quote-author">—— Tech Digest 摘要 Qwen 3.6 讨论</div>
+      <div class="quote-meta">来源：<a href="https://news.ycombinator.com/item?id=48721903" target="_blank" rel="noopener noreferrer">news.ycombinator.com</a> · 类型：摘要式转述 · 关键词：Local LLM · Coding · 成本</div>
+      <div class="quote-comment">💭 Qwen 这条线说明“够强、可控、能在自己机器上跑”已经形成新的吸引力。</div>
+      <div class="quote-team-insight">🎯 团队启发：团队可以把本地模型列入低敏任务和离线工作流的候选。</div>
+    </div>
+    <div class="quote-block">
+      <blockquote>性能优化的目标不是倍率好看，而是跨过用户行为会改变的阈值。</blockquote>
+      <div class="quote-author">—— Colin Breck 性能文章 / Lobsters 讨论</div>
+      <div class="quote-meta">来源：<a href="https://lobste.rs/s/fok2dp/when_impressive_performance_gains_do_not" target="_blank" rel="noopener noreferrer">lobste.rs</a> · 类型：摘要式转述 · 关键词：性能 · 体验 · 工程判断</div>
+      <div class="quote-comment">💭 10 分钟到 1 分钟很厉害，但如果用户还是切走，产品效果可能仍然接近 0。</div>
+      <div class="quote-team-insight">🎯 团队启发：性能 OKR 要绑定用户行为阈值，不只写 P95 降低百分比。</div>
+    </div>
+    <div class="quote-block">
+      <blockquote>AI 真正有用的地方，往往不是替你完成整件事，而是让懂系统的人更快闭环。</blockquote>
+      <div class="quote-author">—— Carson Gross / htmx essay</div>
+      <div class="quote-meta">来源：<a href="https://news.ycombinator.com/item?id=48720064" target="_blank" rel="noopener noreferrer">news.ycombinator.com</a> · 类型：摘要式转述 · 关键词：AI Workflow · 代码审查 · 人机协作</div>
+      <div class="quote-comment">💭 这比“AI 替代程序员”的争论更接近真实工程现场。</div>
+      <div class="quote-team-insight">🎯 团队启发：把 AI 放在定位、解释、生成候选和复核辅助上，而不是默认全自动合并。</div>
+    </div>
+    <div class="quote-block">
+      <blockquote>位置数据不是普通日志；它把人、时间和地点串成可以被滥用的生活轨迹。</blockquote>
+      <div class="quote-author">—— Tech Digest 解读 geofence warrants 判决报道</div>
+      <div class="quote-meta">来源：<a href="https://news.ycombinator.com/item?id=48720924" target="_blank" rel="noopener noreferrer">news.ycombinator.com</a> · 类型：摘要式转述 · 关键词：隐私 · 合规 · 数据治理</div>
+      <div class="quote-comment">💭 地理围栏案件会影响产品团队处理位置数据的默认心态。</div>
+      <div class="quote-team-insight">🎯 团队启发：采集位置轨迹前先定义保存期限、访问审计和法律请求流程。</div>
+    </div>
+    <div class="quote-block">
+      <blockquote>形式化验证的竞争对手不是“没有验证”，而是更便宜、更容易招聘、更能渐进交付的测试和工程实践。</blockquote>
+      <div class="quote-author">—— Lobsters 对 ACM Queue 文章的讨论</div>
+      <div class="quote-meta">来源：<a href="https://lobste.rs/s/ugm5fn/you_don_t_know_jack_about_formal" target="_blank" rel="noopener noreferrer">lobste.rs</a> · 类型：摘要式转述 · 关键词：可靠性 · 形式化验证 · 工程管理</div>
+      <div class="quote-comment">💭 这句话很现实：好技术要赢，不只要正确，还要能被组织采用。</div>
+      <div class="quote-team-insight">🎯 团队启发：推广可靠性方法时，优先做能渐进落地的轻量 proof、模型检查或关键路径验证。</div>
+    </div>
+
+    <h2 id="podcast">🎙️ 播客提纲</h2>
+    <div class="podcast-brief">
+      <h4>模型 API 里开始长出协作层</h4>
+      <div class="cold-open">今天最值得记住的不是某个新模型，而是一个模型 API 后面可能藏着一整套小型执行计划。</div>
+      <div class="podcast-segment">
+        <strong>vLLM Micro-Agent</strong>
+        <p>vllm-sr/auto 不再等于“跑最大模型”，而是选择适合任务的 recipe。</p>
+        <p>AI 平台要把路由策略、fallback 和 trace 做成一等能力。</p>
+      </div>      <div class="podcast-segment">
+        <strong>本地模型和自搭脚手架</strong>
+        <p>Qwen 3.6 27B 和 Ornith-1.0 同时说明，模型能力正在从云端 API 走向本地和训练过程。</p>
+        <p>模型评估要覆盖本地可用性、任务 harness 和真实开发流。</p>
+      </div>      <div class="podcast-segment">
+        <strong>系统闭环</strong>
+        <p>Netflix、htmx 和性能文章都在提醒：生成只是开始，验证和行为阈值才决定产品效果。</p>
+        <p>把 AI 生成物放进可测、可回滚、可复核的系统里。</p>
+      </div>
+      <p>今天的结论：AI 的下一层护城河，可能是更会安排模型干活的路由器。</p>
+    </div>
+
+    <h2 id="team-insights">✅ 对团队的启发</h2>
+    <div class="insight-card">
+      <p><span class="insight-num">1</span>AI Gateway 不要停留在模型代理层，要开始设计任务类型、routing recipe、fallback、quorum 和审计标签。</p>
+    </div>
+    <div class="insight-card">
+      <p><span class="insight-num">2</span>本地模型可以先进入低敏、离线、批处理和开发辅助场景，用真实任务评估而不是只看榜单。</p>
+    </div>
+    <div class="insight-card">
+      <p><span class="insight-num">3</span>性能优化目标要从“提升多少倍”改成“跨过哪个用户行为阈值”。</p>
+    </div>
+    <div class="insight-card">
+      <p><span class="insight-num">4</span>开源/社区入口需要分层权限和反垃圾机制，AI 噪音会让默认开放的协作模型承压。</p>
+    </div>
+    <div class="insight-card">
+      <p><span class="insight-num">5</span>AI 生成系统的重点不是生成结果，而是建立评估、验证、回滚和人类复核闭环。</p>
+    </div>
+
+    <div class="footer-sources">
+      <strong>📋 数据来源说明</strong><br>
+      本情报来自 66 个全球精选科技 / AI / 工程 / 系统可靠性信息源的每日更新。<br>
+      由 Cursor AI 自动生成，信息截止至 2026 年 6 月 30 日，星期二。
+    </div>
+  </main>
+</div>
+
+<script>
+(function(){
+  const toc=document.querySelector('.toc');if(!toc)return;
+  const links=[...toc.querySelectorAll('a')];
+  const ids=links.map(l=>l.getAttribute('href').slice(1));
+  const secs=ids.map(id=>document.getElementById(id)).filter(Boolean);
+  function hl(){let cur=0;secs.forEach((s,i)=>{if(s.getBoundingClientRect().top<=120)cur=i;});
+  links.forEach((l,i)=>{l.classList.toggle('active',i===cur);});}
+  window.addEventListener('scroll',hl,{passive:true});hl();
+})();
+
+</script>
+</body>
+</html>

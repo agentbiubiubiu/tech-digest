@@ -1,5 +1,11 @@
 [
   {
+    "date": "2026-06-30",
+    "title": "第 51 期：模型 API 里开始长出协作层",
+    "highlights": "vLLM Semantic Router 把模型 API 做成 bounded micro-agent runtime · VSR Closed 在 vLLM 博客 scorecard 中达到 LiveCodeBench 92.6 / GPQA-Diamond 96.0 · Qwen 3.6 27B 成为本地开发热议模型 · Ornith-1.0 让模型学习生成任务 harness · GitHub Copilot 预览 Claude Opus 4.8 fast mode · Netflix GenPage 探索端到端生成首页 · Rocket Lab 与 Iridium 达成约 80 亿美元收购协议 · 美国最高法院要求 geofence warrants 具备宪法隐私保护",
+    "image": "https://vllm.ai/blog-assets/figures/2026-06-29-micro-agent-frontier-models/looper-micro-agents.png"
+  },
+  {
     "date": "2026-06-29",
     "title": "第 50 期：开源模型开始把安全能力卷成成本问题",
     "highlights": "GLM-5.2 在 Semgrep IDOR 基准中以 39% F1 进入第一梯队 · Semgrep 强调 endpoint discovery / harness 才是最大差距 · Z.AI 发布 1M context 的 GLM-5.2 · DeepSeek 开源 DeepSpec/DSpark speculative decoding · OpenAI Codex 仍有敏感文件排除需求被追问 · KIDS Act 引发线上年龄验证争议 · Brown 教授公开批评考试中的大规模 AI 作弊 · TOP500 出现 ISC 2026 新第一",
