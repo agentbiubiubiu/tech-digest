@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>第 52 期：Agent 互联网开始补上身份、计费和成本仪表盘</title>
+  <meta property="og:title" content="第 52 期：Agent 互联网开始补上身份、计费和成本仪表盘">
+  <meta property="og:description" content="Cloudflare 用 x402 把 HTTP 402 重新拿出来，GitHub、Vercel、OpenAI 和 Hugging Face 则把 AI 从 demo 推向可计费、可观测、可治理的基础设施。">
+  <meta property="og:image" content="https://cf-assets.www.cloudflare.com/zkvhlag99gkb/7wA6Z3Df13eeHZkxM3Fokt/088b64cd947100b70bd0e49c845fc984/Announcing_the_Monetization_Gateway-_charge_for_any_resource_behind_Cloudflare_via_x402-OG.png">
+  <style>
+:root {
+  --bg: #f5f6f8; --surface: #ffffff; --surface2: #f0f2f5;
+  --border: #e8ecf1; --border-hover: #c5cdd8;
+  --text: #1a1d21; --text-secondary: #3d4550; --text-muted: #8c95a1;
+  --accent: #2d9f6f; --accent-light: #e8f5ef; --accent-hover: #248a5e;
+  --accent-text: #ffffff;
+  --purple: #7c5cbf; --purple-light: #f3effc;
+  --orange: #e58e26; --orange-light: #fef5e7;
+  --blue: #3a82f7; --blue-light: #eef4fe;
+  --red: #e74c3c; --red-light: #fdecea;
+  --green-deep: #1a7a4c; --green-light2: #e0f5ea;
+  --yellow: #d4a017; --yellow-light: #fef9e7;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.06);
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.06), 0 2px 4px rgba(0,0,0,0.04);
+  --shadow-lg: 0 10px 30px rgba(0,0,0,0.08);
+  --radius: 12px; --radius-sm: 8px; --radius-xs: 6px;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Helvetica, Arial, sans-serif; background: var(--bg); color: var(--text); line-height: 1.75; font-size: 15px; -webkit-font-smoothing: antialiased; }
+.topbar { background: var(--surface); border-bottom: 1px solid var(--border); padding: 12px 32px; display: flex; align-items: center; gap: 16px; position: sticky; top: 0; z-index: 200; box-shadow: var(--shadow-sm); }
+.topbar-brand { font-size: 1.1rem; font-weight: 700; color: var(--accent); text-decoration: none; display: flex; align-items: center; gap: 8px; }
+.topbar-brand svg { width: 28px; height: 28px; }
+.topbar-nav { display: flex; gap: 4px; margin-left: 24px; }
+.topbar-nav a { padding: 6px 16px; border-radius: 20px; font-size: 0.85rem; font-weight: 500; color: var(--text-secondary); text-decoration: none; transition: all 0.2s; }
+.topbar-nav a:hover { background: var(--surface2); color: var(--text); }
+.topbar-nav a.active { background: var(--accent-light); color: var(--accent); font-weight: 600; }
+.topbar-right { margin-left: auto; display: flex; align-items: center; gap: 12px; }
+.topbar-date { font-size: 0.82rem; color: var(--text-muted); background: var(--surface2); padding: 5px 12px; border-radius: 16px; }
+.page { display: flex; max-width: 1200px; margin: 0 auto; padding: 24px 24px 0; gap: 24px; }
+.toc { width: 220px; flex-shrink: 0; position: sticky; top: 80px; height: calc(100vh - 104px); overflow-y: auto; background: var(--surface); border-radius: var(--radius); padding: 20px 16px; box-shadow: var(--shadow-sm); border: 1px solid var(--border); }
+.toc-title { font-size: 0.72rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 14px; padding-left: 12px; }
+.toc a { display: block; padding: 7px 12px; margin-bottom: 2px; font-size: 0.82rem; color: var(--text-muted); text-decoration: none; border-radius: var(--radius-xs); transition: all 0.15s; font-weight: 500; }
+.toc a:hover { color: var(--accent); background: var(--accent-light); }
+.toc a.active { color: var(--accent); background: var(--accent-light); font-weight: 600; }
+.toc-mobile { display: none; position: sticky; top: 57px; z-index: 100; background: var(--surface); border-bottom: 1px solid var(--border); padding: 10px 16px; box-shadow: var(--shadow-sm); }
+.toc-mobile summary { cursor: pointer; font-size: 0.85rem; color: var(--accent); font-weight: 600; list-style: none; }
+.toc-mobile summary::-webkit-details-marker { display: none; }
+.toc-mobile .toc-dropdown { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 8px; margin-top: 8px; max-height: 60vh; overflow-y: auto; box-shadow: var(--shadow-md); }
+.toc-mobile .toc-dropdown a { display: block; padding: 8px 12px; font-size: 0.88rem; color: var(--text-secondary); text-decoration: none; border-radius: var(--radius-xs); }
+.toc-mobile .toc-dropdown a:hover { color: var(--accent); background: var(--accent-light); }
+@media (max-width: 860px) { .toc { display: none; } .toc-mobile { display: block; } .topbar-nav { display: none; } .page { flex-direction: column; padding: 16px 12px 0; gap: 16px; } .container { padding: 20px 16px 60px; } }
+.container { flex: 1; min-width: 0; background: var(--surface); border-radius: var(--radius); padding: 36px 40px 60px; box-shadow: var(--shadow-sm); border: 1px solid var(--border); margin-bottom: 40px; }
+.back { display: inline-flex; align-items: center; gap: 4px; color: var(--text-muted); text-decoration: none; font-size: 0.85rem; margin-bottom: 28px; font-weight: 500; transition: color 0.15s; }
+.back:hover { color: var(--accent); }
+h1 { font-size: 1.7rem; font-weight: 800; margin-bottom: 10px; line-height: 1.35; color: var(--text); letter-spacing: -0.01em; }
+.meta { color: var(--text-muted); font-size: 0.85rem; margin-bottom: 28px; }
+.highlights-line { color: var(--text-secondary); font-size: 0.9rem; margin: -18px 0 28px; line-height: 1.65; }
+.hero-img { width: 100%; border-radius: var(--radius); margin-bottom: 10px; box-shadow: var(--shadow-md); }
+.hero-caption { font-size: 0.82rem; color: var(--text-muted); margin-bottom: 36px; text-align: center; font-style: italic; }
+h2 { font-size: 1.25rem; font-weight: 700; margin: 44px 0 18px; padding-bottom: 10px; border-bottom: 2px solid var(--accent-light); scroll-margin-top: 90px; color: var(--text); }
+h3 { font-size: 1.05rem; font-weight: 600; margin: 26px 0 8px; color: var(--text); }
+p { margin-bottom: 14px; color: var(--text-secondary); }
+a { color: var(--accent); text-decoration: none; font-weight: 500; }
+a:hover { color: var(--accent-hover); text-decoration: underline; }
+strong { color: var(--text); font-weight: 600; }
+.callout { background: var(--accent-light); border-left: 4px solid var(--accent); border-radius: var(--radius-sm); padding: 16px 20px; margin: 20px 0; font-size: 0.93rem; color: var(--text-secondary); }
+.main-story { background: linear-gradient(135deg, #f7fbff 0%, #fff 60%); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px 26px; margin: 18px 0 28px; box-shadow: var(--shadow-sm); }
+.main-story h3 { margin-top: 0; font-size: 1.2rem; line-height: 1.45; }
+.main-story .story-hook { color: var(--accent); font-weight: 700; margin-bottom: 14px; }
+.story-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 16px 0; }
+.story-field { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 12px 14px; font-size: 0.88rem; color: var(--text-secondary); }
+.story-field strong { display: block; margin-bottom: 4px; color: var(--text); }
+.number-chip { display: inline-block; background: var(--blue-light); color: var(--blue); border-radius: 14px; padding: 3px 10px; margin: 3px 6px 3px 0; font-size: 0.78rem; font-weight: 700; }
+.story-line { background: var(--purple-light); border-left: 4px solid var(--purple); border-radius: var(--radius-sm); padding: 14px 16px; margin-top: 14px; color: var(--text); font-weight: 700; }
+.trend-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin: 16px 0 28px; }
+.trend-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px 20px; box-shadow: var(--shadow-sm); }
+.trend-card h4 { font-size: 0.95rem; margin-bottom: 8px; color: var(--text); }
+.trend-card .trend-conflict { color: var(--red); font-size: 0.82rem; font-weight: 700; margin-bottom: 8px; }
+.trend-card p { font-size: 0.86rem; margin-bottom: 10px; }
+.trend-card .trend-sources { font-size: 0.76rem; color: var(--text-muted); line-height: 1.55; }
+.curiosity-card { background: var(--orange-light); border: 1px solid #f5ddb8; border-radius: var(--radius); padding: 20px 24px; margin: 14px 0; }
+.curiosity-card h4 { font-size: 1rem; margin-bottom: 8px; font-weight: 600; }
+.curiosity-card h4 a { color: var(--orange); }
+.curiosity-card .hook { color: var(--orange); font-weight: 700; margin-bottom: 6px; }
+.curiosity-card p { font-size: 0.88rem; color: var(--text-secondary); margin: 0 0 8px; line-height: 1.65; }
+.podcast-brief { background: #f8fafc; border: 1px solid var(--border); border-radius: var(--radius); padding: 20px 24px; margin: 18px 0; }
+.podcast-brief h4 { margin: 0 0 10px; font-size: 1rem; }
+.podcast-brief .cold-open { color: var(--accent); font-weight: 700; margin-bottom: 14px; }
+.podcast-segment { border-top: 1px solid var(--border); padding-top: 12px; margin-top: 12px; }
+.podcast-segment strong { display: block; margin-bottom: 4px; }
+.article-img { width: 100%; max-height: 380px; object-fit: cover; border-radius: var(--radius-sm); margin: 12px 0 24px; box-shadow: var(--shadow-sm); }
+.tool-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 16px 0; }
+.tool-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px 20px; transition: all 0.2s; box-shadow: var(--shadow-sm); }
+.tool-card:hover { border-color: var(--accent); box-shadow: var(--shadow-md); transform: translateY(-1px); }
+.tool-card h4 { font-size: 0.95rem; margin-bottom: 6px; font-weight: 600; }
+.tool-card h4 a { color: var(--accent); }
+.tool-card p { font-size: 0.83rem; color: var(--text-muted); margin: 0; line-height: 1.55; }
+.tool-card .tag { display: inline-block; font-size: 0.68rem; padding: 3px 8px; border-radius: 10px; background: var(--accent); color: var(--accent-text); font-weight: 600; margin-bottom: 8px; letter-spacing: 0.02em; }
+.tool-card .priority-tag { display: inline-block; font-size: 0.65rem; padding: 2px 6px; border-radius: 8px; background: var(--surface2); color: var(--text-muted); font-weight: 600; margin-left: 6px; }
+.fun-card { background: var(--orange-light); border: 1px solid #f5ddb8; border-radius: var(--radius); padding: 20px 24px; margin: 14px 0; }
+.fun-card h4 { font-size: 1rem; margin-bottom: 8px; font-weight: 600; }
+.fun-card h4 a { color: var(--orange); }
+.fun-card p { font-size: 0.88rem; color: var(--text-secondary); margin: 0; line-height: 1.65; }
+.quote-block { background: var(--purple-light); border-left: 4px solid var(--purple); border-radius: var(--radius-sm); padding: 20px 24px; margin: 18px 0; }
+.quote-block blockquote { font-size: 1.02rem; line-height: 1.65; margin-bottom: 10px; font-style: italic; color: var(--text); }
+.quote-block .quote-author { font-size: 0.82rem; color: var(--purple); font-weight: 600; margin-bottom: 6px; }
+.quote-block .quote-meta { font-size: 0.78rem; color: var(--text-muted); margin-bottom: 10px; }
+.quote-block .quote-comment { font-size: 0.88rem; color: var(--text-secondary); border-top: 1px solid #d8d0e8; padding-top: 10px; margin-top: 10px; }
+.quote-block .quote-team-insight { font-size: 0.88rem; color: var(--green-deep); background: var(--accent-light); border-radius: var(--radius-xs); padding: 8px 12px; margin-top: 8px; }
+.resource-item { background: var(--blue-light); border: 1px solid #c8dbf8; border-radius: var(--radius); padding: 18px 20px; margin: 12px 0; }
+.resource-item a { font-weight: 600; color: var(--blue); }
+.resource-item p { font-size: 0.88rem; color: var(--text-secondary); margin: 6px 0 0; }
+.concept-card { background: var(--green-light2); border-left: 4px solid var(--accent); border-radius: var(--radius-sm); padding: 20px 24px; margin: 16px 0; }
+.concept-card h4 { font-size: 1rem; font-weight: 700; color: var(--green-deep); margin-bottom: 10px; }
+.concept-card .concept-field { font-size: 0.88rem; color: var(--text-secondary); margin-bottom: 6px; line-height: 1.6; }
+.concept-card .concept-field strong { color: var(--text); font-size: 0.88rem; }
+.insight-card { background: var(--yellow-light); border-left: 4px solid var(--yellow); border-radius: var(--radius-sm); padding: 16px 20px; margin: 12px 0; }
+.insight-card p { font-size: 0.93rem; color: var(--text-secondary); margin: 0; line-height: 1.7; }
+.insight-card .insight-num { display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; border-radius: 50%; background: var(--yellow); color: #fff; font-size: 0.75rem; font-weight: 700; margin-right: 10px; flex-shrink: 0; }
+.certainty-tag { display: inline-block; font-size: 0.65rem; padding: 2px 6px; border-radius: 8px; font-weight: 600; margin-left: 8px; }
+.certainty-confirmed { background: var(--accent-light); color: var(--accent); }
+.certainty-announced { background: var(--blue-light); color: var(--blue); }
+.certainty-reported { background: var(--yellow-light); color: var(--yellow); }
+.certainty-opinion { background: var(--purple-light); color: var(--purple); }
+.certainty-rumor { background: var(--red-light); color: var(--red); }
+.footer-sources { margin-top: 44px; padding: 20px 24px; background: var(--surface2); border-radius: var(--radius); font-size: 0.78rem; color: var(--text-muted); line-height: 1.9; }
+.footer-sources strong { color: var(--text-secondary); font-size: 0.78rem; }
+@media (max-width: 860px) { .trend-grid, .story-grid { grid-template-columns: 1fr; } }
+@media (max-width: 640px) { .tool-grid { grid-template-columns: 1fr; } }
+
+  </style>
+</head>
+<body>
+
+<header class="topbar">
+  <a href="../index.html" class="topbar-brand">
+    <svg viewBox="0 0 28 28" fill="none"><circle cx="14" cy="14" r="14" fill="#2d9f6f"/><path d="M8 14.5l3.5 3.5 8.5-8" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    Tech Digest
+  </a>
+  <nav class="topbar-nav">
+    <a href="../index.html">Archive</a>
+    <a href="#main-story" class="active">Today</a>
+    <a href="#tools">Tools</a>
+    <a href="#quotes">Quotes</a>
+  </nav>
+  <div class="topbar-right">
+    <span class="topbar-date">2026-07-08</span>
+  </div>
+</header>
+
+<details class="toc-mobile">
+  <summary>📑 目录导航</summary>
+  <div class="toc-dropdown">
+    <a href="#main-story">🔥 主故事</a>
+    <a href="#trends">⚡ 冲突趋势</a>
+    <a href="#tech-news">📰 科技动态</a>
+    <a href="#ai">🤖 AI 相关</a>
+    <a href="#articles">📝 文章推荐</a>
+    <a href="#tools">🛠️ 工具推荐</a>
+    <a href="#ai-tools">🧠 AI 工具</a>
+    <a href="#concepts">🧩 本期概念库</a>
+    <a href="#curiosity">🎲 好奇心入口</a>
+    <a href="#resources">📚 资源</a>
+    <a href="#quotes">💬 言论</a>
+    <a href="#podcast">🎙️ 播客提纲</a>
+    <a href="#team-insights">✅ 对团队的启发</a>
+  </div>
+</details>
+
+<div class="page">
+  <nav class="toc">
+    <div class="toc-title">本期目录</div>
+    <a href="#main-story">🔥 主故事</a>
+    <a href="#trends">⚡ 冲突趋势</a>
+    <a href="#tech-news">📰 科技动态</a>
+    <a href="#ai">🤖 AI 相关</a>
+    <a href="#articles">📝 文章推荐</a>
+    <a href="#tools">🛠️ 工具推荐</a>
+    <a href="#ai-tools">🧠 AI 工具</a>
+    <a href="#concepts">🧩 本期概念库</a>
+    <a href="#curiosity">🎲 好奇心入口</a>
+    <a href="#resources">📚 资源</a>
+    <a href="#quotes">💬 言论</a>
+    <a href="#podcast">🎙️ 播客提纲</a>
+    <a href="#team-insights">✅ 对团队的启发</a>
+  </nav>
+
+  <main class="container">
+    <a href="../index.html" class="back">← 返回目录</a>
+    <h1>第 52 期：Agent 互联网开始补上身份、计费和成本仪表盘</h1>
+    <div class="meta">第 52 期 · 2026 年 7 月 8 日，星期三</div>
+    <p class="highlights-line"><strong>✨ 本期亮点：</strong>Cloudflare 推 Monetization Gateway，计划用 x402 给网页、API、数据集和 MCP 工具做按请求收费 · Cloudflare 把 AI 流量细分为 Search / Agent / Training bots · OpenAI 发布 GPT-Realtime-2.1 与 mini · GitHub 7 月 7 日密集推出 Kimi K2.7、Copilot 成本预算、secret scanning 与 review 规则治理 · Vercel Sandbox 增加 CPU、内存、流量和 session 级观测 · Hugging Face LeRobot v0.6.0 加入 world model、reward model 与 rollout CLI · Meta 预览 Muse Image 与 Muse Video · Figma 复盘 Canvas 产品如何补回浏览器无偿提供的可访问性</p>
+
+    <img class="hero-img" src="https://cf-assets.www.cloudflare.com/zkvhlag99gkb/7wA6Z3Df13eeHZkxM3Fokt/088b64cd947100b70bd0e49c845fc984/Announcing_the_Monetization_Gateway-_charge_for_any_resource_behind_Cloudflare_via_x402-OG.png" alt="Cloudflare Monetization Gateway and x402 illustration">
+    <div class="hero-caption">Cloudflare 的 Monetization Gateway 把“Agent 访问资源”重写为“请求、身份、价格、支付证明和边缘放行”的基础设施问题。</div>
+
+    <div class="callout">
+      <strong>🎯 本期核心判断：</strong>AI 进入下一阶段的标志不是模型又聪明了一点，而是 Agent 终于开始被当成真实互联网用户来治理：要有身份、预算、支付、审计、缓存和成本归因。
+    </div>
+
+    <div class="callout">
+      <strong>⏱ 本期建议阅读顺序</strong><br>
+      先读主故事：Cloudflare Monetization Gateway 把 HTTP 402、x402、stablecoin micropayment 和边缘验证连成一套 Agent 付费路径。<br>
+      再看 AI 与工程动态：OpenAI、GitHub、Vercel、Hugging Face 都在把实时语音、Copilot、Sandbox、开放模型部署推进到成本和治理层。<br>
+      最后读文章与概念库：模型路由、Canvas 可访问性、AI 审计加密库、Trusted Publishing 风险，都是同一个主题的侧面：能力扩张后，边界要跟上。
+    </div>
+
+    <h2 id="main-story">🔥 主故事</h2>
+        <article class="main-story">
+      <h3>Cloudflare 把 HTTP 402 复活：Agent 互联网的下一件事，是让请求自己带钱</h3>
+      <p class="story-hook">一个 Agent 以后想读一页文档、调一次 API、跑一个 MCP 工具，可能不会先进注册页，而是先收到一个 402 Payment Required。</p>
+      <p>Cloudflare 在 7 月 1 日宣布 Monetization Gateway，计划让客户对 Cloudflare 保护下的网页、数据集、API 和 MCP 工具按访问收费。它使用 x402：客户端请求资源，服务器返回 402 和价格说明，客户端付款后带着支付证明重新请求，边缘侧验证后再放行。</p>
+      <div class="story-grid">
+        <div class="story-field"><strong>核心冲突</strong>过去 30 年，网页商业模式依赖人的注意力：广告、订阅、搜索导流。但 Agent 不看广告，也不一定给站点带回访问者；它只消耗内容、接口和工具调用。内容所有者想被发现，平台又想防止训练和自动化白嫖，这个旧交换正在失效。</div>
+        <div class="story-field"><strong>转折点</strong>Cloudflare 没有只做“挡住 AI 爬虫”的开关，而是把问题推进到支付和身份层：AI 流量被区分为 Search、Agent、Training bots；Monetization Gateway 进一步把价格、访问控制和结算放进普通 HTTP 请求路径。</div>
+        <div class="story-field"><strong>为什么现在发生</strong>Agent 开始成为网页、API、工具和数据的真实消费者；同时单次调用价格可能低到几分钱、千分之一美元甚至更低，传统账户、API key、信用卡结算和人工审批成本太高。只有当边缘网络、机器身份和微支付协议合在一起，按请求收费才可能落地。</div>
+        <div class="story-field"><strong>对团队的启发</strong>如果团队要做 Agent 平台、开放 API、数据服务或 MCP 工具，不要只考虑“能不能被调用”。要提前设计调用者身份、预算、限速、计费粒度、审计日志和失败处理；否则 Agent 流量一旦起来，商业和风控会一起失控。</div>
+      </div>
+      <p><span class="number-chip">HTTP 402</span><span class="number-chip">x402</span><span class="number-chip">25+ industry leaders</span><span class="number-chip">330+ cities</span><span class="number-chip">$0.001 base fee 示例</span><span class="number-chip">sub-second settlement 目标</span></p>
+      <p><strong>我的判断：</strong>我的判断：这不是一个支付插件新闻，而是 Agent 互联网的基础设施补课。模型让软件有了行动能力，但只有身份、价格和审计能让行动进入商业系统。未来很多 SaaS/API 的关键竞争力，会从“是否支持 Agent”变成“是否能安全、可计费地被 Agent 使用”。</p>
+      <div class="story-line">当 Agent 成为互联网买家，请求本身就会变成交易单。</div>
+      <p><strong>来源：</strong><a href="https://blog.cloudflare.com/monetization-gateway/" target="_blank" rel="noopener noreferrer">blog.cloudflare.com</a></p>
+    </article>
+
+    <h2 id="trends">⚡ 冲突趋势</h2>
+        <div class="trend-grid">
+      <div class="trend-card">
+        <h4>免费抓取 vs 按请求付费</h4>
+        <div class="trend-conflict">内容和 API 被 Agent 消耗，但旧商业模式只会向人类注意力收费。</div>
+        <p>Agent 时代的商业闭环，可能从登录账号和订阅套餐，转向身份验证、HTTP 402 和机器微支付。</p>
+        <div class="trend-sources">blog.cloudflare.com · blog.cloudflare.com</div>
+      </div>
+      <div class="trend-card">
+        <h4>模型能力 vs 运行治理</h4>
+        <div class="trend-conflict">AI 工具越来越能干活，但企业真正关心的是预算、session、secret、review 和审计。</div>
+        <p>Copilot、Vercel Sandbox、OpenAI Realtime 的共同信号是：AI 能力正在被纳入成本中心和平台治理。</p>
+        <div class="trend-sources">github.blog · vercel.com · developers.openai.com</div>
+      </div>
+      <div class="trend-card">
+        <h4>开放生态 vs 企业可控</h4>
+        <div class="trend-conflict">开放模型和工具链扩张很快，但企业要的是 license、安全扫描、部署模板和可观测性。</div>
+        <p>Hugging Face + Microsoft Foundry 这类组合，正在把开源模型从下载资产变成企业托管供应链。</p>
+        <div class="trend-sources">huggingface.co · huggingface.co</div>
+      </div>
+    </div>
+
+    <h2 id="tech-news">📰 科技动态</h2>
+    <h3>1、<a href="https://blog.cloudflare.com/content-independence-day-ai-options/" target="_blank" rel="noopener noreferrer">Cloudflare：网站主可把 AI 流量区分为 Search、Agent、Training bots</a> <span class="certainty-tag certainty-announced">announced</span></h3>
+    <p>过去的一键“Block AI Bots”太粗了。Cloudflare 现在把自动化流量拆成搜索、Agent 和训练三类，让网站主可以保留可发现性，同时对训练和自动化使用设置更细规则。真正的变化是：AI 流量不再被当成一种东西，产品和合规策略也不能继续一刀切。</p>
+    <img class="article-img" src="https://cf-assets.www.cloudflare.com/zkvhlag99gkb/6WfuWZFkYwf6QwyYidzYdo/621c1bd35911a6aa5aaa0d6a3758da18/BLOG-3337_OG.png" alt="">
+    <h3>2、<a href="https://blog.cloudflare.com/workers-cache/" target="_blank" rel="noopener noreferrer">Cloudflare Workers Cache：Worker 前面长出区域分层缓存</a> <span class="certainty-tag certainty-announced">announced</span></h3>
+    <p>Serverless 最烦人的成本，常常不是代码运行，而是重复请求打到入口。Cloudflare 发布 Workers Cache，把区域分层缓存直接放在 Worker entrypoint 前面，并通过标准 HTTP header 配置。对团队来说，这是边缘应用从“能跑函数”走向“能治理流量形状”的一步。</p>
+    <img class="article-img" src="https://cf-assets.www.cloudflare.com/zkvhlag99gkb/6S1TZg4kL1049Rkw44RiIc/5adca4df8432fb3401517712f2b8d15f/Your_Worker_can_now_have_its_own_cache_in_front_of_it-OG.png" alt="">
+    <h3>3、<a href="https://github.blog/changelog/" target="_blank" rel="noopener noreferrer">GitHub 7 月 7 日连发 Copilot、secret scanning 和 rulesets 治理更新</a> <span class="certainty-tag certainty-announced">announced</span></h3>
+    <p>同一天里，GitHub 把 Kimi K2.7 带给 Copilot Business/Enterprise，又推出 cost center per-user budgets、secret scanning 扩展元数据与 multipart validation、rulesets 里限制谁能 dismiss reviews。看起来是零散 changelog，合起来却是一个信号：AI 编码进入企业后，预算、密钥和代码审查权限会成为同一套治理系统。</p>
+    <img class="article-img" src="https://github.blog/wp-content/uploads/2026/06/613814751-fc2b8d48-e76b-4c8e-860d-f140edb0c792.png" alt="">
+    <h3>4、<a href="https://vercel.com/changelog/more-granular-observability-for-vercel-sandbox" target="_blank" rel="noopener noreferrer">Vercel Sandbox 增加 CPU、内存、数据传输和 session 级观测</a> <span class="certainty-tag certainty-announced">announced</span></h3>
+    <p>Agent 一旦能开 sandbox，成本就会从“模型 token”扩展到 CPU、内存、网络和 session 生命周期。Vercel 新增 Sandbox observability，可按 Sandbox Name 和 Session ID 归因 CPU、GB-hours、数据传输、运行数量，并可通过 CLI 查询。它提醒我们：Agent 运行时不是黑盒，沙箱资源必须能被逐个追责。</p>
+    <img class="article-img" src="https://assets.vercel.com/image/upload/contentful/image/e5382hct74si/7mtz7E0Egk8oGdddh1937c/79fcb47f9df5533d67712a4f8aec46ae/image.png" alt="">
+    <h3>5、<a href="https://techcrunch.com/2026/07/06/microsoft-lays-off-nearly-5000-employees-across-xbox-commercial-sales/" target="_blank" rel="noopener noreferrer">微软据报裁撤约 4,800 人，AI 不是直接替代，但正在改写岗位结构</a> <span class="certainty-tag certainty-reported">reported</span></h3>
+    <p>TechCrunch 报道，微软裁撤约 4,800 个岗位，约占全球员工 2.1%，重点波及 Xbox 和商业销售。微软强调并非“AI 直接替代这些人”，但承认 AI 正在改变工作完成方式。这里最值得警惕的不是单家公司裁员，而是白领组织开始把 AI 影响写进岗位重组语言里。</p>
+    <img class="article-img" src="https://techcrunch.com/wp-content/uploads/2026/05/microsoft-logo.jpg?resize=1200,800" alt="">
+
+    <h2 id="ai">🤖 AI 相关</h2>
+    <h3>1、<a href="https://developers.openai.com/api/docs/changelog" target="_blank" rel="noopener noreferrer">OpenAI 发布 GPT-Realtime-2.1 与 mini，实时语音竞争进入“打断、噪声、字母数字识别”细节战</a> <span class="certainty-tag certainty-announced">announced</span></h3>
+    <p>实时语音产品最难的不是让模型说话，而是让它在噪声、沉默、打断和字母数字串里不露怯。OpenAI changelog 显示，GPT-Realtime-2.1 提升了 alphanumeric recognition、silence/noise handling 和 interruption behavior，同时发布更低成本的 mini。语音 Agent 的竞争正在从“能对话”进入“像真人一样不中断地协作”。</p>
+    <img class="article-img" src="https://developers.openai.com/og/api/docs/changelog.png" alt="">
+    <h3>2、<a href="https://ai.meta.com/blog/introducing-muse-image-muse-video-msl/" target="_blank" rel="noopener noreferrer">Meta 推 Muse Image 并预览 Muse Video，社交语境开始进入生成模型产品叙事</a> <span class="certainty-tag certainty-announced">announced</span></h3>
+    <p>Meta 宣布 Muse Image，并预览 Muse Video，称其可精确编辑、多参考组合，并借助 Instagram 社交语境。它的重点不是“又一个文生图”，而是媒体生成模型开始绑定平台语境：模型理解的不是孤立 prompt，而是用户在社交平台里的审美、关系和发布场景。</p>
+    <h3>3、<a href="https://huggingface.co/blog/lerobot-release-v060" target="_blank" rel="noopener noreferrer">Hugging Face LeRobot v0.6.0：机器人学习开始强调想象、评估和失败回收</a> <span class="certainty-tag certainty-announced">announced</span></h3>
+    <p>机器人不是只要会执行动作，还要能想象未来、知道自己是否成功、把失败变成下一轮训练数据。LeRobot v0.6.0 引入 world model policies、reward models API、6 个仿真 benchmark、lerobot-rollout CLI、FSDP 和 HF Jobs 云训练。它把机器人学习从“跑一个 policy”推进到闭环系统：想象、执行、评估、纠错、再训练。</p>
+    <h3>4、<a href="https://huggingface.co/blog/microsoft/foundry-managed-compute" target="_blank" rel="noopener noreferrer">Hugging Face + Microsoft Foundry：开放模型正在被包进企业级供应链</a> <span class="certainty-tag certainty-announced">announced</span></h3>
+    <p>开源模型下载很容易，企业部署很难。Hugging Face 与 Microsoft 介绍 Foundry Managed Compute 上的 Hugging Face 模型：每周刷新、模型预置在 Azure、runtime 由 Microsoft 构建和扫描，使用 safetensors，减少 trust_remote_code 风险。它说明开放权重的下一步不是“更多模型”，而是被治理、计费、扫描、观测后进入企业平台。</p>
+    <img class="article-img" src="https://huggingface.co/front/thumbnails/blog.png" alt="">
+    <h3>5、<a href="https://huggingface.co/blog/cerebras-gemma4-voice-ai" target="_blank" rel="noopener noreferrer">Hugging Face + Cerebras 用 Gemma 4 做实时语音：P95 延迟比平均延迟更决定体验</a> <span class="certainty-tag certainty-announced">announced</span></h3>
+    <p>语音 AI 的体验经常死在长尾延迟。Hugging Face 和 Cerebras 展示开放模块化 speech-to-speech 栈：Parakeet 语音识别、Gemma 4 31B 推理、Qwen3TTS 语音输出，并强调 Cerebras 的低延迟稳定性；文章还提到这类管线已经服务 Reachy Mini 机器人场景。它提醒我们：实时体验看 P95，不只看 median。</p>
+
+    <h2 id="articles">📝 文章推荐</h2>
+    <h3>1、<a href="https://try.works/first-principles-of-model-routing" target="_blank" rel="noopener noreferrer">First Principles of Model Routing：别把路由做成 if-else 模型选择器</a></h3>
+    <p>模型路由看似是“哪个模型便宜就用哪个”，实则是任务意图、上下文、成本、延迟、可验证性和失败策略的组合问题。AI 平台真正的控制面，不是模型列表，而是路由决策为何可解释、可调、可回滚。</p>
+    <img class="article-img" src="https://freight.cargo.site/w/880/i/O2895858887703891688252537528840/Screenshot-2026-04-19-065003.png" alt="">
+    <h3>2、<a href="https://www.figma.com/blog/building-accessibility-into-a-canvas-based-product/" target="_blank" rel="noopener noreferrer">Figma：Canvas 产品怎么把浏览器免费提供的可访问性重新造回来</a></h3>
+    <p>Canvas 让 Figma 获得传统 HTML 难以触及的性能和协作能力，但也拿走了浏览器原生可访问性。Figma 的复盘价值在于，它把“为什么不用标准控件”背后的债务摊开：性能、自由度、可访问性、辅助技术语义，要被系统性补回来。</p>
+    <img class="article-img" src="https://cdn.sanity.io/images/599r6htc/regionalized/3b56ac84ef6b2e3fd6ffc923b4093009bcc6a3b4-3262x1836.png?w=1200&amp;q=70&amp;fit=max&amp;auto=format" alt="">
+    <h3>3、<a href="https://blog.zksecurity.xyz/posts/circl-bugs/" target="_blank" rel="noopener noreferrer">AI Meets Cryptography：AI 审计管线在 Cloudflare CIRCL 中发现了什么</a></h3>
+    <p>安全审计里的 AI 最容易被吹成“自动找洞神器”，但真正值得看的是它怎么和人类专家、测试 harness、加密边界条件协作。这篇文章把 AI 放到密码库审计现场，比泛泛谈 AI 安全更具体：模型可以放大搜索，但可信结论仍然需要严谨复核。</p>
+    <h3>4、<a href="https://blog.yossarian.net/2026/07/07/You-shouldnt-trust-trusted-publishing" target="_blank" rel="noopener noreferrer">You shouldn’t trust Trusted Publishing：供应链安全的名字不等于边界本身</a></h3>
+    <p>Trusted Publishing 的目标是减少令牌泄漏，但“更少 secret”不等于“没有信任边界”。这篇讨论提醒我们：供应链安全机制的命名很容易让人放松警惕，真正要问的是攻击者能否控制发布上下文、身份绑定和构建产物。</p>
+
+    <h2 id="tools">🛠️ 工具推荐</h2>
+    <div class="tool-grid">
+      <div class="tool-card">
+        <h4><a href="https://30papers.com/" target="_blank" rel="noopener noreferrer">30papers.com</a> <span class="priority-tag">P2</span></h4>
+        <p>把 Ilya Sutskever 提到的 30 篇关键 ML 论文做成更适合初学者的阅读入口。适合做团队 AI 基础共读材料。</p>
+      </div>
+      <div class="tool-card">
+        <h4><a href="https://github.com/rowboatlabs/rowboat" target="_blank" rel="noopener noreferrer">Rowboat</a> <span class="priority-tag">P2</span></h4>
+        <p>HN 上的开源 local-first Claude Desktop 替代方案。适合观察本地 Agent 桌面入口如何组织工具、上下文和隐私。</p>
+      </div>
+      <div class="tool-card">
+        <h4><a href="https://herdr.dev/" target="_blank" rel="noopener noreferrer">Herdr</a> <span class="priority-tag">P3</span></h4>
+        <p>“一个终端统管所有终端”的实验工具。适合关注远程机器、session 管理和开发者工作台的人试用。</p>
+      </div>
+      <div class="tool-card">
+        <h4><a href="https://davit.app" target="_blank" rel="noopener noreferrer">Davit</a> <span class="priority-tag">P3</span></h4>
+        <p>Apple Containers 的图形界面。容器工具越来越多后，轻量 GUI 会成为本地开发体验的一部分。</p>
+      </div>
+      <div class="tool-card">
+        <h4><a href="https://github.com/514-labs/dnsglobe" target="_blank" rel="noopener noreferrer">dnsglobe</a> <span class="priority-tag">P3</span></h4>
+        <p>终端里的全球 DNS 传播检查器，用世界地图展示 34 个公共解析器状态。小而具体，很适合排查域名发布问题。</p>
+      </div>
+    </div>
+
+    <h2 id="ai-tools">🧠 AI 工具</h2>
+    <div class="tool-grid">
+      <div class="tool-card">
+        <span class="tag">Agent Tools</span>
+        <h4><a href="https://vercel.com/changelog/github-tools-eve" target="_blank" rel="noopener noreferrer">GitHub Tools for eve</a></h4>
+        <p>Vercel 介绍 GitHub Tools 通过 @github-tools/sdk/eve 提供 eve toolset，一个文件可注册完整 GitHub agent 工具，并支持 maintainer 等 preset 和写操作审批。</p>
+      </div>
+      <div class="tool-card">
+        <span class="tag">Robotics</span>
+        <h4><a href="https://github.com/huggingface/lerobot" target="_blank" rel="noopener noreferrer">LeRobot v0.6.0</a></h4>
+        <p>机器人学习闭环工具链：world model policies、reward models、仿真 benchmark、rollout CLI、FSDP 和云训练。</p>
+      </div>
+      <div class="tool-card">
+        <span class="tag">Optimization</span>
+        <h4><a href="https://huggingface.co/blog/revamped-kernels" target="_blank" rel="noopener noreferrer">Hugging Face Kernels</a></h4>
+        <p>Kernels Hub 的 7 月更新，适合关注模型推理、算子优化和跨硬件部署的人跟进。</p>
+      </div>
+      <div class="tool-card">
+        <span class="tag">Enterprise AI</span>
+        <h4><a href="https://ai.azure.com/" target="_blank" rel="noopener noreferrer">Hugging Face Models on Foundry</a></h4>
+        <p>把开放模型通过 Microsoft Foundry Managed Compute 做成可扫描、可部署、可计费的企业服务。</p>
+      </div>
+    </div>
+
+    <h2 id="concepts">🧩 本期概念库</h2>
+    <div class="concept-card">
+      <h4>1. Request-native Monetization</h4>
+      <div class="concept-field"><strong>一句话解释：</strong>把资源价格、支付证明和访问放行放进普通 HTTP 请求路径，而不是跳转到独立结算流程。</div>
+      <div class="concept-field"><strong>背景来源：</strong>Cloudflare Monetization Gateway / x402</div>
+      <div class="concept-field"><strong>为什么重要：</strong>Agent 调用频率高、单价低、人工审批不可行，按请求收费需要协议级支持。</div>
+      <div class="concept-field"><strong>团队应用场景：</strong>开放 API、MCP 工具或数据服务时，预留调用者身份、预算、付费证明和审计字段。</div>
+    </div>
+    <div class="concept-card">
+      <h4>2. Agent Traffic Taxonomy</h4>
+      <div class="concept-field"><strong>一句话解释：</strong>把 AI 流量按 Search、Agent、Training 等意图区分，而不是统称 bot。</div>
+      <div class="concept-field"><strong>背景来源：</strong>Cloudflare AI traffic options</div>
+      <div class="concept-field"><strong>为什么重要：</strong>不同 AI 流量对业务价值、内容风险和商业授权的含义完全不同。</div>
+      <div class="concept-field"><strong>团队应用场景：</strong>为官网、文档、API 和内容资产建立 crawler/agent/training 分级策略。</div>
+    </div>
+    <div class="concept-card">
+      <h4>3. Sandbox Cost Attribution</h4>
+      <div class="concept-field"><strong>一句话解释：</strong>把 Agent 运行时消耗的 CPU、内存、网络和 session 生命周期归因到具体 sandbox 或任务。</div>
+      <div class="concept-field"><strong>背景来源：</strong>Vercel Sandbox observability</div>
+      <div class="concept-field"><strong>为什么重要：</strong>Agent 成本不只来自 token，远程执行、下载依赖、工具调用和等待也会产生账单。</div>
+      <div class="concept-field"><strong>团队应用场景：</strong>内部 Agent 平台上线前建立 session_id、task_id、owner 和 cost center 标签。</div>
+    </div>
+    <div class="concept-card">
+      <h4>4. Open-model Supply Chain</h4>
+      <div class="concept-field"><strong>一句话解释：</strong>开放权重模型进入企业后，需要 license、runtime、镜像、CVE、trust_remote_code、观测和计费全链路治理。</div>
+      <div class="concept-field"><strong>背景来源：</strong>Hugging Face Models on Foundry</div>
+      <div class="concept-field"><strong>为什么重要：</strong>模型可下载不等于可生产部署，企业采用瓶颈在供应链。</div>
+      <div class="concept-field"><strong>团队应用场景：</strong>评估开源模型时加入安全扫描、运行时选择、自动升级和回滚机制。</div>
+    </div>
+    <div class="concept-card">
+      <h4>5. Accessibility Debt of Custom UI</h4>
+      <div class="concept-field"><strong>一句话解释：</strong>自绘 Canvas/图形 UI 牺牲浏览器原生语义后，团队必须主动补回可访问性能力。</div>
+      <div class="concept-field"><strong>背景来源：</strong>Figma accessibility engineering</div>
+      <div class="concept-field"><strong>为什么重要：</strong>高性能自绘界面不是免除标准，而是接管标准。</div>
+      <div class="concept-field"><strong>团队应用场景：</strong>复杂前端组件评审时，把键盘、屏幕阅读器、语义树和自动化测试纳入验收。</div>
+    </div>
+
+    <h2 id="curiosity">🎲 好奇心入口</h2>
+    <div class="curiosity-card">
+      <h4><a href="https://streetcomplete.app/" target="_blank" rel="noopener noreferrer">StreetComplete：把 OpenStreetMap 维护变成一连串小任务</a></h4>
+      <div class="hook">地图修正也可以像做游戏任务一样，一次只问你一个小问题。</div>
+      <p>HN 今日高票的 StreetComplete 把 OSM 数据补全拆成附近可完成的 tiny quest，降低普通人参与地图维护的门槛。 团队暗线：把复杂公共协作拆成小任务，比写长教程更能扩大贡献者池。</p>
+    </div>
+    <div class="curiosity-card">
+      <h4><a href="https://allaboutcookies.org/eu-mandatory-distracted-driver-system" target="_blank" rel="noopener noreferrer">欧盟新车强制 driver monitoring camera：安全功能也会变成隐私问题</a></h4>
+      <div class="hook">车里多一颗摄像头，表面是安全，背后是长期数据边界。</div>
+      <p>HN 热议称欧盟新车必须包含驾驶员监控摄像头。无论具体实现如何，它都提醒我们：安全、合规、保险和隐私会在智能硬件里正面相撞。 团队暗线：所有“为了安全”的传感器，都要提前回答数据保存、访问和用途边界。</p>
+    </div>
+    <div class="curiosity-card">
+      <h4><a href="https://github.com/jimparis/qr-font" target="_blank" rel="noopener noreferrer">TrueType QR Code Font：把二维码塞进字体系统</a></h4>
+      <div class="hook">二维码不一定要用图片生成，也可以藏在字体渲染里。</div>
+      <p>Jim Paris 的 QR Code Font 在 HN 上引发讨论，项目把二维码编码进 TrueType 字体。它的实用性未必最大，但能训练我们重新理解字体、编码和渲染系统的边界。 团队暗线：很多系统的“输出格式”其实可以被重新编程。</p>
+    </div>
+
+    <h2 id="resources">📚 资源</h2>
+    <div class="resource-item">
+      <a href="https://www.x402.org/" target="_blank" rel="noopener noreferrer">x402 protocol</a>
+      <p>Cloudflare Monetization Gateway 背后的 HTTP payment protocol，可作为理解 402 Payment Required 和机器支付的入口。</p>
+    </div>
+    <div class="resource-item">
+      <a href="https://docs.github.com/en/copilot" target="_blank" rel="noopener noreferrer">GitHub Changelog：July 2026</a>
+      <p>GitHub Copilot 企业使用、配置和治理文档入口，可配合本期 changelog 跟进预算、模型和权限更新。</p>
+    </div>
+    <div class="resource-item">
+      <a href="https://huggingface.co/blog" target="_blank" rel="noopener noreferrer">Hugging Face Blog：July 2026 更新流</a>
+      <p>LeRobot、Kernels、Foundry Managed Compute、Cerebras voice AI 等开放 AI 工具链动态入口。</p>
+    </div>
+
+    <h2 id="quotes">💬 言论：本期 8 个认知增量</h2>
+    <div class="quote-block">
+      <blockquote>当 Agent 成为主要访问者，内容和 API 的商业模式就不能继续只围绕人的注意力设计。</blockquote>
+      <div class="quote-author">—— Cloudflare Content Independence Day 系列</div>
+      <div class="quote-meta">来源：<a href="https://blog.cloudflare.com/agentic-internet-bot-report/" target="_blank" rel="noopener noreferrer">blog.cloudflare.com</a> · 类型：摘要式转述 · 关键词：Agent Internet · 商业模式 · 内容治理</div>
+      <div class="quote-comment">💭 这句话背后的判断很硬：广告和订阅不是天然适配软件买家的商业模式。</div>
+      <div class="quote-team-insight">🎯 团队启发：公开资源要区分人类用户、搜索爬虫、Agent 调用和训练抓取，分别设计规则。</div>
+    </div>
+    <div class="quote-block">
+      <blockquote>AI 流量不是一种流量；搜索、代理执行和训练抓取代表三种完全不同的利益关系。</blockquote>
+      <div class="quote-author">—— Cloudflare AI traffic options</div>
+      <div class="quote-meta">来源：<a href="https://blog.cloudflare.com/attribution-business-insights/" target="_blank" rel="noopener noreferrer">blog.cloudflare.com</a> · 类型：摘要式转述 · 关键词：AI Bots · 流量治理 · 平台策略</div>
+      <div class="quote-comment">💭 这是治理的起点。把所有 bot 放进一个桶，只会让产品策略失真。</div>
+      <div class="quote-team-insight">🎯 团队启发：团队文档和官网可以先做 crawler/agent/training 三分类日志，而不是只记 User-Agent。</div>
+    </div>
+    <div class="quote-block">
+      <blockquote>实时语音模型的体验不只取决于回答质量，还取决于它如何处理沉默、噪声、打断和数字字母串。</blockquote>
+      <div class="quote-author">—— OpenAI API Changelog</div>
+      <div class="quote-meta">来源：<a href="https://developers.openai.com/api/docs/guides/realtime" target="_blank" rel="noopener noreferrer">developers.openai.com</a> · 类型：摘要式转述 · 关键词：Voice Agent · Realtime · 产品体验</div>
+      <div class="quote-comment">💭 这比大而全的模型发布更接近真实产品现场。语音交互的失败往往藏在细碎边缘条件里。</div>
+      <div class="quote-team-insight">🎯 团队启发：语音功能验收要加入噪声、插话、订单号、混合语言和低网速场景。</div>
+    </div>
+    <div class="quote-block">
+      <blockquote>Agent sandbox 的成本不是抽象账单，而是 CPU、内存、数据传输和 session 这些可以追到具体任务的指标。</blockquote>
+      <div class="quote-author">—— Vercel Sandbox observability</div>
+      <div class="quote-meta">来源：<a href="https://vercel.com/docs/vercel-sandbox" target="_blank" rel="noopener noreferrer">vercel.com</a> · 类型：摘要式转述 · 关键词：Agent Runtime · Observability · 成本治理</div>
+      <div class="quote-comment">💭 Agent 平台如果没有这个粒度，最后一定会出现“没人知道谁烧了钱”的事故。</div>
+      <div class="quote-team-insight">🎯 团队启发：每个自动化任务都要带 owner、task_id、session_id 和 cost center。</div>
+    </div>
+    <div class="quote-block">
+      <blockquote>开放模型进入企业，真正难的是发现、许可、安全扫描、运行时选择、镜像构建、CVE 修复和端点托管。</blockquote>
+      <div class="quote-author">—— Hugging Face / Microsoft Foundry</div>
+      <div class="quote-meta">来源：<a href="https://learn.microsoft.com/azure/ai-foundry/" target="_blank" rel="noopener noreferrer">learn.microsoft.com</a> · 类型：摘要式转述 · 关键词：Open Models · 供应链 · 企业 AI</div>
+      <div class="quote-comment">💭 开源权重的热闹之外，企业平台真正购买的是供应链确定性。</div>
+      <div class="quote-team-insight">🎯 团队启发：模型选型评审要把部署供应链作为硬指标，而不是只比较 benchmark。</div>
+    </div>
+    <div class="quote-block">
+      <blockquote>Canvas 给了产品性能和自由度，也拿走了浏览器原生可访问性；拿走以后，就要自己负责补回来。</blockquote>
+      <div class="quote-author">—— Figma Engineering</div>
+      <div class="quote-meta">来源：<a href="https://www.figma.com/blog/engineering/" target="_blank" rel="noopener noreferrer">figma.com</a> · 类型：摘要式转述 · 关键词：前端工程 · 可访问性 · 产品质量</div>
+      <div class="quote-comment">💭 这对所有复杂前端都适用：越是自定义，越不能把平台能力当空气。</div>
+      <div class="quote-team-insight">🎯 团队启发：自研复杂组件必须把可访问性纳入设计验收，而不是发布后补票。</div>
+    </div>
+    <div class="quote-block">
+      <blockquote>Trusted Publishing 减少了长期 secret，但它没有取消发布链路里的信任问题。</blockquote>
+      <div class="quote-author">—— William Woodruff</div>
+      <div class="quote-meta">来源：<a href="https://docs.pypi.org/trusted-publishers/" target="_blank" rel="noopener noreferrer">docs.pypi.org</a> · 类型：摘要式转述 · 关键词：供应链安全 · 发布系统 · 权限边界</div>
+      <div class="quote-comment">💭 安全机制最怕名字太好听。听起来“trusted”时，反而要问清楚信任锚在哪里。</div>
+      <div class="quote-team-insight">🎯 团队启发：发布系统评审要画出身份、构建环境、产物和权限之间的完整信任链。</div>
+    </div>
+    <div class="quote-block">
+      <blockquote>模型路由的核心不是省钱，而是在质量、延迟、成本、验证和失败策略之间做可解释取舍。</blockquote>
+      <div class="quote-author">—— Try-Works model routing article</div>
+      <div class="quote-meta">来源：<a href="https://try.works/" target="_blank" rel="noopener noreferrer">try.works</a> · 类型：摘要式转述 · 关键词：Model Routing · AI Gateway · 工程策略</div>
+      <div class="quote-comment">💭 只按价格路由会把平台做成赌场。真正的路由策略必须能解释为什么这次选择这个模型。</div>
+      <div class="quote-team-insight">🎯 团队启发：AI Gateway 需要记录 routing reason，并允许按任务类型配置质量/成本边界。</div>
+    </div>
+
+    <h2 id="podcast">🎙️ 播客提纲</h2>
+    <div class="podcast-brief">
+      <h4>Agent 互联网开始补上身份、计费和成本仪表盘</h4>
+      <div class="cold-open">想象一个 Agent 去读网页、调用 API、跑 MCP 工具。它不登录，不看广告，也不会买月费会员。那它该怎么付钱？</div>
+      <div class="podcast-segment">
+        <strong>Cloudflare x402</strong>
+        <p>HTTP 402 这次不是冷门状态码，而像是 Agent 互联网的收银台。</p>
+        <p>开放资源前先设计调用者分类和支付/审计路径。</p>
+      </div>      <div class="podcast-segment">
+        <strong>GitHub 与 Vercel 的治理信号</strong>
+        <p>AI 工具越能干活，预算、secret、review 和 sandbox 账单越不能靠感觉。</p>
+        <p>Agent 平台每个任务都要有 owner、session 和成本归因。</p>
+      </div>      <div class="podcast-segment">
+        <strong>开放模型的企业化</strong>
+        <p>开源模型不是下载完就能进生产。</p>
+        <p>模型选型必须覆盖安全、运行时和回滚，不只看榜单。</p>
+      </div>
+      <p>今天的结论：AI 的下一阶段不是更会说，而是更像一个能被计费、被约束、被追责的互联网参与者。</p>
+    </div>
+
+    <h2 id="team-insights">✅ 对团队的启发</h2>
+    <div class="insight-card">
+      <p><span class="insight-num">1</span>把 Agent 当成真实客户来设计：身份、预算、调用权限、付费证明、限流和审计要前置，而不是等流量起来后补。</p>
+    </div>
+    <div class="insight-card">
+      <p><span class="insight-num">2</span>AI 成本治理要从 token 扩展到 sandbox CPU、内存、网络、session、工具调用和人工审批时间。</p>
+    </div>
+    <div class="insight-card">
+      <p><span class="insight-num">3</span>公开文档、API 和内容站点要开始区分 Search bot、Agent bot、Training bot，不要只做一刀切 block/allow。</p>
+    </div>
+    <div class="insight-card">
+      <p><span class="insight-num">4</span>开放模型进入生产前，必须把 license、安全扫描、runtime、CVE、镜像、观测和回滚做成标准清单。</p>
+    </div>
+    <div class="insight-card">
+      <p><span class="insight-num">5</span>复杂前端和 Agent 工具都要补“平台默认能力”的债：可访问性、权限边界、日志、回放、回滚和异常归因。</p>
+    </div>
+
+    <div class="footer-sources">
+      <strong>📋 数据来源说明</strong><br>
+      本情报来自 66 个全球精选科技 / AI / 工程 / 系统可靠性信息源的每日更新。<br>
+      由 Cursor AI 自动生成，信息截止至 2026 年 7 月 8 日，星期三。
+    </div>
+  </main>
+</div>
+
+<script>
+(function(){
+  const toc=document.querySelector('.toc');if(!toc)return;
+  const links=[...toc.querySelectorAll('a')];
+  const ids=links.map(l=>l.getAttribute('href').slice(1));
+  const secs=ids.map(id=>document.getElementById(id)).filter(Boolean);
+  function hl(){let cur=0;secs.forEach((s,i)=>{if(s.getBoundingClientRect().top<=120)cur=i;});
+  links.forEach((l,i)=>{l.classList.toggle('active',i===cur);});}
+  window.addEventListener('scroll',hl,{passive:true});hl();
+})();
+
+</script>
+</body>
+</html>

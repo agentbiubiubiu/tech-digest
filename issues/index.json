@@ -1,5 +1,11 @@
 [
   {
+    "date": "2026-07-08",
+    "title": "第 52 期：Agent 互联网开始补上身份、计费和成本仪表盘",
+    "highlights": "Cloudflare 推 Monetization Gateway，计划用 x402 给网页、API、数据集和 MCP 工具做按请求收费 · Cloudflare 把 AI 流量细分为 Search / Agent / Training bots · OpenAI 发布 GPT-Realtime-2.1 与 mini · GitHub 7 月 7 日密集推出 Kimi K2.7、Copilot 成本预算、secret scanning 与 review 规则治理 · Vercel Sandbox 增加 CPU、内存、流量和 session 级观测 · Hugging Face LeRobot v0.6.0 加入 world model、reward model 与 rollout CLI · Meta 预览 Muse Image 与 Muse Video · Figma 复盘 Canvas 产品如何补回浏览器无偿提供的可访问性",
+    "image": "https://cf-assets.www.cloudflare.com/zkvhlag99gkb/7wA6Z3Df13eeHZkxM3Fokt/088b64cd947100b70bd0e49c845fc984/Announcing_the_Monetization_Gateway-_charge_for_any_resource_behind_Cloudflare_via_x402-OG.png"
+  },
+  {
     "date": "2026-06-30",
     "title": "第 51 期：模型 API 里开始长出协作层",
     "highlights": "vLLM Semantic Router 把模型 API 做成 bounded micro-agent runtime · VSR Closed 在 vLLM 博客 scorecard 中达到 LiveCodeBench 92.6 / GPQA-Diamond 96.0 · Qwen 3.6 27B 成为本地开发热议模型 · Ornith-1.0 让模型学习生成任务 harness · GitHub Copilot 预览 Claude Opus 4.8 fast mode · Netflix GenPage 探索端到端生成首页 · Rocket Lab 与 Iridium 达成约 80 亿美元收购协议 · 美国最高法院要求 geofence warrants 具备宪法隐私保护",
