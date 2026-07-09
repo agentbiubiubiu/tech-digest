@@ -1,5 +1,11 @@
 [
   {
+    "date": "2026-07-09",
+    "title": "第 53 期：前端工具链和 Agent 工作流同时进入「可控化」阶段",
+    "highlights": "TypeScript 7 稳定发布，Go 原生实现带来 8-12x full build speedup · Bun 公开从 Zig 重写到 Rust，并披露 Anthropic 收购背景 · OpenAI 发布 GPT-Live full-duplex 语音模型 · OpenAI 审计 SWE-Bench Pro，估计约 30% 任务有破坏性问题 · GitHub Copilot in VS Code 增强并行会话、成本可见性和 Agent 浏览器 · Google ADK 2.0 主张确定性 workflow + Agent 混合 · Cloudflare Meerkat 试验全球共识服务",
+    "image": "https://devblogs.microsoft.com/typescript/wp-content/uploads/sites/11/2026/07/ts7-0-stable-1-1.png"
+  },
+  {
     "date": "2026-07-08",
     "title": "第 52 期：Agent 互联网开始补上身份、计费和成本仪表盘",
     "highlights": "Cloudflare 推 Monetization Gateway，计划用 x402 给网页、API、数据集和 MCP 工具做按请求收费 · Cloudflare 把 AI 流量细分为 Search / Agent / Training bots · OpenAI 发布 GPT-Realtime-2.1 与 mini · GitHub 7 月 7 日密集推出 Kimi K2.7、Copilot 成本预算、secret scanning 与 review 规则治理 · Vercel Sandbox 增加 CPU、内存、流量和 session 级观测 · Hugging Face LeRobot v0.6.0 加入 world model、reward model 与 rollout CLI · Meta 预览 Muse Image 与 Muse Video · Figma 复盘 Canvas 产品如何补回浏览器无偿提供的可访问性",
