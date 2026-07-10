@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>第 54 期：模型竞争从榜单进入工作台，监管也开始审 UI 成瘾</title>
+  <meta property="og:title" content="Tech Digest #54：GPT-5.6、Muse Spark 1.1、DSA 与开发工具">
+  <meta property="og:description" content="OpenAI GPT-5.6 进入 Microsoft 365 与 GitHub Copilot，Meta Muse Spark 1.1 开放 API，欧盟初步认定 Meta 成瘾设计违反 DSA，Rust 与 Postgres 社区继续推进内存安全迁移。">
+  <meta property="og:image" content="https://images.openai.com/blob/1f34bc95-7eb1-4560-89dd-e0fef6c9e6c1/gpt-5-6.png">
+  <style>
+:root {
+  --bg: #f5f6f8; --surface: #ffffff; --surface2: #f0f2f5;
+  --border: #e8ecf1; --border-hover: #c5cdd8;
+  --text: #1a1d21; --text-secondary: #3d4550; --text-muted: #8c95a1;
+  --accent: #2d9f6f; --accent-light: #e8f5ef; --accent-hover: #248a5e;
+  --accent-text: #ffffff;
+  --purple: #7c5cbf; --purple-light: #f3effc;
+  --orange: #e58e26; --orange-light: #fef5e7;
+  --blue: #3a82f7; --blue-light: #eef4fe;
+  --red: #e74c3c; --red-light: #fdecea;
+  --green-deep: #1a7a4c; --green-light2: #e0f5ea;
+  --yellow: #d4a017; --yellow-light: #fef9e7;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.06);
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.06), 0 2px 4px rgba(0,0,0,0.04);
+  --shadow-lg: 0 10px 30px rgba(0,0,0,0.08);
+  --radius: 12px; --radius-sm: 8px; --radius-xs: 6px;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Helvetica, Arial, sans-serif; background: var(--bg); color: var(--text); line-height: 1.75; font-size: 15px; -webkit-font-smoothing: antialiased; }
+.topbar { background: var(--surface); border-bottom: 1px solid var(--border); padding: 12px 32px; display: flex; align-items: center; gap: 16px; position: sticky; top: 0; z-index: 200; box-shadow: var(--shadow-sm); }
+.topbar-brand { font-size: 1.1rem; font-weight: 700; color: var(--accent); text-decoration: none; display: flex; align-items: center; gap: 8px; }
+.topbar-brand svg { width: 28px; height: 28px; }
+.topbar-nav { display: flex; gap: 4px; margin-left: 24px; }
+.topbar-nav a { padding: 6px 16px; border-radius: 20px; font-size: 0.85rem; font-weight: 500; color: var(--text-secondary); text-decoration: none; transition: all 0.2s; }
+.topbar-nav a:hover { background: var(--surface2); color: var(--text); }
+.topbar-nav a.active { background: var(--accent-light); color: var(--accent); font-weight: 600; }
+.topbar-right { margin-left: auto; display: flex; align-items: center; gap: 12px; }
+.topbar-date { font-size: 0.82rem; color: var(--text-muted); background: var(--surface2); padding: 5px 12px; border-radius: 16px; }
+.page { display: flex; max-width: 1200px; margin: 0 auto; padding: 24px 24px 0; gap: 24px; }
+.toc { width: 220px; flex-shrink: 0; position: sticky; top: 80px; height: calc(100vh - 104px); overflow-y: auto; background: var(--surface); border-radius: var(--radius); padding: 20px 16px; box-shadow: var(--shadow-sm); border: 1px solid var(--border); }
+.toc-title { font-size: 0.72rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 14px; padding-left: 12px; }
+.toc a { display: block; padding: 7px 12px; margin-bottom: 2px; font-size: 0.82rem; color: var(--text-muted); text-decoration: none; border-radius: var(--radius-xs); transition: all 0.15s; font-weight: 500; }
+.toc a:hover { color: var(--accent); background: var(--accent-light); }
+.toc a.active { color: var(--accent); background: var(--accent-light); font-weight: 600; }
+.toc-mobile { display: none; position: sticky; top: 57px; z-index: 100; background: var(--surface); border-bottom: 1px solid var(--border); padding: 10px 16px; box-shadow: var(--shadow-sm); }
+.toc-mobile summary { cursor: pointer; font-size: 0.85rem; color: var(--accent); font-weight: 600; list-style: none; }
+.toc-mobile summary::-webkit-details-marker { display: none; }
+.toc-mobile .toc-dropdown { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 8px; margin-top: 8px; max-height: 60vh; overflow-y: auto; box-shadow: var(--shadow-md); }
+.toc-mobile .toc-dropdown a { display: block; padding: 8px 12px; font-size: 0.88rem; color: var(--text-secondary); text-decoration: none; border-radius: var(--radius-xs); }
+.toc-mobile .toc-dropdown a:hover { color: var(--accent); background: var(--accent-light); }
+@media (max-width: 860px) { .toc { display: none; } .toc-mobile { display: block; } .topbar-nav { display: none; } .page { flex-direction: column; padding: 16px 12px 0; gap: 16px; } .container { padding: 20px 16px 60px; } }
+.container { flex: 1; min-width: 0; background: var(--surface); border-radius: var(--radius); padding: 36px 40px 60px; box-shadow: var(--shadow-sm); border: 1px solid var(--border); margin-bottom: 40px; }
+.back { display: inline-flex; align-items: center; gap: 4px; color: var(--text-muted); text-decoration: none; font-size: 0.85rem; margin-bottom: 28px; font-weight: 500; transition: color 0.15s; }
+.back:hover { color: var(--accent); }
+h1 { font-size: 1.7rem; font-weight: 800; margin-bottom: 10px; line-height: 1.35; color: var(--text); letter-spacing: -0.01em; }
+.meta { color: var(--text-muted); font-size: 0.85rem; margin-bottom: 28px; }
+.highlights-line { color: var(--text-secondary); font-size: 0.9rem; margin: -18px 0 28px; line-height: 1.65; }
+.hero-img { width: 100%; border-radius: var(--radius); margin-bottom: 10px; box-shadow: var(--shadow-md); }
+.hero-caption { font-size: 0.82rem; color: var(--text-muted); margin-bottom: 36px; text-align: center; font-style: italic; }
+h2 { font-size: 1.25rem; font-weight: 700; margin: 44px 0 18px; padding-bottom: 10px; border-bottom: 2px solid var(--accent-light); scroll-margin-top: 90px; color: var(--text); }
+h3 { font-size: 1.05rem; font-weight: 600; margin: 26px 0 8px; color: var(--text); }
+p { margin-bottom: 14px; color: var(--text-secondary); }
+a { color: var(--accent); text-decoration: none; font-weight: 500; }
+a:hover { color: var(--accent-hover); text-decoration: underline; }
+strong { color: var(--text); font-weight: 600; }
+.callout { background: var(--accent-light); border-left: 4px solid var(--accent); border-radius: var(--radius-sm); padding: 16px 20px; margin: 20px 0; font-size: 0.93rem; color: var(--text-secondary); }
+.main-story { background: linear-gradient(135deg, #f7fbff 0%, #fff 60%); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px 26px; margin: 18px 0 28px; box-shadow: var(--shadow-sm); }
+.main-story h3 { margin-top: 0; font-size: 1.2rem; line-height: 1.45; }
+.main-story .story-hook { color: var(--accent); font-weight: 700; margin-bottom: 14px; }
+.story-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 16px 0; }
+.story-field { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 12px 14px; font-size: 0.88rem; color: var(--text-secondary); }
+.story-field strong { display: block; margin-bottom: 4px; color: var(--text); }
+.number-chip { display: inline-block; background: var(--blue-light); color: var(--blue); border-radius: 14px; padding: 3px 10px; margin: 3px 6px 3px 0; font-size: 0.78rem; font-weight: 700; }
+.story-line { background: var(--purple-light); border-left: 4px solid var(--purple); border-radius: var(--radius-sm); padding: 14px 16px; margin-top: 14px; color: var(--text); font-weight: 700; }
+.trend-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin: 16px 0 28px; }
+.trend-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px 20px; box-shadow: var(--shadow-sm); }
+.trend-card h4 { font-size: 0.95rem; margin-bottom: 8px; color: var(--text); }
+.trend-card .trend-conflict { color: var(--red); font-size: 0.82rem; font-weight: 700; margin-bottom: 8px; }
+.trend-card p { font-size: 0.86rem; margin-bottom: 10px; }
+.trend-card .trend-sources { font-size: 0.76rem; color: var(--text-muted); line-height: 1.55; }
+.curiosity-card { background: var(--orange-light); border: 1px solid #f5ddb8; border-radius: var(--radius); padding: 20px 24px; margin: 14px 0; }
+.curiosity-card h4 { font-size: 1rem; margin-bottom: 8px; font-weight: 600; }
+.curiosity-card h4 a { color: var(--orange); }
+.curiosity-card .hook { color: var(--orange); font-weight: 700; margin-bottom: 6px; }
+.curiosity-card p { font-size: 0.88rem; color: var(--text-secondary); margin: 0 0 8px; line-height: 1.65; }
+.podcast-brief { background: #f8fafc; border: 1px solid var(--border); border-radius: var(--radius); padding: 20px 24px; margin: 18px 0; }
+.podcast-brief h4 { margin: 0 0 10px; font-size: 1rem; }
+.podcast-brief .cold-open { color: var(--accent); font-weight: 700; margin-bottom: 14px; }
+.podcast-segment { border-top: 1px solid var(--border); padding-top: 12px; margin-top: 12px; }
+.podcast-segment strong { display: block; margin-bottom: 4px; }
+.article-img { width: 100%; max-height: 380px; object-fit: cover; border-radius: var(--radius-sm); margin: 12px 0 24px; box-shadow: var(--shadow-sm); }
+.tool-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 16px 0; }
+.tool-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px 20px; transition: all 0.2s; box-shadow: var(--shadow-sm); }
+.tool-card:hover { border-color: var(--accent); box-shadow: var(--shadow-md); transform: translateY(-1px); }
+.tool-card h4 { font-size: 0.95rem; margin-bottom: 6px; font-weight: 600; }
+.tool-card h4 a { color: var(--accent); }
+.tool-card p { font-size: 0.83rem; color: var(--text-muted); margin: 0; line-height: 1.55; }
+.tool-card .tag { display: inline-block; font-size: 0.68rem; padding: 3px 8px; border-radius: 10px; background: var(--accent); color: var(--accent-text); font-weight: 600; margin-bottom: 8px; letter-spacing: 0.02em; }
+.tool-card .priority-tag { display: inline-block; font-size: 0.65rem; padding: 2px 6px; border-radius: 8px; background: var(--surface2); color: var(--text-muted); font-weight: 600; margin-left: 6px; }
+.fun-card { background: var(--orange-light); border: 1px solid #f5ddb8; border-radius: var(--radius); padding: 20px 24px; margin: 14px 0; }
+.fun-card h4 { font-size: 1rem; margin-bottom: 8px; font-weight: 600; }
+.fun-card h4 a { color: var(--orange); }
+.fun-card p { font-size: 0.88rem; color: var(--text-secondary); margin: 0; line-height: 1.65; }
+.quote-block { background: var(--purple-light); border-left: 4px solid var(--purple); border-radius: var(--radius-sm); padding: 20px 24px; margin: 18px 0; }
+.quote-block blockquote { font-size: 1.02rem; line-height: 1.65; margin-bottom: 10px; font-style: italic; color: var(--text); }
+.quote-block .quote-author { font-size: 0.82rem; color: var(--purple); font-weight: 600; margin-bottom: 6px; }
+.quote-block .quote-meta { font-size: 0.78rem; color: var(--text-muted); margin-bottom: 10px; }
+.quote-block .quote-comment { font-size: 0.88rem; color: var(--text-secondary); border-top: 1px solid #d8d0e8; padding-top: 10px; margin-top: 10px; }
+.quote-block .quote-team-insight { font-size: 0.88rem; color: var(--green-deep); background: var(--accent-light); border-radius: var(--radius-xs); padding: 8px 12px; margin-top: 8px; }
+.resource-item { background: var(--blue-light); border: 1px solid #c8dbf8; border-radius: var(--radius); padding: 18px 20px; margin: 12px 0; }
+.resource-item a { font-weight: 600; color: var(--blue); }
+.resource-item p { font-size: 0.88rem; color: var(--text-secondary); margin: 6px 0 0; }
+.concept-card { background: var(--green-light2); border-left: 4px solid var(--accent); border-radius: var(--radius-sm); padding: 20px 24px; margin: 16px 0; }
+.concept-card h4 { font-size: 1rem; font-weight: 700; color: var(--green-deep); margin-bottom: 10px; }
+.concept-card .concept-field { font-size: 0.88rem; color: var(--text-secondary); margin-bottom: 6px; line-height: 1.6; }
+.concept-card .concept-field strong { color: var(--text); font-size: 0.88rem; }
+.insight-card { background: var(--yellow-light); border-left: 4px solid var(--yellow); border-radius: var(--radius-sm); padding: 16px 20px; margin: 12px 0; }
+.insight-card p { font-size: 0.93rem; color: var(--text-secondary); margin: 0; line-height: 1.7; }
+.insight-card .insight-num { display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; border-radius: 50%; background: var(--yellow); color: #fff; font-size: 0.75rem; font-weight: 700; margin-right: 10px; flex-shrink: 0; }
+.certainty-tag { display: inline-block; font-size: 0.65rem; padding: 2px 6px; border-radius: 8px; font-weight: 600; margin-left: 8px; }
+.certainty-confirmed { background: var(--accent-light); color: var(--accent); }
+.certainty-announced { background: var(--blue-light); color: var(--blue); }
+.certainty-reported { background: var(--yellow-light); color: var(--yellow); }
+.certainty-opinion { background: var(--purple-light); color: var(--purple); }
+.certainty-rumor { background: var(--red-light); color: var(--red); }
+.footer-sources { margin-top: 44px; padding: 20px 24px; background: var(--surface2); border-radius: var(--radius); font-size: 0.78rem; color: var(--text-muted); line-height: 1.9; }
+.footer-sources strong { color: var(--text-secondary); font-size: 0.78rem; }
+@media (max-width: 860px) { .trend-grid, .story-grid { grid-template-columns: 1fr; } }
+@media (max-width: 640px) { .tool-grid { grid-template-columns: 1fr; } }
+
+  </style>
+</head>
+<body>
+
+<header class="topbar">
+  <a href="../index.html" class="topbar-brand">
+    <svg viewBox="0 0 28 28" fill="none"><circle cx="14" cy="14" r="14" fill="#2d9f6f"/><path d="M8 14.5l3.5 3.5 8.5-8" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    Tech Digest
+  </a>
+  <nav class="topbar-nav">
+    <a href="../index.html">Archive</a>
+    <a href="#main-story" class="active">Today</a>
+    <a href="#tools">Tools</a>
+    <a href="#quotes">Quotes</a>
+  </nav>
+  <div class="topbar-right">
+    <span class="topbar-date">2026-07-10</span>
+  </div>
+</header>
+
+<details class="toc-mobile">
+  <summary>📑 目录导航</summary>
+  <div class="toc-dropdown">
+    <a href="#main-story">🔥 主故事</a>
+    <a href="#trends">⚡ 冲突趋势</a>
+    <a href="#tech-news">📰 科技动态</a>
+    <a href="#ai">🤖 AI 相关</a>
+    <a href="#articles">📝 文章推荐</a>
+    <a href="#tools">🛠️ 工具推荐</a>
+    <a href="#ai-tools">🧠 AI 工具</a>
+    <a href="#concepts">🧩 本期概念库</a>
+    <a href="#curiosity">🎲 好奇心入口</a>
+    <a href="#resources">📚 资源</a>
+    <a href="#quotes">💬 言论</a>
+    <a href="#podcast">🎙️ 播客提纲</a>
+    <a href="#team-insights">✅ 对团队的启发</a>
+  </div>
+</details>
+
+<div class="page">
+  <nav class="toc">
+    <div class="toc-title">本期目录</div>
+    <a href="#main-story">🔥 主故事</a>
+    <a href="#trends">⚡ 冲突趋势</a>
+    <a href="#tech-news">📰 科技动态</a>
+    <a href="#ai">🤖 AI 相关</a>
+    <a href="#articles">📝 文章推荐</a>
+    <a href="#tools">🛠️ 工具推荐</a>
+    <a href="#ai-tools">🧠 AI 工具</a>
+    <a href="#concepts">🧩 本期概念库</a>
+    <a href="#curiosity">🎲 好奇心入口</a>
+    <a href="#resources">📚 资源</a>
+    <a href="#quotes">💬 言论</a>
+    <a href="#podcast">🎙️ 播客提纲</a>
+    <a href="#team-insights">✅ 对团队的启发</a>
+  </nav>
+
+  <main class="container">
+    <a href="../index.html" class="back">← 返回目录</a>
+    <h1>第 54 期：模型竞争从榜单进入工作台，监管也开始审 UI 成瘾</h1>
+    <div class="meta">第 54 期 · 2026年7月10日，星期五</div>
+    <p class="highlights-line"><strong>✨ 本期亮点：</strong>OpenAI 发布 GPT-5.6，公布 Cyber、Coding、Office 和工具调用能力 · GPT-5.6 成为 Microsoft 365 Copilot preferred model，并进入 GitHub Copilot · Meta 发布 Muse Spark 1.1 与 Meta Model API 公测 · 欧盟委员会初步认定 Instagram/Facebook 成瘾设计违反 DSA · GitHub Mobile 改进 Copilot sessions 过滤排序 · pgrust 声称 Rust 重写 Postgres 通过 100% regression tests · Context.dev 提供网站结构化数据 API</p>
+
+    <img class="hero-img" src="https://images.openai.com/blob/1f34bc95-7eb1-4560-89dd-e0fef6c9e6c1/gpt-5-6.png" alt="GPT-5.6 release artwork">
+    <div class="hero-caption">GPT-5.6 的关键词不是单点分数，而是更强的工具使用、更高的 token 效率和更深的工作台集成。</div>
+
+    <div class="callout">
+      <strong>🎯 本期核心判断：</strong>今天的核心变化是：AI 模型不再只争「谁更聪明」，而是在争谁能更便宜、更可控地嵌进 Office、IDE、浏览器、代码库和监管框架里。
+    </div>
+
+    <div class="callout">
+      <strong>⏱ 本期建议阅读顺序</strong><br>
+      先看主故事：GPT-5.6 为什么代表模型进入真实办公与开发工作台<br>
+      再看监管线：欧盟 DSA 开始把成瘾设计作为平台责任问题<br>
+      最后看工具线：Context.dev、Colibri、Cpp2Rust、pgrust 等更贴近日常开发提效
+    </div>
+
+    <h2 id="main-story">🔥 主故事</h2>
+        <article class="main-story">
+      <h3>GPT-5.6 进入 Microsoft 365 与 GitHub Copilot：模型战争开始按工作台计价</h3>
+      <p class="story-hook">如果一个模型能少用 24% token 做完金融研究，或者在 Copilot 里直接变成三档可选能力，它就不只是「新模型」，而是在重写团队的 AI 成本表。</p>
+      <p>OpenAI 在 7 月 10 日发布 GPT-5.6 系列，并同步宣布它将成为 Microsoft 365 Copilot 的新 preferred model；GitHub Changelog 也显示 GPT-5.6 Sol、Terra、Luna 已进入 GitHub Copilot。OpenAI 把 Sol/Terra/Luna 定价拆成三档，强调更强 cyber、coding、science、office artifact 与 programmatic tool calling。</p>
+      <div class="story-grid">
+        <div class="story-field"><strong>核心冲突</strong>模型发布过去主要争榜单；现在企业真正关心的是：它能否在 Word、Excel、PowerPoint、IDE、agent session 和安全审计里，用更少 token 交付更稳定结果。</div>
+        <div class="story-field"><strong>转折点</strong>最值得注意的不是单个最高分，而是 OpenAI、Microsoft、GitHub 同时把模型放进企业日常软件入口：模型能力开始按具体工作流、成本中心和工具调用方式被评估。</div>
+        <div class="story-field"><strong>为什么现在发生</strong>过去几周的信号已经很密集：Copilot 成本预算、VS Code Agent 管理、Benchmark 数据质量审计、ADK workflow、AI Gateway 生产流量报告都在说明，企业采用 AI 的主战场正从试用转向运营。</div>
+        <div class="story-field"><strong>对团队的启发</strong>团队不要只看 Sol 的最高能力，也要把 Terra/Luna、缓存策略、工具调用方式和 Copilot 成本中心一起评估；模型选型应从 benchmark 表格迁移到真实任务账本。</div>
+      </div>
+      <p><span class="number-chip">ExploitBench 2: 73.5% vs GPT-5.5 47.9%</span><span class="number-chip">ExploitGym 3: 24.9% vs 15.1% under 2h cap</span><span class="number-chip">Sol $5/$30 per 1M tokens</span><span class="number-chip">Terra $2.50/$15</span><span class="number-chip">Luna $1/$6</span></p>
+      <p><strong>我的判断：</strong>我的判断是：第一个真正改变团队预算的不是「最聪明模型」，而是「在我们的工作流里每 1 美元多完成多少可复核任务」。GPT-5.6 把这个问题推到了办公和开发两个最大入口。</p>
+      <div class="story-line">模型竞争的下一张战报，不在排行榜上，而在你的 Copilot 账单和 PR 通过率里。</div>
+      <p><strong>来源：</strong><a href="https://openai.com/index/gpt-5-6/" target="_blank" rel="noopener noreferrer">openai.com</a></p>
+    </article>
+
+    <h2 id="trends">⚡ 冲突趋势</h2>
+        <div class="trend-grid">
+      <div class="trend-card">
+        <h4>模型开始按工作流而不是参数崇拜定价</h4>
+        <div class="trend-conflict">最强能力 vs 单位任务成本</div>
+        <p>GPT-5.6 把 Sol/Terra/Luna 三档能力放进 Microsoft 365 和 GitHub Copilot，企业评估模型会越来越像评估云资源：性能、延迟、token、缓存和工具调用都算账。</p>
+        <div class="trend-sources">openai.com · github.blog</div>
+      </div>
+      <div class="trend-card">
+        <h4>平台监管从内容扩展到交互设计</h4>
+        <div class="trend-conflict">增长机制 vs 用户心理健康</div>
+        <p>欧盟委员会初步认定 Instagram/Facebook 成瘾设计违反 DSA，调查点包括无限滚动、自动播放、推送通知和高度个性化推荐；这把 UI 模式推到了合规桌面上。</p>
+        <div class="trend-sources">digital-strategy.ec.europa.eu</div>
+      </div>
+      <div class="trend-card">
+        <h4>内存安全迁移从理想主义变成工具链现实</h4>
+        <div class="trend-conflict">遗留生态兼容 vs 安全和维护成本</div>
+        <p>Rust 1.97、Cpp2Rust、pgrust、Bun rewrite 的连续讨论说明：系统软件不是一夜重写，但语言迁移、自动翻译和兼容测试正在形成可执行路线。</p>
+        <div class="trend-sources">blog.rust-lang.org · github.com · github.com</div>
+      </div>
+    </div>
+
+    <h2 id="tech-news">📰 科技动态</h2>
+    <h3>1、<a href="https://digital-strategy.ec.europa.eu/en/news/commission-preliminarily-finds-addictive-design-instagram-and-facebook-breach-digital-services-act" target="_blank" rel="noopener noreferrer">欧盟委员会初步认定 Instagram 和 Facebook 成瘾设计违反 DSA</a> <span class="certainty-tag certainty-reported">reported</span></h3>
+    <p>这不是最终处罚，而是欧盟委员会的 preliminary finding：调查聚焦无限滚动、自动播放、推送通知和高度个性化推荐是否充分评估并缓解对用户，尤其是未成年人和脆弱成人的身心风险。对产品团队的含义很直接：增长组件可能不再只是 A/B test 资产，也会成为合规证据链。</p>
+    <img class="article-img" src="https://digital-strategy.ec.europa.eu/sites/default/files/styles/oe_theme_medium_no_crop/public/2024-02/DSA%20visual%20identity_1.png" alt="">
+    <h3>2、<a href="https://github.blog/changelog/2026-07-10-github-mobile-improved-filters-and-sorting-for-copilot-sessions/" target="_blank" rel="noopener noreferrer">GitHub Mobile 改进 Copilot sessions 过滤和排序</a> <span class="certainty-tag certainty-announced">announced</span></h3>
+    <p>GitHub 7 月 10 日 Changelog 显示 Mobile 端改进 Copilot sessions 的过滤和排序。单看是小改动，放在本周 Copilot 远程 CLI 通知、移动端修 merge conflict、成本管理一起看，信号很清晰：Agent 工作会跨 IDE、CLI、Web 和手机，移动端从通知面板变成轻量调度台。</p>
+    <h3>3、<a href="https://blog.rust-lang.org/2026/07/09/Rust-1.97.0/" target="_blank" rel="noopener noreferrer">Rust 1.97 发布：语言小步更新，但迁移热度在升温</a> <span class="certainty-tag certainty-announced">announced</span></h3>
+    <p>Rust 1.97 正式发布。版本更新本身未必是今天最大故事，但它和 pgrust、Cpp2Rust、Bun 重写讨论一起出现，构成了系统软件迁移的背景音乐：团队不是因为时髦才看 Rust，而是在用类型系统、工具链和社区实践对冲内存安全与维护风险。</p>
+    <img class="article-img" src="https://blog.rust-lang.org/images/rust-logo-blk.svg" alt="">
+    <h3>4、<a href="https://news.ycombinator.com/item?id=48841676" target="_blank" rel="noopener noreferrer">pgrust：社区项目声称 Rust 重写 Postgres 并通过 100% regression tests</a> <span class="certainty-tag certainty-reported">reported</span></h3>
+    <p>HN 热议的 pgrust 声称已经通过 100% Postgres regression tests。确定性上，这是仓库自述和社区讨论，不代表生产可替代 Postgres；但它适合作为系统迁移案例：真正难点不是写出 demo，而是持续追上 SQL 语义、扩展生态、性能轮廓和运维行为。</p>
+    <img class="article-img" src="https://opengraph.githubassets.com/1/malisper/pgrust" alt="">
+    <h3>5、<a href="https://datacenter.iers.org/data/latestVersion/bulletinC.txt" target="_blank" rel="noopener noreferrer">IERS：2026 年 12 月底不会引入闰秒</a> <span class="certainty-tag certainty-confirmed">confirmed</span></h3>
+    <p>IERS Bulletin C 显示 2026 年 12 月底不会引入闰秒。它看起来像冷门天文通知，但对交易系统、日志排序、分布式追踪、证书和调度系统很实际：最好的时间系统事故，是在发布日历时就知道今年不用处理。</p>
+    <h3>6、<a href="https://github.blog/changelog/2026-07-09-organization-level-targeting-for-github-code-quality/" target="_blank" rel="noopener noreferrer">GitHub 组织级 Code Quality targeting 发布</a> <span class="certainty-tag certainty-announced">announced</span></h3>
+    <p>GitHub 7 月 9 日 Changelog 显示 Organization-level targeting for GitHub Code Quality 发布。对工程管理者而言，这类能力比单次 AI review 更现实：代码质量规则需要按组织、团队、仓库和语言差异分层，而不是全公司一把尺。</p>
+
+    <h2 id="ai">🤖 AI 相关</h2>
+    <h3>1、<a href="https://openai.com/index/previewing-gpt-5-6-sol/" target="_blank" rel="noopener noreferrer">OpenAI 预览 GPT-5.6 Sol on Cerebras：最高 750 tokens/s 的速度叙事</a> <span class="certainty-tag certainty-announced">announced</span></h3>
+    <p>OpenAI 还预览 GPT-5.6 Sol on Cerebras，称 7 月会以最高 750 tokens/s 提供给 select customers。确定性上这是官方预览，不是普遍可用 SLA；但它说明模型竞争不只在准确率，还在吞吐、等待时间和交互手感。</p>
+    <img class="article-img" src="https://images.openai.com/blob/1f34bc95-7eb1-4560-89dd-e0fef6c9e6c1/gpt-5-6.png" alt="">
+    <h3>2、<a href="https://openai.com/index/gpt-5-6-preferred-model-microsoft-365-copilot/" target="_blank" rel="noopener noreferrer">GPT-5.6 成为 Microsoft 365 Copilot preferred model</a> <span class="certainty-tag certainty-announced">announced</span></h3>
+    <p>OpenAI 宣布 GPT-5.6 将成为 Microsoft 365 Copilot 的 preferred model，覆盖 Word、Excel、PowerPoint、Chat 和 Cowork。对企业团队来说，这比模型 API 更敏感：AI 将直接进入文档、表格、演示和协作流程，治理问题也会从开发者平台扩散到每个知识工作者。</p>
+    <h3>3、<a href="https://ai.meta.com/blog/introducing-muse-spark-meta-model-api/" target="_blank" rel="noopener noreferrer">Meta Muse Spark 1.1 与 Meta Model API 公测：个人 Agent 继续向多应用执行靠拢</a> <span class="certainty-tag certainty-announced">announced</span></h3>
+    <p>Meta 发布 Muse Spark 1.1，并让开发者通过新的 Meta Model API 公测访问。官方强调 1 million tokens context、多 Agent delegation、computer use、MCP/custom skills、代码迁移和调试能力。确定性上，这是 Meta 官方发布；但「personal superintelligence」仍是产品愿景，团队评估应回到 API 能力、隐私边界和工具调用可控性。</p>
+    <img class="article-img" src="https://scontent.xx.fbcdn.net/v/t39.2365-6/520304293_755011003844675_5839648350873808854_n.jpg" alt="">
+    <h3>4、<a href="https://openai.com/index/chatgpt-for-your-most-ambitious-work/" target="_blank" rel="noopener noreferrer">ChatGPT Work：OpenAI 把桌面 Agent 定位为可跨应用完成项目的工作伙伴</a> <span class="certainty-tag certainty-announced">announced</span></h3>
+    <p>OpenAI 发布 ChatGPT Work 叙事，称其可跨 apps and files 行动、在项目中持续数小时并把目标转成 finished work。这里需要谨慎：这是产品定位和销售页面，不等于所有企业场景都已成熟；但它说明桌面 Agent 正从「问答窗口」变成「跨应用执行层」。</p>
+    <h3>5、<a href="https://hy.tencent.com/research/hy3" target="_blank" rel="noopener noreferrer">腾讯 Hy3：国产大模型继续在开放路由和长上下文侧发力</a> <span class="certainty-tag certainty-announced">announced</span></h3>
+    <p>Tencent Hy3 在 HN 上获得关注，页面介绍其与 OpenRouter 相关，并强调同尺寸模型能力和旗舰开源模型竞争。确定性上，这是厂商发布材料，Benchmark 和横向对比需保留折扣；但对国内团队有价值的是：模型接入层越来越像多供应商路由问题，而不是单厂商绑定。</p>
+    <h3>6、<a href="https://www.ello.com/blog/teaching-a-child-in-1000-ms" target="_blank" rel="noopener noreferrer">Ello：给 5 岁儿童做 1000ms 内实时 AI tutor</a> <span class="certainty-tag certainty-reported">reported</span></h3>
+    <p>Ello 的案例讲实时 AI tutor 如何服务 5 岁儿童，HN 讨论点集中在延迟、儿童安全和教育产品边界。确定性上这是公司博客案例；它对产品团队的启发是：当用户是儿童，1000ms 延迟、错误纠正、情绪反馈和隐私保护都不能只按成人 SaaS 标准设计。</p>
+
+    <h2 id="articles">📝 文章推荐</h2>
+    <h3>1、<a href="https://www.gingerbill.org/article/2026/07/10/good-tools-are-invisible/" target="_blank" rel="noopener noreferrer">Good Tools Are Invisible：好工具最好的状态，是让人忘记工具本身</a></h3>
+    <p>这篇文章适合和今天的 GPT-5.6、Copilot 放在一起读：AI 工具越强，越应该减少噪音和炫技感。对软件团队来说，真正好的工具不是多一个面板，而是少一次解释、少一次复制、少一个等待。</p>
+    <h3>2、<a href="https://alexalejandre.com/programming/interview-with-mitchell-hashimoto/" target="_blank" rel="noopener noreferrer">Interview with Mitchell Hashimoto about Ghostty and Zig</a></h3>
+    <p>Mitchell Hashimoto 关于 Ghostty 和 Zig 的访谈在 HN/Lobsters 都有热度。它不是快讯，而是一个资深工程师如何打磨终端、语言和产品边界的长谈。对客户端团队尤其有启发：性能、字体、跨平台和默认体验都不是小事。</p>
+    <h3>3、<a href="https://mwi.westpoint.edu/the-glass-backbone-why-the-armys-logistics-will-break-in-the-next-war/" target="_blank" rel="noopener noreferrer">The glass backbone：为什么军队物流会在下一场战争中崩裂</a></h3>
+    <p>这篇军事物流文章在 HN 引发大量讨论。把它放进技术日报，是因为它讲的是依赖链脆弱性：系统看似坚固，实际可能被软件、网络、供应链和组织流程组成的「玻璃脊梁」支撑。对稳定性团队，这是一次跨领域的事故前复盘。</p>
+    <h3>4、<a href="https://nh3.dev/blog/05-bloat" target="_blank" rel="noopener noreferrer">Page weight matters：网页重量仍然重要</a></h3>
+    <p>当大家讨论 AI Agent 和多模态时，网页重量这种老话题反而值得重提。页面越重，移动端、电量、弱网和可访问性都会付账。对前端团队，最务实的动作是把 bundle、图片、第三方脚本和首屏指标重新纳入 review。</p>
+
+    <h2 id="tools">🛠️ 工具推荐</h2>
+    <div class="tool-grid">
+      <div class="tool-card">
+        <h4><a href="https://www.context.dev" target="_blank" rel="noopener noreferrer">Context.dev</a> <span class="priority-tag">P1</span></h4>
+        <p>YC S26 项目，提供从任意网站获取结构化数据的 API，适合后台数据采集、竞品监控、运营看板和内部知识库更新。</p>
+      </div>
+      <div class="tool-card">
+        <h4><a href="https://github.com/Cpp2Rust/cpp2rust" target="_blank" rel="noopener noreferrer">Cpp2Rust</a> <span class="priority-tag">P1</span></h4>
+        <p>C++ 到安全 Rust 的自动翻译工具，适合大型系统迁移前做可行性评估和局部模块实验。</p>
+      </div>
+      <div class="tool-card">
+        <h4><a href="https://github.com/malisper/pgrust" target="_blank" rel="noopener noreferrer">pgrust</a> <span class="priority-tag">P2</span></h4>
+        <p>Rust 重写 Postgres 的实验项目，适合数据库/后端团队观察兼容性测试、系统迁移和内存安全路线，不建议直接用于生产。</p>
+      </div>
+      <div class="tool-card">
+        <h4><a href="https://github.com/JustVugg/colibri" target="_blank" rel="noopener noreferrer">Colibri</a> <span class="priority-tag">P2</span></h4>
+        <p>用纯 C 在 25GB RAM 消费级机器上运行 GLM-5.2 的小型引擎，适合本地模型推理和专家流式加载实验。</p>
+      </div>
+      <div class="tool-card">
+        <h4><a href="https://18words.com/" target="_blank" rel="noopener noreferrer">18 Words</a> <span class="priority-tag">P3</span></h4>
+        <p>Show HN 热门文字工具，适合产品、品牌、文案和团队沟通场景做极简表达训练。</p>
+      </div>
+      <div class="tool-card">
+        <h4><a href="https://physicallybased.info" target="_blank" rel="noopener noreferrer">Physically Based</a> <span class="priority-tag">P2</span></h4>
+        <p>PBR 材质数值数据库，适合 WebGL、游戏、3D 产品展示和设计工程团队查真实材质参数。</p>
+      </div>
+    </div>
+
+    <h2 id="ai-tools">🧠 AI 工具</h2>
+    <div class="tool-grid">
+      <div class="tool-card">
+        <span class="tag">模型路由</span>
+        <h4><a href="https://platform.openai.com/docs/models" target="_blank" rel="noopener noreferrer">GPT-5.6 Sol / Terra / Luna</a></h4>
+        <p>OpenAI 新三档模型系列，Sol 主打高能力，Terra/Luna 面向成本效率；适合按任务复杂度做模型路由和成本评估。</p>
+      </div>
+      <div class="tool-card">
+        <span class="tag">编码 Agent</span>
+        <h4><a href="https://github.blog/changelog/2026-07-09-openais-gpt-5-6-sol-terra-and-luna-are-now-available-in-github-copilot/" target="_blank" rel="noopener noreferrer">GitHub Copilot + GPT-5.6</a></h4>
+        <p>GitHub Copilot 已接入 GPT-5.6 Sol、Terra、Luna，并继续补 repository overview、mobile session 管理等能力。</p>
+      </div>
+      <div class="tool-card">
+        <span class="tag">Agent API</span>
+        <h4><a href="https://developer.meta.com/" target="_blank" rel="noopener noreferrer">Meta Model API / Muse Spark 1.1</a></h4>
+        <p>Meta 新 Model API 公测，Muse Spark 1.1 支持长上下文、多 Agent、computer use、MCP/custom skills 和 coding 工作流。</p>
+      </div>
+      <div class="tool-card">
+        <span class="tag">桌面 Agent</span>
+        <h4><a href="https://openai.com/chatgpt/download/" target="_blank" rel="noopener noreferrer">ChatGPT Desktop</a></h4>
+        <p>OpenAI 桌面入口承载跨应用、跨文件项目执行的工作 Agent 叙事，适合企业评估权限、审计和桌面自动化边界。</p>
+      </div>
+      <div class="tool-card">
+        <span class="tag">Agent 状态</span>
+        <h4><a href="https://snapstate.dev" target="_blank" rel="noopener noreferrer">SnapState</a></h4>
+        <p>面向 AI Agent workflows 的持久状态工具，适合需要恢复、回放、调试多步 Agent 流程的团队关注。</p>
+      </div>
+    </div>
+
+    <h2 id="concepts">🧩 本期概念库</h2>
+    <div class="concept-card">
+      <h4>1. 工作台模型</h4>
+      <div class="concept-field"><strong>一句话解释：</strong>模型能力不只通过 API 使用，而是直接嵌入 Office、IDE、浏览器和移动端工作台。</div>
+      <div class="concept-field"><strong>背景来源：</strong>GPT-5.6 / Microsoft 365 Copilot / GitHub Copilot</div>
+      <div class="concept-field"><strong>为什么重要：</strong>AI 预算和治理会从研发扩散到全员工具。</div>
+      <div class="concept-field"><strong>团队应用场景：</strong>按工作场景定义模型策略：文档、代码、数据、客服、运营分别设置权限和成本基线。</div>
+    </div>
+    <div class="concept-card">
+      <h4>2. 单位任务成本</h4>
+      <div class="concept-field"><strong>一句话解释：</strong>用完成一个可复核任务所需 token、工具调用、人工返工和等待时间评估模型，而不是只看单次调用价格。</div>
+      <div class="concept-field"><strong>背景来源：</strong>GPT-5.6 pricing and partner evals</div>
+      <div class="concept-field"><strong>为什么重要：</strong>便宜模型未必省钱，强模型也未必浪费。</div>
+      <div class="concept-field"><strong>团队应用场景：</strong>为 20-50 个真实任务记录模型成本、成功率、返工次数和审查耗时。</div>
+    </div>
+    <div class="concept-card">
+      <h4>3. 成瘾设计合规</h4>
+      <div class="concept-field"><strong>一句话解释：</strong>无限滚动、自动播放、推送通知、个性化推荐等交互模式被纳入平台系统性风险评估。</div>
+      <div class="concept-field"><strong>背景来源：</strong>European Commission DSA preliminary finding</div>
+      <div class="concept-field"><strong>为什么重要：</strong>增长设计开始进入法律与伦理审查范围。</div>
+      <div class="concept-field"><strong>团队应用场景：</strong>增长实验记录应包含用户控制、退出路径、未成年人风险和负面影响监测。</div>
+    </div>
+    <div class="concept-card">
+      <h4>4. 可迁移内存安全</h4>
+      <div class="concept-field"><strong>一句话解释：</strong>通过自动翻译、兼容性测试、分层重写和新语言工具链，把内存安全改进从理想变成迁移路径。</div>
+      <div class="concept-field"><strong>背景来源：</strong>Rust 1.97 / Cpp2Rust / pgrust</div>
+      <div class="concept-field"><strong>为什么重要：</strong>遗留系统无法一夜重写，但可以逐步缩小风险面。</div>
+      <div class="concept-field"><strong>团队应用场景：</strong>挑选边界清晰、故障代价高的模块做 Rust/安全语言迁移试点。</div>
+    </div>
+    <div class="concept-card">
+      <h4>5. 移动端 Agent 调度台</h4>
+      <div class="concept-field"><strong>一句话解释：</strong>移动端不再只接收通知，也开始筛选、排序、恢复或批准远程 Agent session。</div>
+      <div class="concept-field"><strong>背景来源：</strong>GitHub Mobile Copilot sessions</div>
+      <div class="concept-field"><strong>为什么重要：</strong>开发工作流跨设备后，安全边界和审查时机要重定。</div>
+      <div class="concept-field"><strong>团队应用场景：</strong>定义移动端可执行动作白名单：查看、提醒、重跑、批准、合并分别设置权限。</div>
+    </div>
+
+    <h2 id="curiosity">🎲 好奇心入口</h2>
+    <div class="curiosity-card">
+      <h4><a href="https://news.ycombinator.com/item?id=48845049" target="_blank" rel="noopener noreferrer">18 Words</a></h4>
+      <div class="hook">今天 HN 上一个极简文字工具冲到高位，说明大家仍然需要被迫说短一点。</div>
+      <p>18 Words 的魅力在于反 AI 长文：它要求你把想法压到极短。对团队沟通来说，这比多一个自动总结按钮更有训练价值。 团队暗线：复杂工具不能替代清晰表达，PR 描述和产品需求都需要压缩能力。</p>
+    </div>
+    <div class="curiosity-card">
+      <h4><a href="https://news.ycombinator.com/item?id=48846281" target="_blank" rel="noopener noreferrer">No leap second at end of 2026</a></h4>
+      <div class="hook">今天最安静的好消息：今年年底不用处理闰秒。</div>
+      <p>IERS 的 Bulletin C 对普通人像无事发生，对系统团队却意味着时间边界少一个特殊分支。 团队暗线：越底层的系统，越应该订阅这种看似冷门的变更通知。</p>
+    </div>
+    <div class="curiosity-card">
+      <h4><a href="https://kotaku.com/a-train-sim-created-by-just-one-person-is-being-called-the-best-ever-made-2000699429" target="_blank" rel="noopener noreferrer">Train sim created by one person</a></h4>
+      <div class="hook">一个人做的火车模拟器被玩家称为最佳之一。</div>
+      <p>这个故事的技术点不是 AI，而是长期专注、领域热爱和细节积累如何击穿大团队优势。 团队暗线：垂直产品有时不是拼规模，而是拼作者是否真的懂用户迷恋什么。</p>
+    </div>
+
+    <h2 id="resources">📚 资源</h2>
+    <div class="resource-item">
+      <a href="https://platform.openai.com/docs/guides/prompt-caching" target="_blank" rel="noopener noreferrer">OpenAI prompt caching guide</a>
+      <p>结合 GPT-5.6 发布信息查看缓存和长流程成本优化说明，用于内部模型评估。</p>
+    </div>
+    <div class="resource-item">
+      <a href="https://digital-strategy.ec.europa.eu/en/policies/digital-services-act" target="_blank" rel="noopener noreferrer">Digital Services Act overview</a>
+      <p>产品、增长、法务团队可用来建立 DSA 和成瘾设计风险清单。</p>
+    </div>
+    <div class="resource-item">
+      <a href="https://github.com/rust-lang/rust/releases" target="_blank" rel="noopener noreferrer">Rust releases repository</a>
+      <p>系统/客户端团队跟踪 Rust 版本更新和迁移生态的基础入口。</p>
+    </div>
+
+    <h2 id="quotes">💬 言论：本期 8 个认知增量</h2>
+    <div class="quote-block">
+      <blockquote>GPT-5.6 的讨论让一个现实问题浮上来：模型不只要会做题，还要能在真实工具链里少消耗、少返工、少卡住。</blockquote>
+      <div class="quote-author">—— HN 社区讨论 · GPT-5.6</div>
+      <div class="quote-meta">来源：<a href="https://news.ycombinator.com/item?id=48849066" target="_blank" rel="noopener noreferrer">news.ycombinator.com</a> · 类型：摘要式转述 · 关键词：AI Workflow · 成本</div>
+      <div class="quote-comment">💭 这比单点 Benchmark 更接近团队决策。模型选择应该进入工程财务模型，而不是停在排行榜截图。</div>
+      <div class="quote-team-insight">🎯 团队启发：模型评估表新增「单位任务成本」和「人工返工次数」两列。</div>
+    </div>
+    <div class="quote-block">
+      <blockquote>Chat Control 争议提醒我们：安全目标不能自动消除隐私和加密边界问题。</blockquote>
+      <div class="quote-author">—— HN 社区讨论 · Chat Control 1.0</div>
+      <div class="quote-meta">来源：<a href="https://news.ycombinator.com/item?id=48843923" target="_blank" rel="noopener noreferrer">news.ycombinator.com</a> · 类型：摘要式转述 · 关键词：隐私 · 监管</div>
+      <div class="quote-comment">💭 政策讨论往往被二元化，但工程实现必须面对客户端扫描、密钥管理和误伤率。</div>
+      <div class="quote-team-insight">🎯 团队启发：涉及通信/IM/钱包产品时，提前准备地区化合规和加密能力说明。</div>
+    </div>
+    <div class="quote-block">
+      <blockquote>pgrust 的价值不在于明天替换 Postgres，而在于让大家看见兼容性测试才是重写系统的门槛。</blockquote>
+      <div class="quote-author">—— HN 社区讨论 · pgrust</div>
+      <div class="quote-meta">来源：<a href="https://news.ycombinator.com/item?id=48841676#discussion" target="_blank" rel="noopener noreferrer">news.ycombinator.com</a> · 类型：摘要式转述 · 关键词：系统可靠性 · Rust</div>
+      <div class="quote-comment">💭 系统重写最容易低估的不是代码量，而是语义边界和历史行为。</div>
+      <div class="quote-team-insight">🎯 团队启发：任何重写项目先列兼容性测试矩阵，再谈技术栈。</div>
+    </div>
+    <div class="quote-block">
+      <blockquote>Muse Spark 1.1 讨论的核心不是 1M context 本身，而是长期 Agent 如何决定记什么、忘什么、交给谁做。</blockquote>
+      <div class="quote-author">—— HN 社区讨论 · Muse Spark 1.1</div>
+      <div class="quote-meta">来源：<a href="https://news.ycombinator.com/item?id=48846184" target="_blank" rel="noopener noreferrer">news.ycombinator.com</a> · 类型：摘要式转述 · 关键词：Agent · 长上下文</div>
+      <div class="quote-comment">💭 长上下文不是免费午餐，压缩策略和权限边界会决定可用性。</div>
+      <div class="quote-team-insight">🎯 团队启发：长流程 Agent 要记录上下文压缩策略和可审计任务轨迹。</div>
+    </div>
+    <div class="quote-block">
+      <blockquote>好的开发工具应该像空气一样存在：你感到顺畅，而不是不断被提醒它很聪明。</blockquote>
+      <div class="quote-author">—— Ginger Bill · Good Tools Are Invisible</div>
+      <div class="quote-meta">来源：<a href="https://news.ycombinator.com/item?id=48858121" target="_blank" rel="noopener noreferrer">news.ycombinator.com</a> · 类型：摘要式转述 · 关键词：开发体验 · 工具链</div>
+      <div class="quote-comment">💭 这句话适合贴在所有 AI IDE 评审旁边。炫技不是 UX。</div>
+      <div class="quote-team-insight">🎯 团队启发：AI 工具验收增加「打断次数」和「额外解释成本」指标。</div>
+    </div>
+    <div class="quote-block">
+      <blockquote>Context.dev 的热度说明：Agent 时代，网页不只是给人看的，也是给机器抽取上下文的。</blockquote>
+      <div class="quote-author">—— HN 社区讨论 · Context.dev</div>
+      <div class="quote-meta">来源：<a href="https://news.ycombinator.com/item?id=48847562" target="_blank" rel="noopener noreferrer">news.ycombinator.com</a> · 类型：摘要式转述 · 关键词：后台开发 · 数据采集</div>
+      <div class="quote-comment">💭 结构化数据 API 会变成很多后台和运营自动化的原材料。</div>
+      <div class="quote-team-insight">🎯 团队启发：内部知识库和外部数据抓取要优先产出机器可读结构。</div>
+    </div>
+    <div class="quote-block">
+      <blockquote>Ghostty 的访谈再次证明：老品类也能靠性能、默认值和审美重新获得开发者信任。</blockquote>
+      <div class="quote-author">—— Lobsters/HN 社区讨论 · Mitchell Hashimoto interview</div>
+      <div class="quote-meta">来源：<a href="https://lobste.rs/s/gkq8mb/lobsters_interview_with_mitchellh" target="_blank" rel="noopener noreferrer">lobste.rs</a> · 类型：摘要式转述 · 关键词：客户端工程 · 开发体验</div>
+      <div class="quote-comment">💭 客户端工程没有捷径，细节堆到一定程度就是产品壁垒。</div>
+      <div class="quote-team-insight">🎯 团队启发：桌面/移动端产品评审不要只看功能清单，也要审默认体验。</div>
+    </div>
+    <div class="quote-block">
+      <blockquote>网页重量问题每隔一段时间就会回来，因为每一代开发者都会重新发明一次臃肿。</blockquote>
+      <div class="quote-author">—— Lobsters 社区讨论 · Page weight matters</div>
+      <div class="quote-meta">来源：<a href="https://lobste.rs/s/nfqrqx/page_weight_matters" target="_blank" rel="noopener noreferrer">lobste.rs</a> · 类型：摘要式转述 · 关键词：前端工程 · 性能</div>
+      <div class="quote-comment">💭 AI 不会自动抵消前端性能债，反而可能生成更多不必要的代码。</div>
+      <div class="quote-team-insight">🎯 团队启发：把 bundle budget 和第三方脚本审查放回 PR 门禁。</div>
+    </div>
+
+    <h2 id="podcast">🎙️ 播客提纲</h2>
+    <div class="podcast-brief">
+      <h4>第 54 期：模型进工作台，UI 进监管表</h4>
+      <div class="cold-open">今天有两个数字值得记：GPT-5.6 在 OpenAI 的 ExploitBench 2 上拿到 73.5%，欧盟则把无限滚动、自动播放和推送通知放进了 DSA 调查。一个数字讲能力，一个数字讲边界。</div>
+      <div class="podcast-segment">
+        <strong>GPT-5.6：模型开始按工作流卖</strong>
+        <p>Sol、Terra、Luna 不是好听的名字，而是三档成本和能力选择。</p>
+        <p>建立模型真实任务账本，别只截排行榜。</p>
+      </div>      <div class="podcast-segment">
+        <strong>欧盟 DSA：UI 模式也可能成为监管对象</strong>
+        <p>无限滚动和推送通知不再只是增长技巧。</p>
+        <p>增长实验补风险评估和退出路径。</p>
+      </div>      <div class="podcast-segment">
+        <strong>Rust 与 pgrust：重写系统先过兼容性关</strong>
+        <p>100% regression tests 比「用 Rust 重写」这句话更重要。</p>
+        <p>先建兼容性测试矩阵，再谈迁移路线。</p>
+      </div>
+      <p>今天的结论：AI 和软件行业都在从能力崇拜进入运营阶段。谁能把能力放进可控工作流，谁才真正有生产力。</p>
+    </div>
+
+    <h2 id="team-insights">✅ 对团队的启发</h2>
+    <div class="insight-card">
+      <p><span class="insight-num">1</span>模型选型从「看榜单」改成「真实任务账本」：记录 token、工具调用、等待时间、人工返工和通过率。</p>
+    </div>
+    <div class="insight-card">
+      <p><span class="insight-num">2</span>Copilot/GPT-5.6 进入 Office、IDE、移动端后，AI 治理不能只归研发；法务、IT、数据安全和业务 owner 都要有策略边界。</p>
+    </div>
+    <div class="insight-card">
+      <p><span class="insight-num">3</span>增长实验要开始补合规字段：无限滚动、推送、自动播放、推荐系统、未成年人风险和退出路径都要能解释。</p>
+    </div>
+    <div class="insight-card">
+      <p><span class="insight-num">4</span>系统重写或 Rust 迁移先建立兼容性测试矩阵；通过测试比语言选择更能说明可行性。</p>
+    </div>
+    <div class="insight-card">
+      <p><span class="insight-num">5</span>工具推荐和采购时优先看是否减少摩擦，而不是是否多一个 AI 面板；好工具应该降低打断次数。</p>
+    </div>
+
+    <div class="footer-sources">
+      <strong>📋 数据来源说明</strong><br>
+      本情报来自 66 个全球精选科技 / AI / 工程 / 系统可靠性信息源的每日更新。<br>
+      由 Cursor AI 自动生成，信息截止至 2026年7月10日，星期五。
+    </div>
+  </main>
+</div>
+
+<script>
+(function(){
+  const toc=document.querySelector('.toc');if(!toc)return;
+  const links=[...toc.querySelectorAll('a')];
+  const ids=links.map(l=>l.getAttribute('href').slice(1));
+  const secs=ids.map(id=>document.getElementById(id)).filter(Boolean);
+  function hl(){let cur=0;secs.forEach((s,i)=>{if(s.getBoundingClientRect().top<=120)cur=i;});
+  links.forEach((l,i)=>{l.classList.toggle('active',i===cur);});}
+  window.addEventListener('scroll',hl,{passive:true});hl();
+})();
+
+</script>
+</body>
+</html>

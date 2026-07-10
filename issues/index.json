@@ -1,5 +1,11 @@
 [
   {
+    "date": "2026-07-10",
+    "title": "第 54 期：模型竞争从榜单进入工作台，监管也开始审 UI 成瘾",
+    "highlights": "OpenAI 发布 GPT-5.6，公布 Cyber、Coding、Office 和工具调用能力 · GPT-5.6 成为 Microsoft 365 Copilot preferred model，并进入 GitHub Copilot · Meta 发布 Muse Spark 1.1 与 Meta Model API 公测 · 欧盟委员会初步认定 Instagram/Facebook 成瘾设计违反 DSA · GitHub Mobile 改进 Copilot sessions 过滤排序 · pgrust 声称 Rust 重写 Postgres 通过 100% regression tests · Context.dev 提供网站结构化数据 API",
+    "image": "https://images.openai.com/blob/1f34bc95-7eb1-4560-89dd-e0fef6c9e6c1/gpt-5-6.png"
+  },
+  {
     "date": "2026-07-09",
     "title": "第 53 期：前端工具链和 Agent 工作流同时进入「可控化」阶段",
     "highlights": "TypeScript 7 稳定发布，Go 原生实现带来 8-12x full build speedup · Bun 公开从 Zig 重写到 Rust，并披露 Anthropic 收购背景 · OpenAI 发布 GPT-Live full-duplex 语音模型 · OpenAI 审计 SWE-Bench Pro，估计约 30% 任务有破坏性问题 · GitHub Copilot in VS Code 增强并行会话、成本可见性和 Agent 浏览器 · Google ADK 2.0 主张确定性 workflow + Agent 混合 · Cloudflare Meerkat 试验全球共识服务",
