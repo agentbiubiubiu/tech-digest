@@ -1,5 +1,11 @@
 [
   {
+    "date": "2026-07-11",
+    "title": "第 55 期：AI 进入硬件战场后，边界问题开始反噬",
+    "highlights": "Apple 起诉 OpenAI、io Products 与前员工，指控商业秘密不当使用 · OpenAI 回应 Apple 诉讼并否认不当行为 · GhostLock CVE-2026-43499 披露，研究者称可高稳定本地提权和容器逃逸 · 纽约市将禁止 deceptive subscription practices · CASP 报告研究 Boko Haram 如何使用 frontier AI · Scarf 复盘 7 年后离开 Haskell · Pilotfish、FableCut、Homerail 等 Agent 工具进入工具区",
+    "image": "https://i0.wp.com/9to5mac.com/wp-content/uploads/sites/6/2026/05/apple-openai.jpg?resize=1200%2C628&quality=82&strip=all&ssl=1"
+  },
+  {
     "date": "2026-07-10",
     "title": "第 54 期：模型竞争从榜单进入工作台，监管也开始审 UI 成瘾",
     "highlights": "OpenAI 发布 GPT-5.6，公布 Cyber、Coding、Office 和工具调用能力 · GPT-5.6 成为 Microsoft 365 Copilot preferred model，并进入 GitHub Copilot · Meta 发布 Muse Spark 1.1 与 Meta Model API 公测 · 欧盟委员会初步认定 Instagram/Facebook 成瘾设计违反 DSA · GitHub Mobile 改进 Copilot sessions 过滤排序 · pgrust 声称 Rust 重写 Postgres 通过 100% regression tests · Context.dev 提供网站结构化数据 API",
