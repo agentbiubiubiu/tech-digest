@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>第 56 期：AI 工具开始补安全、依赖和成本控制面</title>
+  <meta property="og:title" content="Tech Digest #56：Cursor 0day、Bonsai 27B、Dependabot cooldown 与 AI 成本外部性">
+  <meta property="og:description" content="Cursor 0day 把 AI IDE 安全推到台前，Bonsai 27B 宣称手机端运行 27B 级模型，Dependabot 加默认 cooldown，Tailscale 修 SSH root ACL 绕过，数据中心和融资成本开始外溢。">
+  <meta property="og:image" content="https://cdn.prod.website-files.com/673f0725df990f6c96bf18ea/6a562c4ba76323b509a1de8d_cursor-zero-hero.webp">
+  <style>
+:root {
+  --bg: #f5f6f8; --surface: #ffffff; --surface2: #f0f2f5;
+  --border: #e8ecf1; --border-hover: #c5cdd8;
+  --text: #1a1d21; --text-secondary: #3d4550; --text-muted: #8c95a1;
+  --accent: #2d9f6f; --accent-light: #e8f5ef; --accent-hover: #248a5e;
+  --accent-text: #ffffff;
+  --purple: #7c5cbf; --purple-light: #f3effc;
+  --orange: #e58e26; --orange-light: #fef5e7;
+  --blue: #3a82f7; --blue-light: #eef4fe;
+  --red: #e74c3c; --red-light: #fdecea;
+  --green-deep: #1a7a4c; --green-light2: #e0f5ea;
+  --yellow: #d4a017; --yellow-light: #fef9e7;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.06);
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.06), 0 2px 4px rgba(0,0,0,0.04);
+  --shadow-lg: 0 10px 30px rgba(0,0,0,0.08);
+  --radius: 12px; --radius-sm: 8px; --radius-xs: 6px;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Helvetica, Arial, sans-serif; background: var(--bg); color: var(--text); line-height: 1.75; font-size: 15px; -webkit-font-smoothing: antialiased; }
+.topbar { background: var(--surface); border-bottom: 1px solid var(--border); padding: 12px 32px; display: flex; align-items: center; gap: 16px; position: sticky; top: 0; z-index: 200; box-shadow: var(--shadow-sm); }
+.topbar-brand { font-size: 1.1rem; font-weight: 700; color: var(--accent); text-decoration: none; display: flex; align-items: center; gap: 8px; }
+.topbar-brand svg { width: 28px; height: 28px; }
+.topbar-nav { display: flex; gap: 4px; margin-left: 24px; }
+.topbar-nav a { padding: 6px 16px; border-radius: 20px; font-size: 0.85rem; font-weight: 500; color: var(--text-secondary); text-decoration: none; transition: all 0.2s; }
+.topbar-nav a:hover { background: var(--surface2); color: var(--text); }
+.topbar-nav a.active { background: var(--accent-light); color: var(--accent); font-weight: 600; }
+.topbar-right { margin-left: auto; display: flex; align-items: center; gap: 12px; }
+.topbar-date { font-size: 0.82rem; color: var(--text-muted); background: var(--surface2); padding: 5px 12px; border-radius: 16px; }
+.page { display: flex; max-width: 1200px; margin: 0 auto; padding: 24px 24px 0; gap: 24px; }
+.toc { width: 220px; flex-shrink: 0; position: sticky; top: 80px; height: calc(100vh - 104px); overflow-y: auto; background: var(--surface); border-radius: var(--radius); padding: 20px 16px; box-shadow: var(--shadow-sm); border: 1px solid var(--border); }
+.toc-title { font-size: 0.72rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 14px; padding-left: 12px; }
+.toc a { display: block; padding: 7px 12px; margin-bottom: 2px; font-size: 0.82rem; color: var(--text-muted); text-decoration: none; border-radius: var(--radius-xs); transition: all 0.15s; font-weight: 500; }
+.toc a:hover { color: var(--accent); background: var(--accent-light); }
+.toc a.active { color: var(--accent); background: var(--accent-light); font-weight: 600; }
+.toc-mobile { display: none; position: sticky; top: 57px; z-index: 100; background: var(--surface); border-bottom: 1px solid var(--border); padding: 10px 16px; box-shadow: var(--shadow-sm); }
+.toc-mobile summary { cursor: pointer; font-size: 0.85rem; color: var(--accent); font-weight: 600; list-style: none; }
+.toc-mobile summary::-webkit-details-marker { display: none; }
+.toc-mobile .toc-dropdown { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 8px; margin-top: 8px; max-height: 60vh; overflow-y: auto; box-shadow: var(--shadow-md); }
+.toc-mobile .toc-dropdown a { display: block; padding: 8px 12px; font-size: 0.88rem; color: var(--text-secondary); text-decoration: none; border-radius: var(--radius-xs); }
+.toc-mobile .toc-dropdown a:hover { color: var(--accent); background: var(--accent-light); }
+@media (max-width: 860px) { .toc { display: none; } .toc-mobile { display: block; } .topbar-nav { display: none; } .page { flex-direction: column; padding: 16px 12px 0; gap: 16px; } .container { padding: 20px 16px 60px; } }
+.container { flex: 1; min-width: 0; background: var(--surface); border-radius: var(--radius); padding: 36px 40px 60px; box-shadow: var(--shadow-sm); border: 1px solid var(--border); margin-bottom: 40px; }
+.back { display: inline-flex; align-items: center; gap: 4px; color: var(--text-muted); text-decoration: none; font-size: 0.85rem; margin-bottom: 28px; font-weight: 500; transition: color 0.15s; }
+.back:hover { color: var(--accent); }
+h1 { font-size: 1.7rem; font-weight: 800; margin-bottom: 10px; line-height: 1.35; color: var(--text); letter-spacing: -0.01em; }
+.meta { color: var(--text-muted); font-size: 0.85rem; margin-bottom: 28px; }
+.highlights-line { color: var(--text-secondary); font-size: 0.9rem; margin: -18px 0 28px; line-height: 1.65; }
+.hero-img { width: 100%; border-radius: var(--radius); margin-bottom: 10px; box-shadow: var(--shadow-md); }
+.hero-caption { font-size: 0.82rem; color: var(--text-muted); margin-bottom: 36px; text-align: center; font-style: italic; }
+h2 { font-size: 1.25rem; font-weight: 700; margin: 44px 0 18px; padding-bottom: 10px; border-bottom: 2px solid var(--accent-light); scroll-margin-top: 90px; color: var(--text); }
+h3 { font-size: 1.05rem; font-weight: 600; margin: 26px 0 8px; color: var(--text); }
+p { margin-bottom: 14px; color: var(--text-secondary); }
+a { color: var(--accent); text-decoration: none; font-weight: 500; }
+a:hover { color: var(--accent-hover); text-decoration: underline; }
+strong { color: var(--text); font-weight: 600; }
+.callout { background: var(--accent-light); border-left: 4px solid var(--accent); border-radius: var(--radius-sm); padding: 16px 20px; margin: 20px 0; font-size: 0.93rem; color: var(--text-secondary); }
+.main-story { background: linear-gradient(135deg, #f7fbff 0%, #fff 60%); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px 26px; margin: 18px 0 28px; box-shadow: var(--shadow-sm); }
+.main-story h3 { margin-top: 0; font-size: 1.2rem; line-height: 1.45; }
+.main-story .story-hook { color: var(--accent); font-weight: 700; margin-bottom: 14px; }
+.story-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 16px 0; }
+.story-field { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 12px 14px; font-size: 0.88rem; color: var(--text-secondary); }
+.story-field strong { display: block; margin-bottom: 4px; color: var(--text); }
+.number-chip { display: inline-block; background: var(--blue-light); color: var(--blue); border-radius: 14px; padding: 3px 10px; margin: 3px 6px 3px 0; font-size: 0.78rem; font-weight: 700; }
+.story-line { background: var(--purple-light); border-left: 4px solid var(--purple); border-radius: var(--radius-sm); padding: 14px 16px; margin-top: 14px; color: var(--text); font-weight: 700; }
+.trend-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin: 16px 0 28px; }
+.trend-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px 20px; box-shadow: var(--shadow-sm); }
+.trend-card h4 { font-size: 0.95rem; margin-bottom: 8px; color: var(--text); }
+.trend-card .trend-conflict { color: var(--red); font-size: 0.82rem; font-weight: 700; margin-bottom: 8px; }
+.trend-card p { font-size: 0.86rem; margin-bottom: 10px; }
+.trend-card .trend-sources { font-size: 0.76rem; color: var(--text-muted); line-height: 1.55; }
+.curiosity-card { background: var(--orange-light); border: 1px solid #f5ddb8; border-radius: var(--radius); padding: 20px 24px; margin: 14px 0; }
+.curiosity-card h4 { font-size: 1rem; margin-bottom: 8px; font-weight: 600; }
+.curiosity-card h4 a { color: var(--orange); }
+.curiosity-card .hook { color: var(--orange); font-weight: 700; margin-bottom: 6px; }
+.curiosity-card p { font-size: 0.88rem; color: var(--text-secondary); margin: 0 0 8px; line-height: 1.65; }
+.podcast-brief { background: #f8fafc; border: 1px solid var(--border); border-radius: var(--radius); padding: 20px 24px; margin: 18px 0; }
+.podcast-brief h4 { margin: 0 0 10px; font-size: 1rem; }
+.podcast-brief .cold-open { color: var(--accent); font-weight: 700; margin-bottom: 14px; }
+.podcast-segment { border-top: 1px solid var(--border); padding-top: 12px; margin-top: 12px; }
+.podcast-segment strong { display: block; margin-bottom: 4px; }
+.article-img { width: 100%; max-height: 380px; object-fit: cover; border-radius: var(--radius-sm); margin: 12px 0 24px; box-shadow: var(--shadow-sm); }
+.tool-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 16px 0; }
+.tool-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px 20px; transition: all 0.2s; box-shadow: var(--shadow-sm); }
+.tool-card:hover { border-color: var(--accent); box-shadow: var(--shadow-md); transform: translateY(-1px); }
+.tool-card h4 { font-size: 0.95rem; margin-bottom: 6px; font-weight: 600; }
+.tool-card h4 a { color: var(--accent); }
+.tool-card p { font-size: 0.83rem; color: var(--text-muted); margin: 0; line-height: 1.55; }
+.tool-card .tag { display: inline-block; font-size: 0.68rem; padding: 3px 8px; border-radius: 10px; background: var(--accent); color: var(--accent-text); font-weight: 600; margin-bottom: 8px; letter-spacing: 0.02em; }
+.tool-card .priority-tag { display: inline-block; font-size: 0.65rem; padding: 2px 6px; border-radius: 8px; background: var(--surface2); color: var(--text-muted); font-weight: 600; margin-left: 6px; }
+.fun-card { background: var(--orange-light); border: 1px solid #f5ddb8; border-radius: var(--radius); padding: 20px 24px; margin: 14px 0; }
+.fun-card h4 { font-size: 1rem; margin-bottom: 8px; font-weight: 600; }
+.fun-card h4 a { color: var(--orange); }
+.fun-card p { font-size: 0.88rem; color: var(--text-secondary); margin: 0; line-height: 1.65; }
+.quote-block { background: var(--purple-light); border-left: 4px solid var(--purple); border-radius: var(--radius-sm); padding: 20px 24px; margin: 18px 0; }
+.quote-block blockquote { font-size: 1.02rem; line-height: 1.65; margin-bottom: 10px; font-style: italic; color: var(--text); }
+.quote-block .quote-author { font-size: 0.82rem; color: var(--purple); font-weight: 600; margin-bottom: 6px; }
+.quote-block .quote-meta { font-size: 0.78rem; color: var(--text-muted); margin-bottom: 10px; }
+.quote-block .quote-comment { font-size: 0.88rem; color: var(--text-secondary); border-top: 1px solid #d8d0e8; padding-top: 10px; margin-top: 10px; }
+.quote-block .quote-team-insight { font-size: 0.88rem; color: var(--green-deep); background: var(--accent-light); border-radius: var(--radius-xs); padding: 8px 12px; margin-top: 8px; }
+.resource-item { background: var(--blue-light); border: 1px solid #c8dbf8; border-radius: var(--radius); padding: 18px 20px; margin: 12px 0; }
+.resource-item a { font-weight: 600; color: var(--blue); }
+.resource-item p { font-size: 0.88rem; color: var(--text-secondary); margin: 6px 0 0; }
+.concept-card { background: var(--green-light2); border-left: 4px solid var(--accent); border-radius: var(--radius-sm); padding: 20px 24px; margin: 16px 0; }
+.concept-card h4 { font-size: 1rem; font-weight: 700; color: var(--green-deep); margin-bottom: 10px; }
+.concept-card .concept-field { font-size: 0.88rem; color: var(--text-secondary); margin-bottom: 6px; line-height: 1.6; }
+.concept-card .concept-field strong { color: var(--text); font-size: 0.88rem; }
+.insight-card { background: var(--yellow-light); border-left: 4px solid var(--yellow); border-radius: var(--radius-sm); padding: 16px 20px; margin: 12px 0; }
+.insight-card p { font-size: 0.93rem; color: var(--text-secondary); margin: 0; line-height: 1.7; }
+.insight-card .insight-num { display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; border-radius: 50%; background: var(--yellow); color: #fff; font-size: 0.75rem; font-weight: 700; margin-right: 10px; flex-shrink: 0; }
+.certainty-tag { display: inline-block; font-size: 0.65rem; padding: 2px 6px; border-radius: 8px; font-weight: 600; margin-left: 8px; }
+.certainty-confirmed { background: var(--accent-light); color: var(--accent); }
+.certainty-announced { background: var(--blue-light); color: var(--blue); }
+.certainty-reported { background: var(--yellow-light); color: var(--yellow); }
+.certainty-opinion { background: var(--purple-light); color: var(--purple); }
+.certainty-rumor { background: var(--red-light); color: var(--red); }
+.footer-sources { margin-top: 44px; padding: 20px 24px; background: var(--surface2); border-radius: var(--radius); font-size: 0.78rem; color: var(--text-muted); line-height: 1.9; }
+.footer-sources strong { color: var(--text-secondary); font-size: 0.78rem; }
+@media (max-width: 860px) { .trend-grid, .story-grid { grid-template-columns: 1fr; } }
+@media (max-width: 640px) { .tool-grid { grid-template-columns: 1fr; } }
+
+  </style>
+</head>
+<body>
+
+<header class="topbar">
+  <a href="../index.html" class="topbar-brand">
+    <svg viewBox="0 0 28 28" fill="none"><circle cx="14" cy="14" r="14" fill="#2d9f6f"/><path d="M8 14.5l3.5 3.5 8.5-8" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    Tech Digest
+  </a>
+  <nav class="topbar-nav">
+    <a href="../index.html">Archive</a>
+    <a href="#main-story" class="active">Today</a>
+    <a href="#tools">Tools</a>
+    <a href="#quotes">Quotes</a>
+  </nav>
+  <div class="topbar-right">
+    <span class="topbar-date">2026-07-15</span>
+  </div>
+</header>
+
+<details class="toc-mobile">
+  <summary>📑 目录导航</summary>
+  <div class="toc-dropdown">
+    <a href="#main-story">🔥 主故事</a>
+    <a href="#trends">⚡ 冲突趋势</a>
+    <a href="#tech-news">📰 科技动态</a>
+    <a href="#ai">🤖 AI 相关</a>
+    <a href="#articles">📝 文章推荐</a>
+    <a href="#tools">🛠️ 工具推荐</a>
+    <a href="#ai-tools">🧠 AI 工具</a>
+    <a href="#concepts">🧩 本期概念库</a>
+    <a href="#curiosity">🎲 好奇心入口</a>
+    <a href="#resources">📚 资源</a>
+    <a href="#quotes">💬 言论</a>
+    <a href="#podcast">🎙️ 播客提纲</a>
+    <a href="#team-insights">✅ 对团队的启发</a>
+  </div>
+</details>
+
+<div class="page">
+  <nav class="toc">
+    <div class="toc-title">本期目录</div>
+    <a href="#main-story">🔥 主故事</a>
+    <a href="#trends">⚡ 冲突趋势</a>
+    <a href="#tech-news">📰 科技动态</a>
+    <a href="#ai">🤖 AI 相关</a>
+    <a href="#articles">📝 文章推荐</a>
+    <a href="#tools">🛠️ 工具推荐</a>
+    <a href="#ai-tools">🧠 AI 工具</a>
+    <a href="#concepts">🧩 本期概念库</a>
+    <a href="#curiosity">🎲 好奇心入口</a>
+    <a href="#resources">📚 资源</a>
+    <a href="#quotes">💬 言论</a>
+    <a href="#podcast">🎙️ 播客提纲</a>
+    <a href="#team-insights">✅ 对团队的启发</a>
+  </nav>
+
+  <main class="container">
+    <a href="../index.html" class="back">← 返回目录</a>
+    <h1>第 56 期：AI 工具开始补安全、依赖和成本控制面</h1>
+    <div class="meta">第 56 期 · 2026年7月15日，星期三</div>
+    <p class="highlights-line"><strong>✨ 本期亮点：</strong>Mindgard 披露 Cursor 0day，引发 AI IDE 安全讨论 · PrismML 发布 Bonsai 27B，宣称 27B-class 模型可在手机上运行 · GitHub Dependabot version updates 默认加入 3 天 package cooldown · Tailscale TS-2026-009 修复 SSH 用户名参数处理导致 root session · Microsoft 7 月 Patch Tuesday 修复 570 个安全缺陷 · BIS 讨论 AI boom 从现金流到债务融资 · Fortune 报道数据中心电费外部性达 230 亿美元</p>
+
+    <img class="hero-img" src="https://cdn.prod.website-files.com/673f0725df990f6c96bf18ea/6a562c4ba76323b509a1de8d_cursor-zero-hero.webp" alt="Cursor 0day hero image">
+    <div class="hero-caption">Cursor 0day 的真正问题不是单个漏洞，而是 AI IDE 已经成为高权限开发工作台。</div>
+
+    <div class="callout">
+      <strong>🎯 本期核心判断：</strong>AI 工具正在从「能自动做事」进入「必须被约束地做事」阶段：IDE、依赖机器人、私网 SSH、本地模型和数据中心账单都在补安全、成本和治理控制面。
+    </div>
+
+    <div class="callout">
+      <strong>⏱ 本期建议阅读顺序</strong><br>
+      先看主故事：Cursor 0day 为什么是 AI IDE 生产化的安全分水岭<br>
+      再看工程控制面：Dependabot cooldown、Tailscale SSH、Microsoft 570 个补丁如何改变运维节奏<br>
+      最后看 AI 成本与本地化：Bonsai 27B、BIS 融资报告、数据中心电费外部性
+    </div>
+
+    <h2 id="main-story">🔥 主故事</h2>
+        <article class="main-story">
+      <h3>Cursor 0day：AI IDE 进入生产后，漏洞披露也变成团队保护机制</h3>
+      <p class="story-hook">当一个编辑器能读仓库、跑命令、接 MCP、改代码、发 PR，它就不再只是编辑器；它是一个高权限开发代理。</p>
+      <p>Mindgard 在 7 月披露一篇题为「Cursor 0day: When Full Disclosure Becomes the Only Protection Left」的文章，称其发现 Cursor 相关 0day，并将问题放在 AI IDE / Agent attack surface 的语境下讨论。HN 上这条获得高热度，因为开发者已经把 AI IDE 放进真实仓库、凭证、终端和浏览器工作流里。</p>
+      <div class="story-grid">
+        <div class="story-field"><strong>核心冲突</strong>AI IDE 的价值来自跨文件、跨命令、跨工具的自动化；风险也正来自这里：权限越完整，提示注入、工具调用、文件写入和命令执行的爆炸半径越大。</div>
+        <div class="story-field"><strong>转折点</strong>过去开发者把 IDE 漏洞看成客户端安全问题；现在 AI IDE 漏洞可能变成供应链、仓库、凭证和生产脚本的入口。</div>
+        <div class="story-field"><strong>为什么现在发生</strong>过去几期已经看到 Copilot 成本中心、Agent session 管理、MCP 工具化、模型路由和桌面 Agent；当这些能力接入开发工作台后，安全披露、沙箱、权限分层和审计就不能再滞后。</div>
+        <div class="story-field"><strong>对团队的启发</strong>立刻给 AI IDE 建一张权限矩阵：仓库读写、终端命令、MCP 工具、浏览器会话、环境变量、私有文档、PR/issue 操作分别列白名单和审计日志。</div>
+      </div>
+      <p><span class="number-chip">Cursor 0day</span><span class="number-chip">HN 271+ points</span><span class="number-chip">AI IDE / Agent attack surface</span></p>
+      <p><strong>我的判断：</strong>我的判断是：AI IDE 的安全基线会很快向浏览器扩展和 CI/CD 靠拢。团队不能只问「这个 Agent 会不会写代码」，还要问「它能读什么、能跑什么、能把结果发到哪里」。</p>
+      <div class="story-line">AI IDE 的生产力来自它能越界工作，风险也来自它真的会越界。</div>
+      <p><strong>来源：</strong><a href="https://mindgard.ai/blog/cursor-0day-when-full-disclosure-becomes-the-only-protection-left" target="_blank" rel="noopener noreferrer">mindgard.ai</a></p>
+    </article>
+
+    <h2 id="trends">⚡ 冲突趋势</h2>
+        <div class="trend-grid">
+      <div class="trend-card">
+        <h4>AI IDE 从插件变成高权限代理</h4>
+        <div class="trend-conflict">开发效率 vs 供应链爆炸半径</div>
+        <p>Cursor 0day、Juggler GUI coding agent、Clodex IDE 和 Copilot 安全能力放在一起，说明编码 Agent 需要沙箱、权限矩阵和审计，而不是只靠用户信任。</p>
+        <div class="trend-sources">mindgard.ai · github.blog</div>
+      </div>
+      <div class="trend-card">
+        <h4>依赖机器人开始学会「慢一点」</h4>
+        <div class="trend-conflict">自动更新效率 vs 新包供应链风险</div>
+        <p>Dependabot 默认等待新版本发布至少 3 天再开 PR，看似保守，实际是在给维护者和生态一个发现恶意包/破坏性版本的缓冲窗口。</p>
+        <div class="trend-sources">github.blog</div>
+      </div>
+      <div class="trend-card">
+        <h4>AI 成本从公司账单外溢到社会账单</h4>
+        <div class="trend-conflict">AI 基础设施扩张 vs 电价/债务/公共成本</div>
+        <p>BIS 讨论 AI boom 融资，Fortune 报道数据中心推高公众电费 230 亿美元；AI 不只是 token 账单，也开始变成电网、债务和公共政策问题。</p>
+        <div class="trend-sources">bis.org · fortune.com</div>
+      </div>
+    </div>
+
+    <h2 id="tech-news">📰 科技动态</h2>
+    <h3>1、<a href="https://github.blog/changelog/2026-07-14-dependabot-version-updates-introduce-default-package-cooldown/" target="_blank" rel="noopener noreferrer">Dependabot 默认加入 3 天 package cooldown</a> <span class="certainty-tag certainty-announced">announced</span></h3>
+    <p>自动化依赖更新第一次像踩刹车：GitHub 宣布 Dependabot version updates 默认等新版本在 registry 上至少 3 天后再开 PR。对前端、移动端和后台团队，这不是小改动，而是供应链安全策略：恶意包、误发版本和破坏性 release 常常在最初几小时暴露，默认冷静期能减少机器人把风险第一时间送进仓库。</p>
+    <img class="article-img" src="https://github.blog/wp-content/themes/github-2021-child/dist/img/social-v3-improvements.jpg" alt="">
+    <h3>2、<a href="https://tailscale.com/security-bulletins" target="_blank" rel="noopener noreferrer">Tailscale TS-2026-009：SSH 用户名参数处理导致 ACL 之外 root session</a> <span class="certainty-tag certainty-confirmed">confirmed</span></h3>
+    <p>Tailscale 官方公告确认：Tailscale SSH 曾接受以 `-` 开头的用户名，在 Linux 上传给 getent 时被解释为参数；连接用户名 `-i` 可导致打开 root interactive session，违反 ACL policy。修复版本为 1.98.9 或更新。对平台团队，这是参数处理老问题在零信任网络里的新形态。</p>
+    <img class="article-img" src="https://cdn.sanity.io/images/w77i7m8x/production/8e0455b2d9b33c6151016afdf2ea81d7623c2f04-1200x628.png" alt="">
+    <h3>3、<a href="https://krebsonsecurity.com/2026/07/microsoft-patches-a-record-570-security-flaws/" target="_blank" rel="noopener noreferrer">Microsoft 7 月 Patch Tuesday 修复 570 个安全漏洞</a> <span class="certainty-tag certainty-reported">reported</span></h3>
+    <p>570 个补丁不是一个数字，而是运维排期事故。KrebsOnSecurity 报道 Microsoft 7 月 Patch Tuesday 修复创纪录 570 个安全缺陷。确定性上，这是媒体报道和厂商补丁日信息；对 Windows/企业桌面/服务器团队，真正问题是如何按暴露面、利用状态和业务窗口做优先级，而不是一次性把所有机器推到风险边缘。</p>
+    <h3>4、<a href="https://tailscale.com/security-bulletins#ts-2026-008" target="_blank" rel="noopener noreferrer">Tailscale TS-2026-008：Serve/Funnel malformed request 可 pin 住 CPU core</a> <span class="certainty-tag certainty-confirmed">confirmed</span></h3>
+    <p>同一批公告还包括 TS-2026-008：Tailscale Serve/Funnel 在处理非绝对路径请求时可能陷入循环，让一个 CPU core 长时间 100%。Tailscale 称 1.98.9 已修复。对边缘服务团队，它提醒：内部工具一旦通过 Funnel 暴露到互联网，就要按公网服务做 timeout 和 malformed input 测试。</p>
+    <h3>5、<a href="https://fortune.com/2026/07/14/data-centers-23-billion-electricity-bills/" target="_blank" rel="noopener noreferrer">数据中心据称已让公众电费增加 230 亿美元</a> <span class="certainty-tag certainty-reported">reported</span></h3>
+    <p>Fortune 报道称数据中心已经让公众承担约 230 亿美元电费上涨。确定性上，这是媒体报道和估算，不等于每个地区同等受影响；但它把 AI 成本从公司 token 账单移到电网和公共账单上。团队做 AI 成本核算时，不应只看 API 价格，还要看区域、能源、缓存和离线推理策略。</p>
+    <img class="article-img" src="https://fortune.com/img-assets/wp-content/uploads/2026/07/GettyImages-2285284906-e1783971804803.jpg?resize=1200,600" alt="">
+    <h3>6、<a href="https://lucumr.pocoo.org/2026/7/13/the-tower-keeps-rising/" target="_blank" rel="noopener noreferrer">The Tower Keeps Rising：现代软件栈继续变高</a> <span class="certainty-tag certainty-opinion">opinion</span></h3>
+    <p>Armin Ronacher 写「The Tower Keeps Rising」，社区讨论的不是某个框架，而是软件栈越来越高、抽象越来越多、问题越来越难定位。它适合放在今天的 AI IDE 和依赖机器人旁边：当工具能自动搭更多塔，团队更要知道底层在哪。</p>
+
+    <h2 id="ai">🤖 AI 相关</h2>
+    <h3>1、<a href="https://prismml.com/news/bonsai-27b" target="_blank" rel="noopener noreferrer">Bonsai 27B：PrismML 宣称 27B 级模型可在手机上运行</a> <span class="certainty-tag certainty-announced">announced</span></h3>
+    <p>PrismML 宣布 Bonsai 27B，基于 Qwen3.6 27B，并称这是首个能在手机上运行的 27B-class multimodal model。确定性上，这是厂商官方发布，真实性能、内存占用和设备范围需要独立复测；但方向很明确：本地模型正在从「小模型能离线」走向「中大模型能进移动端」。</p>
+    <h3>2、<a href="https://jola.dev/posts/how-to-stop-claude-from-saying-load-bearing" target="_blank" rel="noopener noreferrer">Claude 口癖治理：如何阻止 Claude 反复说 load-bearing</a> <span class="certainty-tag certainty-opinion">opinion</span></h3>
+    <p>这篇文章看似吐槽 Claude 总爱说 load-bearing，实际是提示工程的细节课：模型风格不是玄学，它可以通过负例、约束和迭代减少。对团队的用处很具体：Agent 的口癖、模板腔、PR 评论套话会影响信任，应该像 lint 一样治理。</p>
+    <img class="article-img" src="https://jola.dev/images/og/posts/how-to-stop-claude-from-saying-load-bearing.png" alt="">
+    <h3>3、<a href="https://www.artfish.ai/p/offloading-thinking-to-ai" target="_blank" rel="noopener noreferrer">Are we offloading too much of our thinking to AI?</a> <span class="certainty-tag certainty-opinion">opinion</span></h3>
+    <p>AI 思考外包的讨论再次升温。它不是反 AI，而是在问一个更难的问题：哪些认知任务交给模型会提升质量，哪些会让团队丧失判断力。对研发团队，这能落到代码审查、架构设计、事故复盘和需求澄清：AI 可以生成选项，但不能替团队承担决策责任。</p>
+    <h3>4、<a href="https://www.bis.org/publ/bisbull120.pdf" target="_blank" rel="noopener noreferrer">BIS：AI boom 融资从现金流走向债务</a> <span class="certainty-tag certainty-confirmed">confirmed</span></h3>
+    <p>BIS Bulletin 讨论 AI boom financing，从科技巨头现金流到债务融资。确定性上，这是 BIS 分析报告，不是单家公司财报；但它提醒团队：AI 基础设施的资本开支可能把风险从产品团队转移到债务、能源和金融系统。对管理者，AI 项目预算要同时看短期 API 成本和长期基础设施依赖。</p>
+    <h3>5、<a href="https://gwern.net/guardian-angel" target="_blank" rel="noopener noreferrer">Guardian Angels：LLM 个性化同时服务生产力和安全</a> <span class="certainty-tag certainty-opinion">opinion</span></h3>
+    <p>Gwern 写 Guardian Angels，讨论 LLM personalization 如何做生产力和安全助手。它不是产品发布，而是一个值得团队讨论的架构想象：个人化模型越懂你，越能帮你，也越需要边界、可撤回记忆和可审计建议。</p>
+    <img class="article-img" src="https://gwern.net/doc/ai/nn/transformer/gpt/dall-e/4o/2026-06-13-gwern-gpt55pro-claude48opus-chatgptimages20-gaplusquill-guardianangellogo.jpg" alt="">
+    <h3>6、<a href="https://www.benjamin-bai.com/projects/lemario" target="_blank" rel="noopener noreferrer">LeMario：在 Super Mario Bros 上训练 JEPA World Model</a> <span class="certainty-tag certainty-reported">reported</span></h3>
+    <p>LeMario 用 Super Mario Bros 训练 JEPA world model。它不是直接面向日常开发的工具，但适合概念库：World Model 正从机器人和视频走向可互动游戏环境，未来 Agent 可能先在低成本模拟世界里学会规划和失败恢复。</p>
+
+    <h2 id="articles">📝 文章推荐</h2>
+    <h3>1、<a href="https://danq.me/2026/07/09/your-app-could-have-been-a-webpage/" target="_blank" rel="noopener noreferrer">Your app could have been a webpage</a></h3>
+    <p>这篇文章今天 HN 第一，表面是反 App，实际是产品边界讨论：很多功能被包装成 App，只是为了锁用户、拿权限和制造分发壁垒。对 Web/移动端团队，它是一张自查表：我们真的需要原生 App，还是只是需要一个好网页？</p>
+    <h3>2、<a href="https://www.thoughtworks.com/insights/blog/open-source/zero-cost-fallacy-open-source-agentic-era" target="_blank" rel="noopener noreferrer">The zero-cost fallacy: open source software in the agentic era</a></h3>
+    <p>Thoughtworks 讨论 agentic era 的开源零成本谬误：Agent 可以更快消费开源，也会更快制造 issue、PR、依赖压力和维护成本。对团队的启发是：用开源不是免费，尤其当 AI 自动化放大使用规模后，更要回馈和治理。</p>
+    <img class="article-img" src="https://www.thoughtworks.com/content/dam/thoughtworks/images/illustration/brand/tw_illustration_24.jpg" alt="">
+    <h3>3、<a href="https://typesanitizer.com/blog/job-queues.html" target="_blank" rel="noopener noreferrer">Job queues are deceptively tricky</a></h3>
+    <p>任务队列看起来简单：入队、出队、重试。真正上线后，幂等、重复执行、可见性超时、死信队列、优先级和回压会一起出现。对后台团队，这是比框架选型更重要的基础课。</p>
+    <h3>4、<a href="https://gendignoux.com/blog/2026/07/13/input-digits.html" target="_blank" rel="noopener noreferrer">Just Let Me Write Digits</a></h3>
+    <p>一个数字输入框能有多复杂？这篇文章用可访问性和国际化告诉你：非常复杂。对前端和移动端团队，它是优秀小题大做样本：金额、验证码、手机号、交易数量输入都值得重新审。</p>
+
+    <h2 id="tools">🛠️ 工具推荐</h2>
+    <div class="tool-grid">
+      <div class="tool-card">
+        <h4><a href="https://github.com/juggler-ai/juggler" target="_blank" rel="noopener noreferrer">Juggler</a> <span class="priority-tag">P1</span></h4>
+        <p>开源 GUI coding agent，由 JUCE 创建者参与，适合评估本地/图形化编码 Agent 工作台体验。</p>
+      </div>
+      <div class="tool-card">
+        <h4><a href="https://github.com/mereyabdenbekuly-ctrl/clodex-ide" target="_blank" rel="noopener noreferrer">Clodex IDE</a> <span class="priority-tag">P1</span></h4>
+        <p>本地优先、zero-trust agentic IDE，强调可验证 autonomous software development，适合研究 AI IDE 安全边界。</p>
+      </div>
+      <div class="tool-card">
+        <h4><a href="https://github.com/William-Lu-stack/Flawless" target="_blank" rel="noopener noreferrer">Flawless</a> <span class="priority-tag">P1</span></h4>
+        <p>AI SRE AgenticOps for Kubernetes and cloud infrastructure，适合平台团队探索 K8s/云基础设施运维 Agent。</p>
+      </div>
+      <div class="tool-card">
+        <h4><a href="https://github.com/cosmtrek/mindwalk" target="_blank" rel="noopener noreferrer">mindwalk</a> <span class="priority-tag">P1</span></h4>
+        <p>把 coding-agent session 在代码库 3D 地图上回放，适合审计 Agent 如何走过仓库、修改哪些路径。</p>
+      </div>
+      <div class="tool-card">
+        <h4><a href="https://github.com/tummychow/git-absorb" target="_blank" rel="noopener noreferrer">git-absorb</a> <span class="priority-tag">P2</span></h4>
+        <p>自动生成 fixup commit 的 Git 工具，可减少 review 后手工整理提交的成本。</p>
+      </div>
+      <div class="tool-card">
+        <h4><a href="https://github.com/darrylmorley/whatcable" target="_blank" rel="noopener noreferrer">whatcable</a> <span class="priority-tag">P2</span></h4>
+        <p>macOS 菜单栏工具，用人话说明每根 USB-C 线能做什么，适合硬件/移动端开发者减少线材排障时间。</p>
+      </div>
+    </div>
+
+    <h2 id="ai-tools">🧠 AI 工具</h2>
+    <div class="tool-grid">
+      <div class="tool-card">
+        <span class="tag">端侧 AI</span>
+        <h4><a href="https://prismml.com/" target="_blank" rel="noopener noreferrer">Bonsai 27B</a></h4>
+        <p>PrismML 宣称 27B-class 多模态模型可在手机端运行；适合移动端 AI 团队跟踪本地模型路线。</p>
+      </div>
+      <div class="tool-card">
+        <span class="tag">产品质检</span>
+        <h4><a href="https://github.com/yetone/kill-ai-slop" target="_blank" rel="noopener noreferrer">kill-ai-slop</a></h4>
+        <p>识别并移除 AI 生成产品里的视觉/文案套路，适合前端、设计和营销页面做反模板腔审查。</p>
+      </div>
+      <div class="tool-card">
+        <span class="tag">App 自动化</span>
+        <h4><a href="https://github.com/littledivy/mimic" target="_blank" rel="noopener noreferrer">mimic</a></h4>
+        <p>拦截任意 App 并像 Python 库一样调用，适合研究桌面自动化、App instrumentation 和 Agent 工具调用。</p>
+      </div>
+      <div class="tool-card">
+        <span class="tag">后台开发</span>
+        <h4><a href="https://github.com/opencoredev/domain-sdk" target="_blank" rel="noopener noreferrer">domain-sdk</a></h4>
+        <p>用 TypeScript API 添加、验证、监控和移除客户域名，适合 SaaS 后台减少自定义域名接入摩擦。</p>
+      </div>
+      <div class="tool-card">
+        <span class="tag">Agent 实践</span>
+        <h4><a href="https://github.com/AlephAITech/WorkBuddyGuide" target="_blank" rel="noopener noreferrer">WorkBuddyGuide</a></h4>
+        <p>开源 WorkBuddy 实战蓝皮书，覆盖真实工作流、Skills、MCP、自动化和多 Agent 实践。</p>
+      </div>
+    </div>
+
+    <h2 id="concepts">🧩 本期概念库</h2>
+    <div class="concept-card">
+      <h4>1. AI IDE 权限矩阵</h4>
+      <div class="concept-field"><strong>一句话解释：</strong>把 AI IDE 可读写的仓库、命令、MCP 工具、浏览器会话、环境变量和 PR 权限显式列成矩阵。</div>
+      <div class="concept-field"><strong>背景来源：</strong>Cursor 0day / Clodex IDE</div>
+      <div class="concept-field"><strong>为什么重要：</strong>编码 Agent 越接近真实开发者，越需要像开发者身份一样治理。</div>
+      <div class="concept-field"><strong>团队应用场景：</strong>为 Cursor/Copilot/Codex/Claude Code 建立项目级白名单和审计日志。</div>
+    </div>
+    <div class="concept-card">
+      <h4>2. 依赖冷静期</h4>
+      <div class="concept-field"><strong>一句话解释：</strong>依赖更新机器人在新版本发布后等待一段时间再开 PR，让生态暴露恶意包或破坏性 release。</div>
+      <div class="concept-field"><strong>背景来源：</strong>Dependabot package cooldown</div>
+      <div class="concept-field"><strong>为什么重要：</strong>供应链风险常在发布早期被发现。</div>
+      <div class="concept-field"><strong>团队应用场景：</strong>对高风险生态设置 3-7 天 cooldown，并给安全更新设置例外策略。</div>
+    </div>
+    <div class="concept-card">
+      <h4>3. 端侧 27B</h4>
+      <div class="concept-field"><strong>一句话解释：</strong>27B 级模型在移动设备本地运行的路线，试图同时改善隐私、延迟和离线能力。</div>
+      <div class="concept-field"><strong>背景来源：</strong>Bonsai 27B</div>
+      <div class="concept-field"><strong>为什么重要：</strong>如果成立，会改变移动端 AI 架构和云端成本结构。</div>
+      <div class="concept-field"><strong>团队应用场景：</strong>移动端 AI 评估加入内存、温控、耗电、模型下载和隐私预算。</div>
+    </div>
+    <div class="concept-card">
+      <h4>4. AI 基建外部性</h4>
+      <div class="concept-field"><strong>一句话解释：</strong>AI 数据中心成本不仅体现在 API 价格，也可能外溢到电价、债务融资和公共基础设施。</div>
+      <div class="concept-field"><strong>背景来源：</strong>BIS / Fortune</div>
+      <div class="concept-field"><strong>为什么重要：</strong>AI 成本治理要从 token 扩展到能源和区域策略。</div>
+      <div class="concept-field"><strong>团队应用场景：</strong>模型路由评估加入缓存、批处理、本地推理和地域能源因素。</div>
+    </div>
+    <div class="concept-card">
+      <h4>5. Agent session 可审计性</h4>
+      <div class="concept-field"><strong>一句话解释：</strong>记录 Agent 在代码库中看了什么、改了什么、调用了什么工具和为什么做出选择。</div>
+      <div class="concept-field"><strong>背景来源：</strong>mindwalk / AI IDE security</div>
+      <div class="concept-field"><strong>为什么重要：</strong>没有可审计轨迹，Agent 事故难以复盘。</div>
+      <div class="concept-field"><strong>团队应用场景：</strong>把 Agent session 日志纳入 PR 附件或 CI artifact。</div>
+    </div>
+
+    <h2 id="curiosity">🎲 好奇心入口</h2>
+    <div class="curiosity-card">
+      <h4><a href="https://2b2t.place/1million" target="_blank" rel="noopener noreferrer">The largest available Minecraft world, 15 TB</a></h4>
+      <div class="hook">一个 Minecraft 世界大到 15 TB，本质上已经像数据基础设施。</div>
+      <p>它不是团队工具，但很适合提醒我们：用户生成世界一旦足够大，存储、索引、分发和可视化都会变成工程问题。 团队暗线：内容平台的极限案例，常常先出现在游戏社区。</p>
+    </div>
+    <div class="curiosity-card">
+      <h4><a href="https://vpd.ca/" target="_blank" rel="noopener noreferrer">Vancouver PD Quick Escape button</a></h4>
+      <div class="hook">一个按钮不只是 UI，而是安全承诺。</div>
+      <p>Vancouver PD 网站的 Quick Escape button 会清理历史痕迹，适合前端团队思考高风险用户场景下的设计责任。 团队暗线：隐私保护有时不是设置页，而是页面上的逃生路径。</p>
+    </div>
+    <div class="curiosity-card">
+      <h4><a href="https://fabiensanglard.net/jurrasic_park_computers/index.html" target="_blank" rel="noopener noreferrer">Jurassic Park computers in excruciating detail</a></h4>
+      <div class="hook">有人把《侏罗纪公园》的电脑系统考古到近乎过分。</div>
+      <p>这类文章证明技术文化的细节会长久留在产品记忆里。对 UI 和客户端团队，真实感来自细节，不只是视觉风格。 团队暗线：可记住的界面，往往有一个自洽的世界观。</p>
+    </div>
+
+    <h2 id="resources">📚 资源</h2>
+    <div class="resource-item">
+      <a href="https://github.blog/changelog/" target="_blank" rel="noopener noreferrer">GitHub Changelog: AI security detections and Copilot security reviews</a>
+      <p>跟踪 GitHub 7 月 14 日 code scanning AI security detections、Copilot security reviews 和 Dependabot cooldown。</p>
+    </div>
+    <div class="resource-item">
+      <a href="https://tailscale.com/security-bulletins/index.xml" target="_blank" rel="noopener noreferrer">Tailscale Security Bulletins RSS</a>
+      <p>平台团队可订阅 Tailscale 安全公告，跟踪 TS-2026-008/009 等修复。</p>
+    </div>
+    <div class="resource-item">
+      <a href="https://msrc.microsoft.com/update-guide" target="_blank" rel="noopener noreferrer">Microsoft Security Update Guide</a>
+      <p>跟踪 7 月 Patch Tuesday 具体 CVE、利用状态和补丁优先级。</p>
+    </div>
+
+    <h2 id="quotes">💬 言论：本期 8 个认知增量</h2>
+    <div class="quote-block">
+      <blockquote>Cursor 0day 讨论的核心不是某个编辑器有 bug，而是 AI IDE 已经拥有开发者级别的权限。</blockquote>
+      <div class="quote-author">—— HN 社区讨论 · Cursor 0day</div>
+      <div class="quote-meta">来源：<a href="https://news.ycombinator.com/item?id=48865839" target="_blank" rel="noopener noreferrer">news.ycombinator.com</a> · 类型：摘要式转述 · 关键词：AI Workflow · 安全</div>
+      <div class="quote-comment">💭 这句话该贴在每个 AI IDE rollout 方案前面。</div>
+      <div class="quote-team-insight">🎯 团队启发：AI IDE 上线前先审权限矩阵，不要默认继承全量开发者权限。</div>
+    </div>
+    <div class="quote-block">
+      <blockquote>Dependabot 的三天冷静期看似降低速度，实际是在为生态发现坏包争取时间。</blockquote>
+      <div class="quote-author">—— GitHub Changelog 讨论</div>
+      <div class="quote-meta">来源：<a href="https://news.ycombinator.com/item?id=48866651" target="_blank" rel="noopener noreferrer">news.ycombinator.com</a> · 类型：摘要式转述 · 关键词：供应链安全 · 后台开发</div>
+      <div class="quote-comment">💭 自动化不是越快越好，供应链安全里慢一点可能更聪明。</div>
+      <div class="quote-team-insight">🎯 团队启发：普通版本更新设 cooldown，安全修复保留快速通道。</div>
+    </div>
+    <div class="quote-block">
+      <blockquote>Bonsai 27B 的真正看点不是参数量，而是端侧模型开始挑战云端默认架构。</blockquote>
+      <div class="quote-author">—— HN 社区讨论 · Bonsai 27B</div>
+      <div class="quote-meta">来源：<a href="https://news.ycombinator.com/item?id=48864106" target="_blank" rel="noopener noreferrer">news.ycombinator.com</a> · 类型：摘要式转述 · 关键词：端侧 AI · 移动端</div>
+      <div class="quote-comment">💭 移动端团队应关注实测，不要只看发布标题。</div>
+      <div class="quote-team-insight">🎯 团队启发：端侧模型评估必须同时看内存、发热、耗电和隐私收益。</div>
+    </div>
+    <div class="quote-block">
+      <blockquote>AI 口癖治理提醒我们：模型输出风格也是产品质量，不是文案小问题。</blockquote>
+      <div class="quote-author">—— HN 社区讨论 · Claude load-bearing</div>
+      <div class="quote-meta">来源：<a href="https://news.ycombinator.com/item?id=48864022" target="_blank" rel="noopener noreferrer">news.ycombinator.com</a> · 类型：摘要式转述 · 关键词：AI Workflow · 产品体验</div>
+      <div class="quote-comment">💭 团队应该把模型腔当成 lint 问题治理。</div>
+      <div class="quote-team-insight">🎯 团队启发：建立 Agent 输出风格测试集，覆盖 PR 评论、用户回复和文档生成。</div>
+    </div>
+    <div class="quote-block">
+      <blockquote>Tailscale SSH 的 `-i` 事件说明，最老的参数解析问题会在最新的零信任工具里复活。</blockquote>
+      <div class="quote-author">—— HN 社区讨论 · Tailscale SSH</div>
+      <div class="quote-meta">来源：<a href="https://news.ycombinator.com/item?id=48868773" target="_blank" rel="noopener noreferrer">news.ycombinator.com</a> · 类型：摘要式转述 · 关键词：安全 · 基础设施</div>
+      <div class="quote-comment">💭 安全 bug 很多时候不是新类型，而是旧假设进入新上下文。</div>
+      <div class="quote-team-insight">🎯 团队启发：所有用户输入进入系统命令前都要做参数边界测试。</div>
+    </div>
+    <div class="quote-block">
+      <blockquote>开源零成本谬误在 Agent 时代更危险，因为 Agent 能更快把维护者推到极限。</blockquote>
+      <div class="quote-author">—— Thoughtworks · zero-cost fallacy</div>
+      <div class="quote-meta">来源：<a href="https://news.ycombinator.com/item?id=48865001" target="_blank" rel="noopener noreferrer">news.ycombinator.com</a> · 类型：摘要式转述 · 关键词：开源 · Agent</div>
+      <div class="quote-comment">💭 AI 增强了使用者，也应该增强回馈机制。</div>
+      <div class="quote-team-insight">🎯 团队启发：依赖关键开源项目时建立 sponsor、patch 和响应 SLA。</div>
+    </div>
+    <div class="quote-block">
+      <blockquote>软件塔继续升高的问题不是抽象太多，而是我们忘了每一层都需要可观察性。</blockquote>
+      <div class="quote-author">—— Armin Ronacher · The Tower Keeps Rising</div>
+      <div class="quote-meta">来源：<a href="https://news.ycombinator.com/item?id=48909785" target="_blank" rel="noopener noreferrer">news.ycombinator.com</a> · 类型：摘要式转述 · 关键词：工程管理 · 可观测性</div>
+      <div class="quote-comment">💭 AI 生成代码会让塔长得更快，理解成本不能忽略。</div>
+      <div class="quote-team-insight">🎯 团队启发：引入新抽象时同步补日志、指标、trace 和故障演练。</div>
+    </div>
+    <div class="quote-block">
+      <blockquote>把 App 做成网页不是倒退，而是承认很多产品不该为了权限和分发而牺牲开放性。</blockquote>
+      <div class="quote-author">—— HN 社区讨论 · app could have been webpage</div>
+      <div class="quote-meta">来源：<a href="https://news.ycombinator.com/item?id=48861426" target="_blank" rel="noopener noreferrer">news.ycombinator.com</a> · 类型：摘要式转述 · 关键词：Web · 客户端</div>
+      <div class="quote-comment">💭 这对移动端团队是有价值的反向评审题。</div>
+      <div class="quote-team-insight">🎯 团队启发：新功能立项时先问：网页是否足够，原生 App 多拿的权限是否必要。</div>
+    </div>
+
+    <h2 id="podcast">🎙️ 播客提纲</h2>
+    <div class="podcast-brief">
+      <h4>第 56 期：AI 工具开始补控制面</h4>
+      <div class="cold-open">今天最值得聊的不是又一个大模型，而是一个更现实的问题：当 AI IDE 能读仓库、跑命令、接 MCP、发 PR，它到底还是工具，还是一个高权限开发者？</div>
+      <div class="podcast-segment">
+        <strong>Cursor 0day：AI IDE 的安全分水岭</strong>
+        <p>能越界工作的工具，也真的可能越界。</p>
+        <p>先建 AI IDE 权限矩阵，再大规模上线。</p>
+      </div>      <div class="podcast-segment">
+        <strong>Dependabot cooldown：机器人学会慢一点</strong>
+        <p>三天等待，可能比三分钟响应更安全。</p>
+        <p>依赖更新按风险分层，不要所有 PR 一视同仁。</p>
+      </div>      <div class="podcast-segment">
+        <strong>Bonsai 27B 与 AI 成本外部性</strong>
+        <p>一边是 27B 模型进手机，一边是数据中心把电费推给公众。</p>
+        <p>模型选型同时看云端成本、本地能力和能源策略。</p>
+      </div>
+      <p>今天的结论：AI 工具进入生产后，真正的竞争力不只是能力，而是安全、依赖、成本和审计控制面。</p>
+    </div>
+
+    <h2 id="team-insights">✅ 对团队的启发</h2>
+    <div class="insight-card">
+      <p><span class="insight-num">1</span>为所有 AI IDE / Coding Agent 建权限矩阵：仓库、终端、环境变量、MCP、浏览器会话、PR/issue 操作都要有白名单和日志。</p>
+    </div>
+    <div class="insight-card">
+      <p><span class="insight-num">2</span>依赖更新策略改为分层：普通版本默认 cooldown，安全补丁快速通道，高风险生态加人工 review。</p>
+    </div>
+    <div class="insight-card">
+      <p><span class="insight-num">3</span>端侧 AI 试点不要只看模型能不能跑，要同时测内存、温控、耗电、冷启动、模型下载和隐私收益。</p>
+    </div>
+    <div class="insight-card">
+      <p><span class="insight-num">4</span>把 AI 成本核算从 token 扩展到缓存命中率、批处理、本地推理、数据中心地域和电力外部性。</p>
+    </div>
+    <div class="insight-card">
+      <p><span class="insight-num">5</span>高权限网络工具如 Tailscale SSH、Funnel、Serve 纳入定期安全公告订阅和补丁 SLA。</p>
+    </div>
+
+    <div class="footer-sources">
+      <strong>📋 数据来源说明</strong><br>
+      本情报来自 66 个全球精选科技 / AI / 工程 / 系统可靠性信息源的每日更新。<br>
+      由 Cursor AI 自动生成，信息截止至 2026年7月15日，星期三。
+    </div>
+  </main>
+</div>
+
+<script>
+(function(){
+  const toc=document.querySelector('.toc');if(!toc)return;
+  const links=[...toc.querySelectorAll('a')];
+  const ids=links.map(l=>l.getAttribute('href').slice(1));
+  const secs=ids.map(id=>document.getElementById(id)).filter(Boolean);
+  function hl(){let cur=0;secs.forEach((s,i)=>{if(s.getBoundingClientRect().top<=120)cur=i;});
+  links.forEach((l,i)=>{l.classList.toggle('active',i===cur);});}
+  window.addEventListener('scroll',hl,{passive:true});hl();
+})();
+
+</script>
+</body>
+</html>

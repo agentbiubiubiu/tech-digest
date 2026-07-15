@@ -1,5 +1,11 @@
 [
   {
+    "date": "2026-07-15",
+    "title": "第 56 期：AI 工具开始补安全、依赖和成本控制面",
+    "highlights": "Mindgard 披露 Cursor 0day，引发 AI IDE 安全讨论 · PrismML 发布 Bonsai 27B，宣称 27B-class 模型可在手机上运行 · GitHub Dependabot version updates 默认加入 3 天 package cooldown · Tailscale TS-2026-009 修复 SSH 用户名参数处理导致 root session · Microsoft 7 月 Patch Tuesday 修复 570 个安全缺陷 · BIS 讨论 AI boom 从现金流到债务融资 · Fortune 报道数据中心电费外部性达 230 亿美元",
+    "image": "https://cdn.prod.website-files.com/673f0725df990f6c96bf18ea/6a562c4ba76323b509a1de8d_cursor-zero-hero.webp"
+  },
+  {
     "date": "2026-07-11",
     "title": "第 55 期：AI 进入硬件战场后，边界问题开始反噬",
     "highlights": "Apple 起诉 OpenAI、io Products 与前员工，指控商业秘密不当使用 · OpenAI 回应 Apple 诉讼并否认不当行为 · GhostLock CVE-2026-43499 披露，研究者称可高稳定本地提权和容器逃逸 · 纽约市将禁止 deceptive subscription practices · CASP 报告研究 Boko Haram 如何使用 frontier AI · Scarf 复盘 7 年后离开 Haskell · Pilotfish、FableCut、Homerail 等 Agent 工具进入工具区",
