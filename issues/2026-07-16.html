@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>第 57 期：Coding Agent 的信任开始从口头承诺转向可审计代码</title>
+  <meta property="og:title" content="Tech Digest #57：Grok Build 开源、Inkling 开放权重、GitHub secret scanning 与 PayPal 收购传闻">
+  <meta property="og:description" content="Grok Build 在代码上传争议后开源，Thinking Machines 发布 Inkling 开放权重模型，GitHub 加强 secret scanning，Stripe/Advent 据报出价超过 530 亿美元收购 PayPal。">
+  <meta property="og:image" content="https://opengraph.githubassets.com/1/xai-org/grok-build">
+  <style>
+:root {
+  --bg: #f5f6f8; --surface: #ffffff; --surface2: #f0f2f5;
+  --border: #e8ecf1; --border-hover: #c5cdd8;
+  --text: #1a1d21; --text-secondary: #3d4550; --text-muted: #8c95a1;
+  --accent: #2d9f6f; --accent-light: #e8f5ef; --accent-hover: #248a5e;
+  --accent-text: #ffffff;
+  --purple: #7c5cbf; --purple-light: #f3effc;
+  --orange: #e58e26; --orange-light: #fef5e7;
+  --blue: #3a82f7; --blue-light: #eef4fe;
+  --red: #e74c3c; --red-light: #fdecea;
+  --green-deep: #1a7a4c; --green-light2: #e0f5ea;
+  --yellow: #d4a017; --yellow-light: #fef9e7;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.06);
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.06), 0 2px 4px rgba(0,0,0,0.04);
+  --shadow-lg: 0 10px 30px rgba(0,0,0,0.08);
+  --radius: 12px; --radius-sm: 8px; --radius-xs: 6px;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Helvetica, Arial, sans-serif; background: var(--bg); color: var(--text); line-height: 1.75; font-size: 15px; -webkit-font-smoothing: antialiased; }
+.topbar { background: var(--surface); border-bottom: 1px solid var(--border); padding: 12px 32px; display: flex; align-items: center; gap: 16px; position: sticky; top: 0; z-index: 200; box-shadow: var(--shadow-sm); }
+.topbar-brand { font-size: 1.1rem; font-weight: 700; color: var(--accent); text-decoration: none; display: flex; align-items: center; gap: 8px; }
+.topbar-brand svg { width: 28px; height: 28px; }
+.topbar-nav { display: flex; gap: 4px; margin-left: 24px; }
+.topbar-nav a { padding: 6px 16px; border-radius: 20px; font-size: 0.85rem; font-weight: 500; color: var(--text-secondary); text-decoration: none; transition: all 0.2s; }
+.topbar-nav a:hover { background: var(--surface2); color: var(--text); }
+.topbar-nav a.active { background: var(--accent-light); color: var(--accent); font-weight: 600; }
+.topbar-right { margin-left: auto; display: flex; align-items: center; gap: 12px; }
+.topbar-date { font-size: 0.82rem; color: var(--text-muted); background: var(--surface2); padding: 5px 12px; border-radius: 16px; }
+.page { display: flex; max-width: 1200px; margin: 0 auto; padding: 24px 24px 0; gap: 24px; }
+.toc { width: 220px; flex-shrink: 0; position: sticky; top: 80px; height: calc(100vh - 104px); overflow-y: auto; background: var(--surface); border-radius: var(--radius); padding: 20px 16px; box-shadow: var(--shadow-sm); border: 1px solid var(--border); }
+.toc-title { font-size: 0.72rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 14px; padding-left: 12px; }
+.toc a { display: block; padding: 7px 12px; margin-bottom: 2px; font-size: 0.82rem; color: var(--text-muted); text-decoration: none; border-radius: var(--radius-xs); transition: all 0.15s; font-weight: 500; }
+.toc a:hover { color: var(--accent); background: var(--accent-light); }
+.toc a.active { color: var(--accent); background: var(--accent-light); font-weight: 600; }
+.toc-mobile { display: none; position: sticky; top: 57px; z-index: 100; background: var(--surface); border-bottom: 1px solid var(--border); padding: 10px 16px; box-shadow: var(--shadow-sm); }
+.toc-mobile summary { cursor: pointer; font-size: 0.85rem; color: var(--accent); font-weight: 600; list-style: none; }
+.toc-mobile summary::-webkit-details-marker { display: none; }
+.toc-mobile .toc-dropdown { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 8px; margin-top: 8px; max-height: 60vh; overflow-y: auto; box-shadow: var(--shadow-md); }
+.toc-mobile .toc-dropdown a { display: block; padding: 8px 12px; font-size: 0.88rem; color: var(--text-secondary); text-decoration: none; border-radius: var(--radius-xs); }
+.toc-mobile .toc-dropdown a:hover { color: var(--accent); background: var(--accent-light); }
+@media (max-width: 860px) { .toc { display: none; } .toc-mobile { display: block; } .topbar-nav { display: none; } .page { flex-direction: column; padding: 16px 12px 0; gap: 16px; } .container { padding: 20px 16px 60px; } }
+.container { flex: 1; min-width: 0; background: var(--surface); border-radius: var(--radius); padding: 36px 40px 60px; box-shadow: var(--shadow-sm); border: 1px solid var(--border); margin-bottom: 40px; }
+.back { display: inline-flex; align-items: center; gap: 4px; color: var(--text-muted); text-decoration: none; font-size: 0.85rem; margin-bottom: 28px; font-weight: 500; transition: color 0.15s; }
+.back:hover { color: var(--accent); }
+h1 { font-size: 1.7rem; font-weight: 800; margin-bottom: 10px; line-height: 1.35; color: var(--text); letter-spacing: -0.01em; }
+.meta { color: var(--text-muted); font-size: 0.85rem; margin-bottom: 28px; }
+.highlights-line { color: var(--text-secondary); font-size: 0.9rem; margin: -18px 0 28px; line-height: 1.65; }
+.hero-img { width: 100%; border-radius: var(--radius); margin-bottom: 10px; box-shadow: var(--shadow-md); }
+.hero-caption { font-size: 0.82rem; color: var(--text-muted); margin-bottom: 36px; text-align: center; font-style: italic; }
+h2 { font-size: 1.25rem; font-weight: 700; margin: 44px 0 18px; padding-bottom: 10px; border-bottom: 2px solid var(--accent-light); scroll-margin-top: 90px; color: var(--text); }
+h3 { font-size: 1.05rem; font-weight: 600; margin: 26px 0 8px; color: var(--text); }
+p { margin-bottom: 14px; color: var(--text-secondary); }
+a { color: var(--accent); text-decoration: none; font-weight: 500; }
+a:hover { color: var(--accent-hover); text-decoration: underline; }
+strong { color: var(--text); font-weight: 600; }
+.callout { background: var(--accent-light); border-left: 4px solid var(--accent); border-radius: var(--radius-sm); padding: 16px 20px; margin: 20px 0; font-size: 0.93rem; color: var(--text-secondary); }
+.main-story { background: linear-gradient(135deg, #f7fbff 0%, #fff 60%); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px 26px; margin: 18px 0 28px; box-shadow: var(--shadow-sm); }
+.main-story h3 { margin-top: 0; font-size: 1.2rem; line-height: 1.45; }
+.main-story .story-hook { color: var(--accent); font-weight: 700; margin-bottom: 14px; }
+.story-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 16px 0; }
+.story-field { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 12px 14px; font-size: 0.88rem; color: var(--text-secondary); }
+.story-field strong { display: block; margin-bottom: 4px; color: var(--text); }
+.number-chip { display: inline-block; background: var(--blue-light); color: var(--blue); border-radius: 14px; padding: 3px 10px; margin: 3px 6px 3px 0; font-size: 0.78rem; font-weight: 700; }
+.story-line { background: var(--purple-light); border-left: 4px solid var(--purple); border-radius: var(--radius-sm); padding: 14px 16px; margin-top: 14px; color: var(--text); font-weight: 700; }
+.trend-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin: 16px 0 28px; }
+.trend-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px 20px; box-shadow: var(--shadow-sm); }
+.trend-card h4 { font-size: 0.95rem; margin-bottom: 8px; color: var(--text); }
+.trend-card .trend-conflict { color: var(--red); font-size: 0.82rem; font-weight: 700; margin-bottom: 8px; }
+.trend-card p { font-size: 0.86rem; margin-bottom: 10px; }
+.trend-card .trend-sources { font-size: 0.76rem; color: var(--text-muted); line-height: 1.55; }
+.curiosity-card { background: var(--orange-light); border: 1px solid #f5ddb8; border-radius: var(--radius); padding: 20px 24px; margin: 14px 0; }
+.curiosity-card h4 { font-size: 1rem; margin-bottom: 8px; font-weight: 600; }
+.curiosity-card h4 a { color: var(--orange); }
+.curiosity-card .hook { color: var(--orange); font-weight: 700; margin-bottom: 6px; }
+.curiosity-card p { font-size: 0.88rem; color: var(--text-secondary); margin: 0 0 8px; line-height: 1.65; }
+.podcast-brief { background: #f8fafc; border: 1px solid var(--border); border-radius: var(--radius); padding: 20px 24px; margin: 18px 0; }
+.podcast-brief h4 { margin: 0 0 10px; font-size: 1rem; }
+.podcast-brief .cold-open { color: var(--accent); font-weight: 700; margin-bottom: 14px; }
+.podcast-segment { border-top: 1px solid var(--border); padding-top: 12px; margin-top: 12px; }
+.podcast-segment strong { display: block; margin-bottom: 4px; }
+.article-img { width: 100%; max-height: 380px; object-fit: cover; border-radius: var(--radius-sm); margin: 12px 0 24px; box-shadow: var(--shadow-sm); }
+.tool-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 16px 0; }
+.tool-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px 20px; transition: all 0.2s; box-shadow: var(--shadow-sm); }
+.tool-card:hover { border-color: var(--accent); box-shadow: var(--shadow-md); transform: translateY(-1px); }
+.tool-card h4 { font-size: 0.95rem; margin-bottom: 6px; font-weight: 600; }
+.tool-card h4 a { color: var(--accent); }
+.tool-card p { font-size: 0.83rem; color: var(--text-muted); margin: 0; line-height: 1.55; }
+.tool-card .tag { display: inline-block; font-size: 0.68rem; padding: 3px 8px; border-radius: 10px; background: var(--accent); color: var(--accent-text); font-weight: 600; margin-bottom: 8px; letter-spacing: 0.02em; }
+.tool-card .priority-tag { display: inline-block; font-size: 0.65rem; padding: 2px 6px; border-radius: 8px; background: var(--surface2); color: var(--text-muted); font-weight: 600; margin-left: 6px; }
+.fun-card { background: var(--orange-light); border: 1px solid #f5ddb8; border-radius: var(--radius); padding: 20px 24px; margin: 14px 0; }
+.fun-card h4 { font-size: 1rem; margin-bottom: 8px; font-weight: 600; }
+.fun-card h4 a { color: var(--orange); }
+.fun-card p { font-size: 0.88rem; color: var(--text-secondary); margin: 0; line-height: 1.65; }
+.quote-block { background: var(--purple-light); border-left: 4px solid var(--purple); border-radius: var(--radius-sm); padding: 20px 24px; margin: 18px 0; }
+.quote-block blockquote { font-size: 1.02rem; line-height: 1.65; margin-bottom: 10px; font-style: italic; color: var(--text); }
+.quote-block .quote-author { font-size: 0.82rem; color: var(--purple); font-weight: 600; margin-bottom: 6px; }
+.quote-block .quote-meta { font-size: 0.78rem; color: var(--text-muted); margin-bottom: 10px; }
+.quote-block .quote-comment { font-size: 0.88rem; color: var(--text-secondary); border-top: 1px solid #d8d0e8; padding-top: 10px; margin-top: 10px; }
+.quote-block .quote-team-insight { font-size: 0.88rem; color: var(--green-deep); background: var(--accent-light); border-radius: var(--radius-xs); padding: 8px 12px; margin-top: 8px; }
+.resource-item { background: var(--blue-light); border: 1px solid #c8dbf8; border-radius: var(--radius); padding: 18px 20px; margin: 12px 0; }
+.resource-item a { font-weight: 600; color: var(--blue); }
+.resource-item p { font-size: 0.88rem; color: var(--text-secondary); margin: 6px 0 0; }
+.concept-card { background: var(--green-light2); border-left: 4px solid var(--accent); border-radius: var(--radius-sm); padding: 20px 24px; margin: 16px 0; }
+.concept-card h4 { font-size: 1rem; font-weight: 700; color: var(--green-deep); margin-bottom: 10px; }
+.concept-card .concept-field { font-size: 0.88rem; color: var(--text-secondary); margin-bottom: 6px; line-height: 1.6; }
+.concept-card .concept-field strong { color: var(--text); font-size: 0.88rem; }
+.insight-card { background: var(--yellow-light); border-left: 4px solid var(--yellow); border-radius: var(--radius-sm); padding: 16px 20px; margin: 12px 0; }
+.insight-card p { font-size: 0.93rem; color: var(--text-secondary); margin: 0; line-height: 1.7; }
+.insight-card .insight-num { display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; border-radius: 50%; background: var(--yellow); color: #fff; font-size: 0.75rem; font-weight: 700; margin-right: 10px; flex-shrink: 0; }
+.certainty-tag { display: inline-block; font-size: 0.65rem; padding: 2px 6px; border-radius: 8px; font-weight: 600; margin-left: 8px; }
+.certainty-confirmed { background: var(--accent-light); color: var(--accent); }
+.certainty-announced { background: var(--blue-light); color: var(--blue); }
+.certainty-reported { background: var(--yellow-light); color: var(--yellow); }
+.certainty-opinion { background: var(--purple-light); color: var(--purple); }
+.certainty-rumor { background: var(--red-light); color: var(--red); }
+.footer-sources { margin-top: 44px; padding: 20px 24px; background: var(--surface2); border-radius: var(--radius); font-size: 0.78rem; color: var(--text-muted); line-height: 1.9; }
+.footer-sources strong { color: var(--text-secondary); font-size: 0.78rem; }
+@media (max-width: 860px) { .trend-grid, .story-grid { grid-template-columns: 1fr; } }
+@media (max-width: 640px) { .tool-grid { grid-template-columns: 1fr; } }
+
+  </style>
+</head>
+<body>
+
+<header class="topbar">
+  <a href="../index.html" class="topbar-brand">
+    <svg viewBox="0 0 28 28" fill="none"><circle cx="14" cy="14" r="14" fill="#2d9f6f"/><path d="M8 14.5l3.5 3.5 8.5-8" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    Tech Digest
+  </a>
+  <nav class="topbar-nav">
+    <a href="../index.html">Archive</a>
+    <a href="#main-story" class="active">Today</a>
+    <a href="#tools">Tools</a>
+    <a href="#quotes">Quotes</a>
+  </nav>
+  <div class="topbar-right">
+    <span class="topbar-date">2026-07-16</span>
+  </div>
+</header>
+
+<details class="toc-mobile">
+  <summary>📑 目录导航</summary>
+  <div class="toc-dropdown">
+    <a href="#main-story">🔥 主故事</a>
+    <a href="#trends">⚡ 冲突趋势</a>
+    <a href="#tech-news">📰 科技动态</a>
+    <a href="#ai">🤖 AI 相关</a>
+    <a href="#articles">📝 文章推荐</a>
+    <a href="#tools">🛠️ 工具推荐</a>
+    <a href="#ai-tools">🧠 AI 工具</a>
+    <a href="#concepts">🧩 本期概念库</a>
+    <a href="#curiosity">🎲 好奇心入口</a>
+    <a href="#resources">📚 资源</a>
+    <a href="#quotes">💬 言论</a>
+    <a href="#podcast">🎙️ 播客提纲</a>
+    <a href="#team-insights">✅ 对团队的启发</a>
+  </div>
+</details>
+
+<div class="page">
+  <nav class="toc">
+    <div class="toc-title">本期目录</div>
+    <a href="#main-story">🔥 主故事</a>
+    <a href="#trends">⚡ 冲突趋势</a>
+    <a href="#tech-news">📰 科技动态</a>
+    <a href="#ai">🤖 AI 相关</a>
+    <a href="#articles">📝 文章推荐</a>
+    <a href="#tools">🛠️ 工具推荐</a>
+    <a href="#ai-tools">🧠 AI 工具</a>
+    <a href="#concepts">🧩 本期概念库</a>
+    <a href="#curiosity">🎲 好奇心入口</a>
+    <a href="#resources">📚 资源</a>
+    <a href="#quotes">💬 言论</a>
+    <a href="#podcast">🎙️ 播客提纲</a>
+    <a href="#team-insights">✅ 对团队的启发</a>
+  </nav>
+
+  <main class="container">
+    <a href="../index.html" class="back">← 返回目录</a>
+    <h1>第 57 期：Coding Agent 的信任开始从口头承诺转向可审计代码</h1>
+    <div class="meta">第 57 期 · 2026年7月16日，星期四</div>
+    <p class="highlights-line"><strong>✨ 本期亮点：</strong>Grok Build 在争议后开源，Coding Agent 信任进入源码和流量审计阶段 · Thinking Machines 发布 Inkling 开放权重模型 · GitHub 加强 secret scanning 与 public monitoring · Stripe/Advent 据报出价超过 530 亿美元收购 PayPal，交易未确认 · GitHub Trending 出现 hallmark、destructive_command_guard 等 Agent 防护工具 · Firefox in WebAssembly 展示 Web 应用边界继续外扩</p>
+
+    <img class="hero-img" src="https://opengraph.githubassets.com/1/xai-org/grok-build" alt="Grok Build GitHub repository Open Graph image">
+    <div class="hero-caption">Grok Build 的焦点不只是开源，而是 Coding Agent 的数据流和工具调用开始被要求可复现、可审计。</div>
+
+    <div class="callout">
+      <strong>🎯 本期核心判断：</strong>Coding Agent 已进入「信任必须可验证」阶段：开源代码、secret scanning、危险命令拦截、Agent API 设计和开放权重模型，都是在把自动化能力重新装进可审计的控制面。
+    </div>
+
+    <div class="callout">
+      <strong>⏱ 本期建议阅读顺序</strong><br>
+      先看主故事：Grok Build 为什么把 Coding Agent 信任问题推到台前<br>
+      再看工程控制面：GitHub secret scanning、destructive command guard、Agent API 设计如何补安全栏杆<br>
+      最后看开放路线：Inkling、OpenCut、openinterpreter 和开源 AI 的产品化路径
+    </div>
+
+    <h2 id="main-story">🔥 主故事</h2>
+        <article class="main-story">
+      <h3>Grok Build 开源：Coding Agent 的信任危机，最后会落到代码和网络流量上</h3>
+      <p class="story-hook">当一个编码 Agent 需要整个仓库才能帮你写代码，你真正授权的可能不是一次补全，而是一条数据管道。</p>
+      <p>7 月 12 日，独立研究者 cereblab 发布 Grok Build CLI 的 wire-level analysis，称其在测试中观察到 `.env` 内容、whole-repo snapshot 和 git history 通过 `/v1/storage` 等通道离开本机；7 月 15 日，xAI/SpaceXAI 宣布 Grok Build 开源，GitHub 仓库随后登上 HN 前排。确定性上，开源仓库本身已证实；数据上传结论来自独立复现实验和社区讨论，仍应按「报道/研究者披露」而非官方最终认定处理。</p>
+      <div class="story-grid">
+        <div class="story-field"><strong>核心冲突</strong>Coding Agent 越想完成端到端任务，越想读取更多上下文；但仓库上下文里可能有客户代码、历史提交、配置文件和假设不会离开机器的开发痕迹。</div>
+        <div class="story-field"><strong>转折点</strong>过去大家问的是「Agent 写得好不好」；这次社区追问的是「它到底把什么发到了哪里」。这把信任从产品文案拉回到了抓包、源码、权限和默认配置。</div>
+        <div class="story-field"><strong>为什么现在发生</strong>过去几期我们已经看到 Cursor 0day、Dependabot cooldown、Tailscale SSH 参数漏洞和 AI IDE 权限矩阵。Grok Build 事件把这些线索合到一起：开发工作台正在变成高权限代理，透明性不能靠承诺补。</div>
+        <div class="story-field"><strong>对团队的启发</strong>上线任何 Coding Agent 前，先做三件事：抓包看网络流量，列出文件/命令/MCP 权限矩阵，把本地运行、沙箱运行和云端上传的默认策略写进团队规范。</div>
+      </div>
+      <p><span class="number-chip">grok 0.2.93</span><span class="number-chip">5.10 GiB captured</span><span class="number-chip">27,800x ratio</span><span class="number-chip">GitHub 3.5k+ stars</span></p>
+      <p><strong>我的判断：</strong>我的判断是：未来 Coding Agent 的竞争力会拆成两层，第一层是模型能力，第二层是可审计运行时。后者会越来越像浏览器安全模型和 CI/CD 权限模型的结合体。</p>
+      <div class="story-line">AI 写代码的信任，不该停在「相信我」，而要落到「你可以复现我」。</div>
+      <p><strong>来源：</strong><a href="https://gist.github.com/cereblab/dc9a40bc26120f4540e4e09b75ffb547" target="_blank" rel="noopener noreferrer">gist.github.com</a></p>
+    </article>
+
+    <h2 id="trends">⚡ 冲突趋势</h2>
+        <div class="trend-grid">
+      <div class="trend-card">
+        <h4>Coding Agent 进入可审计运行时竞争</h4>
+        <div class="trend-conflict">端到端能力 vs 数据外流风险</div>
+        <p>Grok Build 开源、wire-level analysis、destructive command guard 和 GitHub secret scanning 放在一起看，说明团队开始要求 Agent 把文件读取、命令执行和网络上传都暴露在审计面前。</p>
+        <div class="trend-sources">github.com · gist.github.com · github.com</div>
+      </div>
+      <div class="trend-card">
+        <h4>开放权重模型开始打企业定制牌</h4>
+        <div class="trend-conflict">闭源通用能力 vs 可微调/可托管控制权</div>
+        <p>Thinking Machines 的 Inkling 不是单纯冲榜，而是把开放权重、Tinker 微调和企业可控性绑在一起，和 API-only 路线形成新的产品分叉。</p>
+        <div class="trend-sources">thinkingmachines.ai</div>
+      </div>
+      <div class="trend-card">
+        <h4>支付巨头整合仍处在传闻和市场反应之间</h4>
+        <div class="trend-conflict">规模化支付网络 vs 竞争与监管不确定性</div>
+        <p>Reuters/CNA 报道 Stripe 与 Advent 对 PayPal 提出超过 530 亿美元报价，但交易没有确定性；对技术团队更重要的是支付、风控和合规平台可能被重新整合。</p>
+        <div class="trend-sources">channelnewsasia.com</div>
+      </div>
+    </div>
+
+    <h2 id="tech-news">📰 科技动态</h2>
+    <h3>1、<a href="https://github.blog/changelog/2026-07-15-improvements-to-secret-scanning-and-public-monitoring/" target="_blank" rel="noopener noreferrer">GitHub secret scanning 和 public monitoring 增强</a> <span class="certainty-tag certainty-announced">announced</span></h3>
+    <p>密钥扫描今天变得更像生产级控制面：GitHub 宣布新增 Resend partner、APIclub/Resend secret types、VolcEngine push protection 默认阻断，并在 webhook payload 增加 `secret_category` 字段。对后台、移动端和前端团队，这不是安全团队的边角新闻，而是把泄密处理从人工排查推进到自动分类和自动阻断。</p>
+    <img class="article-img" src="https://github.blog/wp-content/uploads/2026/07/621828005-67f4c463-1779-4e72-bc9e-f0fa36b7b074.jpg" alt="">
+    <h3>2、<a href="https://www.channelnewsasia.com/business/stripe-advent-offer-buy-paypal-more-53-billion-sources-say-6255126" target="_blank" rel="noopener noreferrer">Stripe 与 Advent 据报出价超过 530 亿美元收购 PayPal</a> <span class="certainty-tag certainty-reported">reported</span></h3>
+    <p>Reuters 由 CNA 转载报道称，Stripe 与 Advent International 已提出联合报价，以每股 60.50 美元、总价超过 530 亿美元收购 PayPal，并称约 500 亿美元融资已获银行支持。确定性必须说清：这是消息人士报道，不是已签约交易；PayPal、Stripe 和 Advent 均未官方确认。对交易和支付团队，它的信号是支付网络、风控、商户服务和钱包能力可能重新整合。</p>
+    <h3>3、<a href="https://www.phoronix.com/news/FreeBSD-16-Goes-GPL-Free" target="_blank" rel="noopener noreferrer">FreeBSD 16 据报将从 base system 移除最后 GPL 代码</a> <span class="certainty-tag certainty-reported">reported</span></h3>
+    <p>Phoronix 报道 FreeBSD 16 将从 base system 移除最后 GPL 代码。对多数产品团队这不是日常任务，但它提醒我们许可证不是法务尾巴，而会影响系统组成、供应链和长期维护边界。</p>
+    <h3>4、<a href="https://research.mozilla.org/browser-competition/over-the-edge-2/" target="_blank" rel="noopener noreferrer">Mozilla 研究称 Microsoft Edge 设计策略仍影响浏览器选择</a> <span class="certainty-tag certainty-opinion">opinion</span></h3>
+    <p>Mozilla 研究团队发布 Over the Edge 2.0，继续讨论 Microsoft 在 Windows/Edge 上的浏览器选择设计策略。确定性上，这是 Mozilla 的研究观点，不是监管判决；但对客户端团队，它提醒：默认入口、切换成本和系统提示都是产品权力。</p>
+    <h3>5、<a href="https://mort.coffee/home/sqlite-editions/" target="_blank" rel="noopener noreferrer">SQLite Rust-style editions 讨论升温</a> <span class="certainty-tag certainty-opinion">opinion</span></h3>
+    <p>SQLite 应不应该有 Rust-style editions？这篇社区文章在 Lobsters/HN 都引发讨论。它的价值不在于 SQLite 明天就会改，而是提出一个长期兼容系统如何处理「更好默认值」的问题：不破坏旧世界，又给新项目一条更少坑的路。</p>
+
+    <h2 id="ai">🤖 AI 相关</h2>
+    <h3>1、<a href="https://thinkingmachines.ai/news/introducing-inkling/" target="_blank" rel="noopener noreferrer">Thinking Machines 发布 Inkling 开放权重模型</a> <span class="certainty-tag certainty-announced">announced</span></h3>
+    <p>Thinking Machines Lab 发布首个开放权重模型 Inkling，官方介绍称它是多模态、Mixture-of-Experts、可控制推理强度，并可在 Tinker 上微调。相关媒体报道称模型总参数约 975B、每次任务激活约 41B。Benchmark 属厂商/媒体披露，需独立复测；但战略信号明确：Mira Murati 团队没有只卖封闭 API，而是押注企业可定制的开放权重路线。</p>
+    <img class="article-img" src="https://thinkingmachines.ai/news/introducing-inkling/images/cover-social-inkling-post.png" alt="">
+    <h3>2、<a href="https://github.com/xai-org/grok-build" target="_blank" rel="noopener noreferrer">Grok Build 开源仓库登上 GitHub/HN 热榜</a> <span class="certainty-tag certainty-confirmed">confirmed</span></h3>
+    <p>xAI/SpaceXAI 的 Grok Build 仓库已公开，GitHub API 显示仓库描述为 coding agent harness and TUI，创建于 2026-07-14，并在 7 月 16 日抓取时已有 3.5k+ stars。对开发团队，它不是立即替代现有工具，而是值得用来研究 Agent harness 的上下文组装、工具调用和 TUI 设计。</p>
+    <img class="article-img" src="https://opengraph.githubassets.com/1/xai-org/grok-build" alt="">
+    <h3>3、<a href="https://www.neomindlabs.com/2026/06/08/running-gemma-4-26b-at-5-tokens-sec-on-a-13-year-old-xeon-with-no-gpu/" target="_blank" rel="noopener noreferrer">Running Gemma 4 26B on a 13-year-old Xeon</a> <span class="certainty-tag certainty-reported">reported</span></h3>
+    <p>一台 13 年前的 Xeon、无 GPU、Gemma 4 26B、约 5 tokens/sec，这条 HN 热帖把本地推理的讨论从「能不能跑」拉到「慢但可用的边界在哪」。它不是官方 Benchmark，也不代表所有场景；但对隐私、离线和成本敏感团队，本地推理的可用窗口正在变宽。</p>
+    <h3>4、<a href="https://www.siegelendowment.org/wp-content/uploads/2026/07/fortune-david-siegel-open-source-ai.pdf" target="_blank" rel="noopener noreferrer">Governments, companies, nonprofits should invest in free, open source AI</a> <span class="certainty-tag certainty-opinion">opinion</span></h3>
+    <p>David Siegel 的 Fortune 文章 PDF 呼吁政府、企业和非营利组织投资免费、开源 AI。它更像公共政策观点，不是技术发布；但与 Inkling、Grok Build 同日出现，说明开源 AI 已经从开发者偏好变成产业治理议题。</p>
+    <h3>5、<a href="https://www.schneier.com/blog/archives/2026/07/ai-data-centers-and-the-concentration-of-wealth.html" target="_blank" rel="noopener noreferrer">AI Data Centers and the Concentration of Wealth</a> <span class="certainty-tag certainty-opinion">opinion</span></h3>
+    <p>Bruce Schneier 讨论 AI 数据中心和财富集中。延续昨天的数据中心电费外部性话题，今天的角度更社会化：当算力、能源、土地和资本集中到少数玩家手里，AI 成本不只是企业账单，也会改变财富分配和公共政策。</p>
+
+    <h2 id="articles">📝 文章推荐</h2>
+    <h3>1、<a href="https://cereblab.com" target="_blank" rel="noopener noreferrer">What xAI Grok Build CLI actually sends to xAI</a></h3>
+    <p>独立研究者把 Grok Build 的网络流量、请求体、存储端点和复现实验逐项拆开。真正值得团队学习的是方法：不要只读隐私政策，要做可复现的流量审计、canary 文件和证据附录。</p>
+    <h3>2、<a href="https://www.freestyle.sh/blog/opinion/designing-apis-for-agents" target="_blank" rel="noopener noreferrer">Designing APIs for Agents</a></h3>
+    <p>Freestyle 的文章讨论 Agent 用 API 和人类用 API 的差异：Agent 需要更确定的错误、可恢复状态、机器可读语义和低歧义操作。对后台团队，这是 2026 年 API 设计的新考题。</p>
+    <img class="article-img" src="https://www.freestyle.sh/og/opinion/designing-apis-for-agents.png" alt="">
+    <h3>3、<a href="https://news.ycombinator.com/item?id=48928135" target="_blank" rel="noopener noreferrer">SQLite should have Rust-style editions</a></h3>
+    <p>用 SQLite 讨论 Rust-style editions，表面是数据库兼容性，实际是软件演进哲学：系统越成功，越难修默认值。适合架构师和平台团队阅读。</p>
+
+    <h2 id="tools">🛠️ 工具推荐</h2>
+    <div class="tool-grid">
+      <div class="tool-card">
+        <h4><a href="https://github.com/OpenCut-app/OpenCut" target="_blank" rel="noopener noreferrer">OpenCut</a> <span class="priority-tag">P1</span></h4>
+        <p>开源 CapCut 替代品，TypeScript 项目，适合前端/桌面团队研究视频编辑器产品架构。</p>
+      </div>
+      <div class="tool-card">
+        <h4><a href="https://github.com/Nutlope/hallmark" target="_blank" rel="noopener noreferrer">hallmark</a> <span class="priority-tag">P1</span></h4>
+        <p>Anti-AI-slop design skill for Claude Code, Cursor and Codex，可用于页面/文案反模板腔审查。</p>
+      </div>
+      <div class="tool-card">
+        <h4><a href="https://github.com/Dicklesworthstone/destructive_command_guard" target="_blank" rel="noopener noreferrer">destructive_command_guard</a> <span class="priority-tag">P1</span></h4>
+        <p>Rust 工具，用于阻止 Agent 执行危险 git/shell 命令，适合接入本地 Coding Agent 防线。</p>
+      </div>
+      <div class="tool-card">
+        <h4><a href="https://github.com/mattpocock/skills" target="_blank" rel="noopener noreferrer">mattpocock/skills</a> <span class="priority-tag">P1</span></h4>
+        <p>面向工程师的 Claude/Codex skills 集合，适合团队沉淀可复用工作流。</p>
+      </div>
+      <div class="tool-card">
+        <h4><a href="https://pairdrop.net/" target="_blank" rel="noopener noreferrer">pairdrop</a> <span class="priority-tag">P2</span></h4>
+        <p>基于 WebRTC 的本地/P2P 文件传输工具，适合跨设备临时传文件。</p>
+      </div>
+    </div>
+
+    <h2 id="ai-tools">🧠 AI 工具</h2>
+    <div class="tool-grid">
+      <div class="tool-card">
+        <span class="tag">Coding Agent</span>
+        <h4><a href="https://x.ai/news/grok-build-open-source" target="_blank" rel="noopener noreferrer">Grok Build</a></h4>
+        <p>xAI/SpaceXAI 开源 coding agent harness and TUI；建议先作为可审计 Agent runtime 研究样本，而非直接接入生产仓库。</p>
+      </div>
+      <div class="tool-card">
+        <span class="tag">Coding Agent</span>
+        <h4><a href="https://github.com/openinterpreter/openinterpreter" target="_blank" rel="noopener noreferrer">openinterpreter</a></h4>
+        <p>低成本模型 coding agent，适合研究本地/低成本 Agent 路线。</p>
+      </div>
+      <div class="tool-card">
+        <span class="tag">前端原型</span>
+        <h4><a href="https://brainless.swerdlow.dev" target="_blank" rel="noopener noreferrer">Brainless</a></h4>
+        <p>Shadcn components that look like Claude Code, Codex and Grok，适合快速做 AI 工具原型 UI。</p>
+      </div>
+      <div class="tool-card">
+        <span class="tag">Agent 应用</span>
+        <h4><a href="https://github.com/Shubhamsaboo/awesome-llm-apps" target="_blank" rel="noopener noreferrer">awesome-llm-apps</a></h4>
+        <p>100+ Agent/RAG 应用集合，适合后台和前端团队找可运行样例。</p>
+      </div>
+    </div>
+
+    <h2 id="concepts">🧩 本期概念库</h2>
+    <div class="concept-card">
+      <h4>1. 可审计 Agent Runtime</h4>
+      <div class="concept-field"><strong>一句话解释：</strong>Agent 的上下文组装、文件访问、命令执行、网络上传和工具调用都能被源码、日志或抓包复现。</div>
+      <div class="concept-field"><strong>背景来源：</strong>Grok Build / wire-level analysis</div>
+      <div class="concept-field"><strong>为什么重要：</strong>高权限 Agent 不能只靠供应商承诺建立信任。</div>
+      <div class="concept-field"><strong>团队应用场景：</strong>对所有 Coding Agent 做流量审计、canary 文件测试和默认上传策略审查。</div>
+    </div>
+    <div class="concept-card">
+      <h4>2. Agent-friendly API</h4>
+      <div class="concept-field"><strong>一句话解释：</strong>为 Agent 设计的 API 要有机器可读状态、确定错误、可恢复操作和明确权限边界。</div>
+      <div class="concept-field"><strong>背景来源：</strong>Designing APIs for Agents</div>
+      <div class="concept-field"><strong>为什么重要：</strong>Agent 自动调用 API 时，人类可猜测的语义会变成执行风险。</div>
+      <div class="concept-field"><strong>团队应用场景：</strong>后台 API 文档加入 failure modes、idempotency、dry-run、schema examples 和权限说明。</div>
+    </div>
+    <div class="concept-card">
+      <h4>3. 开放权重企业定制路线</h4>
+      <div class="concept-field"><strong>一句话解释：</strong>模型提供权重和微调平台，让企业在私有数据、成本和部署上获得更多控制权。</div>
+      <div class="concept-field"><strong>背景来源：</strong>Inkling / Tinker</div>
+      <div class="concept-field"><strong>为什么重要：</strong>API-only 模型与可托管/可微调模型的产品分叉正在扩大。</div>
+      <div class="concept-field"><strong>团队应用场景：</strong>AI 项目选型同时比较闭源 API、开放权重托管、端侧模型和私有微调。</div>
+    </div>
+    <div class="concept-card">
+      <h4>4. 默认泄密防线</h4>
+      <div class="concept-field"><strong>一句话解释：</strong>通过 secret scanning、push protection、webhook category 等机制把泄密拦在提交前或提交瞬间。</div>
+      <div class="concept-field"><strong>背景来源：</strong>GitHub secret scanning</div>
+      <div class="concept-field"><strong>为什么重要：</strong>AI 生成代码和自动化提交会放大误提交 secret 的概率。</div>
+      <div class="concept-field"><strong>团队应用场景：</strong>把 secret scanning 结果接入 CI、IM 告警和开发者本地 pre-push。</div>
+    </div>
+    <div class="concept-card">
+      <h4>5. Edition 化演进</h4>
+      <div class="concept-field"><strong>一句话解释：</strong>借鉴 Rust editions，为成熟系统提供新默认值，同时保持旧项目兼容。</div>
+      <div class="concept-field"><strong>背景来源：</strong>SQLite editions discussion</div>
+      <div class="concept-field"><strong>为什么重要：</strong>成功平台最难的是改变默认行为。</div>
+      <div class="concept-field"><strong>团队应用场景：</strong>内部 SDK/API 大版本升级可设计 edition 标记，而不是一次性破坏兼容。</div>
+    </div>
+
+    <h2 id="curiosity">🎲 好奇心入口</h2>
+    <div class="curiosity-card">
+      <h4><a href="https://developer.puter.com/labs/firefox-wasm/" target="_blank" rel="noopener noreferrer">Firefox in WebAssembly</a></h4>
+      <div class="hook">浏览器跑在浏览器里，听起来像笑话，但工程上很认真。</div>
+      <p>Puter Labs 展示 Firefox in WebAssembly。它适合提醒前端团队：WASM 不只是跑算法，也在把桌面软件、沙箱和 Web OS 的边界继续推远。 团队暗线：复杂应用的 Web 化会继续吃掉传统桌面边界。</p>
+    </div>
+    <div class="curiosity-card">
+      <h4><a href="https://danq.me/2026/07/10/rescuing-7234-gifs/" target="_blank" rel="noopener noreferrer">Today I Rescued 7,234 Old GIFs</a></h4>
+      <div class="hook">7,234 个老 GIF 的抢救，像一场小型互联网考古。</div>
+      <p>这类故事不直接提升开发效率，但提醒内容平台：格式、链接、存储和版权都会变成长期维护问题。 团队暗线：数字资产的寿命比产品经理的路线图长得多。</p>
+    </div>
+    <div class="curiosity-card">
+      <h4><a href="https://clocks.dev" target="_blank" rel="noopener noreferrer">Collection of Digital Clock Designs</a></h4>
+      <div class="hook">一个数字时钟，也能变成 UI 设计博物馆。</div>
+      <p>clocks.dev 收集各式数字时钟设计，适合前端和客户端团队做细节灵感库。 团队暗线：好 UI 训练不一定从大系统开始，小组件也能练审美。</p>
+    </div>
+
+    <h2 id="resources">📚 资源</h2>
+    <div class="resource-item">
+      <a href="https://hn.algolia.com/?query=Grok%20Build%20open%20source" target="_blank" rel="noopener noreferrer">HN Search: Grok Build</a>
+      <p>跟踪开发者对 Grok Build 开源、隐私争议和源码审计的讨论。</p>
+    </div>
+    <div class="resource-item">
+      <a href="https://hn.algolia.com/?query=Inkling%20Open-Weights%20Model" target="_blank" rel="noopener noreferrer">HN Search: Inkling</a>
+      <p>跟踪 Thinking Machines Inkling 发布后的社区技术质疑与对比。</p>
+    </div>
+    <div class="resource-item">
+      <a href="https://github.blog/changelog/feed/" target="_blank" rel="noopener noreferrer">GitHub Changelog Feed</a>
+      <p>订阅 GitHub Copilot、secret scanning、CodeQL、Dependabot 等工程控制面更新。</p>
+    </div>
+
+    <h2 id="quotes">💬 言论：本期 8 个认知增量</h2>
+    <div class="quote-block">
+      <blockquote>这次争议的核心不是某个 CLI 有多聪明，而是它把仓库上下文当成什么级别的数据。</blockquote>
+      <div class="quote-author">—— HN 社区讨论 · Grok Build wire analysis</div>
+      <div class="quote-meta">来源：<a href="https://news.ycombinator.com/item?id=48877371" target="_blank" rel="noopener noreferrer">news.ycombinator.com</a> · 类型：摘要式转述 · 关键词：AI Workflow · 安全</div>
+      <div class="quote-comment">💭 这句话值得贴到所有 Coding Agent 试点方案前面。</div>
+      <div class="quote-team-insight">🎯 团队启发：评估 Agent 时同时评估本地文件、git history 和网络上传边界。</div>
+    </div>
+    <div class="quote-block">
+      <blockquote>开源让我们终于可以看清 Agent harness 的上下文组装，而不是只看它写出的 diff。</blockquote>
+      <div class="quote-author">—— HN 社区讨论 · Grok Build open source</div>
+      <div class="quote-meta">来源：<a href="https://news.ycombinator.com/item?id=48926590" target="_blank" rel="noopener noreferrer">news.ycombinator.com</a> · 类型：摘要式转述 · 关键词：Coding Agent · 开源</div>
+      <div class="quote-comment">💭 对高权限工具，源码本身就是产品信任的一部分。</div>
+      <div class="quote-team-insight">🎯 团队启发：优先选择可审计、可本地运行、可关上传的 Agent 工具。</div>
+    </div>
+    <div class="quote-block">
+      <blockquote>Inkling 的看点不是一次 Benchmark 排名，而是开放权重团队开始用可定制性挑战闭源 API 默认路线。</blockquote>
+      <div class="quote-author">—— HN 社区讨论 · Inkling</div>
+      <div class="quote-meta">来源：<a href="https://news.ycombinator.com/item?id=48924912" target="_blank" rel="noopener noreferrer">news.ycombinator.com</a> · 类型：摘要式转述 · 关键词：开放模型 · AI 架构</div>
+      <div class="quote-comment">💭 模型评估要从榜单转到部署权、微调权和成本权。</div>
+      <div class="quote-team-insight">🎯 团队启发：模型选型表加入部署控制权和微调成本。</div>
+    </div>
+    <div class="quote-block">
+      <blockquote>给 Agent 设计 API，不是把人类文档写长，而是把失败路径写清楚。</blockquote>
+      <div class="quote-author">—— Ben Swerdlow · Designing APIs for Agents</div>
+      <div class="quote-meta">来源：<a href="https://x.com/benswerd/status/2077133705106375114" target="_blank" rel="noopener noreferrer">x.com</a> · 类型：摘要式转述 · 关键词：后台开发 · Agent</div>
+      <div class="quote-comment">💭 Agent 比人更需要确定性，因为它会直接执行。</div>
+      <div class="quote-team-insight">🎯 团队启发：API 文档为 Agent 增加 dry-run、幂等键、错误码恢复建议。</div>
+    </div>
+    <div class="quote-block">
+      <blockquote>secret scanning 的价值不只是发现 secret，而是把泄密变成可路由、可分类、可自动化处理的事件。</blockquote>
+      <div class="quote-author">—— GitHub Changelog · secret scanning</div>
+      <div class="quote-meta">来源：<a href="https://github.blog/changelog/2026-07-15-improvements-to-secret-scanning-and-public-monitoring/#discussion" target="_blank" rel="noopener noreferrer">github.blog</a> · 类型：摘要式转述 · 关键词：安全 · 工程流程</div>
+      <div class="quote-comment">💭 安全工具只有进入工程流，才不会停在报告里。</div>
+      <div class="quote-team-insight">🎯 团队启发：把 secret_category 接到告警分派和 owner 路由。</div>
+    </div>
+    <div class="quote-block">
+      <blockquote>如果 Stripe/Advent 的 PayPal 报价成真，支付行业整合的关键不是品牌，而是风控、钱包、商户网络和结算基础设施。</blockquote>
+      <div class="quote-author">—— Reuters/CNA 报道延伸判断</div>
+      <div class="quote-meta">来源：<a href="https://www.reuters.com/business/finance/" target="_blank" rel="noopener noreferrer">reuters.com</a> · 类型：摘要式转述 · 关键词：交易系统 · 支付</div>
+      <div class="quote-comment">💭 这类消息必须守住确定性边界：现在只是报道，不是成交。</div>
+      <div class="quote-team-insight">🎯 团队启发：支付依赖方要关注 API、风控规则和账户体系整合风险。</div>
+    </div>
+    <div class="quote-block">
+      <blockquote>一个 13 年前的 Xeon 跑 26B 模型，提醒我们本地推理的门槛正在从不可能变成慢但可谈。</blockquote>
+      <div class="quote-author">—— HN 社区讨论 · Gemma 4 26B</div>
+      <div class="quote-meta">来源：<a href="https://news.ycombinator.com/item?id=48922434" target="_blank" rel="noopener noreferrer">news.ycombinator.com</a> · 类型：摘要式转述 · 关键词：端侧 AI · 成本</div>
+      <div class="quote-comment">💭 慢不是生产答案，但它会改变架构讨论。</div>
+      <div class="quote-team-insight">🎯 团队启发：隐私敏感场景先做本地慢路径 PoC，再决定云端依赖。</div>
+    </div>
+    <div class="quote-block">
+      <blockquote>成功系统最难修的是默认值，因为每一个旧项目都在替过去投票。</blockquote>
+      <div class="quote-author">—— Lobsters/HN 讨论 · SQLite editions</div>
+      <div class="quote-meta">来源：<a href="https://lobste.rs/s/2nry82/sqlite_should_have_rust_style_editions" target="_blank" rel="noopener noreferrer">lobste.rs</a> · 类型：摘要式转述 · 关键词：数据库 · 架构</div>
+      <div class="quote-comment">💭 Edition 化是一种值得内部平台借鉴的升级策略。</div>
+      <div class="quote-team-insight">🎯 团队启发：内部 SDK 大改默认行为时设计 edition flag。</div>
+    </div>
+
+    <h2 id="podcast">🎙️ 播客提纲</h2>
+    <div class="podcast-brief">
+      <h4>第 57 期：Coding Agent 的信任要可复现</h4>
+      <div class="cold-open">如果一个 AI 编程工具能读你的整个仓库、跑命令、上传上下文，你还会只问它写代码快不快吗？</div>
+      <div class="podcast-segment">
+        <strong>Grok Build：从争议到开源</strong>
+        <p>信任不该停在产品文案，要落到抓包和源码。</p>
+        <p>上线 Agent 前先做流量审计、权限矩阵和危险命令防护。</p>
+      </div>      <div class="podcast-segment">
+        <strong>Inkling：开放权重的新叙事</strong>
+        <p>被高估值押注的团队终于拿出模型。</p>
+        <p>模型选型同时比较部署权、微调权和成本权。</p>
+      </div>      <div class="podcast-segment">
+        <strong>GitHub secret scanning：泄密要被自动路由</strong>
+        <p>最好的 secret 事故，是它根本没进仓库。</p>
+        <p>把 secret_category 接入 IM 告警和 owner 分派。</p>
+      </div>      <div class="podcast-segment">
+        <strong>PayPal 收购传闻：报道不是成交</strong>
+        <p>超过 530 亿美元的报价，仍然只是报道状态。</p>
+        <p>支付依赖方关注 API、风控、钱包和账户体系整合风险。</p>
+      </div>
+      <p>今天的结论：Agent 越强，越要可审计；模型越开放，越要可部署；交易越大，越要守住确定性边界。</p>
+    </div>
+
+    <h2 id="team-insights">✅ 对团队的启发</h2>
+    <div class="insight-card">
+      <p><span class="insight-num">1</span>所有 Coding Agent 试点都必须补一页运行时审计：文件访问、git history、终端命令、MCP 工具、网络上传和日志保留。</p>
+    </div>
+    <div class="insight-card">
+      <p><span class="insight-num">2</span>把 secret scanning 和 push protection 从 GitHub 页面接入团队告警流，按 secret_category 自动分派 owner。</p>
+    </div>
+    <div class="insight-card">
+      <p><span class="insight-num">3</span>后台 API 开始为 Agent 消费者设计：幂等、dry-run、错误恢复、schema 示例和权限说明必须机器可读。</p>
+    </div>
+    <div class="insight-card">
+      <p><span class="insight-num">4</span>AI 模型选型不要只看榜单；把开放权重、私有微调、端侧推理、云端 API 和合规边界放进同一张表。</p>
+    </div>
+    <div class="insight-card">
+      <p><span class="insight-num">5</span>涉及收购、估值和融资的消息只按确定性分层进入决策：报道是报道，公告是公告，成交是成交。</p>
+    </div>
+
+    <div class="footer-sources">
+      <strong>📋 数据来源说明</strong><br>
+      本情报来自 66 个全球精选科技 / AI / 工程 / 系统可靠性信息源的每日更新。<br>
+      由 Cursor AI 自动生成，信息截止至 2026年7月16日，星期四。
+    </div>
+  </main>
+</div>
+
+<script>
+(function(){
+  const toc=document.querySelector('.toc');if(!toc)return;
+  const links=[...toc.querySelectorAll('a')];
+  const ids=links.map(l=>l.getAttribute('href').slice(1));
+  const secs=ids.map(id=>document.getElementById(id)).filter(Boolean);
+  function hl(){let cur=0;secs.forEach((s,i)=>{if(s.getBoundingClientRect().top<=120)cur=i;});
+  links.forEach((l,i)=>{l.classList.toggle('active',i===cur);});}
+  window.addEventListener('scroll',hl,{passive:true});hl();
+})();
+
+</script>
+</body>
+</html>
