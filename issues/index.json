@@ -1,5 +1,11 @@
 [
   {
+    "date": "2026-07-19",
+    "title": "第 58 期：当硬件、Agent 和模型都开始改写默认边界",
+    "highlights": "LG 显示器软件被报道称通过 Windows Update 静默安装并推送 McAfee promotion · Kimi K3 官方文档称 2.8T 参数、1M context，权重计划 7 月 27 日前发布 · GitHub Copilot usage metrics 支持仓库级活动 · Copilot Code Review 增加 firewall、自定义 setup 和 runner 配置 · Google DeepMind / Isomorphic Labs 公布 bioresilience 路线 · AI 对 Stack Overflow 的影响再次被数据图推上讨论",
+    "image": "https://platform.kimi.ai/og.png?v=1"
+  },
+  {
     "date": "2026-07-16",
     "title": "第 57 期：Coding Agent 的信任开始从口头承诺转向可审计代码",
     "highlights": "Grok Build 在争议后开源，Coding Agent 信任进入源码和流量审计阶段 · Thinking Machines 发布 Inkling 开放权重模型 · GitHub 加强 secret scanning 与 public monitoring · Stripe/Advent 据报出价超过 530 亿美元收购 PayPal，交易未确认 · GitHub Trending 出现 hallmark、destructive_command_guard 等 Agent 防护工具 · Firefox in WebAssembly 展示 Web 应用边界继续外扩",
