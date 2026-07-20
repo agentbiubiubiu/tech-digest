@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>第 59 期：Coding Agent 开始暴露真实工程成本</title>
+  <meta property="og:title" content="Tech Digest #59：Codex 上下文收缩、Claude Code 换 Bun、Qwen Cloud 订阅化">
+  <meta property="og:description" content="OpenAI Codex PR 显示模型元数据上下文窗口从 372k 调到 272k，Claude Code 被发现已在生产使用 Rust port of Bun，Qwen Cloud 把多个编码 Agent 纳入 Token Plan。">
+  <meta property="og:image" content="https://opengraph.githubassets.com/20260720/openai/codex/pull/33972">
+  <style>
+:root {
+  --bg: #f5f6f8; --surface: #ffffff; --surface2: #f0f2f5;
+  --border: #e8ecf1; --border-hover: #c5cdd8;
+  --text: #1a1d21; --text-secondary: #3d4550; --text-muted: #8c95a1;
+  --accent: #2d9f6f; --accent-light: #e8f5ef; --accent-hover: #248a5e;
+  --accent-text: #ffffff;
+  --purple: #7c5cbf; --purple-light: #f3effc;
+  --orange: #e58e26; --orange-light: #fef5e7;
+  --blue: #3a82f7; --blue-light: #eef4fe;
+  --red: #e74c3c; --red-light: #fdecea;
+  --green-deep: #1a7a4c; --green-light2: #e0f5ea;
+  --yellow: #d4a017; --yellow-light: #fef9e7;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.06);
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.06), 0 2px 4px rgba(0,0,0,0.04);
+  --shadow-lg: 0 10px 30px rgba(0,0,0,0.08);
+  --radius: 12px; --radius-sm: 8px; --radius-xs: 6px;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Helvetica, Arial, sans-serif; background: var(--bg); color: var(--text); line-height: 1.75; font-size: 15px; -webkit-font-smoothing: antialiased; }
+.topbar { background: var(--surface); border-bottom: 1px solid var(--border); padding: 12px 32px; display: flex; align-items: center; gap: 16px; position: sticky; top: 0; z-index: 200; box-shadow: var(--shadow-sm); }
+.topbar-brand { font-size: 1.1rem; font-weight: 700; color: var(--accent); text-decoration: none; display: flex; align-items: center; gap: 8px; }
+.topbar-brand svg { width: 28px; height: 28px; }
+.topbar-nav { display: flex; gap: 4px; margin-left: 24px; }
+.topbar-nav a { padding: 6px 16px; border-radius: 20px; font-size: 0.85rem; font-weight: 500; color: var(--text-secondary); text-decoration: none; transition: all 0.2s; }
+.topbar-nav a:hover { background: var(--surface2); color: var(--text); }
+.topbar-nav a.active { background: var(--accent-light); color: var(--accent); font-weight: 600; }
+.topbar-right { margin-left: auto; display: flex; align-items: center; gap: 12px; }
+.topbar-date { font-size: 0.82rem; color: var(--text-muted); background: var(--surface2); padding: 5px 12px; border-radius: 16px; }
+.page { display: flex; max-width: 1200px; margin: 0 auto; padding: 24px 24px 0; gap: 24px; }
+.toc { width: 220px; flex-shrink: 0; position: sticky; top: 80px; height: calc(100vh - 104px); overflow-y: auto; background: var(--surface); border-radius: var(--radius); padding: 20px 16px; box-shadow: var(--shadow-sm); border: 1px solid var(--border); }
+.toc-title { font-size: 0.72rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 14px; padding-left: 12px; }
+.toc a { display: block; padding: 7px 12px; margin-bottom: 2px; font-size: 0.82rem; color: var(--text-muted); text-decoration: none; border-radius: var(--radius-xs); transition: all 0.15s; font-weight: 500; }
+.toc a:hover { color: var(--accent); background: var(--accent-light); }
+.toc a.active { color: var(--accent); background: var(--accent-light); font-weight: 600; }
+.toc-mobile { display: none; position: sticky; top: 57px; z-index: 100; background: var(--surface); border-bottom: 1px solid var(--border); padding: 10px 16px; box-shadow: var(--shadow-sm); }
+.toc-mobile summary { cursor: pointer; font-size: 0.85rem; color: var(--accent); font-weight: 600; list-style: none; }
+.toc-mobile summary::-webkit-details-marker { display: none; }
+.toc-mobile .toc-dropdown { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 8px; margin-top: 8px; max-height: 60vh; overflow-y: auto; box-shadow: var(--shadow-md); }
+.toc-mobile .toc-dropdown a { display: block; padding: 8px 12px; font-size: 0.88rem; color: var(--text-secondary); text-decoration: none; border-radius: var(--radius-xs); }
+.toc-mobile .toc-dropdown a:hover { color: var(--accent); background: var(--accent-light); }
+@media (max-width: 860px) { .toc { display: none; } .toc-mobile { display: block; } .topbar-nav { display: none; } .page { flex-direction: column; padding: 16px 12px 0; gap: 16px; } .container { padding: 20px 16px 60px; } }
+.container { flex: 1; min-width: 0; background: var(--surface); border-radius: var(--radius); padding: 36px 40px 60px; box-shadow: var(--shadow-sm); border: 1px solid var(--border); margin-bottom: 40px; }
+.back { display: inline-flex; align-items: center; gap: 4px; color: var(--text-muted); text-decoration: none; font-size: 0.85rem; margin-bottom: 28px; font-weight: 500; transition: color 0.15s; }
+.back:hover { color: var(--accent); }
+h1 { font-size: 1.7rem; font-weight: 800; margin-bottom: 10px; line-height: 1.35; color: var(--text); letter-spacing: -0.01em; }
+.meta { color: var(--text-muted); font-size: 0.85rem; margin-bottom: 28px; }
+.highlights-line { color: var(--text-secondary); font-size: 0.9rem; margin: -18px 0 28px; line-height: 1.65; }
+.hero-img { width: 100%; border-radius: var(--radius); margin-bottom: 10px; box-shadow: var(--shadow-md); }
+.hero-caption { font-size: 0.82rem; color: var(--text-muted); margin-bottom: 36px; text-align: center; font-style: italic; }
+h2 { font-size: 1.25rem; font-weight: 700; margin: 44px 0 18px; padding-bottom: 10px; border-bottom: 2px solid var(--accent-light); scroll-margin-top: 90px; color: var(--text); }
+h3 { font-size: 1.05rem; font-weight: 600; margin: 26px 0 8px; color: var(--text); }
+p { margin-bottom: 14px; color: var(--text-secondary); }
+a { color: var(--accent); text-decoration: none; font-weight: 500; }
+a:hover { color: var(--accent-hover); text-decoration: underline; }
+strong { color: var(--text); font-weight: 600; }
+.callout { background: var(--accent-light); border-left: 4px solid var(--accent); border-radius: var(--radius-sm); padding: 16px 20px; margin: 20px 0; font-size: 0.93rem; color: var(--text-secondary); }
+.main-story { background: linear-gradient(135deg, #f7fbff 0%, #fff 60%); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px 26px; margin: 18px 0 28px; box-shadow: var(--shadow-sm); }
+.main-story h3 { margin-top: 0; font-size: 1.2rem; line-height: 1.45; }
+.main-story .story-hook { color: var(--accent); font-weight: 700; margin-bottom: 14px; }
+.story-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 16px 0; }
+.story-field { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 12px 14px; font-size: 0.88rem; color: var(--text-secondary); }
+.story-field strong { display: block; margin-bottom: 4px; color: var(--text); }
+.number-chip { display: inline-block; background: var(--blue-light); color: var(--blue); border-radius: 14px; padding: 3px 10px; margin: 3px 6px 3px 0; font-size: 0.78rem; font-weight: 700; }
+.story-line { background: var(--purple-light); border-left: 4px solid var(--purple); border-radius: var(--radius-sm); padding: 14px 16px; margin-top: 14px; color: var(--text); font-weight: 700; }
+.trend-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin: 16px 0 28px; }
+.trend-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px 20px; box-shadow: var(--shadow-sm); }
+.trend-card h4 { font-size: 0.95rem; margin-bottom: 8px; color: var(--text); }
+.trend-card .trend-conflict { color: var(--red); font-size: 0.82rem; font-weight: 700; margin-bottom: 8px; }
+.trend-card p { font-size: 0.86rem; margin-bottom: 10px; }
+.trend-card .trend-sources { font-size: 0.76rem; color: var(--text-muted); line-height: 1.55; }
+.curiosity-card { background: var(--orange-light); border: 1px solid #f5ddb8; border-radius: var(--radius); padding: 20px 24px; margin: 14px 0; }
+.curiosity-card h4 { font-size: 1rem; margin-bottom: 8px; font-weight: 600; }
+.curiosity-card h4 a { color: var(--orange); }
+.curiosity-card .hook { color: var(--orange); font-weight: 700; margin-bottom: 6px; }
+.curiosity-card p { font-size: 0.88rem; color: var(--text-secondary); margin: 0 0 8px; line-height: 1.65; }
+.podcast-brief { background: #f8fafc; border: 1px solid var(--border); border-radius: var(--radius); padding: 20px 24px; margin: 18px 0; }
+.podcast-brief h4 { margin: 0 0 10px; font-size: 1rem; }
+.podcast-brief .cold-open { color: var(--accent); font-weight: 700; margin-bottom: 14px; }
+.podcast-segment { border-top: 1px solid var(--border); padding-top: 12px; margin-top: 12px; }
+.podcast-segment strong { display: block; margin-bottom: 4px; }
+.article-img { width: 100%; max-height: 380px; object-fit: cover; border-radius: var(--radius-sm); margin: 12px 0 24px; box-shadow: var(--shadow-sm); }
+.tool-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 16px 0; }
+.tool-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px 20px; transition: all 0.2s; box-shadow: var(--shadow-sm); }
+.tool-card:hover { border-color: var(--accent); box-shadow: var(--shadow-md); transform: translateY(-1px); }
+.tool-card h4 { font-size: 0.95rem; margin-bottom: 6px; font-weight: 600; }
+.tool-card h4 a { color: var(--accent); }
+.tool-card p { font-size: 0.83rem; color: var(--text-muted); margin: 0; line-height: 1.55; }
+.tool-card .tag { display: inline-block; font-size: 0.68rem; padding: 3px 8px; border-radius: 10px; background: var(--accent); color: var(--accent-text); font-weight: 600; margin-bottom: 8px; letter-spacing: 0.02em; }
+.tool-card .priority-tag { display: inline-block; font-size: 0.65rem; padding: 2px 6px; border-radius: 8px; background: var(--surface2); color: var(--text-muted); font-weight: 600; margin-left: 6px; }
+.fun-card { background: var(--orange-light); border: 1px solid #f5ddb8; border-radius: var(--radius); padding: 20px 24px; margin: 14px 0; }
+.fun-card h4 { font-size: 1rem; margin-bottom: 8px; font-weight: 600; }
+.fun-card h4 a { color: var(--orange); }
+.fun-card p { font-size: 0.88rem; color: var(--text-secondary); margin: 0; line-height: 1.65; }
+.quote-block { background: var(--purple-light); border-left: 4px solid var(--purple); border-radius: var(--radius-sm); padding: 20px 24px; margin: 18px 0; }
+.quote-block blockquote { font-size: 1.02rem; line-height: 1.65; margin-bottom: 10px; font-style: italic; color: var(--text); }
+.quote-block .quote-author { font-size: 0.82rem; color: var(--purple); font-weight: 600; margin-bottom: 6px; }
+.quote-block .quote-meta { font-size: 0.78rem; color: var(--text-muted); margin-bottom: 10px; }
+.quote-block .quote-comment { font-size: 0.88rem; color: var(--text-secondary); border-top: 1px solid #d8d0e8; padding-top: 10px; margin-top: 10px; }
+.quote-block .quote-team-insight { font-size: 0.88rem; color: var(--green-deep); background: var(--accent-light); border-radius: var(--radius-xs); padding: 8px 12px; margin-top: 8px; }
+.resource-item { background: var(--blue-light); border: 1px solid #c8dbf8; border-radius: var(--radius); padding: 18px 20px; margin: 12px 0; }
+.resource-item a { font-weight: 600; color: var(--blue); }
+.resource-item p { font-size: 0.88rem; color: var(--text-secondary); margin: 6px 0 0; }
+.concept-card { background: var(--green-light2); border-left: 4px solid var(--accent); border-radius: var(--radius-sm); padding: 20px 24px; margin: 16px 0; }
+.concept-card h4 { font-size: 1rem; font-weight: 700; color: var(--green-deep); margin-bottom: 10px; }
+.concept-card .concept-field { font-size: 0.88rem; color: var(--text-secondary); margin-bottom: 6px; line-height: 1.6; }
+.concept-card .concept-field strong { color: var(--text); font-size: 0.88rem; }
+.insight-card { background: var(--yellow-light); border-left: 4px solid var(--yellow); border-radius: var(--radius-sm); padding: 16px 20px; margin: 12px 0; }
+.insight-card p { font-size: 0.93rem; color: var(--text-secondary); margin: 0; line-height: 1.7; }
+.insight-card .insight-num { display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; border-radius: 50%; background: var(--yellow); color: #fff; font-size: 0.75rem; font-weight: 700; margin-right: 10px; flex-shrink: 0; }
+.certainty-tag { display: inline-block; font-size: 0.65rem; padding: 2px 6px; border-radius: 8px; font-weight: 600; margin-left: 8px; }
+.certainty-confirmed { background: var(--accent-light); color: var(--accent); }
+.certainty-announced { background: var(--blue-light); color: var(--blue); }
+.certainty-reported { background: var(--yellow-light); color: var(--yellow); }
+.certainty-opinion { background: var(--purple-light); color: var(--purple); }
+.certainty-rumor { background: var(--red-light); color: var(--red); }
+.footer-sources { margin-top: 44px; padding: 20px 24px; background: var(--surface2); border-radius: var(--radius); font-size: 0.78rem; color: var(--text-muted); line-height: 1.9; }
+.footer-sources strong { color: var(--text-secondary); font-size: 0.78rem; }
+@media (max-width: 860px) { .trend-grid, .story-grid { grid-template-columns: 1fr; } }
+@media (max-width: 640px) { .tool-grid { grid-template-columns: 1fr; } }
+
+  </style>
+</head>
+<body>
+
+<header class="topbar">
+  <a href="../index.html" class="topbar-brand">
+    <svg viewBox="0 0 28 28" fill="none"><circle cx="14" cy="14" r="14" fill="#2d9f6f"/><path d="M8 14.5l3.5 3.5 8.5-8" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    Tech Digest
+  </a>
+  <nav class="topbar-nav">
+    <a href="../index.html">Archive</a>
+    <a href="#main-story" class="active">Today</a>
+    <a href="#tools">Tools</a>
+    <a href="#quotes">Quotes</a>
+  </nav>
+  <div class="topbar-right">
+    <span class="topbar-date">2026-07-20</span>
+  </div>
+</header>
+
+<details class="toc-mobile">
+  <summary>📑 目录导航</summary>
+  <div class="toc-dropdown">
+    <a href="#main-story">🔥 主故事</a>
+    <a href="#trends">⚡ 冲突趋势</a>
+    <a href="#tech-news">📰 科技动态</a>
+    <a href="#ai">🤖 AI 相关</a>
+    <a href="#articles">📝 文章推荐</a>
+    <a href="#tools">🛠️ 工具推荐</a>
+    <a href="#ai-tools">🧠 AI 工具</a>
+    <a href="#concepts">🧩 本期概念库</a>
+    <a href="#curiosity">🎲 好奇心入口</a>
+    <a href="#resources">📚 资源</a>
+    <a href="#quotes">💬 言论</a>
+    <a href="#podcast">🎙️ 播客提纲</a>
+    <a href="#team-insights">✅ 对团队的启发</a>
+  </div>
+</details>
+
+<div class="page">
+  <nav class="toc">
+    <div class="toc-title">本期目录</div>
+    <a href="#main-story">🔥 主故事</a>
+    <a href="#trends">⚡ 冲突趋势</a>
+    <a href="#tech-news">📰 科技动态</a>
+    <a href="#ai">🤖 AI 相关</a>
+    <a href="#articles">📝 文章推荐</a>
+    <a href="#tools">🛠️ 工具推荐</a>
+    <a href="#ai-tools">🧠 AI 工具</a>
+    <a href="#concepts">🧩 本期概念库</a>
+    <a href="#curiosity">🎲 好奇心入口</a>
+    <a href="#resources">📚 资源</a>
+    <a href="#quotes">💬 言论</a>
+    <a href="#podcast">🎙️ 播客提纲</a>
+    <a href="#team-insights">✅ 对团队的启发</a>
+  </nav>
+
+  <main class="container">
+    <a href="../index.html" class="back">← 返回目录</a>
+    <h1>第 59 期：Coding Agent 开始暴露真实工程成本</h1>
+    <div class="meta">第 59 期 · 2026年7月20日，星期一</div>
+    <p class="highlights-line"><strong>✨ 本期亮点：</strong>OpenAI Codex PR 显示上下文窗口元数据 372k -&gt; 272k · Claude Code 被技术观察为使用 Rust port of Bun · Qwen Cloud Token Plan 支持多 AI 编码工具与并发 Agent · Cloudflare Workers/Pages 构建事件已 resolved · Minecraft Java Snapshot 4 从 GLFW 切到 SDL3 · code-review-graph / wigolo 成为今日开发提效工具重点</p>
+
+    <img class="hero-img" src="https://opengraph.githubassets.com/20260720/openai/codex/pull/33972" alt="OpenAI Codex pull request Open Graph image">
+    <div class="hero-caption">本期主线是 Agent 的工程现实：上下文不是免费容量，运行时不是实现细节，订阅额度也不是财务后台小事。</div>
+
+    <div class="callout">
+      <strong>🎯 本期核心判断：</strong>今天的核心判断：Coding Agent 的竞争已经从“谁更聪明”进入“谁能在上下文、启动速度、运行时、预算和网络边界里稳定工作”。模型能力还重要，但真正决定团队能否规模化使用的，是这些看起来很底层的工程约束。
+    </div>
+
+    <div class="callout">
+      <strong>⏱ 本期建议阅读顺序</strong><br>
+      先看主故事：为什么 Codex 上下文窗口和 Claude Code 运行时变化都在说明 Agent 成本显性化<br>
+      再看 AI 与工具：Qwen Cloud、GPT-5.6、code-review-graph、wigolo 如何把模型接入开发现场<br>
+      最后看工程与可靠性：Cloudflare Workers/Pages 事故、Minecraft SDL3、Apple SDK 与专利状态
+    </div>
+
+    <h2 id="main-story">🔥 主故事</h2>
+        <article class="main-story">
+      <h3>从 372k 到 272k：Coding Agent 的资源账单终于写进代码里</h3>
+      <p class="story-hook">当一个 Agent 产品开始调整上下文窗口元数据，你看到的不是缩水数字，而是工程团队在承认：上下文、延迟和成本必须被管理。</p>
+      <p>OpenAI Codex 仓库 PR #33972 已合并到 release/0.144，diff 显示 bundled model metadata 中的 context_window 和 max_context_window 从 372000 改为 272000。与此同时，Simon Willison 根据本地 Claude Code 二进制和 Bun 作者说法指出，Claude Code v2.1.181 及之后版本已使用 Rust port of Bun，Linux 启动据称快 10%。这些事实分属不同产品，但讲的是同一件事：编码 Agent 的能力边界正在从宣传页回到二进制、JSON 元数据、启动路径和预算表。</p>
+      <div class="story-grid">
+        <div class="story-field"><strong>核心冲突</strong>长上下文和强模型带来能力想象；但真实开发工具要面对启动速度、上下文压缩、token 成本、网络权限和本地运行时的稳定性。</div>
+        <div class="story-field"><strong>转折点</strong>过去 Agent 的主要卖点是“能做更多”；现在关键问题变成“在多大上下文、多少预算、什么运行时、哪些权限下稳定做完”。</div>
+        <div class="story-field"><strong>为什么现在发生</strong>7 月 17 日 GitHub 刚把 Copilot usage metrics 推到仓库级，Copilot code review 也增加 firewall 和独立 runner 配置；再叠加 Codex 元数据变化和 Claude Code 运行时变化，说明 Agent 平台已经进入工程治理阶段。</div>
+        <div class="story-field"><strong>对团队的启发</strong>Web/iOS/Android/PC 客户端和后台团队应建立 Agent 运行基线：记录模型上下文窗口、自动压缩阈值、平均任务 token、冷启动时间、CI runner 权限、网络白名单和失败恢复路径。</div>
+      </div>
+      <p><span class="number-chip">372000 -&gt; 272000</span><span class="number-chip">PR #33972</span><span class="number-chip">Claude Code v2.1.181</span><span class="number-chip">Bun v1.4.0</span><span class="number-chip">10% faster on Linux（作者说法）</span></p>
+      <p><strong>我的判断：</strong>我的判断是：未来几个月团队评估 Coding Agent，不能只跑一次 SWE-bench 或看一次演示。要把上下文压缩策略、冷启动时间、工具调用轮数、预算上限、网络访问和可审计日志放进同一张验收表。</p>
+      <div class="story-line">Agent 的上限由模型决定，下限由工程预算决定。</div>
+      <p><strong>来源：</strong><a href="https://github.com/openai/codex/pull/33972/files" target="_blank" rel="noopener noreferrer">github.com</a></p>
+    </article>
+
+    <h2 id="trends">⚡ 冲突趋势</h2>
+        <div class="trend-grid">
+      <div class="trend-card">
+        <h4>上下文窗口从卖点变成预算项</h4>
+        <div class="trend-conflict">长上下文能力 vs token/延迟/压缩成本</div>
+        <p>Codex PR 的元数据变化提醒团队：上下文不是越大越好，而是要能被记录、压缩、复现和计费。</p>
+        <div class="trend-sources">github.com · openai.com</div>
+      </div>
+      <div class="trend-card">
+        <h4>Agent 运行时进入性能竞争</h4>
+        <div class="trend-conflict">模型层创新 vs 本地二进制和启动路径</div>
+        <p>Claude Code 使用 Rust port of Bun 的信号说明，AI IDE 的体验不只来自模型，还来自每一次启动、打包和文件 IO。</p>
+        <div class="trend-sources">simonwillison.net · bun.com</div>
+      </div>
+      <div class="trend-card">
+        <h4>订阅额度开始绑定多 Agent 并发</h4>
+        <div class="trend-conflict">开发者灵活接入 vs 组织预算治理</div>
+        <p>Qwen Cloud Token Plan 把 Qwen Code、Claude Code、Cursor、Codex 等接入路径和并发 Agent 数写进套餐，模型预算更像开发基础设施预算。</p>
+        <div class="trend-sources">qwencloud.com · github.com</div>
+      </div>
+    </div>
+
+    <h2 id="tech-news">📰 科技动态</h2>
+    <h3>1、<a href="https://github.com/openai/codex/pull/33972.diff" target="_blank" rel="noopener noreferrer">OpenAI Codex PR 调整 bundled model metadata 上下文窗口</a> <span class="certainty-tag certainty-confirmed">confirmed</span></h3>
+    <p>OpenAI Codex PR #33972 已合并，补丁显示 `context_window` 与 `max_context_window` 从 372000 改为 272000。确定性：代码 diff 已证实；原因、是否影响所有用户体验、是否代表模型真实能力变化，均需等待官方说明，本文只把它作为客户端资源治理信号。</p>
+    <img class="article-img" src="https://opengraph.githubassets.com/20260720/openai/codex/pull/33972" alt="">
+    <h3>2、<a href="https://simonwillison.net/2026/Jul/19/claude-code-in-bun-in-rust/" target="_blank" rel="noopener noreferrer">Claude Code 被发现已使用 Rust port of Bun</a> <span class="certainty-tag certainty-reported">reported</span></h3>
+    <p>Simon Willison 根据本地 Claude Code 二进制字符串与 Bun 作者说法判断，Claude Code v2.1.181 及之后版本使用 Rust port of Bun；Linux 启动 10% 更快是 Bun 作者表述。确定性：Simon 的本地证据和作者说法属于报道/技术观察，不是 Anthropic 发布说明。</p>
+    <img class="article-img" src="https://opengraph.githubassets.com/20260720/oven-sh/bun" alt="">
+    <h3>3、<a href="https://www.cloudflarestatus.com/api/v2/incidents.json" target="_blank" rel="noopener noreferrer">Cloudflare Workers and Pages 构建 7 月 18 日两次出现启动/初始化问题</a> <span class="certainty-tag certainty-confirmed">confirmed</span></h3>
+    <p>Cloudflare Status API 显示，2026-07-18 Workers/Pages builds stuck initializing 与 unable to start 两起事件均已 resolved，其中一项 impact 标记为 minor。确定性：状态页 API 已证实；根因和用户影响范围需看 Cloudflare 后续 postmortem。</p>
+    <h3>4、<a href="https://www.minecraft.net/en-us/article/minecraft-26-3-snapshot-4" target="_blank" rel="noopener noreferrer">Minecraft Java 26.3 Snapshot 4 从 GLFW 切到 SDL3</a> <span class="certainty-tag certainty-confirmed">confirmed</span></h3>
+    <p>Mojang 官方 Snapshot 说明写明，Minecraft 现在使用 SDL3 替代 GLFW 负责窗口管理、输入和平台集成，并提到键盘输入改用 SDL scancodes/keycodes。对 PC 客户端开发，这是一次大型跨平台输入/窗口后端迁移案例。</p>
+    <h3>5、<a href="https://developer.apple.com/news/?id=grx7lcto" target="_blank" rel="noopener noreferrer">Apple Developer 7 月更新强调 27 平台 release 与设计资源</a> <span class="certainty-tag certainty-confirmed">confirmed</span></h3>
+    <p>Apple Developer 的 Hello Developer: July 2026 汇总了新版开发者网站搜索、Figma/Sketch 设计套件、WWDC26 活动和 27 平台相关文档/样例/发布说明更新。对 iOS 团队，重点是把设计资产和 SDK 文档同步到组件库，而不是只等 Xcode 正式版。</p>
+
+    <h2 id="ai">🤖 AI 相关</h2>
+    <h3>1、<a href="https://www.qwencloud.com/pricing/token-plan" target="_blank" rel="noopener noreferrer">Qwen Cloud Token Plan 把多模型与 AI 编码工具纳入套餐</a> <span class="certainty-tag certainty-confirmed">confirmed</span></h3>
+    <p>Qwen Cloud 官方页面显示 Token Plan 支持 Individual/Team，强调 Qwen3.8-Max-Preview、统一访问文本/视觉/语音/图像模型，并列出 Qwen Code、Cline、Claude Code、Cursor、OpenCode、Codex、Kilo CLI、OpenClaw 等工具接入。确定性：套餐页面已证实；模型实际能力和性价比需实测。</p>
+    <img class="article-img" src="https://opengraph.githubassets.com/20260720/MoonshotAI/kimi-cli" alt="">
+    <h3>2、<a href="https://openai.com/index/gpt-5-6/#availability-and-pricing" target="_blank" rel="noopener noreferrer">GPT-5.6 官方页强调 Programmatic Tool Calling 与 multi-agent beta</a> <span class="certainty-tag certainty-announced">announced</span></h3>
+    <p>OpenAI GPT-5.6 发布页写明，Responses API 中 Programmatic Tool Calling 可让模型在内存中写并运行轻量程序协调工具，multi-agent beta 可并发子代理并汇总结果。确定性：官方发布已证实；页面中的 Benchmark 分数属于厂商发布口径，需与第三方复测分开看。</p>
+    <h3>3、<a href="https://twitter.com/Alibaba_Qwen/status/2078759124914098291" target="_blank" rel="noopener noreferrer">Qwen 3.8 在 HN 热榜引发新一轮模型套餐讨论</a> <span class="certainty-tag certainty-reported">reported</span></h3>
+    <p>Qwen 3.8 相关消息登上 HN 前排，官方 Token Plan 页面也突出 Qwen3.8-Max-Preview。确定性：HN 热度和 Qwen Cloud 页面已证实；X 原帖页面本轮无法稳定解析，本文不把未能验证的细节写成结论。</p>
+    <h3>4、<a href="https://thenextweb.com/news/ai-advice-suppresses-critical-thinking-wrong-answers-study" target="_blank" rel="noopener noreferrer">AI advice 研究被媒体报道：让人更自信但更不准确</a> <span class="certainty-tag certainty-reported">reported</span></h3>
+    <p>TNW 报道一项研究称 AI advice 可能让人回答更不准确但更自信。确定性：这是媒体报道研究结论，未在本轮拿到论文原文复核；可作为产品风险提醒，不应当作最终科学结论。</p>
+    <h3>5、<a href="https://ollama.com/blog/all-aboard-open-models" target="_blank" rel="noopener noreferrer">Ollama 继续强化开放模型所有权叙事</a> <span class="certainty-tag certainty-announced">announced</span></h3>
+    <p>Ollama 官方博客强调 open models 的 ownership、affordability 和 cloud 访问，并披露其云端 token volume 平均每月翻倍以上。融资金额等信息在官方博客中出现，可标注为官方披露；但增长速度和未来可用性仍需后续数据验证。</p>
+
+    <h2 id="articles">📝 文章推荐</h2>
+    <h3>1、<a href="https://quesma.com/blog/custom-deep-research-pipeline/" target="_blank" rel="noopener noreferrer">I burned all my tokens researching how to save tokens</a></h3>
+    <p>这篇文章和本期主线高度契合：为了节省 token 去研究如何节省 token，最后会暴露 deep research 管线真正的成本结构。对后台和工具链团队，它提醒你把检索、压缩、引用、缓存和人工复核当成一个系统，而不是一个 prompt。</p>
+    <h3>2、<a href="https://chipweinberger.com/articles/20260719-hardware-is-not-so-hard" target="_blank" rel="noopener noreferrer">What I learned selling 2,500 MIDI recorders: Hardware is not so hard</a></h3>
+    <p>作者复盘卖出 2,500 台 MIDI recorder 的经验，反驳“硬件一定很难”的刻板印象。对客户端团队的启发是：硬件产品真正难点经常是供应链、支持、固件更新和用户反馈闭环，不只是 PCB 或外壳。</p>
+    <h3>3、<a href="https://github.com/tirth8205/code-review-graph#readme" target="_blank" rel="noopener noreferrer">code-review-graph：为 MCP/CLI 构建本地代码智能图</a></h3>
+    <p>GitHub Trending 项目 code-review-graph 宣称为代码库构建 local-first intelligence graph，让 AI 编码工具只读取相关上下文。它直接服务本期主题：上下文窗口收紧时，真正有价值的是更好的上下文选择。</p>
+    <img class="article-img" src="https://opengraph.githubassets.com/20260720/tirth8205/code-review-graph" alt="">
+    <h3>4、<a href="https://sgt.hootr.club/blog/home-server-rebirth/" target="_blank" rel="noopener noreferrer">The death and rebirth of my home server</a></h3>
+    <p>一篇家庭服务器死亡与重建的工程故事，适合提醒团队：备份、配置声明、恢复演练和可观测性不只属于公司生产系统。开发者个人基础设施也需要恢复路径。</p>
+
+    <h2 id="tools">🛠️ 工具推荐</h2>
+    <div class="tool-grid">
+      <div class="tool-card">
+        <h4><a href="https://github.com/tirth8205/code-review-graph" target="_blank" rel="noopener noreferrer">code-review-graph</a> <span class="priority-tag">P1</span></h4>
+        <p>为 MCP/CLI 编码工具建立本地代码智能图，优先解决大仓库上下文选择问题，适合 Web/客户端/后台 monorepo。</p>
+      </div>
+      <div class="tool-card">
+        <h4><a href="https://github.com/KnockOutEZ/wigolo" target="_blank" rel="noopener noreferrer">wigolo</a> <span class="priority-tag">P1</span></h4>
+        <p>local-first 的 search/fetch/crawl/research MCP 工具，面向 AI coding agent，无 API key、无云端依赖，适合内网资料抓取前的本地验证。</p>
+      </div>
+      <div class="tool-card">
+        <h4><a href="https://github.com/kvcache-ai/ktransformers" target="_blank" rel="noopener noreferrer">ktransformers</a> <span class="priority-tag">P2</span></h4>
+        <p>异构 LLM 推理/微调优化框架，适合有本地模型推理需求的后台或端侧 AI 实验团队评估。</p>
+      </div>
+    </div>
+
+    <h2 id="ai-tools">🧠 AI 工具</h2>
+    <div class="tool-grid">
+      <div class="tool-card">
+        <span class="tag">预算</span>
+        <h4><a href="https://www.qwencloud.com/pricing/token-plan#supported-ai-tools" target="_blank" rel="noopener noreferrer">Qwen Cloud Token Plan</a></h4>
+        <p>统一额度接入 Qwen Code、Cline、Claude Code、Cursor、Codex 等工具；适合做多模型 Agent 成本试算。</p>
+      </div>
+      <div class="tool-card">
+        <span class="tag">Agent SDK</span>
+        <h4><a href="https://github.com/github/copilot-sdk" target="_blank" rel="noopener noreferrer">Copilot SDK</a></h4>
+        <p>GitHub 官方 SDK，可把 Copilot Agent runtime 嵌入应用和服务；适合内部开发平台评估。</p>
+      </div>
+      <div class="tool-card">
+        <span class="tag">Harness</span>
+        <h4><a href="https://github.com/1jehuang/jcode" target="_blank" rel="noopener noreferrer">jcode</a></h4>
+        <p>Rust 编写的 Coding Agent Harness，适合评估命令行 Agent 编排、任务隔离和基准测试。</p>
+      </div>
+    </div>
+
+    <h2 id="concepts">🧩 本期概念库</h2>
+    <div class="concept-card">
+      <h4>1. 上下文预算</h4>
+      <div class="concept-field"><strong>一句话解释：</strong>把模型上下文窗口视为有限资源，明确压缩、裁剪、缓存和引用策略。</div>
+      <div class="concept-field"><strong>背景来源：</strong>OpenAI Codex PR #33972</div>
+      <div class="concept-field"><strong>为什么重要：</strong>长上下文越强，错误上下文和重复上下文的成本也越高。</div>
+      <div class="concept-field"><strong>团队应用场景：</strong>为 Agent 任务记录输入 token、压缩触发点、引用文件数和失败原因。</div>
+    </div>
+    <div class="concept-card">
+      <h4>2. Agent 运行时</h4>
+      <div class="concept-field"><strong>一句话解释：</strong>Coding Agent 本地执行所依赖的二进制、JS/系统运行时、打包方式和启动路径。</div>
+      <div class="concept-field"><strong>背景来源：</strong>Claude Code / Bun technical observation</div>
+      <div class="concept-field"><strong>为什么重要：</strong>冷启动、文件 IO 和平台兼容性会直接影响 AI IDE 体验。</div>
+      <div class="concept-field"><strong>团队应用场景：</strong>上线 Agent 工具前测冷启动、增量启动、CPU/内存占用和二进制更新机制。</div>
+    </div>
+    <div class="concept-card">
+      <h4>3. 订阅型 Agent 并发</h4>
+      <div class="concept-field"><strong>一句话解释：</strong>云模型套餐不只按 token 计费，也开始把可并发 Agent 数写进产品层。</div>
+      <div class="concept-field"><strong>背景来源：</strong>Qwen Cloud Token Plan</div>
+      <div class="concept-field"><strong>为什么重要：</strong>多 Agent 工作流会把预算从单次问答推到并发执行层。</div>
+      <div class="concept-field"><strong>团队应用场景：</strong>按团队/仓库设置并发上限、月度额度和超额告警。</div>
+    </div>
+    <div class="concept-card">
+      <h4>4. 构建面事故</h4>
+      <div class="concept-field"><strong>一句话解释：</strong>不是运行时服务宕机，而是构建、部署、队列初始化等发布链路不可用。</div>
+      <div class="concept-field"><strong>背景来源：</strong>Cloudflare Workers/Pages incidents</div>
+      <div class="concept-field"><strong>为什么重要：</strong>对前端和边缘函数团队，构建面故障一样会阻断交付。</div>
+      <div class="concept-field"><strong>团队应用场景：</strong>关键发布链路保留备选平台、冻结窗口和回滚 HTML/asset 备份。</div>
+    </div>
+    <div class="concept-card">
+      <h4>5. 窗口/输入后端迁移</h4>
+      <div class="concept-field"><strong>一句话解释：</strong>客户端把窗口管理、输入、全屏、平台集成从一套库迁移到另一套库。</div>
+      <div class="concept-field"><strong>背景来源：</strong>Minecraft GLFW -&gt; SDL3</div>
+      <div class="concept-field"><strong>为什么重要：</strong>这类迁移通常影响长尾设备、输入法、快捷键和全屏模式。</div>
+      <div class="concept-field"><strong>团队应用场景：</strong>PC 客户端迁移底层库时建立设备矩阵、输入法矩阵和回归自动化。</div>
+    </div>
+
+    <h2 id="curiosity">🎲 好奇心入口</h2>
+    <div class="curiosity-card">
+      <h4><a href="https://news.ycombinator.com/item?id=48968606" target="_blank" rel="noopener noreferrer">Show HN: 用 1,600 美元 ESP32 替代 12 万美元保龄球中心系统</a></h4>
+      <div class="hook">一个极端但有启发的低成本自动化案例。</div>
+      <p>HN 热帖展示开发者用 ESP32 重建保龄球中心系统。它提醒团队：很多垂直行业系统贵，不一定因为技术难，而是因为集成、维护和销售链条复杂。 团队暗线：低成本替代要先搞清楚真正贵的是硬件、软件、维护还是责任。</p>
+    </div>
+    <div class="curiosity-card">
+      <h4><a href="https://maurycyz.com/projects/bad_jpeg/" target="_blank" rel="noopener noreferrer">Regressive JPEGs</a></h4>
+      <div class="hook">加载越久越差的反向 progressive JPEG。</div>
+      <p>这个项目把图片加载心理模型反过来玩，适合前端团队思考 loading state 不只是等待动画，也是用户预期管理。 团队暗线：加载过程本身也是界面的一部分。</p>
+    </div>
+    <div class="curiosity-card">
+      <h4><a href="https://raymii.org/s/blog/Intel_Itanium_IA-64-Emulator_that_boots_Windows.html" target="_blank" rel="noopener noreferrer">Itanium IA-64 emulator that boots Windows</a></h4>
+      <div class="hook">失败架构也会在模拟器里重获生命。</div>
+      <p>一个新的 Itanium IA-64 模拟器能启动 Windows。它的价值不只是复古，而是提醒我们长期兼容、二进制考古和系统文档保存的重要性。 团队暗线：今天的边缘平台，可能就是明天的迁移难题。</p>
+    </div>
+
+    <h2 id="resources">📚 资源</h2>
+    <div class="resource-item">
+      <a href="https://github.com/openai/codex/pull/33972.patch" target="_blank" rel="noopener noreferrer">OpenAI Codex PR #33972 patch</a>
+      <p>直接核对 context_window / max_context_window 从 372000 到 272000 的公开 patch。</p>
+    </div>
+    <div class="resource-item">
+      <a href="https://news.ycombinator.com/item?id=48966569" target="_blank" rel="noopener noreferrer">HN: Claude Code uses Bun written in Rust now</a>
+      <p>查看开发者对 Claude Code 运行时、Bun 和二进制分发的讨论。</p>
+    </div>
+    <div class="resource-item">
+      <a href="https://stspg.io/y03kqwl12tjq" target="_blank" rel="noopener noreferrer">Cloudflare Workers/Pages initializing incident</a>
+      <p>核对 Workers/Pages builds stuck initializing 事件的状态、impact 与时间。</p>
+    </div>
+
+    <h2 id="quotes">💬 言论：本期 7 个认知增量</h2>
+    <div class="quote-block">
+      <blockquote>上下文窗口从 372k 改到 272k，这件事最重要的不是数字，而是 Agent 资源边界开始可见。</blockquote>
+      <div class="quote-author">—— HN 社区 · Codex context 讨论</div>
+      <div class="quote-meta">来源：<a href="https://news.ycombinator.com/item?id=48965850" target="_blank" rel="noopener noreferrer">news.ycombinator.com</a> · 类型：分析转述 · 关键词：Codex · 上下文预算</div>
+      <div class="quote-comment">💭 已证实的是公开 diff；原因属于待官方确认。</div>
+      <div class="quote-team-insight">🎯 团队启发：把上下文窗口、压缩策略和失败恢复纳入 Agent 验收。</div>
+    </div>
+    <div class="quote-block">
+      <blockquote>Boring is good：Claude Code 换运行时后几乎没人注意到，正说明底层性能优化做对了。</blockquote>
+      <div class="quote-author">—— Bun / Claude Code 运行时讨论</div>
+      <div class="quote-meta">来源：<a href="https://bun.com/blog/behind-the-scenes-of-bun-install" target="_blank" rel="noopener noreferrer">bun.com</a> · 类型：短引用+转述 · 关键词：Claude Code · Bun · 运行时</div>
+      <div class="quote-comment">💭 这是作者引用和本地验证，不是 Anthropic 官方发布。</div>
+      <div class="quote-team-insight">🎯 团队启发：客户端工具链优化要追求用户无感，但指标必须可测。</div>
+    </div>
+    <div class="quote-block">
+      <blockquote>Programmatic Tool Calling 的关键，是让模型少搬运工具输出，多用小程序处理中间结果。</blockquote>
+      <div class="quote-author">—— OpenAI GPT-5.6 发布页 · 摘要式转述</div>
+      <div class="quote-meta">来源：<a href="https://openai.com/index/gpt-5-6/#professional" target="_blank" rel="noopener noreferrer">openai.com</a> · 类型：摘要式转述 · 关键词：Responses API · 工具调用</div>
+      <div class="quote-comment">💭 功能是官方发布，效果仍需项目实测。</div>
+      <div class="quote-team-insight">🎯 团队启发：把检索、过滤、聚合放到程序层，减少模型反复读大段输出。</div>
+    </div>
+    <div class="quote-block">
+      <blockquote>Qwen Cloud 的套餐页把 Codex、Claude Code、Cursor 等放在一起，说明模型服务商正在争夺开发工作台入口。</blockquote>
+      <div class="quote-author">—— HN 社区 · Qwen 3.8 讨论</div>
+      <div class="quote-meta">来源：<a href="https://news.ycombinator.com/item?id=48966120" target="_blank" rel="noopener noreferrer">news.ycombinator.com</a> · 类型：分析转述 · 关键词：Qwen · Agent 预算</div>
+      <div class="quote-comment">💭 已证实的是页面列出的工具接入；能力对比需实测。</div>
+      <div class="quote-team-insight">🎯 团队启发：多模型预算要按工具、仓库和并发 Agent 数拆账。</div>
+    </div>
+    <div class="quote-block">
+      <blockquote>Cloudflare Workers/Pages 构建面事故提醒我们：发布链路不可用，也是一种生产不可用。</blockquote>
+      <div class="quote-author">—— Cloudflare Status · Workers/Pages incident</div>
+      <div class="quote-meta">来源：<a href="https://stspg.io/f6j1jbl7d9x0" target="_blank" rel="noopener noreferrer">stspg.io</a> · 类型：摘要式转述 · 关键词：可靠性 · 构建系统</div>
+      <div class="quote-comment">💭 状态页显示 resolved；根因需等待更完整复盘。</div>
+      <div class="quote-team-insight">🎯 团队启发：给关键前端发布链路准备备用构建路径和冻结策略。</div>
+    </div>
+    <div class="quote-block">
+      <blockquote>Minecraft 从 GLFW 切到 SDL3，说明成熟客户端也会为了平台集成重写很底层的部分。</blockquote>
+      <div class="quote-author">—— HN 社区 · Minecraft SDL3 讨论</div>
+      <div class="quote-meta">来源：<a href="https://news.ycombinator.com/item?id=48967256" target="_blank" rel="noopener noreferrer">news.ycombinator.com</a> · 类型：摘要式转述 · 关键词：PC 客户端 · SDL3</div>
+      <div class="quote-comment">💭 官方 Snapshot 已确认 SDL3 迁移。</div>
+      <div class="quote-team-insight">🎯 团队启发：底层库迁移必须优先覆盖输入、全屏、多平台和长尾设备。</div>
+    </div>
+    <div class="quote-block">
+      <blockquote>为省 token 而烧掉 token，暴露的是 deep research 管线缺少缓存、摘要和证据分层。</blockquote>
+      <div class="quote-author">—— HN 社区 · Quesma token pipeline 讨论</div>
+      <div class="quote-meta">来源：<a href="https://news.ycombinator.com/item?id=48967355" target="_blank" rel="noopener noreferrer">news.ycombinator.com</a> · 类型：摘要式转述 · 关键词：Token 成本 · 研究管线</div>
+      <div class="quote-comment">💭 这类文章适合作为内部 AI 研究管线设计材料。</div>
+      <div class="quote-team-insight">🎯 团队启发：先设计引用缓存和增量检索，再扩大模型上下文。</div>
+    </div>
+
+    <h2 id="podcast">🎙️ 播客提纲</h2>
+    <div class="podcast-brief">
+      <h4>第 59 期：Agent 的工程成本显性化</h4>
+      <div class="cold-open">今天的主角不是某个模型，而是三个很底层的信号：Codex 上下文窗口元数据从 372k 到 272k，Claude Code 换了 Bun 的 Rust port，Qwen Cloud 把多 Agent 并发写进套餐。</div>
+      <div class="podcast-segment">
+        <strong>Codex PR：上下文窗口是预算，不只是能力</strong>
+        <p>一个 JSON diff，把 Agent 成本写得很直白。</p>
+        <p>记录每类任务的 token、文件数、压缩触发点和失败原因。</p>
+      </div>      <div class="podcast-segment">
+        <strong>Claude Code / Bun：运行时也是 AI 产品体验</strong>
+        <p>启动快 10% 可能比你想的更重要。</p>
+        <p>评估 Agent 工具时测冷启动、内存、CPU 和升级机制。</p>
+      </div>      <div class="podcast-segment">
+        <strong>Qwen Cloud：多 Agent 并发进入套餐</strong>
+        <p>模型服务开始像开发基础设施。</p>
+        <p>多模型预算按工具、仓库、并发和失败重试拆账。</p>
+      </div>
+      <p>Agent 的上限由模型决定，下限由工程预算决定。今天开始，把上下文、运行时、网络和额度都放进你的 AI 工具验收标准。</p>
+    </div>
+
+    <h2 id="team-insights">✅ 对团队的启发</h2>
+    <div class="insight-card">
+      <p><span class="insight-num">1</span>为 Coding Agent 建一张运行基线表：上下文窗口、压缩阈值、平均 token、冷启动、工具调用次数、网络权限和日志留存。</p>
+    </div>
+    <div class="insight-card">
+      <p><span class="insight-num">2</span>模型 Benchmark 之外，增加团队真实任务集：Web 页面修改、iOS 构建失败、Android 依赖升级、PC 客户端输入回归、后台接口迁移。</p>
+    </div>
+    <div class="insight-card">
+      <p><span class="insight-num">3</span>多模型套餐要按仓库和并发 Agent 数做预算，不要只看单价或总额度。</p>
+    </div>
+    <div class="insight-card">
+      <p><span class="insight-num">4</span>前端/边缘平台发布链路要把构建面事故纳入 SLO：构建队列、初始化、上传、部署和回滚都要有状态监控。</p>
+    </div>
+    <div class="insight-card">
+      <p><span class="insight-num">5</span>PC 客户端底层库迁移要把输入法、快捷键、全屏、多显示器和无障碍行为列为首轮验收。</p>
+    </div>
+
+    <div class="footer-sources">
+      <strong>📋 数据来源说明</strong><br>
+      本情报来自 66 个全球精选科技 / AI / 工程 / 系统可靠性信息源的每日更新。<br>
+      由 Cursor AI 自动生成，信息截止至 2026年7月20日，星期一。
+    </div>
+  </main>
+</div>
+
+<script>
+(function(){
+  const toc=document.querySelector('.toc');if(!toc)return;
+  const links=[...toc.querySelectorAll('a')];
+  const ids=links.map(l=>l.getAttribute('href').slice(1));
+  const secs=ids.map(id=>document.getElementById(id)).filter(Boolean);
+  function hl(){let cur=0;secs.forEach((s,i)=>{if(s.getBoundingClientRect().top<=120)cur=i;});
+  links.forEach((l,i)=>{l.classList.toggle('active',i===cur);});}
+  window.addEventListener('scroll',hl,{passive:true});hl();
+})();
+
+</script>
+</body>
+</html>
