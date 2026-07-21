@@ -1,5 +1,11 @@
 [
   {
+    "date": "2026-07-21",
+    "title": "第 60 期：当 AI 攻击也开始跑 Agent，防守方不能只靠云模型",
+    "highlights": "Hugging Face 披露 AI 驱动入侵并改用本地 GLM 5.2 做取证 · Next.js 首个计划性安全发布目标 7 月 21 日，含 4 high / 5 medium · Romania 土地登记数据库擦除事故被报道导致房地产交易停摆 · Copilot CLI 1.0.72 加强 hook/keychain/skill 展示边界 · Kimi Work 推桌面 AI Agent + Cron + WebBridge · FastMCP、OmniRoute、Jelly UI 成为今日开发提效工具",
+    "image": "https://huggingface.co/blog/assets/security-incident-july-2026/thumbnail.png"
+  },
+  {
     "date": "2026-07-20",
     "title": "第 59 期：Coding Agent 开始暴露真实工程成本",
     "highlights": "OpenAI Codex PR 显示上下文窗口元数据 372k -> 272k · Claude Code 被技术观察为使用 Rust port of Bun · Qwen Cloud Token Plan 支持多 AI 编码工具与并发 Agent · Cloudflare Workers/Pages 构建事件已 resolved · Minecraft Java Snapshot 4 从 GLFW 切到 SDL3 · code-review-graph / wigolo 成为今日开发提效工具重点",

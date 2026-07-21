@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>第 60 期：当 AI 攻击也开始跑 Agent，防守方不能只靠云模型</title>
+  <meta property="og:title" content="Tech Digest #60：Hugging Face AI 驱动入侵、Next.js 安全发布、Kimi Work 与 MCP 工具链">
+  <meta property="og:description" content="Hugging Face 披露一次端到端由自主 AI Agent 驱动的入侵，并指出响应中曾被托管模型安全护栏卡住；Next.js 首个计划性安全版本目标 7 月 21 日发布。">
+  <meta property="og:image" content="https://huggingface.co/blog/assets/security-incident-july-2026/thumbnail.png">
+  <style>
+:root {
+  --bg: #f5f6f8; --surface: #ffffff; --surface2: #f0f2f5;
+  --border: #e8ecf1; --border-hover: #c5cdd8;
+  --text: #1a1d21; --text-secondary: #3d4550; --text-muted: #8c95a1;
+  --accent: #2d9f6f; --accent-light: #e8f5ef; --accent-hover: #248a5e;
+  --accent-text: #ffffff;
+  --purple: #7c5cbf; --purple-light: #f3effc;
+  --orange: #e58e26; --orange-light: #fef5e7;
+  --blue: #3a82f7; --blue-light: #eef4fe;
+  --red: #e74c3c; --red-light: #fdecea;
+  --green-deep: #1a7a4c; --green-light2: #e0f5ea;
+  --yellow: #d4a017; --yellow-light: #fef9e7;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.06);
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.06), 0 2px 4px rgba(0,0,0,0.04);
+  --shadow-lg: 0 10px 30px rgba(0,0,0,0.08);
+  --radius: 12px; --radius-sm: 8px; --radius-xs: 6px;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Helvetica, Arial, sans-serif; background: var(--bg); color: var(--text); line-height: 1.75; font-size: 15px; -webkit-font-smoothing: antialiased; }
+.topbar { background: var(--surface); border-bottom: 1px solid var(--border); padding: 12px 32px; display: flex; align-items: center; gap: 16px; position: sticky; top: 0; z-index: 200; box-shadow: var(--shadow-sm); }
+.topbar-brand { font-size: 1.1rem; font-weight: 700; color: var(--accent); text-decoration: none; display: flex; align-items: center; gap: 8px; }
+.topbar-brand svg { width: 28px; height: 28px; }
+.topbar-nav { display: flex; gap: 4px; margin-left: 24px; }
+.topbar-nav a { padding: 6px 16px; border-radius: 20px; font-size: 0.85rem; font-weight: 500; color: var(--text-secondary); text-decoration: none; transition: all 0.2s; }
+.topbar-nav a:hover { background: var(--surface2); color: var(--text); }
+.topbar-nav a.active { background: var(--accent-light); color: var(--accent); font-weight: 600; }
+.topbar-right { margin-left: auto; display: flex; align-items: center; gap: 12px; }
+.topbar-date { font-size: 0.82rem; color: var(--text-muted); background: var(--surface2); padding: 5px 12px; border-radius: 16px; }
+.page { display: flex; max-width: 1200px; margin: 0 auto; padding: 24px 24px 0; gap: 24px; }
+.toc { width: 220px; flex-shrink: 0; position: sticky; top: 80px; height: calc(100vh - 104px); overflow-y: auto; background: var(--surface); border-radius: var(--radius); padding: 20px 16px; box-shadow: var(--shadow-sm); border: 1px solid var(--border); }
+.toc-title { font-size: 0.72rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 14px; padding-left: 12px; }
+.toc a { display: block; padding: 7px 12px; margin-bottom: 2px; font-size: 0.82rem; color: var(--text-muted); text-decoration: none; border-radius: var(--radius-xs); transition: all 0.15s; font-weight: 500; }
+.toc a:hover { color: var(--accent); background: var(--accent-light); }
+.toc a.active { color: var(--accent); background: var(--accent-light); font-weight: 600; }
+.toc-mobile { display: none; position: sticky; top: 57px; z-index: 100; background: var(--surface); border-bottom: 1px solid var(--border); padding: 10px 16px; box-shadow: var(--shadow-sm); }
+.toc-mobile summary { cursor: pointer; font-size: 0.85rem; color: var(--accent); font-weight: 600; list-style: none; }
+.toc-mobile summary::-webkit-details-marker { display: none; }
+.toc-mobile .toc-dropdown { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 8px; margin-top: 8px; max-height: 60vh; overflow-y: auto; box-shadow: var(--shadow-md); }
+.toc-mobile .toc-dropdown a { display: block; padding: 8px 12px; font-size: 0.88rem; color: var(--text-secondary); text-decoration: none; border-radius: var(--radius-xs); }
+.toc-mobile .toc-dropdown a:hover { color: var(--accent); background: var(--accent-light); }
+@media (max-width: 860px) { .toc { display: none; } .toc-mobile { display: block; } .topbar-nav { display: none; } .page { flex-direction: column; padding: 16px 12px 0; gap: 16px; } .container { padding: 20px 16px 60px; } }
+.container { flex: 1; min-width: 0; background: var(--surface); border-radius: var(--radius); padding: 36px 40px 60px; box-shadow: var(--shadow-sm); border: 1px solid var(--border); margin-bottom: 40px; }
+.back { display: inline-flex; align-items: center; gap: 4px; color: var(--text-muted); text-decoration: none; font-size: 0.85rem; margin-bottom: 28px; font-weight: 500; transition: color 0.15s; }
+.back:hover { color: var(--accent); }
+h1 { font-size: 1.7rem; font-weight: 800; margin-bottom: 10px; line-height: 1.35; color: var(--text); letter-spacing: -0.01em; }
+.meta { color: var(--text-muted); font-size: 0.85rem; margin-bottom: 28px; }
+.highlights-line { color: var(--text-secondary); font-size: 0.9rem; margin: -18px 0 28px; line-height: 1.65; }
+.hero-img { width: 100%; border-radius: var(--radius); margin-bottom: 10px; box-shadow: var(--shadow-md); }
+.hero-caption { font-size: 0.82rem; color: var(--text-muted); margin-bottom: 36px; text-align: center; font-style: italic; }
+h2 { font-size: 1.25rem; font-weight: 700; margin: 44px 0 18px; padding-bottom: 10px; border-bottom: 2px solid var(--accent-light); scroll-margin-top: 90px; color: var(--text); }
+h3 { font-size: 1.05rem; font-weight: 600; margin: 26px 0 8px; color: var(--text); }
+p { margin-bottom: 14px; color: var(--text-secondary); }
+a { color: var(--accent); text-decoration: none; font-weight: 500; }
+a:hover { color: var(--accent-hover); text-decoration: underline; }
+strong { color: var(--text); font-weight: 600; }
+.callout { background: var(--accent-light); border-left: 4px solid var(--accent); border-radius: var(--radius-sm); padding: 16px 20px; margin: 20px 0; font-size: 0.93rem; color: var(--text-secondary); }
+.main-story { background: linear-gradient(135deg, #f7fbff 0%, #fff 60%); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px 26px; margin: 18px 0 28px; box-shadow: var(--shadow-sm); }
+.main-story h3 { margin-top: 0; font-size: 1.2rem; line-height: 1.45; }
+.main-story .story-hook { color: var(--accent); font-weight: 700; margin-bottom: 14px; }
+.story-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 16px 0; }
+.story-field { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 12px 14px; font-size: 0.88rem; color: var(--text-secondary); }
+.story-field strong { display: block; margin-bottom: 4px; color: var(--text); }
+.number-chip { display: inline-block; background: var(--blue-light); color: var(--blue); border-radius: 14px; padding: 3px 10px; margin: 3px 6px 3px 0; font-size: 0.78rem; font-weight: 700; }
+.story-line { background: var(--purple-light); border-left: 4px solid var(--purple); border-radius: var(--radius-sm); padding: 14px 16px; margin-top: 14px; color: var(--text); font-weight: 700; }
+.trend-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin: 16px 0 28px; }
+.trend-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px 20px; box-shadow: var(--shadow-sm); }
+.trend-card h4 { font-size: 0.95rem; margin-bottom: 8px; color: var(--text); }
+.trend-card .trend-conflict { color: var(--red); font-size: 0.82rem; font-weight: 700; margin-bottom: 8px; }
+.trend-card p { font-size: 0.86rem; margin-bottom: 10px; }
+.trend-card .trend-sources { font-size: 0.76rem; color: var(--text-muted); line-height: 1.55; }
+.curiosity-card { background: var(--orange-light); border: 1px solid #f5ddb8; border-radius: var(--radius); padding: 20px 24px; margin: 14px 0; }
+.curiosity-card h4 { font-size: 1rem; margin-bottom: 8px; font-weight: 600; }
+.curiosity-card h4 a { color: var(--orange); }
+.curiosity-card .hook { color: var(--orange); font-weight: 700; margin-bottom: 6px; }
+.curiosity-card p { font-size: 0.88rem; color: var(--text-secondary); margin: 0 0 8px; line-height: 1.65; }
+.podcast-brief { background: #f8fafc; border: 1px solid var(--border); border-radius: var(--radius); padding: 20px 24px; margin: 18px 0; }
+.podcast-brief h4 { margin: 0 0 10px; font-size: 1rem; }
+.podcast-brief .cold-open { color: var(--accent); font-weight: 700; margin-bottom: 14px; }
+.podcast-segment { border-top: 1px solid var(--border); padding-top: 12px; margin-top: 12px; }
+.podcast-segment strong { display: block; margin-bottom: 4px; }
+.article-img { width: 100%; max-height: 380px; object-fit: cover; border-radius: var(--radius-sm); margin: 12px 0 24px; box-shadow: var(--shadow-sm); }
+.tool-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 16px 0; }
+.tool-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px 20px; transition: all 0.2s; box-shadow: var(--shadow-sm); }
+.tool-card:hover { border-color: var(--accent); box-shadow: var(--shadow-md); transform: translateY(-1px); }
+.tool-card h4 { font-size: 0.95rem; margin-bottom: 6px; font-weight: 600; }
+.tool-card h4 a { color: var(--accent); }
+.tool-card p { font-size: 0.83rem; color: var(--text-muted); margin: 0; line-height: 1.55; }
+.tool-card .tag { display: inline-block; font-size: 0.68rem; padding: 3px 8px; border-radius: 10px; background: var(--accent); color: var(--accent-text); font-weight: 600; margin-bottom: 8px; letter-spacing: 0.02em; }
+.tool-card .priority-tag { display: inline-block; font-size: 0.65rem; padding: 2px 6px; border-radius: 8px; background: var(--surface2); color: var(--text-muted); font-weight: 600; margin-left: 6px; }
+.fun-card { background: var(--orange-light); border: 1px solid #f5ddb8; border-radius: var(--radius); padding: 20px 24px; margin: 14px 0; }
+.fun-card h4 { font-size: 1rem; margin-bottom: 8px; font-weight: 600; }
+.fun-card h4 a { color: var(--orange); }
+.fun-card p { font-size: 0.88rem; color: var(--text-secondary); margin: 0; line-height: 1.65; }
+.quote-block { background: var(--purple-light); border-left: 4px solid var(--purple); border-radius: var(--radius-sm); padding: 20px 24px; margin: 18px 0; }
+.quote-block blockquote { font-size: 1.02rem; line-height: 1.65; margin-bottom: 10px; font-style: italic; color: var(--text); }
+.quote-block .quote-author { font-size: 0.82rem; color: var(--purple); font-weight: 600; margin-bottom: 6px; }
+.quote-block .quote-meta { font-size: 0.78rem; color: var(--text-muted); margin-bottom: 10px; }
+.quote-block .quote-comment { font-size: 0.88rem; color: var(--text-secondary); border-top: 1px solid #d8d0e8; padding-top: 10px; margin-top: 10px; }
+.quote-block .quote-team-insight { font-size: 0.88rem; color: var(--green-deep); background: var(--accent-light); border-radius: var(--radius-xs); padding: 8px 12px; margin-top: 8px; }
+.resource-item { background: var(--blue-light); border: 1px solid #c8dbf8; border-radius: var(--radius); padding: 18px 20px; margin: 12px 0; }
+.resource-item a { font-weight: 600; color: var(--blue); }
+.resource-item p { font-size: 0.88rem; color: var(--text-secondary); margin: 6px 0 0; }
+.concept-card { background: var(--green-light2); border-left: 4px solid var(--accent); border-radius: var(--radius-sm); padding: 20px 24px; margin: 16px 0; }
+.concept-card h4 { font-size: 1rem; font-weight: 700; color: var(--green-deep); margin-bottom: 10px; }
+.concept-card .concept-field { font-size: 0.88rem; color: var(--text-secondary); margin-bottom: 6px; line-height: 1.6; }
+.concept-card .concept-field strong { color: var(--text); font-size: 0.88rem; }
+.insight-card { background: var(--yellow-light); border-left: 4px solid var(--yellow); border-radius: var(--radius-sm); padding: 16px 20px; margin: 12px 0; }
+.insight-card p { font-size: 0.93rem; color: var(--text-secondary); margin: 0; line-height: 1.7; }
+.insight-card .insight-num { display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; border-radius: 50%; background: var(--yellow); color: #fff; font-size: 0.75rem; font-weight: 700; margin-right: 10px; flex-shrink: 0; }
+.certainty-tag { display: inline-block; font-size: 0.65rem; padding: 2px 6px; border-radius: 8px; font-weight: 600; margin-left: 8px; }
+.certainty-confirmed { background: var(--accent-light); color: var(--accent); }
+.certainty-announced { background: var(--blue-light); color: var(--blue); }
+.certainty-reported { background: var(--yellow-light); color: var(--yellow); }
+.certainty-opinion { background: var(--purple-light); color: var(--purple); }
+.certainty-rumor { background: var(--red-light); color: var(--red); }
+.footer-sources { margin-top: 44px; padding: 20px 24px; background: var(--surface2); border-radius: var(--radius); font-size: 0.78rem; color: var(--text-muted); line-height: 1.9; }
+.footer-sources strong { color: var(--text-secondary); font-size: 0.78rem; }
+@media (max-width: 860px) { .trend-grid, .story-grid { grid-template-columns: 1fr; } }
+@media (max-width: 640px) { .tool-grid { grid-template-columns: 1fr; } }
+
+  </style>
+</head>
+<body>
+
+<header class="topbar">
+  <a href="../index.html" class="topbar-brand">
+    <svg viewBox="0 0 28 28" fill="none"><circle cx="14" cy="14" r="14" fill="#2d9f6f"/><path d="M8 14.5l3.5 3.5 8.5-8" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    Tech Digest
+  </a>
+  <nav class="topbar-nav">
+    <a href="../index.html">Archive</a>
+    <a href="#main-story" class="active">Today</a>
+    <a href="#tools">Tools</a>
+    <a href="#quotes">Quotes</a>
+  </nav>
+  <div class="topbar-right">
+    <span class="topbar-date">2026-07-21</span>
+  </div>
+</header>
+
+<details class="toc-mobile">
+  <summary>📑 目录导航</summary>
+  <div class="toc-dropdown">
+    <a href="#main-story">🔥 主故事</a>
+    <a href="#trends">⚡ 冲突趋势</a>
+    <a href="#tech-news">📰 科技动态</a>
+    <a href="#ai">🤖 AI 相关</a>
+    <a href="#articles">📝 文章推荐</a>
+    <a href="#tools">🛠️ 工具推荐</a>
+    <a href="#ai-tools">🧠 AI 工具</a>
+    <a href="#concepts">🧩 本期概念库</a>
+    <a href="#curiosity">🎲 好奇心入口</a>
+    <a href="#resources">📚 资源</a>
+    <a href="#quotes">💬 言论</a>
+    <a href="#podcast">🎙️ 播客提纲</a>
+    <a href="#team-insights">✅ 对团队的启发</a>
+  </div>
+</details>
+
+<div class="page">
+  <nav class="toc">
+    <div class="toc-title">本期目录</div>
+    <a href="#main-story">🔥 主故事</a>
+    <a href="#trends">⚡ 冲突趋势</a>
+    <a href="#tech-news">📰 科技动态</a>
+    <a href="#ai">🤖 AI 相关</a>
+    <a href="#articles">📝 文章推荐</a>
+    <a href="#tools">🛠️ 工具推荐</a>
+    <a href="#ai-tools">🧠 AI 工具</a>
+    <a href="#concepts">🧩 本期概念库</a>
+    <a href="#curiosity">🎲 好奇心入口</a>
+    <a href="#resources">📚 资源</a>
+    <a href="#quotes">💬 言论</a>
+    <a href="#podcast">🎙️ 播客提纲</a>
+    <a href="#team-insights">✅ 对团队的启发</a>
+  </nav>
+
+  <main class="container">
+    <a href="../index.html" class="back">← 返回目录</a>
+    <h1>第 60 期：当 AI 攻击也开始跑 Agent，防守方不能只靠云模型</h1>
+    <div class="meta">第 60 期 · 2026年7月21日，星期二</div>
+    <p class="highlights-line"><strong>✨ 本期亮点：</strong>Hugging Face 披露 AI 驱动入侵并改用本地 GLM 5.2 做取证 · Next.js 首个计划性安全发布目标 7 月 21 日，含 4 high / 5 medium · Romania 土地登记数据库擦除事故被报道导致房地产交易停摆 · Copilot CLI 1.0.72 加强 hook/keychain/skill 展示边界 · Kimi Work 推桌面 AI Agent + Cron + WebBridge · FastMCP、OmniRoute、Jelly UI 成为今日开发提效工具</p>
+
+    <img class="hero-img" src="https://huggingface.co/blog/assets/security-incident-july-2026/thumbnail.png" alt="Hugging Face security incident thumbnail">
+    <div class="hero-caption">本期关键词是「对称能力」：攻击者用 Agent 提速，防守方也必须准备能在本地、安全、可审计环境中运行的 AI 取证能力。</div>
+
+    <div class="callout">
+      <strong>🎯 本期核心判断：</strong>今天最重要的信号是：AI 安全不再只是模型防滥用问题，而是攻防双方都开始把 Agent 当执行系统。防守方如果没有本地可控模型、日志重放、凭证轮换和数据处理面隔离，就会在真正事故里被速度和权限边界一起卡住。
+    </div>
+
+    <div class="callout">
+      <strong>⏱ 本期建议阅读顺序</strong><br>
+      先看主故事：Hugging Face AI 驱动入侵为什么把 IR 模型、数据处理面和本地取证推到台前<br>
+      再看前端和供应链：Next.js 计划性安全发布、Copilot CLI skill 防注入、Oracle CPU<br>
+      最后看工具链：Kimi Work、FastMCP、OmniRoute、Jelly UI 和 AI Agent Book
+    </div>
+
+    <h2 id="main-story">🔥 主故事</h2>
+        <article class="main-story">
+      <h3>Hugging Face 披露 AI 驱动入侵：防守方也需要自己的本地模型</h3>
+      <p class="story-hook">这次最刺眼的不是被入侵，而是防守方一开始想用托管前沿模型分析攻击日志，却被安全护栏拦住。</p>
+      <p>Hugging Face 官方披露，他们检测并响应了一次进入部分生产基础设施的入侵；官方称这次入侵端到端由自主 AI Agent 系统驱动。攻击从数据处理管线开始，恶意 dataset 滥用 remote-code dataset loader 和 dataset configuration template injection 两条代码执行路径，随后升级到 node-level access、收集云和集群凭证，并在多个内部集群横向移动。官方称发现未授权访问有限内部数据集和若干服务凭证，仍在评估是否影响伙伴或客户数据；同时表示没有发现公开用户侧模型、数据集、Spaces 或软件供应链被篡改。</p>
+      <div class="story-grid">
+        <div class="story-field"><strong>核心冲突</strong>攻击者没有使用政策限制，可以用 Agent 在机器速度下跑多阶段行动；防守方用托管模型做 IR 时，真实攻击命令、payload 和 C2 artifact 反而可能触发安全护栏。</div>
+        <div class="story-field"><strong>转折点</strong>Hugging Face 最终改用自有基础设施上的 open-weight GLM 5.2 做取证分析，避免 guardrail lockout，也避免攻击者数据和凭证离开环境。</div>
+        <div class="story-field"><strong>为什么现在发生</strong>过去几期我们连续看到 Agent 权限、上下文预算和终端边界变成工程问题。Hugging Face 事件把这个趋势推进到安全事故现场：Agent 不只是开发效率工具，也可能是攻击自动化和防守自动化的共同底座。</div>
+        <div class="story-field"><strong>对团队的启发</strong>平台、后台和 AI 工具链团队要把 dataset processing、模板渲染、remote loader、token/secret 访问面当作一等攻击面；IR runbook 里要预置本地模型、日志脱敏、凭证轮换、集群重建和供应链完整性检查。</div>
+      </div>
+      <p><span class="number-chip">17,000+ recorded events</span><span class="number-chip">many thousands of actions</span><span class="number-chip">two code-execution paths</span><span class="number-chip">GLM 5.2</span><span class="number-chip">no evidence of public model/dataset tampering</span></p>
+      <p><strong>我的判断：</strong>我的判断是，安全团队会开始为 IR 建立「本地模型预案」：不是为了绕过安全，而是为了在真实攻击日志、凭证片段、payload 和恶意脚本无法送进托管模型时，仍能完成时间线重建、IOC 提取和影响面判断。</p>
+      <div class="story-line">当攻击者不受护栏约束，防守方至少不能被自己的工具锁在门外。</div>
+      <p><strong>来源：</strong><a href="https://huggingface.co/blog/security-incident-july-2026" target="_blank" rel="noopener noreferrer">huggingface.co</a></p>
+    </article>
+
+    <h2 id="trends">⚡ 冲突趋势</h2>
+        <div class="trend-grid">
+      <div class="trend-card">
+        <h4>AI IR 进入本地模型时代</h4>
+        <div class="trend-conflict">托管模型安全护栏 vs 真实事故取证需求</div>
+        <p>Hugging Face 事件说明，防守方需要能处理攻击日志、payload 和凭证片段的私有模型环境，否则事故现场可能被工具政策卡住。</p>
+        <div class="trend-sources">huggingface.co · news.risky.biz</div>
+      </div>
+      <div class="trend-card">
+        <h4>前端框架安全开始按月排班</h4>
+        <div class="trend-conflict">临时补丁效率 vs 企业升级可计划性</div>
+        <p>Next.js 把安全发布变成可预告节奏，首个计划版本目标 7 月 21 日，包含 4 个 high 和 5 个 medium；前端依赖升级要进入 release train。</p>
+        <div class="trend-sources">nextjs.org · oracle.com</div>
+      </div>
+      <div class="trend-card">
+        <h4>Agent 工具链开始补权限和注入边界</h4>
+        <div class="trend-conflict">技能/插件扩展性 vs 终端和凭证安全</div>
+        <p>Copilot CLI 7 月 20 日 changelog 同时修 agentStop 循环、默认关闭 macOS keychain sandbox access，并剥离 skill 列表中的终端控制字符。</p>
+        <div class="trend-sources">raw.githubusercontent.com · github.com</div>
+      </div>
+    </div>
+
+    <h2 id="tech-news">📰 科技动态</h2>
+    <h3>1、<a href="https://nextjs.org/blog/next-security-release-program" target="_blank" rel="noopener noreferrer">Next.js 首个计划性安全发布目标 7 月 21 日</a> <span class="certainty-tag certainty-announced">announced</span></h3>
+    <p>前端框架安全终于像后端平台一样排班：Next.js 官方宣布正式化 security release program，首个计划性安全版本目标 2026-07-21，覆盖 Next.js 16.2 和 15.5，包含 4 个 high 与 5 个 medium。确定性：官方预告已证实；CVEs 和细节要等补丁可用后官方披露。</p>
+    <img class="article-img" src="https://h8dxkfmaphn8o0p3.public.blob.vercel-storage.com/static/blog/next-security-release-program/twitter-card.png" alt="">
+    <h3>2、<a href="https://news.risky.biz/risky-bulletin-hacker-wipes-romanias-entire-land-registry-database/" target="_blank" rel="noopener noreferrer">Romania 土地登记数据库被擦除，房地产交易停摆</a> <span class="certainty-tag certainty-reported">reported</span></h3>
+    <p>Risky Business 报道称，攻击者入侵 Romania cadastre agency，并在勒索失败后擦除全国土地登记数据库，官方应用和网站离线约一周，公证人无法记录新交易，民众无法取得产权证明。确定性：这是安全媒体报道和相关地方报道/归档页面支撑，非本文直接获得的政府完整事故复盘。</p>
+    <h3>3、<a href="https://www.oracle.com/security-alerts/#CriticalPatchUpdates" target="_blank" rel="noopener noreferrer">Oracle 7 月 Critical Patch Update 日期到来</a> <span class="certainty-tag certainty-confirmed">confirmed</span></h3>
+    <p>Oracle 安全公告页面列出 2026-07-21 为下一个 Critical Patch Update 日期，并说明 CPU 通常在 1/4/7/10 月第三个周二发布。对后台团队，这不是新闻热闹，而是升级排期：数据库、中间件、Java/Oracle 组件都要进入窗口管理。</p>
+    <h3>4、<a href="https://microsoftedge.github.io/edgevr/posts/Rustifying-Image-Codecs-in-Chromium/" target="_blank" rel="noopener noreferrer">Microsoft Edge 团队复盘 Chromium image codecs Rust 化</a> <span class="certainty-tag certainty-confirmed">confirmed</span></h3>
+    <p>Microsoft Browser Vulnerability Research 复盘如何把 Chromium 攻击面很高的图像解码边界逐步 Rust 化：先有 Rust PNG，后续抽出通用集成模式，把 BMP 推到生产可用，并继续推进 ICO/JPEG。确定性：官方技术博客已证实；性能和安全收益需结合 field trials。</p>
+    <img class="article-img" src="https://microsoftedge.github.io/edgevr/assets/img/blog_img/rustifying_codecs/decision_flow.png" alt="">
+    <h3>5、<a href="https://raw.githubusercontent.com/github/copilot-cli/main/changelog.md" target="_blank" rel="noopener noreferrer">Copilot CLI 1.0.72 补上 Agent hook、keychain 和 skill 展示边界</a> <span class="certainty-tag certainty-confirmed">confirmed</span></h3>
+    <p>GitHub Copilot CLI changelog 显示，1.0.72 让总是阻塞的 agentStop hook 最多 8 次后结束当前 turn，macOS keychain sandbox access 默认关闭，并且 `copilot skill list` 会剥离 skill 名称/描述中的终端控制字符。确定性：公开 changelog 已证实；安全影响范围未作为 CVE 表述。</p>
+
+    <h2 id="ai">🤖 AI 相关</h2>
+    <h3>1、<a href="https://www.kimi.com/products/kimi-work" target="_blank" rel="noopener noreferrer">Kimi Work：桌面 AI Agent 把 Cron、WebBridge 和本地文件接在一起</a> <span class="certainty-tag certainty-confirmed">confirmed</span></h3>
+    <p>Kimi Work 官方页面定位为 knowledge work 的 AI Desktop，强调连接本地文件、浏览器自动化、24/7 Cron、Agent Swarm、PPT/Excel 生成和金融市场数据。确定性：产品页面已证实；真实权限边界、文件修改确认和企业可控性仍需实测。</p>
+    <img class="article-img" src="https://kimi-file.moonshot.cn/prod-chat-kimi/kfs/4/2/2026-06-03/1d8g0ecaav1fc643if810?x-tos-process=image%2Fauto-orient%2C1%2Fstrip%2Fignore-error%2C1" alt="">
+    <h3>2、<a href="https://werd.io/american-ai-is-locked-down-and-proprietary-its-losing/" target="_blank" rel="noopener noreferrer">开放权重模型战略争论继续升温</a> <span class="certainty-tag certainty-opinion">opinion</span></h3>
+    <p>Ben Werdmuller 在个人文章中主张中国 open-weights 策略正在赢，因为模型本身缺少长期 moat，而开放权重有分发和生态优势。确定性：这是作者观点，不是已证实产业结论；文章引用 The Verge、Economist、Interconnects 等作为论据。</p>
+    <h3>3、<a href="https://www.emergingtrajectories.com/lh/frontier-lab-economics/" target="_blank" rel="noopener noreferrer">前沿模型经济学文章把 Kimi K3 / Qwen 3.8 放进成本战</a> <span class="certainty-tag certainty-opinion">opinion</span></h3>
+    <p>Emerging Trajectories 文章认为 Kimi K3 和 Qwen 3.8 对顶级模型厂商构成战略挑战，并用 model cost per completed task 讨论 Anthropic 等纯模型公司风险。确定性：这是分析观点；模型性能、成本图和 Anthropic 风险判断需独立验证。</p>
+    <img class="article-img" src="https://www.emergingtrajectories.com/lh/frontier-lab-economics/images/2026-07-19-wiltw-model-cost.png" alt="">
+    <h3>4、<a href="https://xenaproject.wordpress.com/2026/07/20/human-mathematicians-are-being-outcounterexampled/" target="_blank" rel="noopener noreferrer">数学界开始认真讨论 AI 反例与 Lean 形式化</a> <span class="certainty-tag certainty-reported">reported</span></h3>
+    <p>Xena Project 作者复盘 ChatGPT/Sol、Claude Fable、Logos 等在反例和 Lean 形式化上的进展，提到 1.2 million lines of Lean code、mathlib 2.3 million lines 等数字。确定性：这是数学家个人视角和社区材料，不等于所有数学结论已被同行评审。</p>
+
+    <h2 id="articles">📝 文章推荐</h2>
+    <h3>1、<a href="https://var0.xyz/posts/perfection-is-not-over-engineering.html" target="_blank" rel="noopener noreferrer">Perfection is not over-engineering</a></h3>
+    <p>这篇文章把「追求完美」和「过度设计」拆开：过度设计不是做得太好，而是解决了错误的问题。对产品工程团队，最有用的点是把库、API、内部工具都当成有用户的产品，先把约束和需求讲清楚。</p>
+    <h3>2、<a href="https://github.com/bojieli/ai-agent-book" target="_blank" rel="noopener noreferrer">AI Agent Book：中文 AI Agent 工程实践开源书</a></h3>
+    <p>这个 GitHub Trending 项目开源《深入理解 AI Agent：设计原理与工程实践》，核心公式是 Agent = LLM + 上下文 + 工具，覆盖上下文工程、工具、Coding Agent、评估、多 Agent 等。对团队来说，它比单个工具更适合当作新人和共识材料。</p>
+    <img class="article-img" src="https://opengraph.githubassets.com/20260721/bojieli/ai-agent-book" alt="">
+    <h3>3、<a href="https://airport.apunen.com/" target="_blank" rel="noopener noreferrer">Airport Simulator</a></h3>
+    <p>一个浏览器里的机场调度模拟器，HN 热度很高。它不是业务工具，但很适合作为交互设计参考：简单规则、可视反馈、节奏控制和状态压力，可以让一个小网页变成可玩系统。</p>
+    <img class="article-img" src="https://airport.apunen.com/og-airport-simulator.png?v=20260720" alt="">
+
+    <h2 id="tools">🛠️ 工具推荐</h2>
+    <div class="tool-grid">
+      <div class="tool-card">
+        <h4><a href="https://github.com/PrefectHQ/fastmcp" target="_blank" rel="noopener noreferrer">FastMCP</a> <span class="priority-tag">P1</span></h4>
+        <p>Pythonic MCP server/client framework，适合后台团队把内部脚本、数据源和运维能力包装成 Agent 可调用工具。</p>
+      </div>
+      <div class="tool-card">
+        <h4><a href="https://jelly-ui.com/" target="_blank" rel="noopener noreferrer">Jelly UI</a> <span class="priority-tag">P2</span></h4>
+        <p>无依赖 Web Components 库，提供真实表单控件、软体物理、dark mode、RTL 和 WCAG AA token；适合前端做触感 UI 原型。</p>
+      </div>
+      <div class="tool-card">
+        <h4><a href="https://github.com/diegosouzapw/OmniRoute" target="_blank" rel="noopener noreferrer">OmniRoute</a> <span class="priority-tag">P2</span></h4>
+        <p>AI gateway，把多 provider、多模型、自动 fallback、压缩和 CLI/Agent 接入放到一个 endpoint；适合做多模型开发环境实验，成本数字按仓库声明处理。</p>
+      </div>
+    </div>
+
+    <h2 id="ai-tools">🧠 AI 工具</h2>
+    <div class="tool-grid">
+      <div class="tool-card">
+        <span class="tag">Desktop Agent</span>
+        <h4><a href="https://www.kimi.com/features/webbridge" target="_blank" rel="noopener noreferrer">Kimi WebBridge</a></h4>
+        <p>Kimi Work 的浏览器自动化能力，面向跨标签浏览、抓取和表单流程；适合评估桌面 Agent 权限边界。</p>
+      </div>
+      <div class="tool-card">
+        <span class="tag">Memory</span>
+        <h4><a href="https://github.com/topoteretes/cognee" target="_blank" rel="noopener noreferrer">Cognee</a></h4>
+        <p>开源 AI memory platform，用 self-hosted knowledge graph 给 Agent 长期记忆；适合内部知识库/项目记忆实验。</p>
+      </div>
+      <div class="tool-card">
+        <span class="tag">CLI Agent</span>
+        <h4><a href="https://github.com/github/copilot-cli" target="_blank" rel="noopener noreferrer">GitHub Copilot CLI</a></h4>
+        <p>近期 changelog 增强 sandbox、hook、skill 管理和终端展示边界；适合关注 CLI Agent 安全的人跟进。</p>
+      </div>
+    </div>
+
+    <h2 id="concepts">🧩 本期概念库</h2>
+    <div class="concept-card">
+      <h4>1. Guardrail Lockout</h4>
+      <div class="concept-field"><strong>一句话解释：</strong>防守方在事故响应中因托管模型安全策略而无法提交真实攻击命令、payload 或 C2 artifact 做分析。</div>
+      <div class="concept-field"><strong>背景来源：</strong>Hugging Face incident</div>
+      <div class="concept-field"><strong>为什么重要：</strong>安全护栏保护平台，但 IR 需要可审计的例外路径或本地模型。</div>
+      <div class="concept-field"><strong>团队应用场景：</strong>为安全事件准备本地模型、脱敏日志样本和审批过的取证环境。</div>
+    </div>
+    <div class="concept-card">
+      <h4>2. 数据处理面攻击面</h4>
+      <div class="concept-field"><strong>一句话解释：</strong>dataset loader、模板渲染、预处理 worker 等看似后台的 AI 数据流程可以成为代码执行入口。</div>
+      <div class="concept-field"><strong>背景来源：</strong>Hugging Face dataset processing pipeline</div>
+      <div class="concept-field"><strong>为什么重要：</strong>AI 平台不只保护模型 API，还要保护数据进入模型前的所有执行路径。</div>
+      <div class="concept-field"><strong>团队应用场景：</strong>限制 remote loader、模板执行、文件解析器权限，并给处理 worker 做最小权限和隔离。</div>
+    </div>
+    <div class="concept-card">
+      <h4>3. 计划性安全发布</h4>
+      <div class="concept-field"><strong>一句话解释：</strong>开源框架提前公布安全发布节奏和最高严重级别，让团队能安排升级窗口。</div>
+      <div class="concept-field"><strong>背景来源：</strong>Next.js security release program</div>
+      <div class="concept-field"><strong>为什么重要：</strong>前端依赖安全进入企业变更管理，而不是临时恐慌升级。</div>
+      <div class="concept-field"><strong>团队应用场景：</strong>为 Next.js/React/Vite 等核心依赖建立月度安全升级和回滚计划。</div>
+    </div>
+    <div class="concept-card">
+      <h4>4. Agent Skill 注入边界</h4>
+      <div class="concept-field"><strong>一句话解释：</strong>技能/插件名称、描述、hook 和说明文本也可能影响终端展示或执行流程。</div>
+      <div class="concept-field"><strong>背景来源：</strong>Copilot CLI changelog</div>
+      <div class="concept-field"><strong>为什么重要：</strong>Agent 扩展生态越开放，元数据和展示层越需要当成不可信输入。</div>
+      <div class="concept-field"><strong>团队应用场景：</strong>剥离控制字符、限制 hook 循环、默认关闭敏感系统权限。</div>
+    </div>
+    <div class="concept-card">
+      <h4>5. Memory-safe codec migration</h4>
+      <div class="concept-field"><strong>一句话解释：</strong>把浏览器图像解码这类高风险 C++ 边界逐步迁移到 Rust。</div>
+      <div class="concept-field"><strong>背景来源：</strong>Microsoft Edge Chromium image codecs</div>
+      <div class="concept-field"><strong>为什么重要：</strong>它展示了安全改造可以从干净边界增量开始，而不是重写整个系统。</div>
+      <div class="concept-field"><strong>团队应用场景：</strong>客户端/PC 团队优先识别 attacker-controlled input 边界，用 Rust/沙箱/fuzz 分阶段替换。</div>
+    </div>
+
+    <h2 id="curiosity">🎲 好奇心入口</h2>
+    <div class="curiosity-card">
+      <h4><a href="https://news.ycombinator.com/item?id=48976846" target="_blank" rel="noopener noreferrer">Airport Simulator</a></h4>
+      <div class="hook">调度飞机比看起来更容易让人上头。</div>
+      <p>一个极简网页把起降、节奏和拥堵压力做得非常直观。对前端团队，它是小交互也能建立复杂系统感的例子。 团队暗线：好的可视化让规则自己说话。</p>
+    </div>
+    <div class="curiosity-card">
+      <h4><a href="https://news.ycombinator.com/item?id=48981620" target="_blank" rel="noopener noreferrer">Jelly UI: Soft-body physics for native HTML form controls</a></h4>
+      <div class="hook">表单控件也能像果冻一样有触感。</div>
+      <p>Jelly UI 把真实 form controls 和 soft-body physics 结合，还保留 dark mode、RTL、WCAG AA。它适合提醒我们：可玩和可访问并不冲突。 团队暗线：高级 UI 原型也要从真实控件和无障碍开始。</p>
+    </div>
+    <div class="curiosity-card">
+      <h4><a href="https://news.ycombinator.com/item?id=48983382" target="_blank" rel="noopener noreferrer">Human mathematicians are being outcounterexampled</a></h4>
+      <div class="hook">AI 不只会证明，也会拿反例打断人类直觉。</div>
+      <p>Xena Project 的长文把 AI、Lean 和数学反例放在一起，最有趣的是人类开始把机器反例当作认真协作对象，而不是炫技。 团队暗线：高风险知识工作需要可验证工作流，不只需要聪明模型。</p>
+    </div>
+
+    <h2 id="resources">📚 资源</h2>
+    <div class="resource-item">
+      <a href="https://huggingface.co/blog/security-incident-july-2026#the-asymmetry-problem" target="_blank" rel="noopener noreferrer">Hugging Face incident: asymmetry problem</a>
+      <p>核对托管模型 guardrail lockout 与 GLM 5.2 本地取证的官方说明。</p>
+    </div>
+    <div class="resource-item">
+      <a href="https://nextjs.org/blog/next-security-release-program#upcoming-july-release" target="_blank" rel="noopener noreferrer">Next.js upcoming July release</a>
+      <p>核对 Next.js 16.2/15.5、4 high、5 medium 和 7 月 21 日目标发布时间。</p>
+    </div>
+    <div class="resource-item">
+      <a href="https://github.com/trending?since=daily" target="_blank" rel="noopener noreferrer">GitHub Trending daily</a>
+      <p>核对今日 AI Agent、MCP、开发工具相关趋势仓库。</p>
+    </div>
+
+    <h2 id="quotes">💬 言论：本期 7 个认知增量</h2>
+    <div class="quote-block">
+      <blockquote>这次事件的核心反差是：攻击者没有使用政策，防守方却可能被使用政策挡在事故现场之外。</blockquote>
+      <div class="quote-author">—— Hugging Face incident · 摘要式转述</div>
+      <div class="quote-meta">来源：<a href="https://news.risky.biz/risky-bulletin-hacker-wipes-romanias-entire-land-registry-database/#breaches-hacks-and-security-incidents" target="_blank" rel="noopener noreferrer">news.risky.biz</a> · 类型：摘要式转述 · 关键词：AI 安全 · IR</div>
+      <div class="quote-comment">💭 这不是反对安全护栏，而是提醒 IR 需要合法、可审计的本地能力。</div>
+      <div class="quote-team-insight">🎯 团队启发：把本地模型取证纳入安全事件预案。</div>
+    </div>
+    <div class="quote-block">
+      <blockquote>Next.js 把安全补丁变成可预告节奏，本质上是承认前端框架已经是企业关键基础设施。</blockquote>
+      <div class="quote-author">—— Next.js security release · 摘要式转述</div>
+      <div class="quote-meta">来源：<a href="https://nextjs.org/blog/next-security-release-program#what-to-expect" target="_blank" rel="noopener noreferrer">nextjs.org</a> · 类型：摘要式转述 · 关键词：前端工程 · 安全发布</div>
+      <div class="quote-comment">💭 前端依赖不再是 npm update 的小事，而是发布管理。</div>
+      <div class="quote-team-insight">🎯 团队启发：建立前端核心依赖月度升级窗口和回滚清单。</div>
+    </div>
+    <div class="quote-block">
+      <blockquote>土地登记数据库被擦除后，技术事故立刻变成交易系统停摆和社会流程停摆。</blockquote>
+      <div class="quote-author">—— HN 社区 · Romania land registry</div>
+      <div class="quote-meta">来源：<a href="https://news.ycombinator.com/item?id=48978605" target="_blank" rel="noopener noreferrer">news.ycombinator.com</a> · 类型：摘要式转述 · 关键词：可靠性 · 政务系统</div>
+      <div class="quote-comment">💭 这类事故最适合作为离线备份和恢复演练的反面教材。</div>
+      <div class="quote-team-insight">🎯 团队启发：关键账本类系统必须有离线备份、恢复演练和交易冻结预案。</div>
+    </div>
+    <div class="quote-block">
+      <blockquote>Agent skill 的名字和描述也要当作不可信输入，因为展示层同样可能被利用。</blockquote>
+      <div class="quote-author">—— Copilot CLI changelog · 摘要式转述</div>
+      <div class="quote-meta">来源：<a href="https://github.com/github/copilot-cli/blob/main/changelog.md#1072---2026-07-20" target="_blank" rel="noopener noreferrer">github.com</a> · 类型：摘要式转述 · 关键词：Agent · 供应链安全</div>
+      <div class="quote-comment">💭 插件生态的第一课不是安装更多插件，而是清洗插件元数据。</div>
+      <div class="quote-team-insight">🎯 团队启发：对 skill/plugin 元数据做控制字符剥离和权限默认关闭。</div>
+    </div>
+    <div class="quote-block">
+      <blockquote>桌面 Agent 最敏感的不是会不会回答，而是它能不能持续运行、碰本地文件、操作浏览器。</blockquote>
+      <div class="quote-author">—— HN 社区 · Kimi Work</div>
+      <div class="quote-meta">来源：<a href="https://news.ycombinator.com/item?id=48981703" target="_blank" rel="noopener noreferrer">news.ycombinator.com</a> · 类型：摘要式转述 · 关键词：Desktop Agent · 权限</div>
+      <div class="quote-comment">💭 长期在线的本地 Agent 应该按系统服务审查，而不是按聊天应用审查。</div>
+      <div class="quote-team-insight">🎯 团队启发：评估 Kimi Work 这类工具时先看文件授权、脚本执行、Cron 和浏览器权限。</div>
+    </div>
+    <div class="quote-block">
+      <blockquote>Rust 化图像解码的价值，不是追 Rust 热点，而是把不可信字节经过的高风险边界变窄。</blockquote>
+      <div class="quote-author">—— Microsoft Edge VR · 摘要式转述</div>
+      <div class="quote-meta">来源：<a href="https://microsoftedge.github.io/edgevr/posts/Rustifying-Image-Codecs-in-Chromium/#our-guiding-approach" target="_blank" rel="noopener noreferrer">microsoftedge.github.io</a> · 类型：摘要式转述 · 关键词：PC 客户端 · 内存安全</div>
+      <div class="quote-comment">💭 内存安全改造最适合从职责清楚、测试充分、输入不可信的边界开始。</div>
+      <div class="quote-team-insight">🎯 团队启发：客户端团队先列出文件解析、图片/视频解码、协议解析这些替换候选。</div>
+    </div>
+    <div class="quote-block">
+      <blockquote>过度设计不是做得太好，而是认真解决了错误的问题。</blockquote>
+      <div class="quote-author">—— HN 社区 · Perfection is not over-engineering</div>
+      <div class="quote-meta">来源：<a href="https://news.ycombinator.com/item?id=48979120" target="_blank" rel="noopener noreferrer">news.ycombinator.com</a> · 类型：摘要式转述 · 关键词：产品工程 · 架构</div>
+      <div class="quote-comment">💭 这句话适合贴在每个内部平台立项页上。</div>
+      <div class="quote-team-insight">🎯 团队启发：评审技术方案前先评审需求约束是否真实。</div>
+    </div>
+
+    <h2 id="podcast">🎙️ 播客提纲</h2>
+    <div class="podcast-brief">
+      <h4>第 60 期：AI 攻防进入 Agent 时代</h4>
+      <div class="cold-open">攻击者用 Agent 跑了成千上万步动作，防守方用 AI 分析 17,000 多条日志，却被托管模型护栏挡住。今天的问题是：你的安全工具在事故现场能不能真的工作？</div>
+      <div class="podcast-segment">
+        <strong>Hugging Face：防守方也需要本地模型</strong>
+        <p>AI 驱动入侵不是未来预测，而是官方事故披露。</p>
+        <p>IR runbook 增加本地模型、日志脱敏和凭证轮换演练。</p>
+      </div>      <div class="podcast-segment">
+        <strong>Next.js：安全发布开始排班</strong>
+        <p>前端安全不再靠临时惊醒。</p>
+        <p>把前端核心依赖升级纳入月度 release train。</p>
+      </div>      <div class="podcast-segment">
+        <strong>Copilot CLI：skill 名称也要清洗</strong>
+        <p>一个插件名字，也可能影响你的终端。</p>
+        <p>skill/plugin 元数据按不可信输入处理，敏感权限默认关闭。</p>
+      </div>
+      <p>今天的结论：AI 工具越像执行系统，就越需要按执行系统治理。模型只是其中一层，真正的安全在权限、日志、隔离、升级和恢复里。</p>
+    </div>
+
+    <h2 id="team-insights">✅ 对团队的启发</h2>
+    <div class="insight-card">
+      <p><span class="insight-num">1</span>为 AI/平台安全事件准备本地模型取证预案：模型、硬件、日志脱敏、权限、审计和演练样本都要提前准备。</p>
+    </div>
+    <div class="insight-card">
+      <p><span class="insight-num">2</span>AI 数据处理管线按攻击面治理：remote loader、模板渲染、文件解析、worker 权限和凭证访问要隔离。</p>
+    </div>
+    <div class="insight-card">
+      <p><span class="insight-num">3</span>Next.js、React、Vite、Node 等前端核心依赖建立月度安全升级窗口，提前安排灰度和回滚。</p>
+    </div>
+    <div class="insight-card">
+      <p><span class="insight-num">4</span>Agent skill/plugin 系统默认清洗元数据、限制 hook 循环、关闭 keychain/secret 等敏感权限，按不可信输入处理。</p>
+    </div>
+    <div class="insight-card">
+      <p><span class="insight-num">5</span>客户端内存安全改造从 attacker-controlled input 边界开始：图片/视频解码、压缩包、协议解析、输入法和插件系统。</p>
+    </div>
+
+    <div class="footer-sources">
+      <strong>📋 数据来源说明</strong><br>
+      本情报来自 66 个全球精选科技 / AI / 工程 / 系统可靠性信息源的每日更新。<br>
+      由 Cursor AI 自动生成，信息截止至 2026年7月21日，星期二。
+    </div>
+  </main>
+</div>
+
+<script>
+(function(){
+  const toc=document.querySelector('.toc');if(!toc)return;
+  const links=[...toc.querySelectorAll('a')];
+  const ids=links.map(l=>l.getAttribute('href').slice(1));
+  const secs=ids.map(id=>document.getElementById(id)).filter(Boolean);
+  function hl(){let cur=0;secs.forEach((s,i)=>{if(s.getBoundingClientRect().top<=120)cur=i;});
+  links.forEach((l,i)=>{l.classList.toggle('active',i===cur);});}
+  window.addEventListener('scroll',hl,{passive:true});hl();
+})();
+
+</script>
+</body>
+</html>
