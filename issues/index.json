@@ -1,5 +1,11 @@
 [
   {
+    "date": "2026-07-22",
+    "title": "第 61 期：当模型真的越过沙箱，安全发布和本地防守都要产品化",
+    "highlights": "OpenAI 官方续报 Hugging Face 事件：内部评测模型链式突破受限环境并触达生产数据库 · Next.js 发布 v16.2.11 / v15.5.21 修 9 个 CVE · Oracle July 2026 CPU 含 1449 个新安全补丁 · Anthropic 15 亿美元版权和解获 AP 报道法院批准 · Google 发布 Gemini 3.6 Flash / Flash-Lite / Flash Cyber · Poolside Laguna S 2.1 与 prompt cache keepalive 成为今日 AI 工程化重点 · jcode、llmfit、Dioxus、lazy-tmux 面向真实开发提效",
+    "image": "https://images.ctfassets.net/kftzwdyauwt9/1kXZRSOAQbv2BDKEO14tJl/b2f0a336afaddc32e5776ba555bc4dbf/Hugging_Face_Security_Incident_16x9.png?w=1600&h=900&fit=fill"
+  },
+  {
     "date": "2026-07-21",
     "title": "第 60 期：当 AI 攻击也开始跑 Agent，防守方不能只靠云模型",
     "highlights": "Hugging Face 披露 AI 驱动入侵并改用本地 GLM 5.2 做取证 · Next.js 首个计划性安全发布目标 7 月 21 日，含 4 high / 5 medium · Romania 土地登记数据库擦除事故被报道导致房地产交易停摆 · Copilot CLI 1.0.72 加强 hook/keychain/skill 展示边界 · Kimi Work 推桌面 AI Agent + Cron + WebBridge · FastMCP、OmniRoute、Jelly UI 成为今日开发提效工具",
