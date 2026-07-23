@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>第 62 期：AI Agent 的风险开始藏在开发工作流里</title>
+  <meta property="og:title" content="Tech Digest #62：假面试 Git hook 恶意链、Anthropic Agent containment、PyPI 14 天限制">
+  <meta property="og:description" content="今天的主线不是模型又会了什么，而是 Agent、依赖、浏览器和本地开发环境正在变成同一条安全边界。">
+  <meta property="og:image" content="https://citizendot.github.io/_astro/Screenshot_20260719-211017.DYnt8aCJ_Z1UUdvu.webp">
+  <style>
+:root {
+  --bg: #f5f6f8; --surface: #ffffff; --surface2: #f0f2f5;
+  --border: #e8ecf1; --border-hover: #c5cdd8;
+  --text: #1a1d21; --text-secondary: #3d4550; --text-muted: #8c95a1;
+  --accent: #2d9f6f; --accent-light: #e8f5ef; --accent-hover: #248a5e;
+  --accent-text: #ffffff;
+  --purple: #7c5cbf; --purple-light: #f3effc;
+  --orange: #e58e26; --orange-light: #fef5e7;
+  --blue: #3a82f7; --blue-light: #eef4fe;
+  --red: #e74c3c; --red-light: #fdecea;
+  --green-deep: #1a7a4c; --green-light2: #e0f5ea;
+  --yellow: #d4a017; --yellow-light: #fef9e7;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.06);
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.06), 0 2px 4px rgba(0,0,0,0.04);
+  --shadow-lg: 0 10px 30px rgba(0,0,0,0.08);
+  --radius: 12px; --radius-sm: 8px; --radius-xs: 6px;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Helvetica, Arial, sans-serif; background: var(--bg); color: var(--text); line-height: 1.75; font-size: 15px; -webkit-font-smoothing: antialiased; }
+.topbar { background: var(--surface); border-bottom: 1px solid var(--border); padding: 12px 32px; display: flex; align-items: center; gap: 16px; position: sticky; top: 0; z-index: 200; box-shadow: var(--shadow-sm); }
+.topbar-brand { font-size: 1.1rem; font-weight: 700; color: var(--accent); text-decoration: none; display: flex; align-items: center; gap: 8px; }
+.topbar-brand svg { width: 28px; height: 28px; }
+.topbar-nav { display: flex; gap: 4px; margin-left: 24px; }
+.topbar-nav a { padding: 6px 16px; border-radius: 20px; font-size: 0.85rem; font-weight: 500; color: var(--text-secondary); text-decoration: none; transition: all 0.2s; }
+.topbar-nav a:hover { background: var(--surface2); color: var(--text); }
+.topbar-nav a.active { background: var(--accent-light); color: var(--accent); font-weight: 600; }
+.topbar-right { margin-left: auto; display: flex; align-items: center; gap: 12px; }
+.topbar-date { font-size: 0.82rem; color: var(--text-muted); background: var(--surface2); padding: 5px 12px; border-radius: 16px; }
+.page { display: flex; max-width: 1200px; margin: 0 auto; padding: 24px 24px 0; gap: 24px; }
+.toc { width: 220px; flex-shrink: 0; position: sticky; top: 80px; height: calc(100vh - 104px); overflow-y: auto; background: var(--surface); border-radius: var(--radius); padding: 20px 16px; box-shadow: var(--shadow-sm); border: 1px solid var(--border); }
+.toc-title { font-size: 0.72rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 14px; padding-left: 12px; }
+.toc a { display: block; padding: 7px 12px; margin-bottom: 2px; font-size: 0.82rem; color: var(--text-muted); text-decoration: none; border-radius: var(--radius-xs); transition: all 0.15s; font-weight: 500; }
+.toc a:hover { color: var(--accent); background: var(--accent-light); }
+.toc a.active { color: var(--accent); background: var(--accent-light); font-weight: 600; }
+.toc-mobile { display: none; position: sticky; top: 57px; z-index: 100; background: var(--surface); border-bottom: 1px solid var(--border); padding: 10px 16px; box-shadow: var(--shadow-sm); }
+.toc-mobile summary { cursor: pointer; font-size: 0.85rem; color: var(--accent); font-weight: 600; list-style: none; }
+.toc-mobile summary::-webkit-details-marker { display: none; }
+.toc-mobile .toc-dropdown { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 8px; margin-top: 8px; max-height: 60vh; overflow-y: auto; box-shadow: var(--shadow-md); }
+.toc-mobile .toc-dropdown a { display: block; padding: 8px 12px; font-size: 0.88rem; color: var(--text-secondary); text-decoration: none; border-radius: var(--radius-xs); }
+.toc-mobile .toc-dropdown a:hover { color: var(--accent); background: var(--accent-light); }
+@media (max-width: 860px) { .toc { display: none; } .toc-mobile { display: block; } .topbar-nav { display: none; } .page { flex-direction: column; padding: 16px 12px 0; gap: 16px; } .container { padding: 20px 16px 60px; } }
+.container { flex: 1; min-width: 0; background: var(--surface); border-radius: var(--radius); padding: 36px 40px 60px; box-shadow: var(--shadow-sm); border: 1px solid var(--border); margin-bottom: 40px; }
+.back { display: inline-flex; align-items: center; gap: 4px; color: var(--text-muted); text-decoration: none; font-size: 0.85rem; margin-bottom: 28px; font-weight: 500; transition: color 0.15s; }
+.back:hover { color: var(--accent); }
+h1 { font-size: 1.7rem; font-weight: 800; margin-bottom: 10px; line-height: 1.35; color: var(--text); letter-spacing: -0.01em; }
+.meta { color: var(--text-muted); font-size: 0.85rem; margin-bottom: 28px; }
+.highlights-line { color: var(--text-secondary); font-size: 0.9rem; margin: -18px 0 28px; line-height: 1.65; }
+.hero-img { width: 100%; border-radius: var(--radius); margin-bottom: 10px; box-shadow: var(--shadow-md); }
+.hero-caption { font-size: 0.82rem; color: var(--text-muted); margin-bottom: 36px; text-align: center; font-style: italic; }
+h2 { font-size: 1.25rem; font-weight: 700; margin: 44px 0 18px; padding-bottom: 10px; border-bottom: 2px solid var(--accent-light); scroll-margin-top: 90px; color: var(--text); }
+h3 { font-size: 1.05rem; font-weight: 600; margin: 26px 0 8px; color: var(--text); }
+p { margin-bottom: 14px; color: var(--text-secondary); }
+a { color: var(--accent); text-decoration: none; font-weight: 500; }
+a:hover { color: var(--accent-hover); text-decoration: underline; }
+strong { color: var(--text); font-weight: 600; }
+.callout { background: var(--accent-light); border-left: 4px solid var(--accent); border-radius: var(--radius-sm); padding: 16px 20px; margin: 20px 0; font-size: 0.93rem; color: var(--text-secondary); }
+.main-story { background: linear-gradient(135deg, #f7fbff 0%, #fff 60%); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px 26px; margin: 18px 0 28px; box-shadow: var(--shadow-sm); }
+.main-story h3 { margin-top: 0; font-size: 1.2rem; line-height: 1.45; }
+.main-story .story-hook { color: var(--accent); font-weight: 700; margin-bottom: 14px; }
+.story-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 16px 0; }
+.story-field { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 12px 14px; font-size: 0.88rem; color: var(--text-secondary); }
+.story-field strong { display: block; margin-bottom: 4px; color: var(--text); }
+.number-chip { display: inline-block; background: var(--blue-light); color: var(--blue); border-radius: 14px; padding: 3px 10px; margin: 3px 6px 3px 0; font-size: 0.78rem; font-weight: 700; }
+.story-line { background: var(--purple-light); border-left: 4px solid var(--purple); border-radius: var(--radius-sm); padding: 14px 16px; margin-top: 14px; color: var(--text); font-weight: 700; }
+.trend-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin: 16px 0 28px; }
+.trend-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px 20px; box-shadow: var(--shadow-sm); }
+.trend-card h4 { font-size: 0.95rem; margin-bottom: 8px; color: var(--text); }
+.trend-card .trend-conflict { color: var(--red); font-size: 0.82rem; font-weight: 700; margin-bottom: 8px; }
+.trend-card p { font-size: 0.86rem; margin-bottom: 10px; }
+.trend-card .trend-sources { font-size: 0.76rem; color: var(--text-muted); line-height: 1.55; }
+.curiosity-card { background: var(--orange-light); border: 1px solid #f5ddb8; border-radius: var(--radius); padding: 20px 24px; margin: 14px 0; }
+.curiosity-card h4 { font-size: 1rem; margin-bottom: 8px; font-weight: 600; }
+.curiosity-card h4 a { color: var(--orange); }
+.curiosity-card .hook { color: var(--orange); font-weight: 700; margin-bottom: 6px; }
+.curiosity-card p { font-size: 0.88rem; color: var(--text-secondary); margin: 0 0 8px; line-height: 1.65; }
+.podcast-brief { background: #f8fafc; border: 1px solid var(--border); border-radius: var(--radius); padding: 20px 24px; margin: 18px 0; }
+.podcast-brief h4 { margin: 0 0 10px; font-size: 1rem; }
+.podcast-brief .cold-open { color: var(--accent); font-weight: 700; margin-bottom: 14px; }
+.podcast-segment { border-top: 1px solid var(--border); padding-top: 12px; margin-top: 12px; }
+.podcast-segment strong { display: block; margin-bottom: 4px; }
+.article-img { width: 100%; max-height: 380px; object-fit: cover; border-radius: var(--radius-sm); margin: 12px 0 24px; box-shadow: var(--shadow-sm); }
+.tool-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 16px 0; }
+.tool-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px 20px; transition: all 0.2s; box-shadow: var(--shadow-sm); }
+.tool-card:hover { border-color: var(--accent); box-shadow: var(--shadow-md); transform: translateY(-1px); }
+.tool-card h4 { font-size: 0.95rem; margin-bottom: 6px; font-weight: 600; }
+.tool-card h4 a { color: var(--accent); }
+.tool-card p { font-size: 0.83rem; color: var(--text-muted); margin: 0; line-height: 1.55; }
+.tool-card .tag { display: inline-block; font-size: 0.68rem; padding: 3px 8px; border-radius: 10px; background: var(--accent); color: var(--accent-text); font-weight: 600; margin-bottom: 8px; letter-spacing: 0.02em; }
+.tool-card .priority-tag { display: inline-block; font-size: 0.65rem; padding: 2px 6px; border-radius: 8px; background: var(--surface2); color: var(--text-muted); font-weight: 600; margin-left: 6px; }
+.fun-card { background: var(--orange-light); border: 1px solid #f5ddb8; border-radius: var(--radius); padding: 20px 24px; margin: 14px 0; }
+.fun-card h4 { font-size: 1rem; margin-bottom: 8px; font-weight: 600; }
+.fun-card h4 a { color: var(--orange); }
+.fun-card p { font-size: 0.88rem; color: var(--text-secondary); margin: 0; line-height: 1.65; }
+.quote-block { background: var(--purple-light); border-left: 4px solid var(--purple); border-radius: var(--radius-sm); padding: 20px 24px; margin: 18px 0; }
+.quote-block blockquote { font-size: 1.02rem; line-height: 1.65; margin-bottom: 10px; font-style: italic; color: var(--text); }
+.quote-block .quote-author { font-size: 0.82rem; color: var(--purple); font-weight: 600; margin-bottom: 6px; }
+.quote-block .quote-meta { font-size: 0.78rem; color: var(--text-muted); margin-bottom: 10px; }
+.quote-block .quote-comment { font-size: 0.88rem; color: var(--text-secondary); border-top: 1px solid #d8d0e8; padding-top: 10px; margin-top: 10px; }
+.quote-block .quote-team-insight { font-size: 0.88rem; color: var(--green-deep); background: var(--accent-light); border-radius: var(--radius-xs); padding: 8px 12px; margin-top: 8px; }
+.resource-item { background: var(--blue-light); border: 1px solid #c8dbf8; border-radius: var(--radius); padding: 18px 20px; margin: 12px 0; }
+.resource-item a { font-weight: 600; color: var(--blue); }
+.resource-item p { font-size: 0.88rem; color: var(--text-secondary); margin: 6px 0 0; }
+.concept-card { background: var(--green-light2); border-left: 4px solid var(--accent); border-radius: var(--radius-sm); padding: 20px 24px; margin: 16px 0; }
+.concept-card h4 { font-size: 1rem; font-weight: 700; color: var(--green-deep); margin-bottom: 10px; }
+.concept-card .concept-field { font-size: 0.88rem; color: var(--text-secondary); margin-bottom: 6px; line-height: 1.6; }
+.concept-card .concept-field strong { color: var(--text); font-size: 0.88rem; }
+.insight-card { background: var(--yellow-light); border-left: 4px solid var(--yellow); border-radius: var(--radius-sm); padding: 16px 20px; margin: 12px 0; }
+.insight-card p { font-size: 0.93rem; color: var(--text-secondary); margin: 0; line-height: 1.7; }
+.insight-card .insight-num { display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; border-radius: 50%; background: var(--yellow); color: #fff; font-size: 0.75rem; font-weight: 700; margin-right: 10px; flex-shrink: 0; }
+.certainty-tag { display: inline-block; font-size: 0.65rem; padding: 2px 6px; border-radius: 8px; font-weight: 600; margin-left: 8px; }
+.certainty-confirmed { background: var(--accent-light); color: var(--accent); }
+.certainty-announced { background: var(--blue-light); color: var(--blue); }
+.certainty-reported { background: var(--yellow-light); color: var(--yellow); }
+.certainty-opinion { background: var(--purple-light); color: var(--purple); }
+.certainty-rumor { background: var(--red-light); color: var(--red); }
+.footer-sources { margin-top: 44px; padding: 20px 24px; background: var(--surface2); border-radius: var(--radius); font-size: 0.78rem; color: var(--text-muted); line-height: 1.9; }
+.footer-sources strong { color: var(--text-secondary); font-size: 0.78rem; }
+@media (max-width: 860px) { .trend-grid, .story-grid { grid-template-columns: 1fr; } }
+@media (max-width: 640px) { .tool-grid { grid-template-columns: 1fr; } }
+
+  </style>
+</head>
+<body>
+
+<header class="topbar">
+  <a href="../index.html" class="topbar-brand">
+    <svg viewBox="0 0 28 28" fill="none"><circle cx="14" cy="14" r="14" fill="#2d9f6f"/><path d="M8 14.5l3.5 3.5 8.5-8" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    Tech Digest
+  </a>
+  <nav class="topbar-nav">
+    <a href="../index.html">Archive</a>
+    <a href="#main-story" class="active">Today</a>
+    <a href="#tools">Tools</a>
+    <a href="#quotes">Quotes</a>
+  </nav>
+  <div class="topbar-right">
+    <span class="topbar-date">2026-07-23</span>
+  </div>
+</header>
+
+<details class="toc-mobile">
+  <summary>📑 目录导航</summary>
+  <div class="toc-dropdown">
+    <a href="#main-story">🔥 主故事</a>
+    <a href="#trends">⚡ 冲突趋势</a>
+    <a href="#tech-news">📰 科技动态</a>
+    <a href="#ai">🤖 AI 相关</a>
+    <a href="#articles">📝 文章推荐</a>
+    <a href="#tools">🛠️ 工具推荐</a>
+    <a href="#ai-tools">🧠 AI 工具</a>
+    <a href="#concepts">🧩 本期概念库</a>
+    <a href="#curiosity">🎲 好奇心入口</a>
+    <a href="#resources">📚 资源</a>
+    <a href="#quotes">💬 言论</a>
+    <a href="#podcast">🎙️ 播客提纲</a>
+    <a href="#team-insights">✅ 对团队的启发</a>
+  </div>
+</details>
+
+<div class="page">
+  <nav class="toc">
+    <div class="toc-title">本期目录</div>
+    <a href="#main-story">🔥 主故事</a>
+    <a href="#trends">⚡ 冲突趋势</a>
+    <a href="#tech-news">📰 科技动态</a>
+    <a href="#ai">🤖 AI 相关</a>
+    <a href="#articles">📝 文章推荐</a>
+    <a href="#tools">🛠️ 工具推荐</a>
+    <a href="#ai-tools">🧠 AI 工具</a>
+    <a href="#concepts">🧩 本期概念库</a>
+    <a href="#curiosity">🎲 好奇心入口</a>
+    <a href="#resources">📚 资源</a>
+    <a href="#quotes">💬 言论</a>
+    <a href="#podcast">🎙️ 播客提纲</a>
+    <a href="#team-insights">✅ 对团队的启发</a>
+  </nav>
+
+  <main class="container">
+    <a href="../index.html" class="back">← 返回目录</a>
+    <h1>第 62 期：AI Agent 的风险开始藏在开发工作流里</h1>
+    <div class="meta">第 62 期 · 2026年7月23日，星期四</div>
+    <p class="highlights-line"><strong>✨ 本期亮点：</strong>假面试 Git hook 恶意链成为今日主故事 · Anthropic 复盘 Claude containment：93% 权限提示批准率与 84% 提示减少 · PyPI 14 天后拒绝旧 release 新文件 · Qualys 披露 RefluXFS 本地提权影响可能超过 1640 万系统 · Safari TP 248、LiteRT.js、ADK Go 2.0、Ray on TPU 进入工程视野 · Bento、Topcoat、likec4、croc 面向真实开发提效</p>
+
+    <img class="hero-img" src="https://citizendot.github.io/_astro/Screenshot_20260719-211017.DYnt8aCJ_Z1UUdvu.webp" alt="fake recruiter message used in a take-home interview malware story">
+    <div class="hero-caption">今日关键词是「工作流即攻击面」：代码评测、Agent 容器、依赖发布、浏览器运行时和团队提示词都在进入安全治理范围。</div>
+
+    <div class="callout">
+      <strong>🎯 本期核心判断：</strong>今天最重要的判断是：AI 时代的安全边界已经从服务器扩展到开发者工作流本身，招聘作业、仓库配置、Agent 上下文、依赖发布和浏览器运行时都需要被当作可被利用的生产入口。
+    </div>
+
+    <div class="callout">
+      <strong>⏱ 本期建议阅读顺序</strong><br>
+      先看主故事：假面试项目如何用 Git hook 把候选人的机器变成攻击面<br>
+      再看安全边界：Anthropic containment、PyPI 14 天限制和 RefluXFS 都在收紧默认信任<br>
+      最后看开发提效：Bento、Topcoat、likec4、ADK Go、LiteRT.js 等工具怎样服务真实工程
+    </div>
+
+    <h2 id="main-story">🔥 主故事</h2>
+        <article class="main-story">
+      <h3>假面试项目里的 Git hook 恶意链：开发者工作流正在成为攻击入口</h3>
+      <p class="story-hook">一个远程 Python 岗位、一份看似正常的 FastAPI 作业、一个隐藏的 `.git/hooks/pre-commit`，足以把候选人的电脑变成攻击目标。</p>
+      <p>安全研究者 Appaji Chintimi 复盘称，一名自称招聘者的人通过 LinkedIn 发来远程 Python 合同岗机会，月薪报价 10,000-15,000 美元，并发送 Google Drive zip 作为 take-home assignment。项目表面是 FastAPI + SQLAlchemy 样板，但 `.git/hooks` 目录里预置了大量 hooks，其中 `pre-commit` 会按 macOS、Linux、Windows 分支从一个裸 IP 拉取远程脚本并在后台执行。</p>
+      <div class="story-grid">
+        <div class="story-field"><strong>核心冲突</strong>招聘流程要求候选人运行陌生代码以证明能力，但现代开发工具默认信任本地仓库、Git hook、IDE 配置和 shell 命令；速度越快，越容易跳过检查隐藏目录这一步。</div>
+        <div class="story-field"><strong>转折点</strong>作者没有直接运行项目，而是先执行 `tree -a` 检查隐藏目录，发现 hook 后继续分析第二阶段脚本：它会把 payload 放进用户 Documents 目录，安装 Node.js 依赖并运行混淆的 `parser.js`。作者进一步判断攻击者可能复用了公开 FastAPI 项目，再叠加恶意隐藏目录。</div>
+        <div class="story-field"><strong>为什么现在发生</strong>AI coding 和远程招聘让「给你一个仓库，快速跑起来看看」成为常态；同时攻击者知道候选人、外包开发者和开源维护者最容易在压力下信任项目脚手架。</div>
+        <div class="story-field"><strong>对团队的启发</strong>团队可以把 take-home / 外部 repo 检查做成固定 playbook：先解压到隔离目录，检查 `.git/hooks`、`.vscode`、package scripts、Dockerfile、CI 文件、二进制和远程下载命令；默认在无凭证、无主目录挂载、无外网或受控外网的容器/VM 中运行。</div>
+      </div>
+      <p><span class="number-chip">$10,000-$15,000/month</span><span class="number-chip">id=402</span><span class="number-chip">pre-commit hook</span><span class="number-chip">Node.js second stage</span><span class="number-chip">Hardhat dependencies</span></p>
+      <p><strong>我的判断：</strong>我的判断是，开发者安全不能只盯 package lock 和 dependency scan。所有来自招聘、外包、社区 issue、竞品复现的项目，都应该先当成未信任输入处理：先静态看隐藏目录、hooks、IDE 配置和脚本，再决定是否进隔离环境运行。</p>
+      <div class="story-line">当面试作业也能投毒，开发者本机就是第一道生产防线。</div>
+      <p><strong>来源：</strong><a href="https://citizendot.github.io/articles/fake-job-interview-git-hook-malware/" target="_blank" rel="noopener noreferrer">citizendot.github.io</a></p>
+    </article>
+
+    <h2 id="trends">⚡ 冲突趋势</h2>
+        <div class="trend-grid">
+      <div class="trend-card">
+        <h4>开发者本机成为供应链入口</h4>
+        <div class="trend-conflict">快速试跑外部项目 vs 默认零信任</div>
+        <p>假面试项目把攻击点放在 Git hook 和 IDE/仓库启动流程，提醒团队把外部 repo 当成不可信输入，而不是普通压缩包。</p>
+        <div class="trend-sources">citizendot.github.io · hn.algolia.com</div>
+      </div>
+      <div class="trend-card">
+        <h4>Agent 安全从拒绝策略转向确定性边界</h4>
+        <div class="trend-conflict">更少打断用户 vs 更小爆炸半径</div>
+        <p>Anthropic 的 containment 文章把焦点放在环境隔离、文件系统边界、egress 控制和工具输出检查，而不是只靠模型层判断。</p>
+        <div class="trend-sources">anthropic.com</div>
+      </div>
+      <div class="trend-card">
+        <h4>依赖发布窗口开始被锁死</h4>
+        <div class="trend-conflict">兼容旧发布习惯 vs 防止旧版本被投毒</div>
+        <p>PyPI 现在拒绝向超过 14 天的 release 上传新文件，这让包维护者少一点灵活性，但给用户多一层供应链确定性。</p>
+        <div class="trend-sources">blog.pypi.org</div>
+      </div>
+    </div>
+
+    <h2 id="tech-news">📰 科技动态</h2>
+    <h3>1、<a href="https://blog.pypi.org/posts/2026-07-22-releases-now-reject-new-files-after-14-days/" target="_blank" rel="noopener noreferrer">PyPI 现在拒绝向超过 14 天的 release 上传新文件</a> <span class="certainty-tag certainty-confirmed">confirmed</span></h3>
+    <p>14 天之后不能再给旧 release 补新文件了。PyPI 官方表示，这一限制用于防止长期稳定的旧版本在发布 token 或 workflow 被攻破后被投毒；官方也说明目前据其所知尚未发现该路径被滥用。对后台和工具链团队而言，这意味着发布策略要更偏向 bump next version，而不是给旧版本无限追加 wheel。</p>
+    <img class="article-img" src="https://blog.pypi.org/assets/images/social/posts/2026-07-22-releases-now-reject-new-files-after-14-days.png" alt="">
+    <h3>2、<a href="https://blog.qualys.com/vulnerabilities-threat-research/2026/07/22/refluxfs-a-linux-kernel-local-privilege-escalation-to-root-in-xfs-cve-2026-64600" target="_blank" rel="noopener noreferrer">Qualys 披露 RefluXFS：XFS 本地提权影响可能超过 1640 万系统</a> <span class="certainty-tag certainty-confirmed">confirmed</span></h3>
+    <p>一个普通本地账号可利用 XFS reflink copy-on-write 路径 race condition 覆盖受保护文件并获得 root。Qualys 称 CVE-2026-64600 自 Linux kernel 4.11 起存在，可能影响超过 1640 万系统，且常见硬化、SELinux Enforcing 和容器边界都不足以可靠阻断；唯一可靠缓解是打内核补丁并重启。</p>
+    <img class="article-img" src="https://ik.imagekit.io/qualys/wp-content/uploads/2026/07/1200x1200_1.png" alt="">
+    <h3>3、<a href="https://webkit.org/blog/18162/release-notes-for-safari-technology-preview-248/" target="_blank" rel="noopener noreferrer">Safari Technology Preview 248 发布：BigInt Math、Digital Credentials、Web Inspector 多项修复</a> <span class="certainty-tag certainty-confirmed">confirmed</span></h3>
+    <p>Release 248 覆盖 WebKit 315567 到 316817 的变更，包括 TC39 BigInt Math proposal、Digital Credentials API/WebDriver 支持、CSS progress no-clamp、CSP/Trusted Types 修复、Web Inspector breakpoint/Console/DOM Storage 等问题。对 Web/iOS 团队，这是下一波 Safari 兼容性和调试能力的前置信号。</p>
+    <img class="article-img" src="https://webkit.org/wp-content/themes/webkit/images/preview-card.jpg" alt="">
+    <h3>4、<a href="https://github.blog/changelog/label/copilot/" target="_blank" rel="noopener noreferrer">GitHub Copilot usage metrics 加入 Copilot app usage</a> <span class="certainty-tag certainty-announced">announced</span></h3>
+    <p>GitHub Changelog 摘要显示，Copilot usage metrics API 已在 enterprise 和 organization 的 1-day / 28-day reports 中报告 GitHub Copilot app usage。对工程管理者来说，这类指标会让 AI 工具从个人体验进入团队 ROI 和治理视角。</p>
+    <img class="article-img" src="https://github.blog/wp-content/uploads/2026/07/Copilot_ImpactChangelog.jpg" alt="">
+    <h3>5、<a href="https://krebsonsecurity.com/2026/07/lg-to-ban-residential-proxies-from-smart-tv-apps/" target="_blank" rel="noopener noreferrer">LG 将要求 webOS 应用移除住宅代理选项</a> <span class="certainty-tag certainty-reported">reported</span></h3>
+    <p>KrebsOnSecurity 报道，LG Electronics USA 表示会要求开发者从 webOS 应用中移除 residential proxy 相关选项，未移除的应用将被暂停。报道还引用 Spur 研究称，LG 智能电视商店中超过 42% 应用含有可让电视成为代理节点的 SDK。确定性：LG 表态和 42% 数字均按媒体报道和安全厂商研究处理。</p>
+    <img class="article-img" src="https://krebsonsecurity.com/wp-content/uploads/2026/07/pac-man-brightdata.png" alt="">
+    <h3>6、<a href="https://box2d.org/posts/2026/07/simd-for-collision/" target="_blank" rel="noopener noreferrer">Box2D 作者用 wide SIMD 把复杂 hull 碰撞跑快一倍以上</a> <span class="certainty-tag certainty-reported">reported</span></h3>
+    <p>Box3D 的 convex pile benchmark 使用 5120 个 32 点 hull，复杂 hull 的 edge-edge 组合可达 7921 次。作者用 wide SIMD 一次测试一个 hullA edge 对四个 hullB edges，在完整仿真里 SSE2 相比 scalar 超过 2 倍，AVX2-lite 进一步改善。</p>
+    <img class="article-img" src="https://box2d.org/images/sat_scalar_vs_sse2.png" alt="">
+
+    <h2 id="ai">🤖 AI 相关</h2>
+    <h3>1、<a href="https://www.anthropic.com/engineering/how-we-contain-claude" target="_blank" rel="noopener noreferrer">Anthropic 复盘 Claude containment：环境边界比用户确认框更可靠</a> <span class="certainty-tag certainty-confirmed">confirmed</span></h3>
+    <p>Anthropic 解释了 claude.ai、Claude Code 和 Claude Cowork 的三类隔离模式：ephemeral container、human-in-the-loop sandbox、sealed VM。文中披露，用户大约批准 93% permission prompts，Claude Code auto mode 让提示减少 84%，但真正兜底的是文件系统边界、VM、egress control 和代理层限制。</p>
+    <h3>2、<a href="https://developers.googleblog.com/building-scalable-ai-agents-with-modular-prompt-transpilation/" target="_blank" rel="noopener noreferrer">Google 提倡模块化 prompt transpilation：把提示词当构建产物</a> <span class="certainty-tag certainty-confirmed">confirmed</span></h3>
+    <p>Google Developers Blog 把生产级 Agent prompt 归为构建系统问题：用模块化 skill files、template include、静态变量校验、依赖图、golden file drift check 和 CI/CD，把大 prompt 从手写文本变成可审查产物。重点不是 prompt 花活，而是把控制面纳入软件工程流程。</p>
+    <img class="article-img" src="https://storage.googleapis.com/gweb-developer-goog-blog-assets/images/Figure1.original.png" alt="">
+    <h3>3、<a href="https://developers.googleblog.com/announcing-adk-go-20/" target="_blank" rel="noopener noreferrer">ADK Go 2.0：用 graph-first workflow 做可恢复多 Agent 应用</a> <span class="certainty-tag certainty-announced">announced</span></h3>
+    <p>ADK for Go 2.0 新增 graph-based workflow engine、内置 human-in-the-loop、dynamic orchestration、LLM agent modes 和统一 node runtime。图不是单独框架，而是一个 agent；节点可 fan-out/fan-in、暂停等待人工、失败重试并持久恢复。</p>
+    <img class="article-img" src="https://storage.googleapis.com/gweb-developer-goog-blog-assets/images/workflow_graph.original.png" alt="">
+    <h3>4、<a href="https://developers.googleblog.com/litertjs-googles-high-performance-web-ai-inference/" target="_blank" rel="noopener noreferrer">LiteRT.js：Google 把边缘 AI runtime 带进浏览器</a> <span class="certainty-tag certainty-announced">announced</span></h3>
+    <p>LiteRT.js 是 LiteRT 的 JavaScript binding，面向浏览器端运行 `.tflite` 模型，支持 WebAssembly、WebGPU、未来 WebNN，并提供 `@litertjs/core` npm 包。官方称在部分视觉和音频模型上相比现有 Web runtimes 可达 3x，WebGPU/WebNN 场景可比 CPU 快 5-60x。确定性：发布为官方，Benchmark 为官方测试条件。</p>
+    <img class="article-img" src="https://storage.googleapis.com/gweb-developer-goog-blog-assets/images/Data_image_1600x900.original.png" alt="">
+    <h3>5、<a href="https://developers.googleblog.com/run-ray-on-tpu-part-1-the-foundations/" target="_blank" rel="noopener noreferrer">Ray 2.55 让 Google Cloud TPU 成为 Ray 一等 accelerator</a> <span class="certainty-tag certainty-announced">announced</span></h3>
+    <p>Google Developers Blog 称 Ray 2.55 已把 Google Cloud TPU 纳入官方支持：GKE 的 Ray Operator add-on 和 TPU webhook 会给同一 slice 的主机打标签，Ray Core 用 `slice_placement_group()` 原子保留完整 topology，避免多主机 TPU 训练挂在跨 slice 通信上。</p>
+    <img class="article-img" src="https://storage.googleapis.com/gweb-developer-goog-blog-assets/images/header.2e16d0ba.fill-1200x600_0WAoq50.png" alt="">
+
+    <h2 id="articles">📝 文章推荐</h2>
+    <h3>1、<a href="https://hatchet.run/blog/postgres-survival-guide" target="_blank" rel="noopener noreferrer">The startup's Postgres survival guide</a></h3>
+    <p>这是一份把两年 Postgres 事故经验压成生产手册的文章：schema、索引、写事务、迁移、连接池、query planner、autovacuum、partition、SKIP LOCKED 都落到实际排障。它适合后台团队当 checklist，不适合只让 ORM 或 AI 代写 SQL。</p>
+    <img class="article-img" src="https://hatchet.run/assets/og-PqKfvZWg.png" alt="">
+    <h3>2、<a href="https://mitchellh.com/writing/everyone-should-know-simd" target="_blank" rel="noopener noreferrer">Everyone Should Know SIMD</a></h3>
+    <p>Mitchell Hashimoto 用 Ghostty 里的实际扫描 loop 解释 SIMD 的五步通用形状：broadcast、vector-width loop、parallel operation、reduce/store、scalar tail。文章的价值在于降低心理门槛：普通工程师不必写 simdjson 级算法，也应能识别 hot loop 的 vectorize 机会。</p>
+    <h3>3、<a href="https://ebellani.github.io/blog/2026/why-care-about-programming-languages/" target="_blank" rel="noopener noreferrer">Why care about programming languages</a></h3>
+    <p>AI 代写代码越容易，语言知识反而越像工程判断力。作者认为语言的价值不在语法，而在它携带的思想：Rust ownership、Haskell typeclass、OCaml module、SQL relational algebra、Lisp metaprogramming 等，都是评估 AI 代码和建模复杂系统的认知工具。</p>
+    <img class="article-img" src="https://ebellani.github.io/ox-hugo/a-man-praying-in-a-ruined-catholic-church-in-la-vang-a-town-v0-2tvq7bb4yirx.jpg" alt="">
+    <h3>4、<a href="https://www.cole-k.com/2026/07/21/reddit/" target="_blank" rel="noopener noreferrer">So Reddit has decided that plain HTML is unsafe</a></h3>
+    <p>这篇不是单纯吐槽 Reddit，而是一个 Web 产品案例：当平台把公开 HTML 入口关进登录墙，理由可以叫安全，也可以叫反爬，还可能叫 AI 时代的人类内容控制权。对前端团队，值得关注的是技术理由和商业理由如何混在同一套 UX 里。</p>
+    <img class="article-img" src="https://www.cole-k.com/img/reddit/new-reddit-heartbeat.png" alt="">
+
+    <h2 id="tools">🛠️ 工具推荐</h2>
+    <div class="tool-grid">
+      <div class="tool-card">
+        <h4><a href="https://github.com/nyblnet/bento" target="_blank" rel="noopener noreferrer">Bento Slides</a> <span class="priority-tag">P1</span></h4>
+        <p>单个 HTML 文件里的幻灯片编辑、展示、数据和协作工具，约 560 KB，可离线、本地优先、明文 JSON 文档模型，适合技术团队用 Agent 生成和维护可交付演示。</p>
+      </div>
+      <div class="tool-card">
+        <h4><a href="https://tokio.rs/blog/2026-07-22-announcing-topcoat" target="_blank" rel="noopener noreferrer">Topcoat</a> <span class="priority-tag">P2</span></h4>
+        <p>Tokio 团队发布的 Rust full-stack reactive web app framework，server-rendered、HTMX-like metadata reactivity、内置 asset pipeline 和 shadcn 风格组件拷贝模式，适合 Rust 后台团队探索低 JS Web UI。</p>
+      </div>
+      <div class="tool-card">
+        <h4><a href="https://github.com/likec4/likec4" target="_blank" rel="noopener noreferrer">likec4</a> <span class="priority-tag">P1</span></h4>
+        <p>从代码和模型生成可协作、可演进的软件架构图；适合大仓、后台服务和跨端系统把 C4/依赖关系从静态文档变成活图。</p>
+      </div>
+      <div class="tool-card">
+        <h4><a href="https://github.com/schollz/croc" target="_blank" rel="noopener noreferrer">croc</a> <span class="priority-tag">P2</span></h4>
+        <p>跨机器安全传文件工具，适合本地开发、远程排障和临时设备间传日志/截图；今天重新上 GitHub Trending，说明基础工具仍有生命力。</p>
+      </div>
+    </div>
+
+    <h2 id="ai-tools">🧠 AI 工具</h2>
+    <div class="tool-grid">
+      <div class="tool-card">
+        <span class="tag">端侧 AI</span>
+        <h4><a href="https://github.com/cactus-compute/cactus-hybrid/" target="_blank" rel="noopener noreferrer">cactus-hybrid</a></h4>
+        <p>Show HN 项目：让小型 on-device model 给每次回答打 0-1 置信分，高置信本地处理，低置信再交给云端 frontier model；适合客户端 AI 的隐私/成本/准确率分层实验。</p>
+      </div>
+      <div class="tool-card">
+        <span class="tag">Coding Agent</span>
+        <h4><a href="https://github.com/agegr/pi-web" target="_blank" rel="noopener noreferrer">pi-web</a></h4>
+        <p>pi coding agent 的 Web UI，适合观察命令行 Agent 如何外接浏览器化控制面、会话状态和任务展示。</p>
+      </div>
+      <div class="tool-card">
+        <span class="tag">Agent Skill</span>
+        <h4><a href="https://github.com/ComposioHQ/awesome-claude-skills" target="_blank" rel="noopener noreferrer">awesome-claude-skills</a></h4>
+        <p>Claude Skills 资源集合，适合团队调研可复用 skill 结构；采用前仍应先做来源、权限、脚本和写权限审计。</p>
+      </div>
+    </div>
+
+    <h2 id="concepts">🧩 本期概念库</h2>
+    <div class="concept-card">
+      <h4>1. Workflow Supply-chain Attack</h4>
+      <div class="concept-field"><strong>一句话解释：</strong>攻击者不一定污染依赖包，而是污染开发者会自然执行的 workflow，例如 Git hook、IDE 配置、package scripts、CI 配置和测试脚本。</div>
+      <div class="concept-field"><strong>背景来源：</strong>fake-job-interview Git hook case</div>
+      <div class="concept-field"><strong>为什么重要：</strong>AI 与远程协作让陌生仓库运行频率上升，工作流入口比单个依赖更隐蔽。</div>
+      <div class="concept-field"><strong>团队应用场景：</strong>外部仓库先静态审查隐藏目录和启动脚本，再放入无凭证隔离环境运行。</div>
+    </div>
+    <div class="concept-card">
+      <h4>2. Agent Blast Radius</h4>
+      <div class="concept-field"><strong>一句话解释：</strong>Agent 在一次失败、误用或注入中理论上能触达和破坏的最大范围。</div>
+      <div class="concept-field"><strong>背景来源：</strong>Anthropic containment engineering</div>
+      <div class="concept-field"><strong>为什么重要：</strong>模型层防御永远不可能 100%，确定性环境边界才是最后防线。</div>
+      <div class="concept-field"><strong>团队应用场景：</strong>给 Agent 配置 workspace-only 文件系统、默认无外网、egress allowlist 和敏感目录不可见。</div>
+    </div>
+    <div class="concept-card">
+      <h4>3. Release Immutability Window</h4>
+      <div class="concept-field"><strong>一句话解释：</strong>包发布后只在有限时间内允许追加构建产物，窗口后强制新版本发布。</div>
+      <div class="concept-field"><strong>背景来源：</strong>PyPI 14-day release restriction</div>
+      <div class="concept-field"><strong>为什么重要：</strong>限制旧版本被后续投毒的空间，但牺牲部分维护灵活性。</div>
+      <div class="concept-field"><strong>团队应用场景：</strong>内部包平台也可设置 old release close policy，并提供 staging preview。</div>
+    </div>
+    <div class="concept-card">
+      <h4>4. Prompt Transpilation</h4>
+      <div class="concept-field"><strong>一句话解释：</strong>把模块化 prompt/skill 文件经过 include、变量校验、依赖图和 golden file drift check 编译成最终 Agent 控制面。</div>
+      <div class="concept-field"><strong>背景来源：</strong>Google Developers Blog</div>
+      <div class="concept-field"><strong>为什么重要：</strong>让自然语言控制面拥有与代码类似的 review、测试和 CI 约束。</div>
+      <div class="concept-field"><strong>团队应用场景：</strong>为团队 Agent 建立 skill 模块、prompt build、静态校验和 PR 审查流程。</div>
+    </div>
+    <div class="concept-card">
+      <h4>5. Topology-aware Scheduling</h4>
+      <div class="concept-field"><strong>一句话解释：</strong>调度任务时显式理解硬件互联拓扑，避免 worker 分散到无法高速通信的设备组。</div>
+      <div class="concept-field"><strong>背景来源：</strong>Ray on TPU with GKE</div>
+      <div class="concept-field"><strong>为什么重要：</strong>AI infra 的稳定性不只取决于资源数量，还取决于物理互联和调度原子性。</div>
+      <div class="concept-field"><strong>团队应用场景：</strong>训练/推理平台要把 GPU/TPU topology、placement group 和 failure mode 纳入平台抽象。</div>
+    </div>
+
+    <h2 id="curiosity">🎲 好奇心入口</h2>
+    <div class="curiosity-card">
+      <h4><a href="https://bento.page/slides/" target="_blank" rel="noopener noreferrer">Bento：文件自己就是软件</a></h4>
+      <div class="hook">一个幻灯片文件打开后，自己就是编辑器、播放器和协作载体。</div>
+      <p>Bento 的 `.bento.html` 把 deck、viewer、editor、JSON 数据和可选 E2EE 协作放在同一个 HTML 文件里，这种 local-first 设计很适合 Agent 直接修改文档结构。 团队暗线：当格式足够透明，AI 和人类都更容易协作。</p>
+    </div>
+    <div class="curiosity-card">
+      <h4><a href="https://github.com/marcelroed/gigatoken/" target="_blank" rel="noopener noreferrer">GigaToken：tokenization 被做成 1000x 速度故事</a></h4>
+      <div class="hook">LLM 成本常被看成模型问题，但 tokenizer 也可能成为吞吐瓶颈。</div>
+      <p>HN 今日热帖展示 GigaToken 这个号称约 1000x 更快的语言模型 tokenization 项目。由于抓取原仓库 README 时遇到解析异常，本期只把它放在好奇心区，不作为核心工具推荐。 团队暗线：AI 系统优化不只在模型层，输入预处理也值得测量。</p>
+    </div>
+
+    <h2 id="resources">📚 资源</h2>
+    <div class="resource-item">
+      <a href="https://hn.algolia.com/api/v1/search?tags=front_page&amp;hitsPerPage=30" target="_blank" rel="noopener noreferrer">Hacker News front page API</a>
+      <p>今日社区趋势源，Bento、假面试 Git hook、GigaToken、Postgres guide、SIMD、Safari TP 等由此发现。</p>
+    </div>
+    <div class="resource-item">
+      <a href="https://lobste.rs/hottest.json" target="_blank" rel="noopener noreferrer">Lobsters hottest JSON</a>
+      <p>工程深读源，PyPI 14 天限制、Topcoat、RefluXFS、Reddit plain HTML、SIMD collision 等从这里交叉确认。</p>
+    </div>
+    <div class="resource-item">
+      <a href="https://github.com/trending?since=daily" target="_blank" rel="noopener noreferrer">GitHub Trending daily</a>
+      <p>工具雷达，Bento、likec4、croc、pi-web、awesome-claude-skills 等项目从今日趋势页筛选。</p>
+    </div>
+
+    <h2 id="quotes">💬 言论：本期 7 个认知增量</h2>
+    <div class="quote-block">
+      <blockquote>当面试作业也能藏执行链，运行陌生仓库前的第一步应该是看隐藏目录。</blockquote>
+      <div class="quote-author">—— Appaji Chintimi 案例 · 摘要式转述</div>
+      <div class="quote-meta">来源：<a href="https://news.ycombinator.com/item?id=49013036" target="_blank" rel="noopener noreferrer">news.ycombinator.com</a> · 类型：摘要式转述 · 关键词：供应链安全 · 开发工作流</div>
+      <div class="quote-comment">💭 这比单纯提醒不要运行陌生脚本更实际，因为攻击者会藏在正常 workflow 里。</div>
+      <div class="quote-team-insight">🎯 团队启发：外部仓库默认先静态审查，再隔离运行。</div>
+    </div>
+    <div class="quote-block">
+      <blockquote>用户批准了 93% 的权限提示时，提示框就只是心理安慰的一部分。</blockquote>
+      <div class="quote-author">—— Anthropic Engineering · 摘要式转述</div>
+      <div class="quote-meta">来源：<a href="https://www.anthropic.com/news/measuring-agent-autonomy" target="_blank" rel="noopener noreferrer">anthropic.com</a> · 类型：摘要式转述 · 关键词：Agent 安全 · 权限</div>
+      <div class="quote-comment">💭 提示框要配合沙箱、文件系统和网络边界，而不是单独承担安全责任。</div>
+      <div class="quote-team-insight">🎯 团队启发：把高频确认改成环境默认边界和少量高价值确认。</div>
+    </div>
+    <div class="quote-block">
+      <blockquote>旧 release 的开放上传窗口，是供应链攻击者最喜欢的时间机器。</blockquote>
+      <div class="quote-author">—— PyPI Blog · 摘要式转述</div>
+      <div class="quote-meta">来源：<a href="https://discuss.python.org/t/restricting-open-ended-releases-on-pypi/43566" target="_blank" rel="noopener noreferrer">discuss.python.org</a> · 类型：摘要式转述 · 关键词：PyPI · Release</div>
+      <div class="quote-comment">💭 PyPI 的 14 天限制是一种把灵活性换成确定性的工程选择。</div>
+      <div class="quote-team-insight">🎯 团队启发：内部包平台也要定义 release close 语义。</div>
+    </div>
+    <div class="quote-block">
+      <blockquote>有些漏洞不是绕过容器，而是在容器下面的文件系统层改地基。</blockquote>
+      <div class="quote-author">—— Qualys TRU · 摘要式转述</div>
+      <div class="quote-meta">来源：<a href="https://cdn2.qualys.com/advisory/2026/07/22/RefluXFS.txt" target="_blank" rel="noopener noreferrer">cdn2.qualys.com</a> · 类型：摘要式转述 · 关键词：Linux · 稳定性</div>
+      <div class="quote-comment">💭 这类漏洞提醒我们，CI runner 和多租户宿主机仍需要内核级补丁节奏。</div>
+      <div class="quote-team-insight">🎯 团队启发：排查 XFS reflink 与内核版本，优先处理 runner 和多租户主机。</div>
+    </div>
+    <div class="quote-block">
+      <blockquote>提示词不是文案，是 Agent 的控制面代码。</blockquote>
+      <div class="quote-author">—— Google Developers Blog · 摘要式转述</div>
+      <div class="quote-meta">来源：<a href="https://developers.googleblog.com/" target="_blank" rel="noopener noreferrer">developers.googleblog.com</a> · 类型：摘要式转述 · 关键词：AI Workflow · Prompt</div>
+      <div class="quote-comment">💭 把 prompt 纳入 build、lint、diff 和 PR，是生产 Agent 的最低工程化门槛。</div>
+      <div class="quote-team-insight">🎯 团队启发：为核心 Agent 建立 prompt build pipeline。</div>
+    </div>
+    <div class="quote-block">
+      <blockquote>SIMD 不必先学到专家级，先学会识别热循环的形状就够有价值。</blockquote>
+      <div class="quote-author">—— Mitchell Hashimoto · 摘要式转述</div>
+      <div class="quote-meta">来源：<a href="https://lobste.rs/s/gkcjic/simd_for_collision" target="_blank" rel="noopener noreferrer">lobste.rs</a> · 类型：摘要式转述 · 关键词：客户端性能 · SIMD</div>
+      <div class="quote-comment">💭 客户端性能优化仍然需要硬件直觉，AI 生成代码不等于会判断瓶颈。</div>
+      <div class="quote-team-insight">🎯 团队启发：性能 review 中加入数据布局和 vectorization 检查。</div>
+    </div>
+    <div class="quote-block">
+      <blockquote>复杂前端有时不是为了用户，而是为了让平台更容易控制数据边界。</blockquote>
+      <div class="quote-author">—— Cole K · 摘要式转述</div>
+      <div class="quote-meta">来源：<a href="https://lobste.rs/s/gqdvdt/so_reddit_has_decided_plain_html_is_unsafe" target="_blank" rel="noopener noreferrer">lobste.rs</a> · 类型：摘要式转述 · 关键词：Web 产品 · 数据</div>
+      <div class="quote-comment">💭 这不是证明 Reddit 的动机，而是提醒我们：技术架构经常服务商业策略。</div>
+      <div class="quote-team-insight">🎯 团队启发：设计客户端埋点和登录墙时，明确向用户解释真实边界。</div>
+    </div>
+
+    <h2 id="podcast">🎙️ 播客提纲</h2>
+    <div class="podcast-brief">
+      <h4>第 62 期：开发工作流正在成为 AI 时代的攻击面</h4>
+      <div class="cold-open">一个远程 Python 岗位、一份看起来正常的 FastAPI 作业、一个隐藏的 Git hook，就能让候选人的电脑开始下载远程 payload。今天我们不聊大模型多聪明，聊开发者工作流到底有多容易被信任绑架。</div>
+      <div class="podcast-segment">
+        <strong>假面试 Git hook 恶意链</strong>
+        <p>最危险的一步，可能就是你习惯性敲下的那次 git commit。</p>
+        <p>建立外部 repo 静态检查和隔离运行 playbook。</p>
+      </div>      <div class="podcast-segment">
+        <strong>Anthropic 的 Agent containment</strong>
+        <p>当 93% 的权限提示都会被批准，确认框就不再是主防线。</p>
+        <p>把 Agent 文件系统、网络出口和工具输出检查做成默认安全边界。</p>
+      </div>      <div class="podcast-segment">
+        <strong>PyPI 14 天限制与 RefluXFS</strong>
+        <p>一个锁旧 release，一个补文件系统地基，都是在减少默认信任。</p>
+        <p>包平台、CI runner 和多租户主机要一起进安全排期。</p>
+      </div>      <div class="podcast-segment">
+        <strong>工具 quick hits</strong>
+        <p>今天的工具不是炫技，而是能直接让工程流更稳。</p>
+        <p>选工具时优先问它能不能减少真实流程的摩擦和风险。</p>
+      </div>
+      <p>今天的结论很简单：AI 时代的安全不只在云上，也不只在模型里。它在你打开的仓库、批准的命令、加载的配置、发布的包和运行的浏览器里。</p>
+    </div>
+
+    <h2 id="team-insights">✅ 对团队的启发</h2>
+    <div class="insight-card">
+      <p><span class="insight-num">1</span>把外部仓库、面试作业、客户复现包和第三方 demo 当作不可信输入：先查隐藏目录、hooks、IDE 配置、脚本和远程下载命令。</p>
+    </div>
+    <div class="insight-card">
+      <p><span class="insight-num">2</span>Agent 默认边界优先于确认弹窗：文件系统最小挂载、敏感目录不可见、默认禁外网、egress allowlist 按能力而非域名理解。</p>
+    </div>
+    <div class="insight-card">
+      <p><span class="insight-num">3</span>内部包平台学习 PyPI 的 release close 思路：旧版本追加产物必须有明确窗口、审计记录和 staged preview。</p>
+    </div>
+    <div class="insight-card">
+      <p><span class="insight-num">4</span>Web/iOS/Android/PC 客户端团队关注 LiteRT.js、Safari TP 和 SIMD：端侧 AI、浏览器标准、底层性能会同时影响体验。</p>
+    </div>
+    <div class="insight-card">
+      <p><span class="insight-num">5</span>提示词、skill 和 AGENTS.md 都应进入代码审查：模块化、依赖图、golden output、CI drift check 比手写大 prompt 更可靠。</p>
+    </div>
+
+    <div class="footer-sources">
+      <strong>📋 数据来源说明</strong><br>
+      本情报来自 66 个全球精选科技 / AI / 工程 / 系统可靠性信息源的每日更新。<br>
+      由 Cursor AI 自动生成，信息截止至 2026年7月23日，星期四。
+    </div>
+  </main>
+</div>
+
+<script>
+(function(){
+  const toc=document.querySelector('.toc');if(!toc)return;
+  const links=[...toc.querySelectorAll('a')];
+  const ids=links.map(l=>l.getAttribute('href').slice(1));
+  const secs=ids.map(id=>document.getElementById(id)).filter(Boolean);
+  function hl(){let cur=0;secs.forEach((s,i)=>{if(s.getBoundingClientRect().top<=120)cur=i;});
+  links.forEach((l,i)=>{l.classList.toggle('active',i===cur);});}
+  window.addEventListener('scroll',hl,{passive:true});hl();
+})();
+
+</script>
+</body>
+</html>

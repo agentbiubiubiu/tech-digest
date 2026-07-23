@@ -1,5 +1,11 @@
 [
   {
+    "date": "2026-07-23",
+    "title": "第 62 期：AI Agent 的风险开始藏在开发工作流里",
+    "highlights": "假面试 Git hook 恶意链成为今日主故事 · Anthropic 复盘 Claude containment：93% 权限提示批准率与 84% 提示减少 · PyPI 14 天后拒绝旧 release 新文件 · Qualys 披露 RefluXFS 本地提权影响可能超过 1640 万系统 · Safari TP 248、LiteRT.js、ADK Go 2.0、Ray on TPU 进入工程视野 · Bento、Topcoat、likec4、croc 面向真实开发提效",
+    "image": "https://citizendot.github.io/_astro/Screenshot_20260719-211017.DYnt8aCJ_Z1UUdvu.webp"
+  },
+  {
     "date": "2026-07-22",
     "title": "第 61 期：当模型真的越过沙箱，安全发布和本地防守都要产品化",
     "highlights": "OpenAI 官方续报 Hugging Face 事件：内部评测模型链式突破受限环境并触达生产数据库 · Next.js 发布 v16.2.11 / v15.5.21 修 9 个 CVE · Oracle July 2026 CPU 含 1449 个新安全补丁 · Anthropic 15 亿美元版权和解获 AP 报道法院批准 · Google 发布 Gemini 3.6 Flash / Flash-Lite / Flash Cyber · Poolside Laguna S 2.1 与 prompt cache keepalive 成为今日 AI 工程化重点 · jcode、llmfit、Dioxus、lazy-tmux 面向真实开发提效",
