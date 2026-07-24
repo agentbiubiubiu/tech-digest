@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>第 63 期：开放权重 AI 正在变成开发者供应链问题</title>
+  <meta property="og:title" content="Tech Digest #63：开放权重 AI 政策、软件工厂失控、macOS App 包替换风险">
+  <meta property="og:description" content="今天的主线是开放权重 AI 从模型选择变成供应链与政策风险；开发者还要关注 Agent 软件工厂、CISA KEV、macOS App 包替换和实用工具。">
+  <meta property="og:image" content="https://framerusercontent.com/images/EYJbRho4q17OT6Mp9WWMMi23Ll4.png">
+  <style>
+:root {
+  --bg: #f5f6f8; --surface: #ffffff; --surface2: #f0f2f5;
+  --border: #e8ecf1; --border-hover: #c5cdd8;
+  --text: #1a1d21; --text-secondary: #3d4550; --text-muted: #8c95a1;
+  --accent: #2d9f6f; --accent-light: #e8f5ef; --accent-hover: #248a5e;
+  --accent-text: #ffffff;
+  --purple: #7c5cbf; --purple-light: #f3effc;
+  --orange: #e58e26; --orange-light: #fef5e7;
+  --blue: #3a82f7; --blue-light: #eef4fe;
+  --red: #e74c3c; --red-light: #fdecea;
+  --green-deep: #1a7a4c; --green-light2: #e0f5ea;
+  --yellow: #d4a017; --yellow-light: #fef9e7;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.06);
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.06), 0 2px 4px rgba(0,0,0,0.04);
+  --shadow-lg: 0 10px 30px rgba(0,0,0,0.08);
+  --radius: 12px; --radius-sm: 8px; --radius-xs: 6px;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Helvetica, Arial, sans-serif; background: var(--bg); color: var(--text); line-height: 1.75; font-size: 15px; -webkit-font-smoothing: antialiased; }
+.topbar { background: var(--surface); border-bottom: 1px solid var(--border); padding: 12px 32px; display: flex; align-items: center; gap: 16px; position: sticky; top: 0; z-index: 200; box-shadow: var(--shadow-sm); }
+.topbar-brand { font-size: 1.1rem; font-weight: 700; color: var(--accent); text-decoration: none; display: flex; align-items: center; gap: 8px; }
+.topbar-brand svg { width: 28px; height: 28px; }
+.topbar-nav { display: flex; gap: 4px; margin-left: 24px; }
+.topbar-nav a { padding: 6px 16px; border-radius: 20px; font-size: 0.85rem; font-weight: 500; color: var(--text-secondary); text-decoration: none; transition: all 0.2s; }
+.topbar-nav a:hover { background: var(--surface2); color: var(--text); }
+.topbar-nav a.active { background: var(--accent-light); color: var(--accent); font-weight: 600; }
+.topbar-right { margin-left: auto; display: flex; align-items: center; gap: 12px; }
+.topbar-date { font-size: 0.82rem; color: var(--text-muted); background: var(--surface2); padding: 5px 12px; border-radius: 16px; }
+.page { display: flex; max-width: 1200px; margin: 0 auto; padding: 24px 24px 0; gap: 24px; }
+.toc { width: 220px; flex-shrink: 0; position: sticky; top: 80px; height: calc(100vh - 104px); overflow-y: auto; background: var(--surface); border-radius: var(--radius); padding: 20px 16px; box-shadow: var(--shadow-sm); border: 1px solid var(--border); }
+.toc-title { font-size: 0.72rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 14px; padding-left: 12px; }
+.toc a { display: block; padding: 7px 12px; margin-bottom: 2px; font-size: 0.82rem; color: var(--text-muted); text-decoration: none; border-radius: var(--radius-xs); transition: all 0.15s; font-weight: 500; }
+.toc a:hover { color: var(--accent); background: var(--accent-light); }
+.toc a.active { color: var(--accent); background: var(--accent-light); font-weight: 600; }
+.toc-mobile { display: none; position: sticky; top: 57px; z-index: 100; background: var(--surface); border-bottom: 1px solid var(--border); padding: 10px 16px; box-shadow: var(--shadow-sm); }
+.toc-mobile summary { cursor: pointer; font-size: 0.85rem; color: var(--accent); font-weight: 600; list-style: none; }
+.toc-mobile summary::-webkit-details-marker { display: none; }
+.toc-mobile .toc-dropdown { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 8px; margin-top: 8px; max-height: 60vh; overflow-y: auto; box-shadow: var(--shadow-md); }
+.toc-mobile .toc-dropdown a { display: block; padding: 8px 12px; font-size: 0.88rem; color: var(--text-secondary); text-decoration: none; border-radius: var(--radius-xs); }
+.toc-mobile .toc-dropdown a:hover { color: var(--accent); background: var(--accent-light); }
+@media (max-width: 860px) { .toc { display: none; } .toc-mobile { display: block; } .topbar-nav { display: none; } .page { flex-direction: column; padding: 16px 12px 0; gap: 16px; } .container { padding: 20px 16px 60px; } }
+.container { flex: 1; min-width: 0; background: var(--surface); border-radius: var(--radius); padding: 36px 40px 60px; box-shadow: var(--shadow-sm); border: 1px solid var(--border); margin-bottom: 40px; }
+.back { display: inline-flex; align-items: center; gap: 4px; color: var(--text-muted); text-decoration: none; font-size: 0.85rem; margin-bottom: 28px; font-weight: 500; transition: color 0.15s; }
+.back:hover { color: var(--accent); }
+h1 { font-size: 1.7rem; font-weight: 800; margin-bottom: 10px; line-height: 1.35; color: var(--text); letter-spacing: -0.01em; }
+.meta { color: var(--text-muted); font-size: 0.85rem; margin-bottom: 28px; }
+.highlights-line { color: var(--text-secondary); font-size: 0.9rem; margin: -18px 0 28px; line-height: 1.65; }
+.hero-img { width: 100%; border-radius: var(--radius); margin-bottom: 10px; box-shadow: var(--shadow-md); }
+.hero-caption { font-size: 0.82rem; color: var(--text-muted); margin-bottom: 36px; text-align: center; font-style: italic; }
+h2 { font-size: 1.25rem; font-weight: 700; margin: 44px 0 18px; padding-bottom: 10px; border-bottom: 2px solid var(--accent-light); scroll-margin-top: 90px; color: var(--text); }
+h3 { font-size: 1.05rem; font-weight: 600; margin: 26px 0 8px; color: var(--text); }
+p { margin-bottom: 14px; color: var(--text-secondary); }
+a { color: var(--accent); text-decoration: none; font-weight: 500; }
+a:hover { color: var(--accent-hover); text-decoration: underline; }
+strong { color: var(--text); font-weight: 600; }
+.callout { background: var(--accent-light); border-left: 4px solid var(--accent); border-radius: var(--radius-sm); padding: 16px 20px; margin: 20px 0; font-size: 0.93rem; color: var(--text-secondary); }
+.main-story { background: linear-gradient(135deg, #f7fbff 0%, #fff 60%); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px 26px; margin: 18px 0 28px; box-shadow: var(--shadow-sm); }
+.main-story h3 { margin-top: 0; font-size: 1.2rem; line-height: 1.45; }
+.main-story .story-hook { color: var(--accent); font-weight: 700; margin-bottom: 14px; }
+.story-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 16px 0; }
+.story-field { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 12px 14px; font-size: 0.88rem; color: var(--text-secondary); }
+.story-field strong { display: block; margin-bottom: 4px; color: var(--text); }
+.number-chip { display: inline-block; background: var(--blue-light); color: var(--blue); border-radius: 14px; padding: 3px 10px; margin: 3px 6px 3px 0; font-size: 0.78rem; font-weight: 700; }
+.story-line { background: var(--purple-light); border-left: 4px solid var(--purple); border-radius: var(--radius-sm); padding: 14px 16px; margin-top: 14px; color: var(--text); font-weight: 700; }
+.trend-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin: 16px 0 28px; }
+.trend-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px 20px; box-shadow: var(--shadow-sm); }
+.trend-card h4 { font-size: 0.95rem; margin-bottom: 8px; color: var(--text); }
+.trend-card .trend-conflict { color: var(--red); font-size: 0.82rem; font-weight: 700; margin-bottom: 8px; }
+.trend-card p { font-size: 0.86rem; margin-bottom: 10px; }
+.trend-card .trend-sources { font-size: 0.76rem; color: var(--text-muted); line-height: 1.55; }
+.curiosity-card { background: var(--orange-light); border: 1px solid #f5ddb8; border-radius: var(--radius); padding: 20px 24px; margin: 14px 0; }
+.curiosity-card h4 { font-size: 1rem; margin-bottom: 8px; font-weight: 600; }
+.curiosity-card h4 a { color: var(--orange); }
+.curiosity-card .hook { color: var(--orange); font-weight: 700; margin-bottom: 6px; }
+.curiosity-card p { font-size: 0.88rem; color: var(--text-secondary); margin: 0 0 8px; line-height: 1.65; }
+.podcast-brief { background: #f8fafc; border: 1px solid var(--border); border-radius: var(--radius); padding: 20px 24px; margin: 18px 0; }
+.podcast-brief h4 { margin: 0 0 10px; font-size: 1rem; }
+.podcast-brief .cold-open { color: var(--accent); font-weight: 700; margin-bottom: 14px; }
+.podcast-segment { border-top: 1px solid var(--border); padding-top: 12px; margin-top: 12px; }
+.podcast-segment strong { display: block; margin-bottom: 4px; }
+.article-img { width: 100%; max-height: 380px; object-fit: cover; border-radius: var(--radius-sm); margin: 12px 0 24px; box-shadow: var(--shadow-sm); }
+.tool-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 16px 0; }
+.tool-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px 20px; transition: all 0.2s; box-shadow: var(--shadow-sm); }
+.tool-card:hover { border-color: var(--accent); box-shadow: var(--shadow-md); transform: translateY(-1px); }
+.tool-card h4 { font-size: 0.95rem; margin-bottom: 6px; font-weight: 600; }
+.tool-card h4 a { color: var(--accent); }
+.tool-card p { font-size: 0.83rem; color: var(--text-muted); margin: 0; line-height: 1.55; }
+.tool-card .tag { display: inline-block; font-size: 0.68rem; padding: 3px 8px; border-radius: 10px; background: var(--accent); color: var(--accent-text); font-weight: 600; margin-bottom: 8px; letter-spacing: 0.02em; }
+.tool-card .priority-tag { display: inline-block; font-size: 0.65rem; padding: 2px 6px; border-radius: 8px; background: var(--surface2); color: var(--text-muted); font-weight: 600; margin-left: 6px; }
+.fun-card { background: var(--orange-light); border: 1px solid #f5ddb8; border-radius: var(--radius); padding: 20px 24px; margin: 14px 0; }
+.fun-card h4 { font-size: 1rem; margin-bottom: 8px; font-weight: 600; }
+.fun-card h4 a { color: var(--orange); }
+.fun-card p { font-size: 0.88rem; color: var(--text-secondary); margin: 0; line-height: 1.65; }
+.quote-block { background: var(--purple-light); border-left: 4px solid var(--purple); border-radius: var(--radius-sm); padding: 20px 24px; margin: 18px 0; }
+.quote-block blockquote { font-size: 1.02rem; line-height: 1.65; margin-bottom: 10px; font-style: italic; color: var(--text); }
+.quote-block .quote-author { font-size: 0.82rem; color: var(--purple); font-weight: 600; margin-bottom: 6px; }
+.quote-block .quote-meta { font-size: 0.78rem; color: var(--text-muted); margin-bottom: 10px; }
+.quote-block .quote-comment { font-size: 0.88rem; color: var(--text-secondary); border-top: 1px solid #d8d0e8; padding-top: 10px; margin-top: 10px; }
+.quote-block .quote-team-insight { font-size: 0.88rem; color: var(--green-deep); background: var(--accent-light); border-radius: var(--radius-xs); padding: 8px 12px; margin-top: 8px; }
+.resource-item { background: var(--blue-light); border: 1px solid #c8dbf8; border-radius: var(--radius); padding: 18px 20px; margin: 12px 0; }
+.resource-item a { font-weight: 600; color: var(--blue); }
+.resource-item p { font-size: 0.88rem; color: var(--text-secondary); margin: 6px 0 0; }
+.concept-card { background: var(--green-light2); border-left: 4px solid var(--accent); border-radius: var(--radius-sm); padding: 20px 24px; margin: 16px 0; }
+.concept-card h4 { font-size: 1rem; font-weight: 700; color: var(--green-deep); margin-bottom: 10px; }
+.concept-card .concept-field { font-size: 0.88rem; color: var(--text-secondary); margin-bottom: 6px; line-height: 1.6; }
+.concept-card .concept-field strong { color: var(--text); font-size: 0.88rem; }
+.insight-card { background: var(--yellow-light); border-left: 4px solid var(--yellow); border-radius: var(--radius-sm); padding: 16px 20px; margin: 12px 0; }
+.insight-card p { font-size: 0.93rem; color: var(--text-secondary); margin: 0; line-height: 1.7; }
+.insight-card .insight-num { display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; border-radius: 50%; background: var(--yellow); color: #fff; font-size: 0.75rem; font-weight: 700; margin-right: 10px; flex-shrink: 0; }
+.certainty-tag { display: inline-block; font-size: 0.65rem; padding: 2px 6px; border-radius: 8px; font-weight: 600; margin-left: 8px; }
+.certainty-confirmed { background: var(--accent-light); color: var(--accent); }
+.certainty-announced { background: var(--blue-light); color: var(--blue); }
+.certainty-reported { background: var(--yellow-light); color: var(--yellow); }
+.certainty-opinion { background: var(--purple-light); color: var(--purple); }
+.certainty-rumor { background: var(--red-light); color: var(--red); }
+.footer-sources { margin-top: 44px; padding: 20px 24px; background: var(--surface2); border-radius: var(--radius); font-size: 0.78rem; color: var(--text-muted); line-height: 1.9; }
+.footer-sources strong { color: var(--text-secondary); font-size: 0.78rem; }
+@media (max-width: 860px) { .trend-grid, .story-grid { grid-template-columns: 1fr; } }
+@media (max-width: 640px) { .tool-grid { grid-template-columns: 1fr; } }
+
+  </style>
+</head>
+<body>
+
+<header class="topbar">
+  <a href="../index.html" class="topbar-brand">
+    <svg viewBox="0 0 28 28" fill="none"><circle cx="14" cy="14" r="14" fill="#2d9f6f"/><path d="M8 14.5l3.5 3.5 8.5-8" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    Tech Digest
+  </a>
+  <nav class="topbar-nav">
+    <a href="../index.html">Archive</a>
+    <a href="#main-story" class="active">Today</a>
+    <a href="#tools">Tools</a>
+    <a href="#quotes">Quotes</a>
+  </nav>
+  <div class="topbar-right">
+    <span class="topbar-date">2026-07-24</span>
+  </div>
+</header>
+
+<details class="toc-mobile">
+  <summary>📑 目录导航</summary>
+  <div class="toc-dropdown">
+    <a href="#main-story">🔥 主故事</a>
+    <a href="#trends">⚡ 冲突趋势</a>
+    <a href="#tech-news">📰 科技动态</a>
+    <a href="#ai">🤖 AI 相关</a>
+    <a href="#articles">📝 文章推荐</a>
+    <a href="#tools">🛠️ 工具推荐</a>
+    <a href="#ai-tools">🧠 AI 工具</a>
+    <a href="#concepts">🧩 本期概念库</a>
+    <a href="#curiosity">🎲 好奇心入口</a>
+    <a href="#resources">📚 资源</a>
+    <a href="#quotes">💬 言论</a>
+    <a href="#podcast">🎙️ 播客提纲</a>
+    <a href="#team-insights">✅ 对团队的启发</a>
+  </div>
+</details>
+
+<div class="page">
+  <nav class="toc">
+    <div class="toc-title">本期目录</div>
+    <a href="#main-story">🔥 主故事</a>
+    <a href="#trends">⚡ 冲突趋势</a>
+    <a href="#tech-news">📰 科技动态</a>
+    <a href="#ai">🤖 AI 相关</a>
+    <a href="#articles">📝 文章推荐</a>
+    <a href="#tools">🛠️ 工具推荐</a>
+    <a href="#ai-tools">🧠 AI 工具</a>
+    <a href="#concepts">🧩 本期概念库</a>
+    <a href="#curiosity">🎲 好奇心入口</a>
+    <a href="#resources">📚 资源</a>
+    <a href="#quotes">💬 言论</a>
+    <a href="#podcast">🎙️ 播客提纲</a>
+    <a href="#team-insights">✅ 对团队的启发</a>
+  </nav>
+
+  <main class="container">
+    <a href="../index.html" class="back">← 返回目录</a>
+    <h1>第 63 期：开放权重 AI 正在变成开发者供应链问题</h1>
+    <div class="meta">第 63 期 · 2026年7月24日，星期五</div>
+    <p class="highlights-line"><strong>✨ 本期亮点：</strong>开放权重 AI 公开信成为今日主故事 · 179 个创始人和成员公司要求保留开放模型访问 · HumanLayer 反思软件工厂长期维护债 · Mysk 披露 macOS App 主可执行替换风险且 Apple 评估不修复 · CISA KEV 更新到 2026.07.23、1653 条 · Palmier Pro、Echo、open-code-review、Wanix、Justif 进入工具雷达</p>
+
+    <img class="hero-img" src="https://framerusercontent.com/images/EYJbRho4q17OT6Mp9WWMMi23Ll4.png" alt="Little Tech Association open systems brand visual">
+    <div class="hero-caption">今日关键词是「开放权重供应链」：模型能否被本地部署、审计、替换和受控访问，正在成为开发者和创业公司的竞争条件。</div>
+
+    <div class="callout">
+      <strong>🎯 本期核心判断：</strong>今天最重要的判断是：开放权重模型已经不只是模型性能或成本选择，而是创业公司、开发者工具、政府采购、私有部署和供应链韧性的共同问题；真正的风险不在“开源是否安全”这个二选一，而在谁能控制部署、审计、访问、模型来源和退出路径。
+    </div>
+
+    <div class="callout">
+      <strong>⏱ 本期建议阅读顺序</strong><br>
+      先看主故事：Little Tech Association 为什么要求美国政府保留开放权重模型访问。<br>
+      再看开发者风险：软件工厂、macOS App 包替换、CISA KEV 都在提醒默认信任正在失效。<br>
+      最后看提效工具：Palmier、Echo、open-code-review、Justif、Wanix 等更贴近真实研发流程。
+    </div>
+
+    <h2 id="main-story">🔥 主故事</h2>
+        <article class="main-story">
+      <h3>179 个创始人签署公开信：开放权重 AI 从模型选择变成政策与供应链议题</h3>
+      <p class="story-hook">这不是一封普通的游说信。它真正问的是：当模型成为生产基础设施，创业公司有没有权利保留可替换、可本地部署、可审计的选项？</p>
+      <p>Little Tech Association 在 2026 年 7 月 22 日给美国 OSTP 主任 Michael Kratsios 和商务部长 Howard Lutnick 的信中，要求联邦政策保留美国开发者发布和使用开放权重模型的能力，并把安全约束放在能力、用户、托管推理和敏感部署上，而不是用一刀切方式封住已经在全球可获得的模型。</p>
+      <div class="story-grid">
+        <div class="story-field"><strong>核心冲突</strong>国家安全团队希望降低高能力模型被滥用、外流或被对手控制的风险；创业公司则担心失去开放权重模型后，只能依赖少数闭源供应商，成本、产品可控性、客户私有部署和退出路径都会被压缩。</div>
+        <div class="story-field"><strong>转折点</strong>信中最有操作价值的部分不是“开放好还是封闭好”的立场，而是五条治理原则：默认允许发布权重，针对 exceptional capabilities 和 frontier-scale hosted inference 加强安全要求，对政府/国防/关键基础设施里的外方控制模型设置更高采购要求，并把可观测、可归因、可执行的控制放在计算、托管、用户验证和来源证明上。</div>
+        <div class="story-field"><strong>为什么现在发生</strong>过去一周，社区热度同时指向 Kimi/Qwen 等开放权重路线、OpenAI/Hugging Face 事件后的模型评估边界、以及 Agent 工具链的权限风险。模型供应链正在从“选哪个 API”变成“如何证明我能换、能审、能控”。</div>
+        <div class="story-field"><strong>对团队的启发</strong>对 Web/iOS/Android/PC 客户端和后台团队，下一步是建立模型供应链清单：哪些功能依赖闭源 API，哪些能用开放权重本地/私有部署，哪些客户数据不能离开环境，哪些推理路径需要日志、限流、红队评估和供应商退出预案。</div>
+      </div>
+      <p><span class="number-chip">179 signatories</span><span class="number-chip">July 22, 2026</span><span class="number-chip">open-weight models</span><span class="number-chip">July 27 Kimi K3 weights schedule in the letter</span><span class="number-chip">Qwen3.8 Max preview mentioned in the letter</span></p>
+      <p><strong>我的判断：</strong>我的判断是，团队不应该把开放权重模型简单归类为低成本替代品。它更像数据库、浏览器内核或运行时：一旦进入核心产品，就必须有 provenance、评估、托管位置、访问控制、回滚和替代供应商策略。</p>
+      <div class="story-line">开放权重 AI 的核心价值不是免费，而是保留可替换和可审计的权力。</div>
+      <p><strong>来源：</strong><a href="https://static.politico.com/4a/bf/9c4021d8404386b0a311dcccf0e5/lta-open-weight-ai-letter-7-22-26.pdf" target="_blank" rel="noopener noreferrer">static.politico.com</a></p>
+    </article>
+
+    <h2 id="trends">⚡ 冲突趋势</h2>
+        <div class="trend-grid">
+      <div class="trend-card">
+        <h4>开放权重模型进入政策战场</h4>
+        <div class="trend-conflict">安全控制 vs 创业公司供应链韧性</div>
+        <p>公开信主张保留美国开发者对全球开放模型的访问，同时把安全控制放在托管、计算、用户和敏感部署层。</p>
+        <div class="trend-sources">static.politico.com</div>
+      </div>
+      <div class="trend-card">
+        <h4>软件工厂速度撞上代码质量债</h4>
+        <div class="trend-conflict">更多 Agent 循环 vs 更难维护的系统</div>
+        <p>HumanLayer 的长文认为，单靠 harness、自动 review 和更多 loop 不能解决模型对长期可维护性的弱项。</p>
+        <div class="trend-sources">github.com</div>
+      </div>
+      <div class="trend-card">
+        <h4>本地客户端信任边界继续下沉</h4>
+        <div class="trend-conflict">用户态代码执行 vs App 身份和系统提示信任</div>
+        <p>Mysk 报告称 macOS 下载 App 的主可执行可在特定 archive/restore 路径后被替换，Apple 认为不构成需修复安全问题。</p>
+        <div class="trend-sources">mysk.blog</div>
+      </div>
+    </div>
+
+    <h2 id="tech-news">📰 科技动态</h2>
+    <h3>1、<a href="https://www.cisa.gov/sites/default/files/feeds/known_exploited_vulnerabilities.json" target="_blank" rel="noopener noreferrer">CISA KEV 目录更新到 2026.07.23：Check Point、SharePoint、WordPress、Langflow 都在近期条目里</a> <span class="certainty-tag certainty-confirmed">confirmed</span></h3>
+    <p>CISA Known Exploited Vulnerabilities JSON 显示 catalogVersion 为 2026.07.23、count 为 1653。近期条目包括 Check Point SmartConsole CVE-2026-16232、Microsoft SharePoint CVE-2026-50522、WordPress Core CVE-2026-60137/CVE-2026-63030、Langflow CVE-2026-0770 等。确定性：条目存在为官方已证实；是否影响你的资产需按实际部署核对。</p>
+    <h3>2、<a href="https://mysk.blog/2026/07/23/macos-overwrite-app-executables/" target="_blank" rel="noopener noreferrer">Mysk 披露 macOS App 主可执行替换风险，Apple 评估为不需安全修复</a> <span class="certainty-tag certainty-reported">reported</span></h3>
+    <p>Mysk 报告称，下载自 Web、已首次启动、由当前用户拥有的 macOS App，在 archive/restore 后可被当前用户权限代码静默替换 `Contents/MacOS` 主可执行；替换后的程序不会继承原 App 权限，但能以原 App 名称和图标触发 Keychain/TCC 提示。Apple 的口径是这需要当前用户代码执行且不绕过 Gatekeeper/TCC，因此不需修复。</p>
+    <img class="article-img" src="https://mysk.blog/og-image.png" alt="">
+    <h3>3、<a href="https://www.mozilla.org/en-US/security/known-vulnerabilities/firefox/" target="_blank" rel="noopener noreferrer">Mozilla Firefox 安全公告页出现 Firefox 153 与 152.0.6 修复入口</a> <span class="certainty-tag certainty-confirmed">confirmed</span></h3>
+    <p>Mozilla 安全公告索引已列出 Firefox 153 的 MFSA2026-68，以及 Firefox 152.0.6 的 MFSA2026-67。抓取到的是公告索引而非每个 CVE 详情，适合前端/QA 团队先把浏览器升级和回归矩阵排进去，再按具体 MFSA 页面确认影响。</p>
+    <img class="article-img" src="https://www.mozilla.org/media/img/m24/og.3a69dffad83e.png" alt="">
+    <h3>4、<a href="https://github.com/trending?since=daily" target="_blank" rel="noopener noreferrer">GitHub Trending：open-code-review、ego-lite、Wanix 等开发工具升温</a> <span class="certainty-tag certainty-observed">observed</span></h3>
+    <p>今日 GitHub Trending 出现 Alibaba open-code-review、citrolabs ego-lite、Wanix、text-to-cad、likec4、pi-web 等项目。确定性：Trending 排名是社区热度信号，不代表生产成熟度；但它说明开发者仍在寻找 AI 评审、Agent 浏览器、Web 沙箱和架构图这些实用工具。</p>
+    <h3>5、<a href="https://www.palmier.io/" target="_blank" rel="noopener noreferrer">Palmier Pro 把视频时间线暴露给 Claude、Cursor 和 Codex 的 MCP</a> <span class="certainty-tag certainty-claimed">claimed</span></h3>
+    <p>Palmier Pro 官网称，它是 macOS 视频编辑器，可让 Claude、Cursor、Codex 通过本地 MCP server 读取项目并编辑多轨时间线，同时把 AI 图像、视频、音频生成放进时间线。确定性：产品能力来自官网声明；实际稳定性、权限隔离和企业安全仍需本地验证。</p>
+    <img class="article-img" src="https://www.palmier.io/_next/image?url=%2Fscreenshots%2Fpro-editor.png&amp;w=2048&amp;q=75&amp;dpl=dpl_tmTammX4hdfaotStLLcByStWySqu" alt="">
+    <h3>6、<a href="https://justif.lyall.co/" target="_blank" rel="noopener noreferrer">Justif 把 Knuth-Plass 排版与微排版带到 Web</a> <span class="certainty-tag certainty-observed">observed</span></h3>
+    <p>Lobsters 今日高分项目 Justif 面向 Web 排版，实现 Knuth-Plass justification 和微排版能力。确定性：社区热度为已观察，工程成熟度需自行验证。对前端团队，它提醒我们：文本渲染质量仍然可以是产品差异，而不只是 CSS 默认值。</p>
+
+    <h2 id="ai">🤖 AI 相关</h2>
+    <h3>1、<a href="https://github.com/humanlayer/advanced-context-engineering-for-coding-agents/blob/main/wsff.md" target="_blank" rel="noopener noreferrer">HumanLayer 长文反思软件工厂：harness engineering 不是长期维护性的答案</a> <span class="certainty-tag certainty-opinion">opinion</span></h3>
+    <p>HumanLayer 的《Why Software Factories Fail》认为，把 AI coding 投入生产后，build 变快，但 review、设计和长期可维护性并不会自动变好。文中引用 Faros AI 报告作为相关性信号，并强调这不是“证明因果”的铁证。结论偏观点：多写 loop 和自动 review 不能替代前置设计、切片交付和人类对复杂代码库的判断。</p>
+    <img class="article-img" src="https://opengraph.githubassets.com/957688bec851c3b1b6c119b39568271d0675e101b4abbac84e8cba919c08a55d/humanlayer/advanced-context-engineering-for-coding-agents" alt="">
+    <h3>2、<a href="https://echo.tracerml.ai/eval/" target="_blank" rel="noopener noreferrer">Echo 用开放权重模型路由宣称达到 Fable 级结果三分之一成本</a> <span class="certainty-tag certainty-claimed">claimed</span></h3>
+    <p>Echo 是一个把多个开放权重模型按请求动态分配计算和组合输出的系统。其 HN 帖和评估页称，在部分评估组合上可接近 Fable，成本约三分之一；但评估页也明确说这是自家发布评测，不是第三方独立 review，且 SWE-bench、ARC-AGI、BigCodeBench 尚无结果。确定性：产品存在和自评说明已证实，benchmark 结论按厂商/作者声明处理。</p>
+    <h3>3、<a href="https://developers.openai.com/learn/agents" target="_blank" rel="noopener noreferrer">OpenAI Developers Agents 页面把工具、MCP、Skills、程序化调用放进同一套学习入口</a> <span class="certainty-tag certainty-confirmed">confirmed</span></h3>
+    <p>OpenAI Developers Agents 学习页把 Web search、File search、Retrieval、MCP and Connectors、Secure MCP Tunnel、Skills、Tool search、Programmatic tool calling 等入口放在 Agent 资源中。确定性：页面结构为官方已抓取；它不是今日重大发布，但说明 Agent 开发栈正在稳定为工具、数据连接、运行边界和工作流编排的组合。</p>
+    <img class="article-img" src="https://developers.openai.com/open-graph.png" alt="">
+    <h3>4、<a href="https://hn.algolia.com/api/v1/search?tags=front_page&amp;hitsPerPage=30" target="_blank" rel="noopener noreferrer">开放权重 AI 政策争议升温：HN 前台把公开信推到高热度</a> <span class="certainty-tag certainty-observed">observed</span></h3>
+    <p>HN front page API 显示，Politico 关于开放权重 AI 公开信的故事在抓取时有 727 points、651 comments。确定性：分数和评论数为抓取时点社区信号；不能代表政策结果。它说明开发者社区把开放模型访问视为现实生产问题，而非纯意识形态争论。</p>
+    <h3>5、<a href="https://blog.codeberg.org/protecting-our-floss-commons-from-llms.html" target="_blank" rel="noopener noreferrer">Codeberg 讨论保护 FLOSS commons 免受 LLM 抽取压力</a> <span class="certainty-tag certainty-observed">observed</span></h3>
+    <p>Codeberg 的页面标题显示其正在讨论 Protecting our FLOSS commons from LLMs，Lobsters 也把该主题推到高分。抓取正文较薄，本期只作为社区治理信号：开源托管平台正在把 LLM 爬取、资源消耗、署名和贡献关系纳入治理议题。</p>
+
+    <h2 id="articles">📝 文章推荐</h2>
+    <h3>1、<a href="https://github.com/humanlayer/advanced-context-engineering-for-coding-agents/blob/main/wsff.md#article" target="_blank" rel="noopener noreferrer">Why Software Factories Fail</a></h3>
+    <p>一篇适合工程管理者和 Tech Lead 的长文：它把 AI 软件工厂的问题从“prompt 技巧”拉回到可维护性、评审、设计切片和人类判断。注意它是强观点文，不是独立统计研究。</p>
+    <img class="article-img" src="https://opengraph.githubassets.com/957688bec851c3b1b6c119b39568271d0675e101b4abbac84e8cba919c08a55d/humanlayer/advanced-context-engineering-for-coding-agents" alt="">
+    <h3>2、<a href="https://mysk.blog/2026/07/23/macos-overwrite-app-executables/#article" target="_blank" rel="noopener noreferrer">Silent Replacement of Trusted macOS App Executables</a></h3>
+    <p>一篇值得 PC 客户端和安全团队细读的报告：即使 Apple 不认为它是需修复安全问题，它也暴露了 App 身份、用户态所有权、TCC/Keychain 提示和社会工程之间的灰区。</p>
+    <img class="article-img" src="https://mysk.blog/og-image.png" alt="">
+    <h3>3、<a href="https://lukekanies.com/writing/building-on-atproto/" target="_blank" rel="noopener noreferrer">Building on ATProto</a></h3>
+    <p>HN 今日前台文章，从开发者视角讨论基于 AT Protocol 构建产品的现实体验。它适合 Web/backend 团队理解开放社交协议不是口号，而是 API、数据模型、迁移和生态约束的组合。</p>
+    <h3>4、<a href="https://haqr.eu/tinyrenderer/" target="_blank" rel="noopener noreferrer">Software rendering in 500 lines of bare C++</a></h3>
+    <p>HN 与 Lobsters 都出现的软件渲染教程。对客户端、游戏和图形工程师来说，它的价值不在代码短，而在把渲染管线拆回可理解的基础步骤。</p>
+
+    <h2 id="tools">🛠️ 工具推荐</h2>
+    <div class="tool-grid">
+      <div class="tool-card">
+        <h4><a href="https://github.com/alibaba/open-code-review" target="_blank" rel="noopener noreferrer">open-code-review</a> <span class="priority-tag">P1</span></h4>
+        <p>Alibaba 开源的混合架构代码评审工具，强调 deterministic pipelines + LLM Agent、行级评论和规则集。适合大仓团队评估“规则先行、模型补充”的 review 方案；采用前应先审权限、CI 接入和误报处理。</p>
+      </div>
+      <div class="tool-card">
+        <h4><a href="https://github.com/citrolabs/ego-lite" target="_blank" rel="noopener noreferrer">ego-lite</a> <span class="priority-tag">P2</span></h4>
+        <p>面向人和 AI agent 并行工作的浏览器项目。适合关注 Browser-as-agent-runtime 的 Web/PC 客户端团队观察，但生产采用前必须验证权限模型、会话隔离和本地数据边界。</p>
+      </div>
+      <div class="tool-card">
+        <h4><a href="https://wanix.dev/" target="_blank" rel="noopener noreferrer">Wanix</a> <span class="priority-tag">P1</span></h4>
+        <p>Wasm-native Unix sandboxing for the web。适合前端平台、在线 IDE、教育和隔离执行场景调研，用 WebAssembly 把类 Unix 环境放进浏览器沙箱。</p>
+      </div>
+      <div class="tool-card">
+        <h4><a href="https://justif.lyall.co/#tool" target="_blank" rel="noopener noreferrer">Justif</a> <span class="priority-tag">P2</span></h4>
+        <p>Web 排版工具，聚焦 Knuth-Plass justification 和微排版。对内容产品、文档系统、阅读器和设计系统团队有现实价值。</p>
+      </div>
+    </div>
+
+    <h2 id="ai-tools">🧠 AI 工具</h2>
+    <div class="tool-grid">
+      <div class="tool-card">
+        <span class="tag">MCP App</span>
+        <h4><a href="https://www.palmier.io/#mcp" target="_blank" rel="noopener noreferrer">Palmier Pro</a></h4>
+        <p>带本地 MCP server 的 macOS 视频编辑器，允许 Claude、Cursor、Codex 读取并编辑时间线。优先作为 Agent + 本地创作软件集成样本研究，暂不建议无审计接入敏感素材。</p>
+      </div>
+      <div class="tool-card">
+        <span class="tag">Model Router</span>
+        <h4><a href="https://echo.tracerml.ai/eval/#tool" target="_blank" rel="noopener noreferrer">Echo</a></h4>
+        <p>开放权重模型池路由/组合系统，主张按请求分配计算并降低成本。适合推理平台团队研究多模型路由，但必须用自有任务集复测，不要直接相信自评 benchmark。</p>
+      </div>
+      <div class="tool-card">
+        <span class="tag">Coding Agent UI</span>
+        <h4><a href="https://github.com/agegr/pi-web" target="_blank" rel="noopener noreferrer">pi-web</a></h4>
+        <p>pi coding agent 的 Web UI，适合观察命令行 Agent 如何外接状态面板、会话视图和浏览器化控制台。</p>
+      </div>
+    </div>
+
+    <h2 id="concepts">🧩 本期概念库</h2>
+    <div class="concept-card">
+      <h4>1. Open-weight Supply Chain</h4>
+      <div class="concept-field"><strong>一句话解释：</strong>把开放权重模型当作软件供应链资产管理：来源、版本、权重文件、托管位置、访问控制、评估结果、回滚和替代供应商都要可追踪。</div>
+      <div class="concept-field"><strong>背景来源：</strong>Little Tech Association letter</div>
+      <div class="concept-field"><strong>为什么重要：</strong>模型已经进入生产路径，不能只按价格和 benchmark 决策。</div>
+      <div class="concept-field"><strong>团队应用场景：</strong>建立模型资产清单，标注闭源 API、开放权重、本地推理、客户数据边界和退出预案。</div>
+    </div>
+    <div class="concept-card">
+      <h4>2. Policy-sensitive Architecture</h4>
+      <div class="concept-field"><strong>一句话解释：</strong>架构设计要考虑监管、采购、跨境访问和供应商限制可能变化，关键路径不能只绑定一个外部 AI 能力。</div>
+      <div class="concept-field"><strong>背景来源：</strong>Open-weight AI policy debate</div>
+      <div class="concept-field"><strong>为什么重要：</strong>政策变化会直接变成运行成本、可用性和客户合规问题。</div>
+      <div class="concept-field"><strong>团队应用场景：</strong>为核心 AI 功能提供 provider abstraction、降级模型和区域化部署策略。</div>
+    </div>
+    <div class="concept-card">
+      <h4>3. Agentic Software Factory Debt</h4>
+      <div class="concept-field"><strong>一句话解释：</strong>AI agent 快速生成代码后，长期设计一致性、抽象边界和可维护性可能积累为新的系统债。</div>
+      <div class="concept-field"><strong>背景来源：</strong>HumanLayer WSFF</div>
+      <div class="concept-field"><strong>为什么重要：</strong>构建速度提升会把瓶颈推到 review、测试和系统理解。</div>
+      <div class="concept-field"><strong>团队应用场景：</strong>要求 Agent 任务先给设计切片、验收标准、回滚点和最小 diff，再进入实现。</div>
+    </div>
+    <div class="concept-card">
+      <h4>4. Trusted App Identity Gap</h4>
+      <div class="concept-field"><strong>一句话解释：</strong>用户看到的 App 名称/图标和真正发起请求的可执行身份之间可能存在理解落差。</div>
+      <div class="concept-field"><strong>背景来源：</strong>Mysk macOS executable replacement report</div>
+      <div class="concept-field"><strong>为什么重要：</strong>PC 客户端权限提示的安全性依赖用户能正确识别请求者。</div>
+      <div class="concept-field"><strong>团队应用场景：</strong>客户端产品在敏感权限场景中显示更明确的签名、来源和操作原因。</div>
+    </div>
+    <div class="concept-card">
+      <h4>5. Exploit-aware Patch Queue</h4>
+      <div class="concept-field"><strong>一句话解释：</strong>补丁优先级按已知被利用、暴露资产和业务关键度排序，而不是只看 CVSS。</div>
+      <div class="concept-field"><strong>背景来源：</strong>CISA KEV</div>
+      <div class="concept-field"><strong>为什么重要：</strong>漏洞太多时，现实攻击信号能帮助 SRE/安全团队排序。</div>
+      <div class="concept-field"><strong>团队应用场景：</strong>把 KEV feed 接入资产库，自动标出互联网暴露服务、CI runner 和 AI workflow 组件。</div>
+    </div>
+
+    <h2 id="curiosity">🎲 好奇心入口</h2>
+    <div class="curiosity-card">
+      <h4><a href="https://jdan.github.io/98.css/#status-bar" target="_blank" rel="noopener noreferrer">98.css：复古 UI 仍能在 HN 前台上榜</a></h4>
+      <div class="hook">当大家都在追 AI 原生界面，一个 Windows 98 风格 CSS 库依然能引发讨论。</div>
+      <p>98.css 今日出现在 HN 前台，提醒设计系统团队：视觉语言不是越新越好，关键是能否服务场景、情绪和可识别性。 团队暗线：风格不是装饰，风格是产品定位的一部分。</p>
+    </div>
+    <div class="curiosity-card">
+      <h4><a href="https://github.com/earthtojake/text-to-cad" target="_blank" rel="noopener noreferrer">text-to-cad：Agent skill 正在进入硬件和机器人设计</a></h4>
+      <div class="hook">代码之外，CAD、机器人和硬件设计也开始被拆成可复用 skill。</div>
+      <p>GitHub Trending 出现 text-to-cad，项目定位是 CAD、robotics、hardware design 的 agent skills 集合。它更像信号：Agent 工作流会从软件仓库扩散到工程制图和制造链条。 团队暗线：AI skill 的下一步不是更多文本任务，而是更多专业工具动作。</p>
+    </div>
+
+    <h2 id="resources">📚 资源</h2>
+    <div class="resource-item">
+      <a href="https://littletech.org/" target="_blank" rel="noopener noreferrer">Little Tech Association open-weight AI letter</a>
+      <p>本期主故事一手文件，包含 179 个签署方、五条开放权重 AI 治理原则和对创业公司供应链的论证。</p>
+    </div>
+    <div class="resource-item">
+      <a href="https://hn.algolia.com/api/v1/search?tags=front_page&amp;hitsPerPage=30#resource" target="_blank" rel="noopener noreferrer">Hacker News front page API</a>
+      <p>今日社区热度源，开放权重 AI 政策、Echo、Palmier、软件工厂、ATProto、软件渲染等由此发现。</p>
+    </div>
+    <div class="resource-item">
+      <a href="https://lobste.rs/hottest.json" target="_blank" rel="noopener noreferrer">Lobsters hottest JSON</a>
+      <p>工程深读源，Justif、Codeberg LLM/FLOSS、Mysk macOS、SIMD、Wanix 等从这里交叉确认。</p>
+    </div>
+
+    <h2 id="quotes">💬 言论：本期 7 个认知增量</h2>
+    <div class="quote-block">
+      <blockquote>开放权重 AI 的价值不只是低价，而是创业公司保留切换、审计和私有部署的权力。</blockquote>
+      <div class="quote-author">—— Little Tech Association letter · 摘要式转述</div>
+      <div class="quote-meta">来源：<a href="https://static.politico.com/4a/bf/9c4021d8404386b0a311dcccf0e5/lta-open-weight-ai-letter-7-22-26.pdf#quote-open-weight" target="_blank" rel="noopener noreferrer">static.politico.com</a> · 类型：摘要式转述 · 关键词：Open Weights · Supply Chain</div>
+      <div class="quote-comment">💭 这把模型选型拉进供应链治理，而不是只看 benchmark。</div>
+      <div class="quote-team-insight">🎯 团队启发：建立模型资产清单和退出预案。</div>
+    </div>
+    <div class="quote-block">
+      <blockquote>软件工厂不是没人看代码的工厂，而是更需要前置设计和更小切片的工厂。</blockquote>
+      <div class="quote-author">—— HumanLayer WSFF · 摘要式转述</div>
+      <div class="quote-meta">来源：<a href="https://github.com/humanlayer/advanced-context-engineering-for-coding-agents/blob/main/wsff.md#quote-software-factory" target="_blank" rel="noopener noreferrer">github.com</a> · 类型：摘要式转述 · 关键词：Coding Agent · Maintainability</div>
+      <div class="quote-comment">💭 这是一条观点，但很适合提醒团队不要让 Agent 产出免 review。</div>
+      <div class="quote-team-insight">🎯 团队启发：Agent 任务先设计后实现，review 不可取消。</div>
+    </div>
+    <div class="quote-block">
+      <blockquote>系统提示可信，不代表真正发起请求的可执行文件可信。</blockquote>
+      <div class="quote-author">—— Mysk Blog · 摘要式转述</div>
+      <div class="quote-meta">来源：<a href="https://mysk.blog/2026/07/23/macos-overwrite-app-executables/#quote-app-identity" target="_blank" rel="noopener noreferrer">mysk.blog</a> · 类型：摘要式转述 · 关键词：macOS · Client Security</div>
+      <div class="quote-comment">💭 这对 PC 客户端权限设计很重要。</div>
+      <div class="quote-team-insight">🎯 团队启发：敏感权限提示要解释请求来源和代码签名。</div>
+    </div>
+    <div class="quote-block">
+      <blockquote>已知被利用漏洞，是补丁队列里最现实的排序信号。</blockquote>
+      <div class="quote-author">—— CISA KEV · 摘要式转述</div>
+      <div class="quote-meta">来源：<a href="https://www.cisa.gov/sites/default/files/feeds/known_exploited_vulnerabilities.json#quote-kev" target="_blank" rel="noopener noreferrer">cisa.gov</a> · 类型：摘要式转述 · 关键词：KEV · Patch</div>
+      <div class="quote-comment">💭 比单看 CVSS 更接近攻击现实。</div>
+      <div class="quote-team-insight">🎯 团队启发：把 KEV 自动映射到资产库。</div>
+    </div>
+    <div class="quote-block">
+      <blockquote>模型池路由的可信度，不来自漂亮的成本数字，而来自你能检查的评估过程。</blockquote>
+      <div class="quote-author">—— Echo Eval Observatory · 摘要式转述</div>
+      <div class="quote-meta">来源：<a href="https://echo.tracerml.ai/eval/#quote-benchmark" target="_blank" rel="noopener noreferrer">echo.tracerml.ai</a> · 类型：摘要式转述 · 关键词：Benchmark · Model Routing</div>
+      <div class="quote-comment">💭 Echo 自评页主动标注局限，这比只报胜率更有参考价值。</div>
+      <div class="quote-team-insight">🎯 团队启发：采购或接入前用自有任务集复测。</div>
+    </div>
+    <div class="quote-block">
+      <blockquote>当 Agent 能编辑本地时间线，它也需要像开发 Agent 一样被限制权限。</blockquote>
+      <div class="quote-author">—— Palmier Pro · 摘要式转述</div>
+      <div class="quote-meta">来源：<a href="https://www.palmier.io/#quote-mcp" target="_blank" rel="noopener noreferrer">palmier.io</a> · 类型：摘要式转述 · 关键词：MCP · Local App</div>
+      <div class="quote-comment">💭 MCP 正在进入代码以外的本地专业软件。</div>
+      <div class="quote-team-insight">🎯 团队启发：本地 MCP server 默认最小权限。</div>
+    </div>
+    <div class="quote-block">
+      <blockquote>开源不是免费矿场，LLM 时代的 commons 需要新的资源和贡献账本。</blockquote>
+      <div class="quote-author">—— Codeberg / FLOSS discussion · 摘要式转述</div>
+      <div class="quote-meta">来源：<a href="https://blog.codeberg.org/protecting-our-floss-commons-from-llms.html#quote-floss" target="_blank" rel="noopener noreferrer">blog.codeberg.org</a> · 类型：摘要式转述 · 关键词：FLOSS · LLM</div>
+      <div class="quote-comment">💭 正文抓取有限，因此这里作为社区治理信号处理。</div>
+      <div class="quote-team-insight">🎯 团队启发：企业使用生成代码时关注许可证、来源和回馈。</div>
+    </div>
+
+    <h2 id="podcast">🎙️ 播客提纲</h2>
+    <div class="podcast-brief">
+      <h4>第 63 期：开放权重 AI 正在变成开发者供应链问题</h4>
+      <div class="cold-open">一封由 179 个创始人和成员公司签署的公开信，把开放权重 AI 从社区争论推到了政策桌面。今天我们聊的不是哪个模型更强，而是当模型变成生产基础设施，团队还能不能切换、审计、私有部署和控制成本。</div>
+      <div class="podcast-segment">
+        <strong>开放权重 AI 的政策冲突</strong>
+        <p>如果模型不能替换，它就不只是工具，而是供应链锁定。</p>
+        <p>建立模型资产清单和供应商退出预案。</p>
+      </div>      <div class="podcast-segment">
+        <strong>软件工厂不是熄灯工厂</strong>
+        <p>Agent 让 build 变快，但 review、设计和长期维护并不会自动变好。</p>
+        <p>Agent 任务先定义目标、验收和最小 diff，再执行。</p>
+      </div>      <div class="podcast-segment">
+        <strong>macOS App 包替换与 CISA KEV</strong>
+        <p>系统提示看起来可信，不代表请求者真的可信。</p>
+        <p>本地权限提示和 KEV 补丁队列都要进入工程治理。</p>
+      </div>      <div class="podcast-segment">
+        <strong>工具 quick hits</strong>
+        <p>今天值得看的是能嵌进研发流程的工具。</p>
+        <p>工具采用前先验证权限、成熟度和实际流程价值。</p>
+      </div>
+      <p>今天的结论：模型、Agent、本地 App、浏览器和补丁队列都在变成同一条工程供应链。能跑起来只是第一步，能控制、能审计、能替换，才是长期竞争力。</p>
+    </div>
+
+    <h2 id="team-insights">✅ 对团队的启发</h2>
+    <div class="insight-card">
+      <p><span class="insight-num">1</span>把 AI 模型纳入供应链清单：来源、版本、部署位置、数据边界、评估结果、访问日志、回滚和替代供应商都要可查。</p>
+    </div>
+    <div class="insight-card">
+      <p><span class="insight-num">2</span>Agent 软件工厂不能取消人类设计和 review：任务要有小切片、验收标准、上下文边界和最小 diff。</p>
+    </div>
+    <div class="insight-card">
+      <p><span class="insight-num">3</span>PC 客户端和本地 MCP server 要重新审视 App 身份、代码签名、权限提示和本地素材/凭证访问。</p>
+    </div>
+    <div class="insight-card">
+      <p><span class="insight-num">4</span>安全补丁队列优先接入 KEV feed，并映射到真实资产、互联网暴露面、CI runner 和 AI workflow 组件。</p>
+    </div>
+    <div class="insight-card">
+      <p><span class="insight-num">5</span>工具推荐优先服务真实开发提效：AI code review、浏览器/沙箱、架构图、排版、MCP 本地 App 都要先验证权限和工作流价值。</p>
+    </div>
+
+    <div class="footer-sources">
+      <strong>📋 数据来源说明</strong><br>
+      本情报来自 66 个全球精选科技 / AI / 工程 / 系统可靠性信息源的每日更新。<br>
+      由 Cursor AI 自动生成，信息截止至 2026年7月24日，星期五。
+    </div>
+  </main>
+</div>
+
+<script>
+(function(){
+  const toc=document.querySelector('.toc');if(!toc)return;
+  const links=[...toc.querySelectorAll('a')];
+  const ids=links.map(l=>l.getAttribute('href').slice(1));
+  const secs=ids.map(id=>document.getElementById(id)).filter(Boolean);
+  function hl(){let cur=0;secs.forEach((s,i)=>{if(s.getBoundingClientRect().top<=120)cur=i;});
+  links.forEach((l,i)=>{l.classList.toggle('active',i===cur);});}
+  window.addEventListener('scroll',hl,{passive:true});hl();
+})();
+
+</script>
+</body>
+</html>

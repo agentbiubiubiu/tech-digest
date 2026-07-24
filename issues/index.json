@@ -1,5 +1,11 @@
 [
   {
+    "date": "2026-07-24",
+    "title": "第 63 期：开放权重 AI 正在变成开发者供应链问题",
+    "highlights": "开放权重 AI 公开信成为今日主故事 · 179 个创始人和成员公司要求保留开放模型访问 · HumanLayer 反思软件工厂长期维护债 · Mysk 披露 macOS App 主可执行替换风险且 Apple 评估不修复 · CISA KEV 更新到 2026.07.23、1653 条 · Palmier Pro、Echo、open-code-review、Wanix、Justif 进入工具雷达",
+    "image": "https://framerusercontent.com/images/EYJbRho4q17OT6Mp9WWMMi23Ll4.png"
+  },
+  {
     "date": "2026-07-23",
     "title": "第 62 期：AI Agent 的风险开始藏在开发工作流里",
     "highlights": "假面试 Git hook 恶意链成为今日主故事 · Anthropic 复盘 Claude containment：93% 权限提示批准率与 84% 提示减少 · PyPI 14 天后拒绝旧 release 新文件 · Qualys 披露 RefluXFS 本地提权影响可能超过 1640 万系统 · Safari TP 248、LiteRT.js、ADK Go 2.0、Ray on TPU 进入工程视野 · Bento、Topcoat、likec4、croc 面向真实开发提效",
