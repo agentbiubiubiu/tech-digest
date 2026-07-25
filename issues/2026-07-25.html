@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>第 64 期：摄像头固件里的 GitHub token，提醒我们 AI 时代的供应链不是抽象风险</title>
+  <meta property="og:title" content="Tech Digest #64：Hanwha 固件 token、Claude Opus 5、Chrome Gemini 快捷键">
+  <meta property="og:description" content="今天的主线是摄像头固件泄露 GitHub token：前端构建、CI 环境变量、固件发布和代码仓库权限在同一条供应链里连成事故面。">
+  <meta property="og:image" content="https://cdn.sanity.io/images/4zrzovbb/website/54b7ab1d2c2521f83ae5d2da5f9d99321c370d24-2880x1620.png">
+  <style>
+:root {
+  --bg: #f5f6f8; --surface: #ffffff; --surface2: #f0f2f5;
+  --border: #e8ecf1; --border-hover: #c5cdd8;
+  --text: #1a1d21; --text-secondary: #3d4550; --text-muted: #8c95a1;
+  --accent: #2d9f6f; --accent-light: #e8f5ef; --accent-hover: #248a5e;
+  --accent-text: #ffffff;
+  --purple: #7c5cbf; --purple-light: #f3effc;
+  --orange: #e58e26; --orange-light: #fef5e7;
+  --blue: #3a82f7; --blue-light: #eef4fe;
+  --red: #e74c3c; --red-light: #fdecea;
+  --green-deep: #1a7a4c; --green-light2: #e0f5ea;
+  --yellow: #d4a017; --yellow-light: #fef9e7;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.06);
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.06), 0 2px 4px rgba(0,0,0,0.04);
+  --shadow-lg: 0 10px 30px rgba(0,0,0,0.08);
+  --radius: 12px; --radius-sm: 8px; --radius-xs: 6px;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Helvetica, Arial, sans-serif; background: var(--bg); color: var(--text); line-height: 1.75; font-size: 15px; -webkit-font-smoothing: antialiased; }
+.topbar { background: var(--surface); border-bottom: 1px solid var(--border); padding: 12px 32px; display: flex; align-items: center; gap: 16px; position: sticky; top: 0; z-index: 200; box-shadow: var(--shadow-sm); }
+.topbar-brand { font-size: 1.1rem; font-weight: 700; color: var(--accent); text-decoration: none; display: flex; align-items: center; gap: 8px; }
+.topbar-brand svg { width: 28px; height: 28px; }
+.topbar-nav { display: flex; gap: 4px; margin-left: 24px; }
+.topbar-nav a { padding: 6px 16px; border-radius: 20px; font-size: 0.85rem; font-weight: 500; color: var(--text-secondary); text-decoration: none; transition: all 0.2s; }
+.topbar-nav a:hover { background: var(--surface2); color: var(--text); }
+.topbar-nav a.active { background: var(--accent-light); color: var(--accent); font-weight: 600; }
+.topbar-right { margin-left: auto; display: flex; align-items: center; gap: 12px; }
+.topbar-date { font-size: 0.82rem; color: var(--text-muted); background: var(--surface2); padding: 5px 12px; border-radius: 16px; }
+.page { display: flex; max-width: 1200px; margin: 0 auto; padding: 24px 24px 0; gap: 24px; }
+.toc { width: 220px; flex-shrink: 0; position: sticky; top: 80px; height: calc(100vh - 104px); overflow-y: auto; background: var(--surface); border-radius: var(--radius); padding: 20px 16px; box-shadow: var(--shadow-sm); border: 1px solid var(--border); }
+.toc-title { font-size: 0.72rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 14px; padding-left: 12px; }
+.toc a { display: block; padding: 7px 12px; margin-bottom: 2px; font-size: 0.82rem; color: var(--text-muted); text-decoration: none; border-radius: var(--radius-xs); transition: all 0.15s; font-weight: 500; }
+.toc a:hover { color: var(--accent); background: var(--accent-light); }
+.toc a.active { color: var(--accent); background: var(--accent-light); font-weight: 600; }
+.toc-mobile { display: none; position: sticky; top: 57px; z-index: 100; background: var(--surface); border-bottom: 1px solid var(--border); padding: 10px 16px; box-shadow: var(--shadow-sm); }
+.toc-mobile summary { cursor: pointer; font-size: 0.85rem; color: var(--accent); font-weight: 600; list-style: none; }
+.toc-mobile summary::-webkit-details-marker { display: none; }
+.toc-mobile .toc-dropdown { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 8px; margin-top: 8px; max-height: 60vh; overflow-y: auto; box-shadow: var(--shadow-md); }
+.toc-mobile .toc-dropdown a { display: block; padding: 8px 12px; font-size: 0.88rem; color: var(--text-secondary); text-decoration: none; border-radius: var(--radius-xs); }
+.toc-mobile .toc-dropdown a:hover { color: var(--accent); background: var(--accent-light); }
+@media (max-width: 860px) { .toc { display: none; } .toc-mobile { display: block; } .topbar-nav { display: none; } .page { flex-direction: column; padding: 16px 12px 0; gap: 16px; } .container { padding: 20px 16px 60px; } }
+.container { flex: 1; min-width: 0; background: var(--surface); border-radius: var(--radius); padding: 36px 40px 60px; box-shadow: var(--shadow-sm); border: 1px solid var(--border); margin-bottom: 40px; }
+.back { display: inline-flex; align-items: center; gap: 4px; color: var(--text-muted); text-decoration: none; font-size: 0.85rem; margin-bottom: 28px; font-weight: 500; transition: color 0.15s; }
+.back:hover { color: var(--accent); }
+h1 { font-size: 1.7rem; font-weight: 800; margin-bottom: 10px; line-height: 1.35; color: var(--text); letter-spacing: -0.01em; }
+.meta { color: var(--text-muted); font-size: 0.85rem; margin-bottom: 28px; }
+.highlights-line { color: var(--text-secondary); font-size: 0.9rem; margin: -18px 0 28px; line-height: 1.65; }
+.hero-img { width: 100%; border-radius: var(--radius); margin-bottom: 10px; box-shadow: var(--shadow-md); }
+.hero-caption { font-size: 0.82rem; color: var(--text-muted); margin-bottom: 36px; text-align: center; font-style: italic; }
+h2 { font-size: 1.25rem; font-weight: 700; margin: 44px 0 18px; padding-bottom: 10px; border-bottom: 2px solid var(--accent-light); scroll-margin-top: 90px; color: var(--text); }
+h3 { font-size: 1.05rem; font-weight: 600; margin: 26px 0 8px; color: var(--text); }
+p { margin-bottom: 14px; color: var(--text-secondary); }
+a { color: var(--accent); text-decoration: none; font-weight: 500; }
+a:hover { color: var(--accent-hover); text-decoration: underline; }
+strong { color: var(--text); font-weight: 600; }
+.callout { background: var(--accent-light); border-left: 4px solid var(--accent); border-radius: var(--radius-sm); padding: 16px 20px; margin: 20px 0; font-size: 0.93rem; color: var(--text-secondary); }
+.main-story { background: linear-gradient(135deg, #f7fbff 0%, #fff 60%); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px 26px; margin: 18px 0 28px; box-shadow: var(--shadow-sm); }
+.main-story h3 { margin-top: 0; font-size: 1.2rem; line-height: 1.45; }
+.main-story .story-hook { color: var(--accent); font-weight: 700; margin-bottom: 14px; }
+.story-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 16px 0; }
+.story-field { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 12px 14px; font-size: 0.88rem; color: var(--text-secondary); }
+.story-field strong { display: block; margin-bottom: 4px; color: var(--text); }
+.number-chip { display: inline-block; background: var(--blue-light); color: var(--blue); border-radius: 14px; padding: 3px 10px; margin: 3px 6px 3px 0; font-size: 0.78rem; font-weight: 700; }
+.story-line { background: var(--purple-light); border-left: 4px solid var(--purple); border-radius: var(--radius-sm); padding: 14px 16px; margin-top: 14px; color: var(--text); font-weight: 700; }
+.trend-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin: 16px 0 28px; }
+.trend-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px 20px; box-shadow: var(--shadow-sm); }
+.trend-card h4 { font-size: 0.95rem; margin-bottom: 8px; color: var(--text); }
+.trend-card .trend-conflict { color: var(--red); font-size: 0.82rem; font-weight: 700; margin-bottom: 8px; }
+.trend-card p { font-size: 0.86rem; margin-bottom: 10px; }
+.trend-card .trend-sources { font-size: 0.76rem; color: var(--text-muted); line-height: 1.55; }
+.curiosity-card { background: var(--orange-light); border: 1px solid #f5ddb8; border-radius: var(--radius); padding: 20px 24px; margin: 14px 0; }
+.curiosity-card h4 { font-size: 1rem; margin-bottom: 8px; font-weight: 600; }
+.curiosity-card h4 a { color: var(--orange); }
+.curiosity-card .hook { color: var(--orange); font-weight: 700; margin-bottom: 6px; }
+.curiosity-card p { font-size: 0.88rem; color: var(--text-secondary); margin: 0 0 8px; line-height: 1.65; }
+.podcast-brief { background: #f8fafc; border: 1px solid var(--border); border-radius: var(--radius); padding: 20px 24px; margin: 18px 0; }
+.podcast-brief h4 { margin: 0 0 10px; font-size: 1rem; }
+.podcast-brief .cold-open { color: var(--accent); font-weight: 700; margin-bottom: 14px; }
+.podcast-segment { border-top: 1px solid var(--border); padding-top: 12px; margin-top: 12px; }
+.podcast-segment strong { display: block; margin-bottom: 4px; }
+.article-img { width: 100%; max-height: 380px; object-fit: cover; border-radius: var(--radius-sm); margin: 12px 0 24px; box-shadow: var(--shadow-sm); }
+.tool-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 16px 0; }
+.tool-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px 20px; transition: all 0.2s; box-shadow: var(--shadow-sm); }
+.tool-card:hover { border-color: var(--accent); box-shadow: var(--shadow-md); transform: translateY(-1px); }
+.tool-card h4 { font-size: 0.95rem; margin-bottom: 6px; font-weight: 600; }
+.tool-card h4 a { color: var(--accent); }
+.tool-card p { font-size: 0.83rem; color: var(--text-muted); margin: 0; line-height: 1.55; }
+.tool-card .tag { display: inline-block; font-size: 0.68rem; padding: 3px 8px; border-radius: 10px; background: var(--accent); color: var(--accent-text); font-weight: 600; margin-bottom: 8px; letter-spacing: 0.02em; }
+.tool-card .priority-tag { display: inline-block; font-size: 0.65rem; padding: 2px 6px; border-radius: 8px; background: var(--surface2); color: var(--text-muted); font-weight: 600; margin-left: 6px; }
+.fun-card { background: var(--orange-light); border: 1px solid #f5ddb8; border-radius: var(--radius); padding: 20px 24px; margin: 14px 0; }
+.fun-card h4 { font-size: 1rem; margin-bottom: 8px; font-weight: 600; }
+.fun-card h4 a { color: var(--orange); }
+.fun-card p { font-size: 0.88rem; color: var(--text-secondary); margin: 0; line-height: 1.65; }
+.quote-block { background: var(--purple-light); border-left: 4px solid var(--purple); border-radius: var(--radius-sm); padding: 20px 24px; margin: 18px 0; }
+.quote-block blockquote { font-size: 1.02rem; line-height: 1.65; margin-bottom: 10px; font-style: italic; color: var(--text); }
+.quote-block .quote-author { font-size: 0.82rem; color: var(--purple); font-weight: 600; margin-bottom: 6px; }
+.quote-block .quote-meta { font-size: 0.78rem; color: var(--text-muted); margin-bottom: 10px; }
+.quote-block .quote-comment { font-size: 0.88rem; color: var(--text-secondary); border-top: 1px solid #d8d0e8; padding-top: 10px; margin-top: 10px; }
+.quote-block .quote-team-insight { font-size: 0.88rem; color: var(--green-deep); background: var(--accent-light); border-radius: var(--radius-xs); padding: 8px 12px; margin-top: 8px; }
+.resource-item { background: var(--blue-light); border: 1px solid #c8dbf8; border-radius: var(--radius); padding: 18px 20px; margin: 12px 0; }
+.resource-item a { font-weight: 600; color: var(--blue); }
+.resource-item p { font-size: 0.88rem; color: var(--text-secondary); margin: 6px 0 0; }
+.concept-card { background: var(--green-light2); border-left: 4px solid var(--accent); border-radius: var(--radius-sm); padding: 20px 24px; margin: 16px 0; }
+.concept-card h4 { font-size: 1rem; font-weight: 700; color: var(--green-deep); margin-bottom: 10px; }
+.concept-card .concept-field { font-size: 0.88rem; color: var(--text-secondary); margin-bottom: 6px; line-height: 1.6; }
+.concept-card .concept-field strong { color: var(--text); font-size: 0.88rem; }
+.insight-card { background: var(--yellow-light); border-left: 4px solid var(--yellow); border-radius: var(--radius-sm); padding: 16px 20px; margin: 12px 0; }
+.insight-card p { font-size: 0.93rem; color: var(--text-secondary); margin: 0; line-height: 1.7; }
+.insight-card .insight-num { display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; border-radius: 50%; background: var(--yellow); color: #fff; font-size: 0.75rem; font-weight: 700; margin-right: 10px; flex-shrink: 0; }
+.certainty-tag { display: inline-block; font-size: 0.65rem; padding: 2px 6px; border-radius: 8px; font-weight: 600; margin-left: 8px; }
+.certainty-confirmed { background: var(--accent-light); color: var(--accent); }
+.certainty-announced { background: var(--blue-light); color: var(--blue); }
+.certainty-reported { background: var(--yellow-light); color: var(--yellow); }
+.certainty-opinion { background: var(--purple-light); color: var(--purple); }
+.certainty-rumor { background: var(--red-light); color: var(--red); }
+.footer-sources { margin-top: 44px; padding: 20px 24px; background: var(--surface2); border-radius: var(--radius); font-size: 0.78rem; color: var(--text-muted); line-height: 1.9; }
+.footer-sources strong { color: var(--text-secondary); font-size: 0.78rem; }
+@media (max-width: 860px) { .trend-grid, .story-grid { grid-template-columns: 1fr; } }
+@media (max-width: 640px) { .tool-grid { grid-template-columns: 1fr; } }
+
+  </style>
+</head>
+<body>
+
+<header class="topbar">
+  <a href="../index.html" class="topbar-brand">
+    <svg viewBox="0 0 28 28" fill="none"><circle cx="14" cy="14" r="14" fill="#2d9f6f"/><path d="M8 14.5l3.5 3.5 8.5-8" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    Tech Digest
+  </a>
+  <nav class="topbar-nav">
+    <a href="../index.html">Archive</a>
+    <a href="#main-story" class="active">Today</a>
+    <a href="#tools">Tools</a>
+    <a href="#quotes">Quotes</a>
+  </nav>
+  <div class="topbar-right">
+    <span class="topbar-date">2026-07-25</span>
+  </div>
+</header>
+
+<details class="toc-mobile">
+  <summary>📑 目录导航</summary>
+  <div class="toc-dropdown">
+    <a href="#main-story">🔥 主故事</a>
+    <a href="#trends">⚡ 冲突趋势</a>
+    <a href="#tech-news">📰 科技动态</a>
+    <a href="#ai">🤖 AI 相关</a>
+    <a href="#articles">📝 文章推荐</a>
+    <a href="#tools">🛠️ 工具推荐</a>
+    <a href="#ai-tools">🧠 AI 工具</a>
+    <a href="#concepts">🧩 本期概念库</a>
+    <a href="#curiosity">🎲 好奇心入口</a>
+    <a href="#resources">📚 资源</a>
+    <a href="#quotes">💬 言论</a>
+    <a href="#podcast">🎙️ 播客提纲</a>
+    <a href="#team-insights">✅ 对团队的启发</a>
+  </div>
+</details>
+
+<div class="page">
+  <nav class="toc">
+    <div class="toc-title">本期目录</div>
+    <a href="#main-story">🔥 主故事</a>
+    <a href="#trends">⚡ 冲突趋势</a>
+    <a href="#tech-news">📰 科技动态</a>
+    <a href="#ai">🤖 AI 相关</a>
+    <a href="#articles">📝 文章推荐</a>
+    <a href="#tools">🛠️ 工具推荐</a>
+    <a href="#ai-tools">🧠 AI 工具</a>
+    <a href="#concepts">🧩 本期概念库</a>
+    <a href="#curiosity">🎲 好奇心入口</a>
+    <a href="#resources">📚 资源</a>
+    <a href="#quotes">💬 言论</a>
+    <a href="#podcast">🎙️ 播客提纲</a>
+    <a href="#team-insights">✅ 对团队的启发</a>
+  </nav>
+
+  <main class="container">
+    <a href="../index.html" class="back">← 返回目录</a>
+    <h1>第 64 期：摄像头固件里的 GitHub token，提醒我们 AI 时代的供应链不是抽象风险</h1>
+    <div class="meta">第 64 期 · 2026年7月25日，星期六</div>
+    <p class="highlights-line"><strong>✨ 本期亮点：</strong>Hanwha 摄像头固件 GitHub token 披露成为主故事 · Claude Opus 5 发布并同步系统卡 · Chrome Gemini 全局快捷键引发客户端边界讨论 · FreeBSD ports 因 150MB Copilot binary 暂停 · DBOS 给出 Postgres LISTEN/NOTIFY 60K writes/s 自测 · Cloudflare Agents SDK 增加 MCP 暴露控制 · Instatic、Chat2DB、testcontainers-rs、mattpocock/skills 进入工具雷达</p>
+
+    <img class="hero-img" src="https://cdn.sanity.io/images/4zrzovbb/website/54b7ab1d2c2521f83ae5d2da5f9d99321c370d24-2880x1620.png" alt="Claude Opus 5 official visual">
+    <div class="hero-caption">今日关键词是「供应链连接处」：模型、浏览器、CI、固件、仓库权限和数据库工具正在被同一批 Agent 工作流串起来。</div>
+
+    <div class="callout">
+      <strong>🎯 本期核心判断：</strong>今天最重要的判断是：AI 编程能力越强，团队越不能只盯模型输出质量。真正的风险正在出现在构建环境、前端打包、固件发布、浏览器系统权限和模型供应链之间的连接处；这些连接处通常没有产品负责人，但一旦失控，影响会越过单个应用边界。
+    </div>
+
+    <div class="callout">
+      <strong>⏱ 本期建议阅读顺序</strong><br>
+      先读主故事：Hanwha 摄像头固件泄露 token，理解今天的供应链主线。<br>
+      再看 AI 与政策：Claude Opus 5、开放权重倡议、第三方榜单和 Cloudflare Agents 更新。<br>
+      最后看工具：优先挑能直接改善 Web、客户端、后台、测试和数据库工作流的工具。
+    </div>
+
+    <h2 id="main-story">🔥 主故事</h2>
+        <article class="main-story">
+      <h3>Hanwha 摄像头固件被曝包含 GitHub admin token：一次前端构建泄漏，如何越过固件边界</h3>
+      <p class="story-hook">这不是常见的网页泄漏。研究者称，他在 Hanwha Vision 摄像头固件中解开 rootfs 后，发现同一个 GitHub token 被写进大约 30 个前端构建文件，并拥有其 GitHub 组织中数百个仓库的 admin 权限。</p>
+      <p>作者从 Hanwha 摄像头公开固件入手，逆向 fwupgrader 解出 rootfs，再用 secret 扫描工具检查文件。其披露显示，Vite 构建时把 CI 环境变量整体写入前端产物，导致 token 进入固件中的管理 UI 文件。</p>
+      <div class="story-grid">
+        <div class="story-field"><strong>核心冲突</strong>硬件厂商把固件当成可发布二进制，Web 团队把前端构建当成普通静态资源，平台团队把 CI 环境变量当成内部上下文；三者叠加后，一个变量就可能把组织级源码权限带到客户设备上。</div>
+        <div class="story-field"><strong>转折点</strong>已证实来源：作者公开披露其提取、扫描和负责任披露过程；报道/披露层面的事实是 token 被发现、作者称其具备 admin 权限、Hanwha 回复称已撤销。推断部分是作者关于这些文件是否一定被浏览器实际加载、以及若干环境变量是否与美国 DoD IP 空间有关的猜测，不能当作已证实结论。</div>
+        <div class="story-field"><strong>为什么现在发生</strong>今天 HN 把这篇披露推到高热度，同时 Claude Code 被作者用于逆向辅助。它把两个趋势放在一起：AI 正在降低逆向和审计门槛，而企业构建链里的 secret、权限、镜像和产物边界还没有同步升级。</div>
+        <div class="story-field"><strong>对团队的启发</strong>检查 Vite、Next、Electron、React Native、移动端打包、Docker 镜像和固件流水线：构建时注入变量只允许白名单；发布物做 secret scan；高权限 token 设最小权限、短生命周期和使用审计；发现泄漏后先撤销再追溯分发范围。</div>
+      </div>
+      <p><span class="number-chip">约 500 份固件被作者批量检查</span><span class="number-chip">62% 可用同类方法提取</span><span class="number-chip">3 份固件发现同一 token</span><span class="number-chip">约 30 个文件包含 token</span><span class="number-chip">厂商 12 小时内回复并撤销 token</span></p>
+      <p><strong>我的判断：</strong>我的判断是，团队应该把“前端 bundle 中不得出现完整环境变量”和“固件/桌面包发布前必须 secret scan”放进发布门禁。对于 Web、iOS、Android、PC 客户端和后台团队，CI 变量不应默认可被构建任务整包读取；GitHub token 也不应拥有跨仓库 admin 范围，尤其不能落进可分发产物。</p>
+      <div class="story-line">供应链风险不是某个仓库里有没有 secret，而是 secret 能不能一路坐上发布流水线。</div>
+      <p><strong>来源：</strong><a href="https://hhh.hn/hanwha-github-token/" target="_blank" rel="noopener noreferrer">hhh.hn</a></p>
+    </article>
+
+    <h2 id="trends">⚡ 冲突趋势</h2>
+        <div class="trend-grid">
+      <div class="trend-card">
+        <h4>AI 让审计更快，也让构建链问题更快暴露</h4>
+        <div class="trend-conflict">能力提升 vs 治理滞后</div>
+        <p>Hanwha 披露里，AI 辅助逆向缩短了审计路径；但根因仍是传统 CI secret 和前端构建边界失守。</p>
+        <div class="trend-sources">hhh.hn</div>
+      </div>
+      <div class="trend-card">
+        <h4>高能力模型发布进入系统卡时代</h4>
+        <div class="trend-conflict">Benchmark 叙事 vs 风险透明度</div>
+        <p>Anthropic 官方发布 Opus 5，同时给出 194 页系统卡；性能主张与安全边界需要一起读。</p>
+        <div class="trend-sources">anthropic.com</div>
+      </div>
+      <div class="trend-card">
+        <h4>AI 产品开始占用系统级交互入口</h4>
+        <div class="trend-conflict">增长入口 vs 用户控制权</div>
+        <p>Chrome/Gemini 全局快捷键争议说明，AI 助手不只是网页功能，也会进入 OS 和浏览器客户端权限边界。</p>
+        <div class="trend-sources">unsung.aresluna.org</div>
+      </div>
+    </div>
+
+    <h2 id="tech-news">📰 科技动态</h2>
+    <h3>1、<a href="https://www.osnews.com/story/145593/freebsd-ports-frozen-after-someone-commits-the-entire-150mb-linux-copilot-binary/" target="_blank" rel="noopener noreferrer">FreeBSD ports 因 150MB Linux Copilot binary 暂停提交</a> <span class="certainty-tag certainty-reported">reported</span></h3>
+    <p>OSNews 引述 FreeBSD announce：一个约 150MB 的二进制文件进入 ports tree，触发临时冻结；原因包括 GitHub 镜像 100MB 文件限制和许可疑问。确定性：冻结和公告内容为已报道且有官方邮件链接；具体责任和最终复盘仍待 FreeBSD 后续说明。</p>
+    <h3>2、<a href="https://unsung.aresluna.org/chromes-breaking-and-entering/" target="_blank" rel="noopener noreferrer">Chrome 被指自动注册 Gemini 全局快捷键，Mac 上 Ctrl+G 触发弹窗</a> <span class="certainty-tag certainty-reported">reported</span></h3>
+    <p>Marcin Wichary 记录 Chrome 在 macOS 上用 Ctrl+G 打开 Gemini 弹窗，且可在 Chrome 之外触发。确定性：这是作者实测与社区反馈，属于报道/观察；具体启用人群和 Google 设计意图未被官方说明。</p>
+    <img class="article-img" src="https://unsung.aresluna.org/_media/chromes-breaking-and-entering/ogimage.png" alt="">
+    <h3>3、<a href="https://www.thehindu.com/news/national/government-orders-github-to-remove-bluetooth-based-chat-app-bitchat-over-security-concerns-jack-dorsey/article71262049.ece" target="_blank" rel="noopener noreferrer">印度网络犯罪协调中心被曝要求 GitHub 移除 Bitchat</a> <span class="certainty-tag certainty-reported">reported</span></h3>
+    <p>The Hindu 报道，Jack Dorsey 分享的 7 月 23 日通知显示，印度 I4C 要求 GitHub 移除基于蓝牙 mesh 的 Bitchat，理由涉及规避网络限制和执法追踪。确定性：媒体报道和 Dorsey 发帖为报道；政府、GitHub 的最终执行状态需另行确认。</p>
+    <img class="article-img" src="https://th-i.thgim.com/public/incoming/s017lf/article71262085.ece/alternates/LANDSCAPE_1200/12-11-JACK_DORSEY_CEO_TWITTER_B.jpg" alt="">
+    <h3>4、<a href="https://www.dbos.dev/blog/postgres-listen-notify-scalability" target="_blank" rel="noopener noreferrer">Postgres LISTEN/NOTIFY 性能争议出现反例：批量通知后可达 60K writes/s</a> <span class="certainty-tag certainty-reported">reported</span></h3>
+    <p>DBOS 文章解释 NOTIFY 在事务提交时的全局锁瓶颈，并通过内存缓冲、批量 flush 与低频 fallback poll，把流写入从 2.9K/s 提到最高 60K/s、15-100ms 延迟。确定性：这是厂商自测 benchmark，应视为已披露的工程测试而非通用保证。</p>
+    <img class="article-img" src="https://cdn.prod.website-files.com/672411cbf038560468c9e68f/6a62e3a5eb32f7dd71332477_Scaling-Postgres-Listen-Notify.jpg" alt="">
+    <h3>5、<a href="https://developers.cloudflare.com/changelog/product-group/developer-platform/" target="_blank" rel="noopener noreferrer">Cloudflare Agents SDK 支持 AI SDK v6/v7，并给 MCP 暴露增加控制开关</a> <span class="certainty-tag certainty-confirmed">confirmed</span></h3>
+    <p>Cloudflare 官方 changelog 显示，agents、ai-chat、codemode、think 包支持 AI SDK v6 和 v7；7 月 22 日更新还加入 includeMcpTools=false，用于避免 Think 自动暴露 MCP tools。确定性：官方已发布；生产迁移仍需按包版本和 peer 依赖验证。</p>
+    <img class="article-img" src="https://developers.cloudflare.com/og-changelog.png" alt="">
+    <h3>6、<a href="https://ziggit.dev/t/buz-a-drop-in-replacement-for-bun-using-modern-zig-with-sub-1s-incremental-builds/16891" target="_blank" rel="noopener noreferrer">Buz：基于 Bun Rust 重写前分支的 Zig fork，目标是更快增量构建</a> <span class="certainty-tag certainty-reported">reported</span></h3>
+    <p>Ziggit 项目帖称 Buz 是 Bun 的 WIP fork，基于 Bun 转向 Rust 重写前的最后提交，目标是 drop-in replacement 和 sub-1s incremental builds。确定性：项目状态和性能目标为作者声明，明确不适合生产环境。</p>
+    <img class="article-img" src="https://ziggit.dev/uploads/default/original/1X/3417db0e8abaf83a355700b91efd528025492487.png" alt="">
+
+    <h2 id="ai">🤖 AI 相关</h2>
+    <h3>1、<a href="https://www.anthropic.com/news/claude-opus-5" target="_blank" rel="noopener noreferrer">Anthropic 官方发布 Claude Opus 5：面向日常 coding、知识工作和 agent 任务</a> <span class="certainty-tag certainty-announced">announced</span></h3>
+    <p>Anthropic 宣布 Claude Opus 5 当日可用，API 型号为 claude-opus-5，定价为每百万 input token 5 美元、output token 25 美元，与 Opus 4.8 相同；还发布 mid-conversation tool changes 与 automatic fallbacks beta。确定性：发布、定价和功能为官方公告；性能优劣需看具体任务。</p>
+    <img class="article-img" src="https://cdn.sanity.io/images/4zrzovbb/website/54b7ab1d2c2521f83ae5d2da5f9d99321c370d24-2880x1620.png" alt="">
+    <h3>2、<a href="https://www.anthropic.com/claude-opus-5-system-card" target="_blank" rel="noopener noreferrer">Opus 5 系统卡发布：Anthropic 称未超过 Fable 5 总体能力，并维持 ASL-3 保护</a> <span class="certainty-tag certainty-confirmed">confirmed</span></h3>
+    <p>194 页系统卡称 Opus 5 在 agentic coding、computer use、long-horizon work 上增强，但未跨过 Anthropic RSP 中自动 AI R&amp;D 能力阈值；生化风险按 CB-1 而非 CB-2，网络能力强于 Opus 4.8 但低于 Mythos 5。确定性：为官方系统卡自述。</p>
+    <h3>3、<a href="https://artificialanalysis.ai/models" target="_blank" rel="noopener noreferrer">Artificial Analysis 榜单把 Claude Opus 5 max/xhigh 列为 Intelligence 最高</a> <span class="certainty-tag certainty-reported">reported</span></h3>
+    <p>Artificial Analysis 页面显示 Claude Opus 5 max 与 xhigh 位列 Intelligence 指标最高，同时说明其 Intelligence Index v4.1 聚合 GDPval-AA v2、Terminal-Bench v2.1、SciCode 等 9 项评估。确定性：这是第三方榜单当前页面结果，不等于所有真实工作负载都领先。</p>
+    <img class="article-img" src="https://artificialanalysis.ai/opengraph-image.png?732728ccc2829321" alt="">
+    <h3>4、<a href="https://www.microsoft.com/en-us/corporate-responsibility/topics/open-weight/" target="_blank" rel="noopener noreferrer">Open Weights and American AI Leadership：Microsoft 页面汇集多家机构支持开放权重</a> <span class="certainty-tag certainty-opinion">opinion</span></h3>
+    <p>Microsoft 发布的联合文本称开放权重模型有助于访问、竞争、客户控制和安全透明，落款包括 GitHub、Hugging Face、IBM、Meta、Microsoft、Mistral、Mozilla、NVIDIA、OpenAI、YC 等。确定性：页面和落款为官方公开文本；政策影响仍属观点和倡议。</p>
+    <img class="article-img" src="https://www.microsoft.com/en-us/corporate-responsibility/wp-content/uploads/2026/07/Designer-1.png" alt="">
+    <h3>5、<a href="https://developers.openai.com/blog" target="_blank" rel="noopener noreferrer">OpenAI Developers 博客最新官方重点仍在 Codex code review 规则与远程工程工作流</a> <span class="certainty-tag certainty-confirmed">confirmed</span></h3>
+    <p>OpenAI Developers 博客页显示近期首屏文章包括 Custom Code Review rules for Codex、用手机掌控 Remote engineering、私有 MCP server 安全连接等。确定性：官方博客页已证实；未检索到 7 月 24-25 日更高优先级的官方新文。</p>
+    <img class="article-img" src="https://developers.openai.com/og/blog.png" alt="">
+
+    <h2 id="articles">📝 文章推荐</h2>
+    <h3>1、<a href="https://ptrchm.com/posts/nothing-works-and-everyone-is-euphoric/" target="_blank" rel="noopener noreferrer">Nothing Works and Everyone Is Euphoric</a></h3>
+    <p>一篇反直觉评论：AI 工具让开发更快，但用户感知到的软件质量仍在下降。文章的价值不是反 AI，而是提醒团队把模型能力转换成 bug 修复、回归验证和产品稳定性，而不是只追新功能吞吐。</p>
+    <h3>2、<a href="https://github.com/alexpusch/rust-magic-patterns/blob/master/delightful-integration-tests/Readme.md" target="_blank" rel="noopener noreferrer">Delightful integration tests in Rust</a></h3>
+    <p>用 testcontainers-rs 和 RAII 思路构建真实基础设施级集成测试：每个测试拥有 RabbitMQ、Postgres、Redis 等独立环境，自动清理。对后端和客户端配套服务测试都有借鉴价值。</p>
+    <img class="article-img" src="https://opengraph.githubassets.com/f3744a69c0ab52468ce2b44c3c7afdd4480144246c1277ae7122a7af902a66ac/alexpusch/rust-magic-patterns" alt="">
+    <h3>3、<a href="https://www.dbos.dev/blog/postgres-listen-notify-scalability#article" target="_blank" rel="noopener noreferrer">Postgres LISTEN/NOTIFY Actually Scales</a></h3>
+    <p>适合系统工程师阅读：真正的教训不是 LISTEN/NOTIFY 到底能不能扩，而是先找锁和事务语义，再用源数据表做真相源、通知做提示信号。</p>
+    <h3>4、<a href="https://unsung.aresluna.org/chromes-breaking-and-entering/#article" target="_blank" rel="noopener noreferrer">Chrome's breaking and entering</a></h3>
+    <p>从一个全局快捷键争议出发，讨论浏览器和桌面 App 是否应该默认占用系统级入口。对 PC 客户端和 AI 助手集成尤其重要：增长入口必须有可发现、可撤销、可解释的用户控制。</p>
+
+    <h2 id="tools">🛠️ 工具推荐</h2>
+    <div class="tool-grid">
+      <div class="tool-card">
+        <h4><a href="https://github.com/CoreBunch/Instatic" target="_blank" rel="noopener noreferrer">Instatic</a> <span class="priority-tag">P1 Web</span></h4>
+        <p>自托管 visual CMS，Bun 单服务承载编辑器、内容、发布、插件和表单，输出干净静态页面。适合 Web 团队评估“可视化编辑 + 可审查 HTML/CSS + 自托管”路线。</p>
+      </div>
+      <div class="tool-card">
+        <h4><a href="https://github.com/yorukot/superfile" target="_blank" rel="noopener noreferrer">superfile</a> <span class="priority-tag">P2 Dev UX</span></h4>
+        <p>现代终端文件管理器，支持 macOS/Linux/Windows。适合需要频繁在代码、日志、产物目录之间跳转的开发者，但安装脚本应先审后跑。</p>
+      </div>
+      <div class="tool-card">
+        <h4><a href="https://github.com/OtterMind/Chat2DB" target="_blank" rel="noopener noreferrer">Chat2DB</a> <span class="priority-tag">P1 Backend</span></h4>
+        <p>本地优先的 AI 数据库客户端和 SQL workspace，支持 30+ 数据库、自带 SQL 编辑、解释和优化。注意本地服务绑定、JDBC driver 信任边界和密钥备份。</p>
+      </div>
+      <div class="tool-card">
+        <h4><a href="https://github.com/testcontainers/testcontainers-rs" target="_blank" rel="noopener noreferrer">testcontainers-rs</a> <span class="priority-tag">P1 Testing</span></h4>
+        <p>Rust 集成测试基础设施管理库，把 Postgres、Redis、RabbitMQ 等依赖变成测试生命周期对象。适合减少 docker-compose 脚本和共享测试环境污染。</p>
+      </div>
+    </div>
+
+    <h2 id="ai-tools">🧠 AI 工具</h2>
+    <div class="tool-grid">
+      <div class="tool-card">
+        <span class="tag">Coding Agent</span>
+        <h4><a href="https://www.anthropic.com/news/claude-opus-5#getting-started" target="_blank" rel="noopener noreferrer">Claude Opus 5</a></h4>
+        <p>官方定位为更强的日常 coding、知识工作和 agent 模型；采用前重点实测你方仓库的长任务、回归修复、工具调用和成本曲线。</p>
+      </div>
+      <div class="tool-card">
+        <span class="tag">Agent Runtime</span>
+        <h4><a href="https://developers.cloudflare.com/changelog/product-group/developer-platform/#agents-sdk-reduces-mcp-schema-conversion-adds-exposure-controls-for-mcp-in-think-and-code-mode-sdk-adds-direct-host-apis" target="_blank" rel="noopener noreferrer">Cloudflare Code Mode runtime handle</a></h4>
+        <p>Code Mode runtime 新增 execute/search/describe，让非 AI-SDK host 也能直接发现并执行 connector 方法；适合平台团队评估 durable agent runtime。</p>
+      </div>
+      <div class="tool-card">
+        <span class="tag">Agent Skills</span>
+        <h4><a href="https://github.com/mattpocock/skills" target="_blank" rel="noopener noreferrer">mattpocock/skills</a></h4>
+        <p>面向真实工程流程的小型 agent skills 集合，覆盖澄清需求、TDD、排障、架构审查、交接等。价值在于把工程纪律显式写成可复用流程。</p>
+      </div>
+    </div>
+
+    <h2 id="concepts">🧩 本期概念库</h2>
+    <div class="concept-card">
+      <h4>1. Secret-in-Bundle Supply Chain</h4>
+      <div class="concept-field"><strong>一句话解释：</strong>CI 环境变量、前端构建、固件/客户端包发布链之间缺少白名单边界，导致 secret 被打进可分发产物。</div>
+      <div class="concept-field"><strong>背景来源：</strong>Hanwha 固件 token 披露</div>
+      <div class="concept-field"><strong>为什么重要：</strong>它把“仓库里有没有泄露”升级成“任何构建产物是否都可能携带泄露”。</div>
+      <div class="concept-field"><strong>团队应用场景：</strong>对 Web bundle、Electron、React Native、移动端包、Docker 镜像和固件做发布前 secret scan。</div>
+    </div>
+    <div class="concept-card">
+      <h4>2. System Card as Model Contract</h4>
+      <div class="concept-field"><strong>一句话解释：</strong>高能力模型发布不只看 benchmark，还要看系统卡中对能力、风险、限制和安全措施的声明。</div>
+      <div class="concept-field"><strong>背景来源：</strong>Claude Opus 5 System Card</div>
+      <div class="concept-field"><strong>为什么重要：</strong>采购、上线和客户合规都会要求模型边界的可解释材料。</div>
+      <div class="concept-field"><strong>团队应用场景：</strong>模型引入评审表中加入系统卡、风险分类、fallback、拒答和日志策略。</div>
+    </div>
+    <div class="concept-card">
+      <h4>3. Global Shortcut Consent</h4>
+      <div class="concept-field"><strong>一句话解释：</strong>桌面/浏览器 App 注册全局快捷键时，应让用户明确同意、能集中查看、能一键关闭。</div>
+      <div class="concept-field"><strong>背景来源：</strong>Chrome Gemini 快捷键争议</div>
+      <div class="concept-field"><strong>为什么重要：</strong>AI 助手正在进入系统层交互入口，默认占用会损害用户信任。</div>
+      <div class="concept-field"><strong>团队应用场景：</strong>客户端 AI 入口要做权限说明、快捷键目录、冲突检测和撤销路径。</div>
+    </div>
+    <div class="concept-card">
+      <h4>4. Notification as Hint, Table as Truth</h4>
+      <div class="concept-field"><strong>一句话解释：</strong>Postgres LISTEN/NOTIFY 场景下，把通知作为唤醒提示，把数据库表作为真实数据源，可降低全局锁压力。</div>
+      <div class="concept-field"><strong>背景来源：</strong>DBOS LISTEN/NOTIFY benchmark</div>
+      <div class="concept-field"><strong>为什么重要：</strong>这是高吞吐系统中常见的语义降级：保留正确性，把实时性做成可恢复提示。</div>
+      <div class="concept-field"><strong>团队应用场景：</strong>聊天、任务流、LLM token stream 可采用 durable table + best-effort notification + fallback poll。</div>
+    </div>
+    <div class="concept-card">
+      <h4>5. Ports Tree Blast Radius</h4>
+      <div class="concept-field"><strong>一句话解释：</strong>一个大二进制进入包管理树历史，会影响镜像、许可、同步和社区工作流。</div>
+      <div class="concept-field"><strong>背景来源：</strong>FreeBSD ports freeze</div>
+      <div class="concept-field"><strong>为什么重要：</strong>包管理生态不是普通 Git 仓库，错误提交会有跨镜像和跨用户影响。</div>
+      <div class="concept-field"><strong>团队应用场景：</strong>monorepo 和包发布流程加入大文件、二进制、许可和产物类型检查。</div>
+    </div>
+
+    <h2 id="curiosity">🎲 好奇心入口</h2>
+    <div class="curiosity-card">
+      <h4><a href="https://www.globaloilnetwork.com/analytics/strait-of-hormuz" target="_blank" rel="noopener noreferrer">Show HN: 用真实石油贸易数据模拟关闭霍尔木兹海峡</a></h4>
+      <div class="hook">不是今天主线，但很适合练习“把真实世界网络建模成可交互系统”。</div>
+      <p>它把地缘政治风险、物流网络和数据可视化连起来，提醒工程团队：好工具不只是显示数据，还要让用户试错和形成直觉。 团队暗线：复杂系统最好给用户可操作的模拟入口。</p>
+    </div>
+    <div class="curiosity-card">
+      <h4><a href="https://ziggit.dev/t/buz-a-drop-in-replacement-for-bun-using-modern-zig-with-sub-1s-incremental-builds/16891#curiosity" target="_blank" rel="noopener noreferrer">Buz：为什么 Bun 的一次语言路线变化会催生 fork</a></h4>
+      <div class="hook">运行时的实现语言，也是社区身份和维护路线的选择。</div>
+      <p>Buz 还很早期，但它展示了开发者对增量构建速度、实现语言和项目路线的敏感度。 团队暗线：基础设施迁移要解释代价和路线，否则会产生替代叙事。</p>
+    </div>
+
+    <h2 id="resources">📚 资源</h2>
+    <div class="resource-item">
+      <a href="https://www-cdn.anthropic.com/b514064af1408018e64b1ad24e7d5e75850b4ffd/Claude%20Opus%205%20System%20Card.pdf" target="_blank" rel="noopener noreferrer">Claude Opus 5 System Card PDF</a>
+      <p>194 页系统卡，适合模型采购、合规、安全评审和能力边界讨论。</p>
+    </div>
+    <div class="resource-item">
+      <a href="https://developers.cloudflare.com/changelog/product-group/developer-platform/#resource" target="_blank" rel="noopener noreferrer">Cloudflare Agents Developer Platform Changelog</a>
+      <p>跟踪 Agents SDK、MCP、Code Mode、Durable Objects、Workers 等开发者平台更新。</p>
+    </div>
+    <div class="resource-item">
+      <a href="http://github.com/dbos-inc/dbos-postgres-benchmark" target="_blank" rel="noopener noreferrer">DBOS Postgres benchmark code</a>
+      <p>LISTEN/NOTIFY 性能文章配套 benchmark 代码，适合复现实验和移植方案。</p>
+    </div>
+
+    <h2 id="quotes">💬 言论：本期 7 个认知增量</h2>
+    <div class="quote-block">
+      <blockquote>研究者称 token 被写入约 30 个文件，并拥有 Hanwha GitHub 组织数百个仓库的 admin 权限。</blockquote>
+      <div class="quote-author">—— hhh.hn 披露 · 摘要式转述</div>
+      <div class="quote-meta">来源：<a href="https://hhh.hn/hanwha-github-token/#quote-token" target="_blank" rel="noopener noreferrer">hhh.hn</a> · 类型：披露摘要 · 关键词：Firmware · Secret · GitHub</div>
+      <div class="quote-comment">💭 最值得警惕的是权限范围，而不是单点泄露本身。</div>
+      <div class="quote-team-insight">🎯 团队启发：生产 token 默认不能跨仓库 admin，发布产物必须 secret scan。</div>
+    </div>
+    <div class="quote-block">
+      <blockquote>作者明确把 DoD IP 相关段落标为 speculation warning，不能把它写成已证实关联。</blockquote>
+      <div class="quote-author">—— hhh.hn 披露 · 确定性提醒</div>
+      <div class="quote-meta">来源：<a href="https://hhh.hn/hanwha-github-token/#quote-speculation" target="_blank" rel="noopener noreferrer">hhh.hn</a> · 类型：确定性标注 · 关键词：Speculation · Fact Check</div>
+      <div class="quote-comment">💭 好披露也会包含猜测；编辑要替读者切清事实边界。</div>
+      <div class="quote-team-insight">🎯 团队启发：安全报告分开写 confirmed、reported、inference、unknown。</div>
+    </div>
+    <div class="quote-block">
+      <blockquote>Anthropic 称 Opus 5 在 coding 与知识工作评测上达到新水平，但网络攻击利用能力仍低于 Mythos 5。</blockquote>
+      <div class="quote-author">—— Anthropic · 摘要式转述</div>
+      <div class="quote-meta">来源：<a href="https://www.anthropic.com/news/claude-opus-5#quote-cyber" target="_blank" rel="noopener noreferrer">anthropic.com</a> · 类型：官方发布摘要 · 关键词：Opus 5 · Cyber · Benchmark</div>
+      <div class="quote-comment">💭 性能主张必须和安全边界一起读。</div>
+      <div class="quote-team-insight">🎯 团队启发：模型评估表不要只有分数，也要记录拒答、fallback 和高风险任务边界。</div>
+    </div>
+    <div class="quote-block">
+      <blockquote>系统卡称 Opus 5 没有跨过自动 AI R&amp;D 能力阈值，且整体 alignment risk 评估为 very low。</blockquote>
+      <div class="quote-author">—— Claude Opus 5 System Card · 摘要式转述</div>
+      <div class="quote-meta">来源：<a href="https://www-cdn.anthropic.com/b514064af1408018e64b1ad24e7d5e75850b4ffd/Claude%20Opus%205%20System%20Card.pdf#quote-rsp" target="_blank" rel="noopener noreferrer">www-cdn.anthropic.com</a> · 类型：系统卡摘要 · 关键词：System Card · RSP</div>
+      <div class="quote-comment">💭 这是官方风险判断，不是外部审计结论。</div>
+      <div class="quote-team-insight">🎯 团队启发：采用模型时记录“官方声明”和“团队自测”两列。</div>
+    </div>
+    <div class="quote-block">
+      <blockquote>Microsoft 页面认为开放权重让组织控制数据、部署位置和供应商退出路径。</blockquote>
+      <div class="quote-author">—— Open Weights and American AI Leadership · 摘要式转述</div>
+      <div class="quote-meta">来源：<a href="https://www.microsoft.com/en-us/corporate-responsibility/topics/open-weight/#quote-control" target="_blank" rel="noopener noreferrer">microsoft.com</a> · 类型：观点摘要 · 关键词：Open Weights · Control</div>
+      <div class="quote-comment">💭 这是政策倡议，不是已经落地的监管规则。</div>
+      <div class="quote-team-insight">🎯 团队启发：模型供应链清单要包含可替换性和私有部署选项。</div>
+    </div>
+    <div class="quote-block">
+      <blockquote>DBOS 的核心做法是把 NOTIFY 当提示信号，把表当真实数据源，并批量发送通知。</blockquote>
+      <div class="quote-author">—— DBOS · 摘要式转述</div>
+      <div class="quote-meta">来源：<a href="https://www.dbos.dev/blog/postgres-listen-notify-scalability#quote-hint" target="_blank" rel="noopener noreferrer">dbos.dev</a> · 类型：工程模式 · 关键词：Postgres · Streaming</div>
+      <div class="quote-comment">💭 这是一种通过语义重构解除锁瓶颈的思路。</div>
+      <div class="quote-team-insight">🎯 团队启发：实时系统先分清真相源、通知和补偿机制。</div>
+    </div>
+    <div class="quote-block">
+      <blockquote>Cloudflare changelog 显示 Think 可以关闭自动 MCP tool 暴露，Code Mode runtime 也新增直接执行接口。</blockquote>
+      <div class="quote-author">—— Cloudflare Docs · 摘要式转述</div>
+      <div class="quote-meta">来源：<a href="https://developers.cloudflare.com/changelog/product-group/developer-platform/#quote-mcp" target="_blank" rel="noopener noreferrer">developers.cloudflare.com</a> · 类型：官方更新摘要 · 关键词：MCP · Code Mode</div>
+      <div class="quote-comment">💭 Agent 平台正在把 tool exposure 做成可控配置，而不是默认全开。</div>
+      <div class="quote-team-insight">🎯 团队启发：接入 MCP 时默认最小暴露，敏感 connector 走审批。</div>
+    </div>
+
+    <h2 id="podcast">🎙️ 播客提纲</h2>
+    <div class="podcast-brief">
+      <h4>第 64 期：摄像头固件里的 GitHub token</h4>
+      <div class="cold-open">今天的故事从一台网络摄像头开始。研究者拆开 Hanwha 摄像头固件，发现 GitHub token 被打进前端文件里，而且据称拥有组织里数百个仓库的 admin 权限。这不是一个变量写错那么简单，而是 CI、前端构建、固件发布和代码权限串成了一条没人完整审计的供应链。</div>
+      <div class="podcast-segment">
+        <strong>主故事：Hanwha 固件 token</strong>
+        <p>一个 CI 环境变量，坐上了固件发布流水线。</p>
+        <p>所有发布物都要 secret scan，前端构建只允许白名单环境变量。</p>
+      </div>      <div class="podcast-segment">
+        <strong>AI：Claude Opus 5 与系统卡</strong>
+        <p>高能力模型发布，不能只看分数。</p>
+        <p>模型采购表要同时记录官方声明、第三方榜单和团队自测。</p>
+      </div>      <div class="podcast-segment">
+        <strong>客户端：Chrome Gemini 快捷键争议</strong>
+        <p>AI 助手不该默认占用系统级入口。</p>
+        <p>桌面和移动客户端做 AI 入口时，权限和交互控制要先设计清楚。</p>
+      </div>      <div class="podcast-segment">
+        <strong>工具 quick hits</strong>
+        <p>今天的工具优先服务真实研发流程。</p>
+        <p>选工具先看是否能进入现有开发、测试、发布和审计流程。</p>
+      </div>
+      <p>今天的结论：AI 时代的供应链风险不在远处，它就藏在构建变量、全局快捷键、模型系统卡、包管理树和数据库工具的日常细节里。能跑起来只是起点，能限制、能审计、能撤销，才是工程质量。</p>
+    </div>
+
+    <h2 id="team-insights">✅ 对团队的启发</h2>
+    <div class="insight-card">
+      <p><span class="insight-num">1</span>发布门禁新增：bundle、移动端包、桌面包、Docker 镜像、固件全部做 secret scan。</p>
+    </div>
+    <div class="insight-card">
+      <p><span class="insight-num">2</span>CI 环境变量改成白名单注入；禁止把完整 process.env 暴露给前端构建。</p>
+    </div>
+    <div class="insight-card">
+      <p><span class="insight-num">3</span>高权限 GitHub token 改用最小权限、短生命周期、仓库级 scope 和轮换审计。</p>
+    </div>
+    <div class="insight-card">
+      <p><span class="insight-num">4</span>模型上线评审同时看 benchmark、系统卡、fallback、拒答边界和你方真实任务表现。</p>
+    </div>
+    <div class="insight-card">
+      <p><span class="insight-num">5</span>客户端 AI 入口涉及全局快捷键、系统权限或后台服务时，必须可发现、可撤销、可审计。</p>
+    </div>
+
+    <div class="footer-sources">
+      <strong>📋 数据来源说明</strong><br>
+      本情报来自 66 个全球精选科技 / AI / 工程 / 系统可靠性信息源的每日更新。<br>
+      由 Cursor AI 自动生成，信息截止至 2026年7月25日，星期六。
+    </div>
+  </main>
+</div>
+
+<script>
+(function(){
+  const toc=document.querySelector('.toc');if(!toc)return;
+  const links=[...toc.querySelectorAll('a')];
+  const ids=links.map(l=>l.getAttribute('href').slice(1));
+  const secs=ids.map(id=>document.getElementById(id)).filter(Boolean);
+  function hl(){let cur=0;secs.forEach((s,i)=>{if(s.getBoundingClientRect().top<=120)cur=i;});
+  links.forEach((l,i)=>{l.classList.toggle('active',i===cur);});}
+  window.addEventListener('scroll',hl,{passive:true});hl();
+})();
+
+</script>
+</body>
+</html>

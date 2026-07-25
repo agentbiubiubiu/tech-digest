@@ -1,5 +1,11 @@
 [
   {
+    "date": "2026-07-25",
+    "title": "第 64 期：摄像头固件里的 GitHub token，提醒我们 AI 时代的供应链不是抽象风险",
+    "highlights": "Hanwha 摄像头固件 GitHub token 披露成为主故事 · Claude Opus 5 发布并同步系统卡 · Chrome Gemini 全局快捷键引发客户端边界讨论 · FreeBSD ports 因 150MB Copilot binary 暂停 · DBOS 给出 Postgres LISTEN/NOTIFY 60K writes/s 自测 · Cloudflare Agents SDK 增加 MCP 暴露控制 · Instatic、Chat2DB、testcontainers-rs、mattpocock/skills 进入工具雷达",
+    "image": "https://cdn.sanity.io/images/4zrzovbb/website/54b7ab1d2c2521f83ae5d2da5f9d99321c370d24-2880x1620.png"
+  },
+  {
     "date": "2026-07-24",
     "title": "第 63 期：开放权重 AI 正在变成开发者供应链问题",
     "highlights": "开放权重 AI 公开信成为今日主故事 · 179 个创始人和成员公司要求保留开放模型访问 · HumanLayer 反思软件工厂长期维护债 · Mysk 披露 macOS App 主可执行替换风险且 Apple 评估不修复 · CISA KEV 更新到 2026.07.23、1653 条 · Palmier Pro、Echo、open-code-review、Wanix、Justif 进入工具雷达",
