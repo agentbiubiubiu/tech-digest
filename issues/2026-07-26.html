@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>第 65 期：云平台开始从部署应用，转向给 Agent 提供电脑</title>
+  <meta property="og:title" content="Tech Digest #65：Fly.io 转向 Agent 电脑、Android ADB 边界、Ruff 413 条默认规则">
+  <meta property="og:description" content="Fly.io 创始人交棒并把 Sprites 设为核心业务；Android 本机 ADB 潜在限制引发移动开发争论；Ruff 默认规则从 59 条升至 413 条。">
+  <meta property="og:image" content="https://fly.io/blog/kurt-scott-money-sprites/assets/swirl-cover.webp">
+  <style>
+:root {
+  --bg: #f5f6f8; --surface: #ffffff; --surface2: #f0f2f5;
+  --border: #e8ecf1; --border-hover: #c5cdd8;
+  --text: #1a1d21; --text-secondary: #3d4550; --text-muted: #8c95a1;
+  --accent: #2d9f6f; --accent-light: #e8f5ef; --accent-hover: #248a5e;
+  --accent-text: #ffffff;
+  --purple: #7c5cbf; --purple-light: #f3effc;
+  --orange: #e58e26; --orange-light: #fef5e7;
+  --blue: #3a82f7; --blue-light: #eef4fe;
+  --red: #e74c3c; --red-light: #fdecea;
+  --green-deep: #1a7a4c; --green-light2: #e0f5ea;
+  --yellow: #d4a017; --yellow-light: #fef9e7;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.06);
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.06), 0 2px 4px rgba(0,0,0,0.04);
+  --shadow-lg: 0 10px 30px rgba(0,0,0,0.08);
+  --radius: 12px; --radius-sm: 8px; --radius-xs: 6px;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Helvetica, Arial, sans-serif; background: var(--bg); color: var(--text); line-height: 1.75; font-size: 15px; -webkit-font-smoothing: antialiased; }
+.topbar { background: var(--surface); border-bottom: 1px solid var(--border); padding: 12px 32px; display: flex; align-items: center; gap: 16px; position: sticky; top: 0; z-index: 200; box-shadow: var(--shadow-sm); }
+.topbar-brand { font-size: 1.1rem; font-weight: 700; color: var(--accent); text-decoration: none; display: flex; align-items: center; gap: 8px; }
+.topbar-brand svg { width: 28px; height: 28px; }
+.topbar-nav { display: flex; gap: 4px; margin-left: 24px; }
+.topbar-nav a { padding: 6px 16px; border-radius: 20px; font-size: 0.85rem; font-weight: 500; color: var(--text-secondary); text-decoration: none; transition: all 0.2s; }
+.topbar-nav a:hover { background: var(--surface2); color: var(--text); }
+.topbar-nav a.active { background: var(--accent-light); color: var(--accent); font-weight: 600; }
+.topbar-right { margin-left: auto; display: flex; align-items: center; gap: 12px; }
+.topbar-date { font-size: 0.82rem; color: var(--text-muted); background: var(--surface2); padding: 5px 12px; border-radius: 16px; }
+.page { display: flex; max-width: 1200px; margin: 0 auto; padding: 24px 24px 0; gap: 24px; }
+.toc { width: 220px; flex-shrink: 0; position: sticky; top: 80px; height: calc(100vh - 104px); overflow-y: auto; background: var(--surface); border-radius: var(--radius); padding: 20px 16px; box-shadow: var(--shadow-sm); border: 1px solid var(--border); }
+.toc-title { font-size: 0.72rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 14px; padding-left: 12px; }
+.toc a { display: block; padding: 7px 12px; margin-bottom: 2px; font-size: 0.82rem; color: var(--text-muted); text-decoration: none; border-radius: var(--radius-xs); transition: all 0.15s; font-weight: 500; }
+.toc a:hover { color: var(--accent); background: var(--accent-light); }
+.toc a.active { color: var(--accent); background: var(--accent-light); font-weight: 600; }
+.toc-mobile { display: none; position: sticky; top: 57px; z-index: 100; background: var(--surface); border-bottom: 1px solid var(--border); padding: 10px 16px; box-shadow: var(--shadow-sm); }
+.toc-mobile summary { cursor: pointer; font-size: 0.85rem; color: var(--accent); font-weight: 600; list-style: none; }
+.toc-mobile summary::-webkit-details-marker { display: none; }
+.toc-mobile .toc-dropdown { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 8px; margin-top: 8px; max-height: 60vh; overflow-y: auto; box-shadow: var(--shadow-md); }
+.toc-mobile .toc-dropdown a { display: block; padding: 8px 12px; font-size: 0.88rem; color: var(--text-secondary); text-decoration: none; border-radius: var(--radius-xs); }
+.toc-mobile .toc-dropdown a:hover { color: var(--accent); background: var(--accent-light); }
+@media (max-width: 860px) { .toc { display: none; } .toc-mobile { display: block; } .topbar-nav { display: none; } .page { flex-direction: column; padding: 16px 12px 0; gap: 16px; } .container { padding: 20px 16px 60px; } }
+.container { flex: 1; min-width: 0; background: var(--surface); border-radius: var(--radius); padding: 36px 40px 60px; box-shadow: var(--shadow-sm); border: 1px solid var(--border); margin-bottom: 40px; }
+.back { display: inline-flex; align-items: center; gap: 4px; color: var(--text-muted); text-decoration: none; font-size: 0.85rem; margin-bottom: 28px; font-weight: 500; transition: color 0.15s; }
+.back:hover { color: var(--accent); }
+h1 { font-size: 1.7rem; font-weight: 800; margin-bottom: 10px; line-height: 1.35; color: var(--text); letter-spacing: -0.01em; }
+.meta { color: var(--text-muted); font-size: 0.85rem; margin-bottom: 28px; }
+.highlights-line { color: var(--text-secondary); font-size: 0.9rem; margin: -18px 0 28px; line-height: 1.65; }
+.hero-img { width: 100%; border-radius: var(--radius); margin-bottom: 10px; box-shadow: var(--shadow-md); }
+.hero-caption { font-size: 0.82rem; color: var(--text-muted); margin-bottom: 36px; text-align: center; font-style: italic; }
+h2 { font-size: 1.25rem; font-weight: 700; margin: 44px 0 18px; padding-bottom: 10px; border-bottom: 2px solid var(--accent-light); scroll-margin-top: 90px; color: var(--text); }
+h3 { font-size: 1.05rem; font-weight: 600; margin: 26px 0 8px; color: var(--text); }
+p { margin-bottom: 14px; color: var(--text-secondary); }
+a { color: var(--accent); text-decoration: none; font-weight: 500; }
+a:hover { color: var(--accent-hover); text-decoration: underline; }
+strong { color: var(--text); font-weight: 600; }
+.callout { background: var(--accent-light); border-left: 4px solid var(--accent); border-radius: var(--radius-sm); padding: 16px 20px; margin: 20px 0; font-size: 0.93rem; color: var(--text-secondary); }
+.main-story { background: linear-gradient(135deg, #f7fbff 0%, #fff 60%); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px 26px; margin: 18px 0 28px; box-shadow: var(--shadow-sm); }
+.main-story h3 { margin-top: 0; font-size: 1.2rem; line-height: 1.45; }
+.main-story .story-hook { color: var(--accent); font-weight: 700; margin-bottom: 14px; }
+.story-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 16px 0; }
+.story-field { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 12px 14px; font-size: 0.88rem; color: var(--text-secondary); }
+.story-field strong { display: block; margin-bottom: 4px; color: var(--text); }
+.number-chip { display: inline-block; background: var(--blue-light); color: var(--blue); border-radius: 14px; padding: 3px 10px; margin: 3px 6px 3px 0; font-size: 0.78rem; font-weight: 700; }
+.story-line { background: var(--purple-light); border-left: 4px solid var(--purple); border-radius: var(--radius-sm); padding: 14px 16px; margin-top: 14px; color: var(--text); font-weight: 700; }
+.trend-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin: 16px 0 28px; }
+.trend-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px 20px; box-shadow: var(--shadow-sm); }
+.trend-card h4 { font-size: 0.95rem; margin-bottom: 8px; color: var(--text); }
+.trend-card .trend-conflict { color: var(--red); font-size: 0.82rem; font-weight: 700; margin-bottom: 8px; }
+.trend-card p { font-size: 0.86rem; margin-bottom: 10px; }
+.trend-card .trend-sources { font-size: 0.76rem; color: var(--text-muted); line-height: 1.55; }
+.curiosity-card { background: var(--orange-light); border: 1px solid #f5ddb8; border-radius: var(--radius); padding: 20px 24px; margin: 14px 0; }
+.curiosity-card h4 { font-size: 1rem; margin-bottom: 8px; font-weight: 600; }
+.curiosity-card h4 a { color: var(--orange); }
+.curiosity-card .hook { color: var(--orange); font-weight: 700; margin-bottom: 6px; }
+.curiosity-card p { font-size: 0.88rem; color: var(--text-secondary); margin: 0 0 8px; line-height: 1.65; }
+.podcast-brief { background: #f8fafc; border: 1px solid var(--border); border-radius: var(--radius); padding: 20px 24px; margin: 18px 0; }
+.podcast-brief h4 { margin: 0 0 10px; font-size: 1rem; }
+.podcast-brief .cold-open { color: var(--accent); font-weight: 700; margin-bottom: 14px; }
+.podcast-segment { border-top: 1px solid var(--border); padding-top: 12px; margin-top: 12px; }
+.podcast-segment strong { display: block; margin-bottom: 4px; }
+.article-img { width: 100%; max-height: 380px; object-fit: cover; border-radius: var(--radius-sm); margin: 12px 0 24px; box-shadow: var(--shadow-sm); }
+.tool-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 16px 0; }
+.tool-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px 20px; transition: all 0.2s; box-shadow: var(--shadow-sm); }
+.tool-card:hover { border-color: var(--accent); box-shadow: var(--shadow-md); transform: translateY(-1px); }
+.tool-card h4 { font-size: 0.95rem; margin-bottom: 6px; font-weight: 600; }
+.tool-card h4 a { color: var(--accent); }
+.tool-card p { font-size: 0.83rem; color: var(--text-muted); margin: 0; line-height: 1.55; }
+.tool-card .tag { display: inline-block; font-size: 0.68rem; padding: 3px 8px; border-radius: 10px; background: var(--accent); color: var(--accent-text); font-weight: 600; margin-bottom: 8px; letter-spacing: 0.02em; }
+.tool-card .priority-tag { display: inline-block; font-size: 0.65rem; padding: 2px 6px; border-radius: 8px; background: var(--surface2); color: var(--text-muted); font-weight: 600; margin-left: 6px; }
+.fun-card { background: var(--orange-light); border: 1px solid #f5ddb8; border-radius: var(--radius); padding: 20px 24px; margin: 14px 0; }
+.fun-card h4 { font-size: 1rem; margin-bottom: 8px; font-weight: 600; }
+.fun-card h4 a { color: var(--orange); }
+.fun-card p { font-size: 0.88rem; color: var(--text-secondary); margin: 0; line-height: 1.65; }
+.quote-block { background: var(--purple-light); border-left: 4px solid var(--purple); border-radius: var(--radius-sm); padding: 20px 24px; margin: 18px 0; }
+.quote-block blockquote { font-size: 1.02rem; line-height: 1.65; margin-bottom: 10px; font-style: italic; color: var(--text); }
+.quote-block .quote-author { font-size: 0.82rem; color: var(--purple); font-weight: 600; margin-bottom: 6px; }
+.quote-block .quote-meta { font-size: 0.78rem; color: var(--text-muted); margin-bottom: 10px; }
+.quote-block .quote-comment { font-size: 0.88rem; color: var(--text-secondary); border-top: 1px solid #d8d0e8; padding-top: 10px; margin-top: 10px; }
+.quote-block .quote-team-insight { font-size: 0.88rem; color: var(--green-deep); background: var(--accent-light); border-radius: var(--radius-xs); padding: 8px 12px; margin-top: 8px; }
+.resource-item { background: var(--blue-light); border: 1px solid #c8dbf8; border-radius: var(--radius); padding: 18px 20px; margin: 12px 0; }
+.resource-item a { font-weight: 600; color: var(--blue); }
+.resource-item p { font-size: 0.88rem; color: var(--text-secondary); margin: 6px 0 0; }
+.concept-card { background: var(--green-light2); border-left: 4px solid var(--accent); border-radius: var(--radius-sm); padding: 20px 24px; margin: 16px 0; }
+.concept-card h4 { font-size: 1rem; font-weight: 700; color: var(--green-deep); margin-bottom: 10px; }
+.concept-card .concept-field { font-size: 0.88rem; color: var(--text-secondary); margin-bottom: 6px; line-height: 1.6; }
+.concept-card .concept-field strong { color: var(--text); font-size: 0.88rem; }
+.insight-card { background: var(--yellow-light); border-left: 4px solid var(--yellow); border-radius: var(--radius-sm); padding: 16px 20px; margin: 12px 0; }
+.insight-card p { font-size: 0.93rem; color: var(--text-secondary); margin: 0; line-height: 1.7; }
+.insight-card .insight-num { display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; border-radius: 50%; background: var(--yellow); color: #fff; font-size: 0.75rem; font-weight: 700; margin-right: 10px; flex-shrink: 0; }
+.certainty-tag { display: inline-block; font-size: 0.65rem; padding: 2px 6px; border-radius: 8px; font-weight: 600; margin-left: 8px; }
+.certainty-confirmed { background: var(--accent-light); color: var(--accent); }
+.certainty-announced { background: var(--blue-light); color: var(--blue); }
+.certainty-reported { background: var(--yellow-light); color: var(--yellow); }
+.certainty-opinion { background: var(--purple-light); color: var(--purple); }
+.certainty-rumor { background: var(--red-light); color: var(--red); }
+.footer-sources { margin-top: 44px; padding: 20px 24px; background: var(--surface2); border-radius: var(--radius); font-size: 0.78rem; color: var(--text-muted); line-height: 1.9; }
+.footer-sources strong { color: var(--text-secondary); font-size: 0.78rem; }
+@media (max-width: 860px) { .trend-grid, .story-grid { grid-template-columns: 1fr; } }
+@media (max-width: 640px) { .tool-grid { grid-template-columns: 1fr; } }
+
+  </style>
+</head>
+<body>
+
+<header class="topbar">
+  <a href="../index.html" class="topbar-brand">
+    <svg viewBox="0 0 28 28" fill="none"><circle cx="14" cy="14" r="14" fill="#2d9f6f"/><path d="M8 14.5l3.5 3.5 8.5-8" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    Tech Digest
+  </a>
+  <nav class="topbar-nav">
+    <a href="../index.html">Archive</a>
+    <a href="#main-story" class="active">Today</a>
+    <a href="#tools">Tools</a>
+    <a href="#quotes">Quotes</a>
+  </nav>
+  <div class="topbar-right">
+    <span class="topbar-date">2026-07-26</span>
+  </div>
+</header>
+
+<details class="toc-mobile">
+  <summary>📑 目录导航</summary>
+  <div class="toc-dropdown">
+    <a href="#main-story">🔥 主故事</a>
+    <a href="#trends">⚡ 冲突趋势</a>
+    <a href="#tech-news">📰 科技动态</a>
+    <a href="#ai">🤖 AI 相关</a>
+    <a href="#articles">📝 文章推荐</a>
+    <a href="#tools">🛠️ 工具推荐</a>
+    <a href="#ai-tools">🧠 AI 工具</a>
+    <a href="#concepts">🧩 本期概念库</a>
+    <a href="#curiosity">🎲 好奇心入口</a>
+    <a href="#resources">📚 资源</a>
+    <a href="#quotes">💬 言论</a>
+    <a href="#podcast">🎙️ 播客提纲</a>
+    <a href="#team-insights">✅ 对团队的启发</a>
+  </div>
+</details>
+
+<div class="page">
+  <nav class="toc">
+    <div class="toc-title">本期目录</div>
+    <a href="#main-story">🔥 主故事</a>
+    <a href="#trends">⚡ 冲突趋势</a>
+    <a href="#tech-news">📰 科技动态</a>
+    <a href="#ai">🤖 AI 相关</a>
+    <a href="#articles">📝 文章推荐</a>
+    <a href="#tools">🛠️ 工具推荐</a>
+    <a href="#ai-tools">🧠 AI 工具</a>
+    <a href="#concepts">🧩 本期概念库</a>
+    <a href="#curiosity">🎲 好奇心入口</a>
+    <a href="#resources">📚 资源</a>
+    <a href="#quotes">💬 言论</a>
+    <a href="#podcast">🎙️ 播客提纲</a>
+    <a href="#team-insights">✅ 对团队的启发</a>
+  </nav>
+
+  <main class="container">
+    <a href="../index.html" class="back">← 返回目录</a>
+    <h1>第 65 期：云平台开始从部署应用，转向给 Agent 提供电脑</h1>
+    <div class="meta">第 65 期 · 2026年7月26日，星期日</div>
+    <p class="highlights-line"><strong>✨ 本期亮点：</strong>Fly.io 换 CEO 并把 Sprites 升为核心业务，融资金额未披露 · Android 本机 ADB 潜在限制引发 882 分讨论，但尚非 Google 正式公告 · Ruff v0.16 默认规则从 59 条增至 413 条 · Claude Code 系统提示词据称删去超过 80% · Debian LLM 使用总决议仍处讨论期 · ICFP 用二维 littleman 语言重做 Agent 时代评测 · Freerange、shadscan、ESLint codemod、Linear Loops 进入开发工具雷达</p>
+
+    <img class="hero-img" src="https://fly.io/blog/kurt-scott-money-sprites/assets/swirl-cover.webp" alt="Fly.io Sprites official article illustration">
+    <div class="hero-caption">Fly.io 把 Sprites 定义为「给 Agent 的电脑」：可快速创建、带 100GB 持久磁盘，空闲时停止计费。</div>
+
+    <div class="callout">
+      <strong>🎯 本期核心判断：</strong>AI 编程的下一阶段不只是模型更强，而是开发基础设施开始围绕 Agent 重构：云平台提供可暂停的持久电脑，提示词让位于按需上下文，安全边界则从「能不能调试」转向「谁能在什么接口上执行」。
+    </div>
+
+    <div class="callout">
+      <strong>⏱ 本期建议阅读顺序</strong><br>
+      先读主故事：Fly.io 为什么把 Sprites 从实验项目升成公司主线。<br>
+      再看工程边界：Android 本机 ADB、Ruff 默认规则和 Debian 的 LLM 使用决议。<br>
+      最后看可直接试用的 CLI、Agent 技能、浏览器自动化和后端索引工具。
+    </div>
+
+    <h2 id="main-story">🔥 主故事</h2>
+        <article class="main-story">
+      <h3>Fly.io 把云改成「给 Agent 的电脑」：创始人交棒，Sprites 成为核心业务</h3>
+      <p class="story-hook">一家云平台最尴尬的时刻，不是增长停了，而是它刚创下最好的财务月份，知名开发者却公开说：这是他最不确定年底还会不会存在的供应商。</p>
+      <p>Theo Browne 在评测 2026 年应用托管平台时，把 Fly.io 列为最担心能否活到年底的一家。Fly.io 创始人兼原 CEO 在官方长文里回应：公司正在经历强劲季度和历史最佳财务月份，但确实长期陷在身份危机中。文章同时确认完成一轮金额未披露的新融资、由前 Docker CEO Scott Johnston 接任 CEO，并把 Sprites 升为核心业务。</p>
+      <div class="story-grid">
+        <div class="story-field"><strong>核心冲突</strong>Fly.io 原来的产品逻辑是让人类开发者更容易部署固定功能应用；它现在押注的是 Agent 会生成大量更个人化、受众更小、生命周期更滑动的软件。传统 PaaS 优化「把一个应用稳定送给很多人」，Sprites 优化「让很多 Agent 随时拥有一台可恢复、可暂停、可分享的电脑」。</div>
+        <div class="story-field"><strong>转折点</strong>真正的转折不是产品发布，而是组织选择：创始人退到顾问和董事角色，请经历过 Docker 企业版与开发者定位危机的 Scott Johnston 接棒；Sprites 也从小团队的 skunkworks 项目变成公司资源优先级。</div>
+        <div class="story-field"><strong>为什么现在发生</strong>我的判断：Coding Agent 已经把开发工作从「一次对话」推向「长时间运行的远程任务」。笔记本合盖、环境复现、持久磁盘、暂停计费、并发隔离和结果分享，开始比传统部署向导更决定平台价值。</div>
+        <div class="story-field"><strong>对团队的启发</strong>为 Coding Agent 建环境时，把它当远程开发电脑管理：每任务独立身份与文件系统；默认网络和凭证最小权限；支持暂停、快照、恢复和 TTL；记录执行命令、外部调用、费用和最终 diff；对长期任务设置预算与人工检查点。</div>
+      </div>
+      <p><span class="number-chip">Sprites 可快速创建数百或数千个实例</span><span class="number-chip">每个实例带 100GB 持久磁盘</span><span class="number-chip">空闲时计费表停止</span><span class="number-chip">创始人担任 CEO 约 8 年</span><span class="number-chip">融资金额和估值均未披露</span></p>
+      <p><strong>我的判断：</strong>这篇文章最重要的不是「Agent 会取代所有软件开发」这一观点是否成立，而是云产品的设计单位正在变化：过去是一份部署物，现在是一段有状态、会运行工具、会暂时离线的工作会话。平台团队应先验证隔离、恢复、成本上限和审计，再讨论要不要跟上口号。</p>
+      <div class="story-line">当 Agent 成为开发者，云平台卖的就不再只是部署位置，而是一台能暂停、能恢复、能审计的电脑。</div>
+      <p><strong>来源：</strong><a href="https://fly.io/blog/kurt-scott-money-sprites/" target="_blank" rel="noopener noreferrer">fly.io</a></p>
+    </article>
+
+    <h2 id="trends">⚡ 冲突趋势</h2>
+        <div class="trend-grid">
+      <div class="trend-card">
+        <h4>云平台的设计单位从应用变成 Agent 会话</h4>
+        <div class="trend-conflict">固定部署物 vs 可暂停的持久电脑</div>
+        <p>Fly.io 的 Sprites 押注：Agent 需要的不是更漂亮的部署向导，而是带磁盘、能暂停、能恢复的完整电脑。</p>
+        <div class="trend-sources">news.ycombinator.com</div>
+      </div>
+      <div class="trend-card">
+        <h4>Android 安全收口可能撞上本机开发生态</h4>
+        <div class="trend-conflict">减少 ADB 攻击面 vs 保留 Shizuku 与本机调试</div>
+        <p>目前还没有 Google 正式公告，但只绑定 wlan0 的讨论若落地，会把安全默认值和真实移动开发工作流正面撞在一起。</p>
+        <div class="trend-sources">news.ycombinator.com</div>
+      </div>
+      <div class="trend-card">
+        <h4>更强模型反而需要更少硬规则</h4>
+        <div class="trend-conflict">把所有规则塞进提示词 vs 按需加载上下文</div>
+        <p>Anthropic 称 Claude Code 系统提示词删去超过 80%，把验证、审查和工具定义改成渐进披露。</p>
+        <div class="trend-sources">news.ycombinator.com</div>
+      </div>
+    </div>
+
+    <h2 id="tech-news">📰 科技动态</h2>
+    <h3>1、<a href="https://kitsumed.github.io/blog/posts/android-may-soon-restrict-on-device-adb/" target="_blank" rel="noopener noreferrer">Android 本机 ADB 可能受限：安全讨论正撞上 Shizuku 与移动开发工作流</a> <span class="certainty-tag certainty-reported">reported</span></h3>
+    <p>882 分、424 条评论把一项仍在讨论中的 ADB 接口方案推到开发者面前。ShizuCallRecorder 开发者整理称，Google IssueTracker 中有 ADB 维护者讨论仅绑定 wlan0，以减少 localhost 被用于提权的风险；如果按该方向实施，本机 loopback ADB、VPN、以太网和部分 Shizuku 工作流都可能受影响。所以呢？移动团队现在要区分「潜在设计方向」和「已发布平台变更」，同时盘点对本机 ADB 的隐性依赖。</p>
+    <img class="article-img" src="https://opengraph.githubassets.com/1/rikkaapps/shizuku" alt="">
+    <h3>2、<a href="https://astral.sh/blog/ruff-v0.16.0" target="_blank" rel="noopener noreferrer">Ruff v0.16 默认规则从 59 条增至 413 条：一次升级就能让未锁版本的 CI 集体变红</a> <span class="certainty-tag certainty-announced">announced</span></h3>
+    <p>默认规则不是小改：Ruff v0.16 从 59 条跃升到 413 条，覆盖规则总数从 708 增至 968，还支持格式化 Markdown 中的 Python 代码块。Simon Willison 记录自己的多个 CI 因未固定 Ruff 开发依赖而同时失败。所以呢？工具更严格是好事，但静态检查器也属于构建供应链，版本策略必须显式。</p>
+    <img class="article-img" src="https://astral.sh/static/PNG/Ruff_v_0_16_0_format_markdown.png" alt="">
+    <h3>3、<a href="https://www.debian.org/vote/2026/vote_002" target="_blank" rel="noopener noreferrer">Debian 开始讨论 LLM 使用总决议：页面状态仍是 In Discussion</a> <span class="certainty-tag certainty-announced">announced</span></h3>
+    <p>这不是已经通过的 AI 政策。Debian 官方投票页显示「General Resolution: LLM usage in Debian」于 7 月 24 日进入讨论，尚未列入 Decided。它把代码来源、维护者责任、可审查性和披露要求从社区争论推进到正式治理流程。所以呢？开源团队需要把「用了 AI」拆成可归责的提交、可验证的许可证和维护者承担的最终责任。</p>
+    <h3>4、<a href="https://eieio.games/blog/im-running-the-icfp-programming-contest/" target="_blank" rel="noopener noreferrer">ICFP 竞赛为 Agent 时代设计二维语言：避免胜负变成 72 小时无人值守循环</a> <span class="certainty-tag certainty-confirmed">confirmed</span></h3>
+    <p>第 29 届 ICFP Programming Contest 运行 3 天。组织者明确说，他们不希望获胜策略只是让无人监督的 Agent 跑满 72 小时，于是设计了二维 littleman 语言：程序里的小人必须走过指令，通过管道交换数据。所以呢？当 AI 能快速写常见语言时，评测本身也必须重新设计，才能测出空间推理、建模和团队协作。</p>
+    <img class="article-img" src="https://eieio.games/images/im-running-the-icfp-programming-contest/og.png" alt="">
+
+    <h2 id="ai">🤖 AI 相关</h2>
+    <h3>1、<a href="https://claude.com/blog/the-new-rules-of-context-engineering-for-claude-5-generation-models" target="_blank" rel="noopener noreferrer">Anthropic 称 Claude Code 系统提示词删去超过 80%：上下文工程转向渐进披露</a> <span class="certainty-tag certainty-confirmed">confirmed</span></h3>
+    <p>更强模型带来的反转是「少写规则」。Anthropic 公开称 Claude Code 系统提示词删去超过 80%，把验证和代码审查拆成按需技能，把完整工具定义延迟到 ToolSearch，需要时再加载；提示从硬性评论禁令改成匹配仓库既有风格。所以呢？团队的 Agent 指令不该成为百科全书，仓库 gotcha 留在入口，专项流程按需展开。</p>
+    <img class="article-img" src="https://cdn.prod.website-files.com/68a44d4040f98a4adf2207b6/6a639c6b2e881afef80764c6_og_the-new-rules-of-context-engineering-for-claude-5-generation-models.jpg" alt="">
+    <h3>2、<a href="https://bfl.ai/blog/flux-3" target="_blank" rel="noopener noreferrer">FLUX 3 把图像、视频、音频与动作预测放进同一骨干</a> <span class="certainty-tag certainty-announced">announced</span></h3>
+    <p>一家公司从图像生成走到机器人动作，靠的不是再拼一个模型。FLUX 3 联合学习图像、视频和音频，单次可生成最长 20 秒原生音频视频，并把动作预测列为同一骨干的扩展方向。当前视频仅 Early Access，图像、动作和开放权重能力仍按后续计划推进。所以呢？统一表示可能减少多模型拼装，但发布状态和厂商自评必须逐项拆开。</p>
+    <img class="article-img" src="https://bfl.ai/api/og/blog/flux-3" alt="">
+    <h3>3、<a href="https://huggingface.co/blog/nunchaku-diffusers" target="_blank" rel="noopener noreferrer">Nunchaku Lite 进入 Diffusers：4-bit 模型不再需要独立推理引擎</a> <span class="certainty-tag certainty-confirmed">confirmed</span></h3>
+    <p>量化最常见的尴尬是「显存省了，速度未必更快」。Nunchaku Lite 用 W4A4 SVDQuant 和 Hub 分发 kernels，让 Diffusers 直接 from_pretrained 加载 4-bit checkpoint。官方示例在 RTX 5090 上把峰值显存从约 24GB 降到 12GB、1024×1024 图像约 1.7 秒；这些是特定硬件测试。所以呢？本地 AI 工程终于能在框架兼容和专用内核之间少做一次二选一。</p>
+    <img class="article-img" src="https://huggingface.co/blog/assets/nunchaku-diffusers/thumbnail.png" alt="">
+
+    <h2 id="articles">📝 文章推荐</h2>
+    <h3>1、<a href="https://refp.se/articles/your-shell-and-the-magic-colon" target="_blank" rel="noopener noreferrer">Shell 里的冒号什么也不做，为什么仍值得用</a></h3>
+    <p>一个什么都不做、只返回成功的 `:`，可以成为 shell 条件、参数默认值、无限循环和意图标记的结构件。文章真正有用的地方不是技巧清单，而是提醒：在脆弱脚本里，明确表达「这里故意不做事」能降低误读。</p>
+    <h3>2、<a href="https://www.marginalia.nu/log/a_139_hdd/" target="_blank" rel="noopener noreferrer">你的硬盘可能早就满了：现代系统把容量问题藏进了日常摩擦</a></h3>
+    <p>硬盘没有彻底报错，却会让更新、索引、构建、日志和浏览器缓存一起变慢。文章把「容量不足」从一个用户问题拉回工程问题：系统往往没有在真正影响体验前给出可行动反馈。</p>
+    <h3>3、<a href="https://lalitm.com/post/find-problems-staff-engineer/" target="_blank" rel="noopener noreferrer">Staff Engineer 如何找问题：别等任务排到你面前</a></h3>
+    <p>高级工程师的价值不只是把既定任务做快，而是能从事故、支持工单、指标、重复手工和组织摩擦中找到值得解决的问题。文章给出的隐含标准很实用：问题要真实、影响可解释、边界可推进。</p>
+    <h3>4、<a href="https://blog.jsbarretto.com/post/languages-as-latent-spaces" target="_blank" rel="noopener noreferrer">语言像被设计过的潜空间：LLM 会说，不等于拥有世界模型</a></h3>
+    <p>文章把语言和类型系统类比为高密度潜空间：只要遵守语法和模式，输出很容易看起来有意义；但这不保证系统能在噪声现实中提出、验证新假设。这个视角解释了为什么模型能写证明，却会在简单物理任务上失败。</p>
+    <img class="article-img" src="https://blog.jsbarretto.com/img/latent-space.svg" alt="">
+
+    <h2 id="tools">🛠️ 工具推荐</h2>
+    <div class="tool-grid">
+      <div class="tool-card">
+        <h4><a href="https://tangled.org/oppi.li/stinkpot" target="_blank" rel="noopener noreferrer">stinkpot</a> <span class="priority-tag">P1 CLI</span></h4>
+        <p>用 SQLite 保存 Bash 历史，Ctrl+R 交互搜索，展示命令时间和匹配数量。适合后台与终端重度用户；数据库可重建，便于把 shell 历史从文本文件升级成可查询工作流。</p>
+      </div>
+      <div class="tool-card">
+        <h4><a href="https://github.com/pimalaya/himalaya" target="_blank" rel="noopener noreferrer">Himalaya 2.0</a> <span class="priority-tag">P1 Backend/CLI</span></h4>
+        <p>Rust 邮件 CLI，支持 IMAP、SMTP、JMAP、Gmail REST 和 Microsoft Graph，并提供 JSON 输出。2.0 经官方账号确认发布；适合把邮件处理接入脚本或 Agent，但凭证应走系统密钥工具。</p>
+      </div>
+      <div class="tool-card">
+        <h4><a href="https://github.com/obra/superpowers" target="_blank" rel="noopener noreferrer">obra/superpowers</a> <span class="priority-tag">P1 Agent Workflow</span></h4>
+        <p>面向软件开发的 Agent 技能与方法框架。适合评估如何把澄清、实现、验证和交付纪律变成可复用流程，而不是把所有规则堆进一个入口文件。</p>
+      </div>
+      <div class="tool-card">
+        <h4><a href="https://github.com/citrolabs/ego-lite" target="_blank" rel="noopener noreferrer">ego-lite</a> <span class="priority-tag">P2 Web Automation</span></h4>
+        <p>为 Agent 提供浏览器自动化并复用登录态，目标是不打扰主浏览器窗口。适合 Web 验收和后台流程实验；采用前要审计会话共享、权限隔离和操作记录。</p>
+      </div>
+      <div class="tool-card">
+        <h4><a href="https://github.com/RyanCodrai/turbovec" target="_blank" rel="noopener noreferrer">turbovec</a> <span class="priority-tag">P2 Backend</span></h4>
+        <p>Rust 编写、带 Python bindings 的向量索引，建立在 TurboQuant 上。适合后端团队做小规模检索原型；生产采用前需实测持久化、并发、召回率和故障恢复。</p>
+      </div>
+      <div class="tool-card">
+        <h4><a href="https://github.com/chenglou/freerange" target="_blank" rel="noopener noreferrer">Freerange</a> <span class="priority-tag">P1 Web/TypeScript</span></h4>
+        <p>使用 TypeScript 官方 API 在编译期推导数值范围，尝试提前发现 Infinity、NaN 和数组越界。项目仍早期，适合先在布局、分页、比例和金额计算模块做影子检查。</p>
+      </div>
+      <div class="tool-card">
+        <h4><a href="https://www.shadscan.com/" target="_blank" rel="noopener noreferrer">shadscan</a> <span class="priority-tag">P1 Web/UI</span></h4>
+        <p>面向 shadcn/React 组件的确定性 UI 审计，为 Agent 生成界面补一把可重复的验收尺。公开规则和误报数据仍有限，应配合 Playwright 截图和真实设计系统验证。</p>
+      </div>
+      <div class="tool-card">
+        <h4><a href="https://eslint.org/blog/2026/07/eslint-codemod-migrations/" target="_blank" rel="noopener noreferrer">ESLint migration codemod</a> <span class="priority-tag">P1 Web/Node</span></h4>
+        <p>ESLint 官方 codemod，覆盖 v8 到 v9、v9 到 v10 的部分配置与 API 迁移。适合大型 JS/TS 仓库先生成可审查改动，再通过完整 lint、类型检查和测试确认。</p>
+      </div>
+    </div>
+
+    <h2 id="ai-tools">🧠 AI 工具</h2>
+    <div class="tool-grid">
+      <div class="tool-card">
+        <span class="tag">Agent Recipes</span>
+        <h4><a href="https://github.com/anthropics/claude-cookbooks" target="_blank" rel="noopener noreferrer">Anthropic Claude Cookbooks</a></h4>
+        <p>Anthropic 官方示例集合，用 notebook 和配方展示工具调用、检索与工作流。适合把新 API 能力快速转成可运行原型，再按自有安全边界收紧。</p>
+      </div>
+      <div class="tool-card">
+        <span class="tag">Agent Harness</span>
+        <h4><a href="https://github.com/affaan-m/ECC" target="_blank" rel="noopener noreferrer">ECC</a></h4>
+        <p>面向 Claude Code、Codex、OpenCode 和 Cursor 的技能、记忆、安全与研究优先开发框架。适合参考目录组织和流程拆分，不宜整包照搬到不同权限模型。</p>
+      </div>
+      <div class="tool-card">
+        <span class="tag">Team Agent Workflow</span>
+        <h4><a href="https://linear.app/now/introducing-loops" target="_blank" rel="noopener noreferrer">Linear Loops</a></h4>
+        <p>用定时或事件触发运行团队共享 Agent，可读取 issues、projects、documents、代码库和 MCP 服务。适合缺陷分诊与跨端任务拆分；采用前明确权限、幂等、预算和人工接管。</p>
+      </div>
+    </div>
+
+    <h2 id="concepts">🧩 本期概念库</h2>
+    <div class="concept-card">
+      <h4>1. Agent Computer</h4>
+      <div class="concept-field"><strong>一句话解释：</strong>为长时间 Coding Agent 提供带持久磁盘、暂停计费、网络身份和快照恢复的完整运行环境，而不只是一次函数调用沙箱。</div>
+      <div class="concept-field"><strong>背景来源：</strong>Fly.io Sprites</div>
+      <div class="concept-field"><strong>为什么重要：</strong>Agent 任务持续时间和状态越来越长，开发电脑的属性开始进入云产品。</div>
+      <div class="concept-field"><strong>团队应用场景：</strong>每任务独立环境、TTL、预算、快照、最小权限和执行审计。</div>
+    </div>
+    <div class="concept-card">
+      <h4>2. Progressive Disclosure</h4>
+      <div class="concept-field"><strong>一句话解释：</strong>入口上下文只保留项目说明与关键 gotcha，验证、评审、安全和工具定义在需要时再加载。</div>
+      <div class="concept-field"><strong>背景来源：</strong>Claude 5 context engineering</div>
+      <div class="concept-field"><strong>为什么重要：</strong>减少无关上下文、重复规则和示例对探索空间的限制。</div>
+      <div class="concept-field"><strong>团队应用场景：</strong>把 AGENTS/CLAUDE 入口压缩，专项流程拆成技能和延迟工具定义。</div>
+    </div>
+    <div class="concept-card">
+      <h4>3. Interface-Scoped Debugging</h4>
+      <div class="concept-field"><strong>一句话解释：</strong>调试服务不再只讨论开或关，而是明确绑定 USB、Wi-Fi、loopback、VPN 或以太网等接口。</div>
+      <div class="concept-field"><strong>背景来源：</strong>Android on-device ADB discussion</div>
+      <div class="concept-field"><strong>为什么重要：</strong>接口范围决定攻击面，也决定真实移动开发工作流是否仍可用。</div>
+      <div class="concept-field"><strong>团队应用场景：</strong>设备实验室和客户端工具记录所需接口、授权方式与可选安全开关。</div>
+    </div>
+    <div class="concept-card">
+      <h4>4. Default Rule Migration</h4>
+      <div class="concept-field"><strong>一句话解释：</strong>静态检查器默认规则集变化会改变构建通过条件，必须像依赖升级一样管理。</div>
+      <div class="concept-field"><strong>背景来源：</strong>Ruff v0.16</div>
+      <div class="concept-field"><strong>为什么重要：</strong>默认值更新可一次性制造大规模 CI 噪声，也可发现长期隐藏缺陷。</div>
+      <div class="concept-field"><strong>团队应用场景：</strong>锁版本、跑基线、分规则族迁移、记录豁免理由。</div>
+    </div>
+    <div class="concept-card">
+      <h4>5. Evaluation Redesign</h4>
+      <div class="concept-field"><strong>一句话解释：</strong>当 Agent 可以用时长和并发蛮力压过旧题目时，评测要重做问题空间，而不只是限制工具。</div>
+      <div class="concept-field"><strong>背景来源：</strong>ICFP 2026 littleman</div>
+      <div class="concept-field"><strong>为什么重要：</strong>排行榜必须继续区分建模、验证、恢复和协作能力。</div>
+      <div class="concept-field"><strong>团队应用场景：</strong>内部 Agent 评测限制无意义算力堆叠，并加入失败恢复和可解释验证。</div>
+    </div>
+
+    <h2 id="curiosity">🎲 好奇心入口</h2>
+    <div class="curiosity-card">
+      <h4><a href="https://brolly.sh/" target="_blank" rel="noopener noreferrer">Brolly：把天气 App 反向做成纯文本长页面</a></h4>
+      <div class="hook">主流天气站加了更多留白、滚动和动画，有人干脆用 Go、HTML、CSS 和字符热力图重做一遍。</div>
+      <p>Brolly 把 7 天预报、小时降雨、风、紫外线、空气质量和花粉放进单列页面，并把位置、日期和展开状态都编码进 URL。它不是复古装饰，而是一次「可扫读、可分享、后端渲染」的信息设计实验。 团队暗线：复杂数据界面不一定需要更重的前端；状态可链接和一眼可读往往更有价值。</p>
+    </div>
+    <div class="curiosity-card">
+      <h4><a href="https://brandonli.net/semisim/animations" target="_blank" rel="noopener noreferrer">Semisim：用动画把晶体管内部发生的事画出来</a></h4>
+      <div class="hook">一颗晶体管没有变简单，但动画能让载流子、结和电场从公式变成可观察过程。</div>
+      <p>这个 Show HN 项目把半导体行为做成交互动画。它适合提醒产品与教育工具团队：当概念依赖动态变化时，连续过程比静态示意图更能建立直觉。 团队暗线：解释复杂系统时，优先让用户看见状态如何变化，而不只是展示最终结果。</p>
+    </div>
+
+    <h2 id="resources">📚 资源</h2>
+    <div class="resource-item">
+      <a href="https://zigbyexample.neocities.org/" target="_blank" rel="noopener noreferrer">Zig by Example</a>
+      <p>面向 Zig 0.16 的注释式示例教程，覆盖测试、错误、内存、I/O、comptime、构建系统和 C 互操作，适合客户端与系统开发者快速建立语法和工具链直觉。</p>
+    </div>
+
+    <h2 id="quotes">💬 言论：本期 7 个认知增量</h2>
+    <div class="quote-block">
+      <blockquote>多个 CI 同时失败，不是因为代码一起变坏，而是未锁版本的 Ruff 开始默认执行更多检查。</blockquote>
+      <div class="quote-author">—— Simon Willison · Ruff v0.16 观察</div>
+      <div class="quote-meta">来源：<a href="https://simonwillison.net/2026/Jul/25/" target="_blank" rel="noopener noreferrer">simonwillison.net</a> · 类型：摘要式转述 · 关键词：CI · 依赖治理</div>
+      <div class="quote-comment">💭 工具升级的收益和迁移成本都应进入版本控制。</div>
+      <div class="quote-team-insight">🎯 团队启发：开发依赖同样锁版本，并安排规则升级窗口。</div>
+    </div>
+    <div class="quote-block">
+      <blockquote>CVE-2026-0073 是无线 ADB 双向认证实现中的逻辑错误，可让相邻攻击者绕过认证并以 shell 用户执行代码。</blockquote>
+      <div class="quote-author">—— NVD</div>
+      <div class="quote-meta">来源：<a href="https://nvd.nist.gov/vuln/detail/CVE-2026-0073" target="_blank" rel="noopener noreferrer">nvd.nist.gov</a> · 类型：译文 · 关键词：Android · 安全</div>
+      <div class="quote-comment">💭 漏洞已证实，但修漏洞不等于某个接口限制方案已经决定。</div>
+      <div class="quote-team-insight">🎯 团队启发：把漏洞事实、缓解方案和平台路线图区分记录。</div>
+    </div>
+    <div class="quote-block">
+      <blockquote>社区真正争论的不是要不要上下文，而是什么信息应该常驻、什么信息应该在任务需要时才加载。</blockquote>
+      <div class="quote-author">—— Hacker News · Claude context engineering 讨论</div>
+      <div class="quote-meta">来源：<a href="https://news.ycombinator.com/item?id=49051361" target="_blank" rel="noopener noreferrer">news.ycombinator.com</a> · 类型：摘要式转述 · 关键词：Context Engineering · AI Workflow</div>
+      <div class="quote-comment">💭 上下文预算应围绕任务相关性，而不是文件完整性。</div>
+      <div class="quote-team-insight">🎯 团队启发：为长指令建立按需路由，而不是继续追加入口文本。</div>
+    </div>
+    <div class="quote-block">
+      <blockquote>Debian 的讨论把 LLM 代码带回维护者责任：上传者必须能够审查、许可并长期维护所提交的内容。</blockquote>
+      <div class="quote-author">—— Debian Vote 提案</div>
+      <div class="quote-meta">来源：<a href="https://lists.debian.org/debian-vote/2026/07/msg00117.html" target="_blank" rel="noopener noreferrer">lists.debian.org</a> · 类型：摘要式转述 · 关键词：开源治理 · 责任</div>
+      <div class="quote-comment">💭 工具来源不会替你承担发布责任。</div>
+      <div class="quote-team-insight">🎯 团队启发：AI 辅助提交仍由具体维护者签字负责。</div>
+    </div>
+    <div class="quote-block">
+      <blockquote>Agent 需要的不只是短命沙箱，而是可暂停、可恢复、带持久存储的电脑。</blockquote>
+      <div class="quote-author">—— Fly.io Sprites 设计说明</div>
+      <div class="quote-meta">来源：<a href="https://fly.io/blog/design-and-implementation/" target="_blank" rel="noopener noreferrer">fly.io</a> · 类型：摘要式转述 · 关键词：Agent Runtime · 基础设施</div>
+      <div class="quote-comment">💭 这个判断很大胆，但对应的工程需求已经真实出现。</div>
+      <div class="quote-team-insight">🎯 团队启发：长任务环境必须有状态恢复、成本上限和审计。</div>
+    </div>
+    <div class="quote-block">
+      <blockquote>语言的流畅空间会让符号操作很像理解，但地图始终不是领土。</blockquote>
+      <div class="quote-author">—— Joshua Barretto · Mastodon thread</div>
+      <div class="quote-meta">来源：<a href="https://social.coop/@jsbarretto/116960627082185187" target="_blank" rel="noopener noreferrer">social.coop</a> · 类型：译文 · 关键词：LLM · 验证</div>
+      <div class="quote-comment">💭 这是评估 Agent 输出时最值得保留的怀疑。</div>
+      <div class="quote-team-insight">🎯 团队启发：高影响输出必须回到代码、数据或真实环境验证。</div>
+    </div>
+    <div class="quote-block">
+      <blockquote>Shell 的空操作可以明确表达「这里故意什么也不做」，而不是让下一位维护者猜测遗漏。</blockquote>
+      <div class="quote-author">—— Lobsters · shell colon 讨论</div>
+      <div class="quote-meta">来源：<a href="https://lobste.rs/s/eidh3u/shell_colon_does_nothing_use_it_anyway" target="_blank" rel="noopener noreferrer">lobste.rs</a> · 类型：摘要式转述 · 关键词：Shell · 可维护性</div>
+      <div class="quote-comment">💭 可读性经常来自把意图写出来，而不是减少字符。</div>
+      <div class="quote-team-insight">🎯 团队启发：脚本审查关注意图、失败语义和后续维护成本。</div>
+    </div>
+
+    <h2 id="podcast">🎙️ 播客提纲</h2>
+    <div class="podcast-brief">
+      <h4>第 65 期：云平台开始给 Agent 准备电脑</h4>
+      <div class="cold-open">一家云平台刚经历历史上最好的财务月份，却被公开怀疑年底还在不在。Fly.io 的回答很直接：换 CEO，完成一轮金额未披露的新融资，然后把公司押在一种新产品上——不是部署应用的云，而是给 Agent 的电脑。</div>
+      <div class="podcast-segment">
+        <strong>主故事：Fly.io 的身份危机与 Sprites</strong>
+        <p>一台给 Agent 的电脑，为什么要有 100GB 持久磁盘，还要在空闲时停止计费？</p>
+        <p>每个 Agent 任务独立环境、最小权限、可暂停恢复，并设置预算和人工检查点。</p>
+      </div>      <div class="podcast-segment">
+        <strong>Claude 的上下文工程反转</strong>
+        <p>模型越强，系统提示词反而删掉超过 80%。</p>
+        <p>入口指令轻量化，安全、验证、发布流程继续保持明确硬门禁。</p>
+      </div>      <div class="podcast-segment">
+        <strong>Android 本机 ADB：先别把讨论写成公告</strong>
+        <p>882 分的热帖讲了一个可能发生的 Android 变化，但它还不是 Google 正式公告。</p>
+        <p>盘点依赖，跟踪正式公告，为安全开关保留可审计的高级路径。</p>
+      </div>      <div class="podcast-segment">
+        <strong>Ruff、Debian 与 ICFP 的三个工程信号</strong>
+        <p>59 条变成 413 条，一次未锁版本的升级就能让 CI 集体变红。</p>
+        <p>锁版本、定责任、重做评测，分别对应开发流水线的三个薄弱点。</p>
+      </div>      <div class="podcast-segment">
+        <strong>工具 quick hits</strong>
+        <p>今天的工具不追模型榜，先解决终端、邮件、浏览器和后端工作流。</p>
+        <p>工具只有进入现有编码、调试、测试和审计流程，才算真正提效。</p>
+      </div>
+      <p>今天的结论：AI 编程不再只发生在聊天框里。它开始改变云电脑、上下文组织、移动调试接口、静态检查默认值和开源治理。团队现在最该补的不是更多口号，而是环境隔离、状态恢复、版本策略、责任归属和事实确定性。</p>
+    </div>
+
+    <h2 id="team-insights">✅ 对团队的启发</h2>
+    <div class="insight-card">
+      <p><span class="insight-num">1</span>把 Coding Agent 运行环境当远程开发电脑：独立身份、持久磁盘、TTL、预算、快照和命令审计缺一不可。</p>
+    </div>
+    <div class="insight-card">
+      <p><span class="insight-num">2</span>压缩仓库入口指令，只保留项目说明与 gotcha；验证、代码审查、安全和发布流程按需加载。</p>
+    </div>
+    <div class="insight-card">
+      <p><span class="insight-num">3</span>Android 与设备自动化盘点 loopback ADB、Shizuku、VPN/以太网 ADB 依赖，并跟踪正式平台公告，不抢跑结论。</p>
+    </div>
+    <div class="insight-card">
+      <p><span class="insight-num">4</span>静态检查器和格式化器全部锁版本；默认规则变更先跑基线、分批修复、记录豁免。</p>
+    </div>
+    <div class="insight-card">
+      <p><span class="insight-num">5</span>AI 辅助提交明确维护者责任：来源、许可、测试、可解释 diff 和长期维护都不能转交给模型。</p>
+    </div>
+
+    <div class="footer-sources">
+      <strong>📋 数据来源说明</strong><br>
+      本情报来自 66 个全球精选科技 / AI / 工程 / 系统可靠性信息源的每日更新。<br>
+      由 Cursor AI 自动生成，信息截止至 2026年7月26日，星期日。
+    </div>
+  </main>
+</div>
+
+<script>
+(function(){
+  const toc=document.querySelector('.toc');if(!toc)return;
+  const links=[...toc.querySelectorAll('a')];
+  const ids=links.map(l=>l.getAttribute('href').slice(1));
+  const secs=ids.map(id=>document.getElementById(id)).filter(Boolean);
+  function hl(){let cur=0;secs.forEach((s,i)=>{if(s.getBoundingClientRect().top<=120)cur=i;});
+  links.forEach((l,i)=>{l.classList.toggle('active',i===cur);});}
+  window.addEventListener('scroll',hl,{passive:true});hl();
+})();
+
+</script>
+</body>
+</html>

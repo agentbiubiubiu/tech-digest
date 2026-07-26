@@ -1,5 +1,11 @@
 [
   {
+    "date": "2026-07-26",
+    "title": "第 65 期：云平台开始从部署应用，转向给 Agent 提供电脑",
+    "highlights": "Fly.io 换 CEO 并把 Sprites 升为核心业务，融资金额未披露 · Android 本机 ADB 潜在限制引发 882 分讨论，但尚非 Google 正式公告 · Ruff v0.16 默认规则从 59 条增至 413 条 · Claude Code 系统提示词据称删去超过 80% · Debian LLM 使用总决议仍处讨论期 · ICFP 用二维 littleman 语言重做 Agent 时代评测 · Freerange、shadscan、ESLint codemod、Linear Loops 进入开发工具雷达",
+    "image": "https://fly.io/blog/kurt-scott-money-sprites/assets/swirl-cover.webp"
+  },
+  {
     "date": "2026-07-25",
     "title": "第 64 期：摄像头固件里的 GitHub token，提醒我们 AI 时代的供应链不是抽象风险",
     "highlights": "Hanwha 摄像头固件 GitHub token 披露成为主故事 · Claude Opus 5 发布并同步系统卡 · Chrome Gemini 全局快捷键引发客户端边界讨论 · FreeBSD ports 因 150MB Copilot binary 暂停 · DBOS 给出 Postgres LISTEN/NOTIFY 60K writes/s 自测 · Cloudflare Agents SDK 增加 MCP 暴露控制 · Instatic、Chat2DB、testcontainers-rs、mattpocock/skills 进入工具雷达",
