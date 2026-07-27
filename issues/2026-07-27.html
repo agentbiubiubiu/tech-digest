@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>第 66 期：AI 能把不可能的重写变便宜，但不能替团队定义什么叫成功</title>
+  <meta property="og:title" content="Tech Digest #66：AI 重写 Tree-sitter、Lean 证明自动化、SQLite 只读锁">
+  <meta property="og:description" content="ast-grep 用 AI 重写 Tree-sitter：先回滚更快但会崩的版本，再取得作者自测约 22% 端到端提升；Lean 证明、SQLite WAL、MCP 内网隧道进入工程视野。">
+  <meta property="og:image" content="https://astgrep.com/image/blog/00-current-performance.svg">
+  <style>
+:root {
+  --bg: #f5f6f8; --surface: #ffffff; --surface2: #f0f2f5;
+  --border: #e8ecf1; --border-hover: #c5cdd8;
+  --text: #1a1d21; --text-secondary: #3d4550; --text-muted: #8c95a1;
+  --accent: #2d9f6f; --accent-light: #e8f5ef; --accent-hover: #248a5e;
+  --accent-text: #ffffff;
+  --purple: #7c5cbf; --purple-light: #f3effc;
+  --orange: #e58e26; --orange-light: #fef5e7;
+  --blue: #3a82f7; --blue-light: #eef4fe;
+  --red: #e74c3c; --red-light: #fdecea;
+  --green-deep: #1a7a4c; --green-light2: #e0f5ea;
+  --yellow: #d4a017; --yellow-light: #fef9e7;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.06);
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.06), 0 2px 4px rgba(0,0,0,0.04);
+  --shadow-lg: 0 10px 30px rgba(0,0,0,0.08);
+  --radius: 12px; --radius-sm: 8px; --radius-xs: 6px;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Helvetica, Arial, sans-serif; background: var(--bg); color: var(--text); line-height: 1.75; font-size: 15px; -webkit-font-smoothing: antialiased; }
+.topbar { background: var(--surface); border-bottom: 1px solid var(--border); padding: 12px 32px; display: flex; align-items: center; gap: 16px; position: sticky; top: 0; z-index: 200; box-shadow: var(--shadow-sm); }
+.topbar-brand { font-size: 1.1rem; font-weight: 700; color: var(--accent); text-decoration: none; display: flex; align-items: center; gap: 8px; }
+.topbar-brand svg { width: 28px; height: 28px; }
+.topbar-nav { display: flex; gap: 4px; margin-left: 24px; }
+.topbar-nav a { padding: 6px 16px; border-radius: 20px; font-size: 0.85rem; font-weight: 500; color: var(--text-secondary); text-decoration: none; transition: all 0.2s; }
+.topbar-nav a:hover { background: var(--surface2); color: var(--text); }
+.topbar-nav a.active { background: var(--accent-light); color: var(--accent); font-weight: 600; }
+.topbar-right { margin-left: auto; display: flex; align-items: center; gap: 12px; }
+.topbar-date { font-size: 0.82rem; color: var(--text-muted); background: var(--surface2); padding: 5px 12px; border-radius: 16px; }
+.page { display: flex; max-width: 1200px; margin: 0 auto; padding: 24px 24px 0; gap: 24px; }
+.toc { width: 220px; flex-shrink: 0; position: sticky; top: 80px; height: calc(100vh - 104px); overflow-y: auto; background: var(--surface); border-radius: var(--radius); padding: 20px 16px; box-shadow: var(--shadow-sm); border: 1px solid var(--border); }
+.toc-title { font-size: 0.72rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 14px; padding-left: 12px; }
+.toc a { display: block; padding: 7px 12px; margin-bottom: 2px; font-size: 0.82rem; color: var(--text-muted); text-decoration: none; border-radius: var(--radius-xs); transition: all 0.15s; font-weight: 500; }
+.toc a:hover { color: var(--accent); background: var(--accent-light); }
+.toc a.active { color: var(--accent); background: var(--accent-light); font-weight: 600; }
+.toc-mobile { display: none; position: sticky; top: 57px; z-index: 100; background: var(--surface); border-bottom: 1px solid var(--border); padding: 10px 16px; box-shadow: var(--shadow-sm); }
+.toc-mobile summary { cursor: pointer; font-size: 0.85rem; color: var(--accent); font-weight: 600; list-style: none; }
+.toc-mobile summary::-webkit-details-marker { display: none; }
+.toc-mobile .toc-dropdown { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 8px; margin-top: 8px; max-height: 60vh; overflow-y: auto; box-shadow: var(--shadow-md); }
+.toc-mobile .toc-dropdown a { display: block; padding: 8px 12px; font-size: 0.88rem; color: var(--text-secondary); text-decoration: none; border-radius: var(--radius-xs); }
+.toc-mobile .toc-dropdown a:hover { color: var(--accent); background: var(--accent-light); }
+@media (max-width: 860px) { .toc { display: none; } .toc-mobile { display: block; } .topbar-nav { display: none; } .page { flex-direction: column; padding: 16px 12px 0; gap: 16px; } .container { padding: 20px 16px 60px; } }
+.container { flex: 1; min-width: 0; background: var(--surface); border-radius: var(--radius); padding: 36px 40px 60px; box-shadow: var(--shadow-sm); border: 1px solid var(--border); margin-bottom: 40px; }
+.back { display: inline-flex; align-items: center; gap: 4px; color: var(--text-muted); text-decoration: none; font-size: 0.85rem; margin-bottom: 28px; font-weight: 500; transition: color 0.15s; }
+.back:hover { color: var(--accent); }
+h1 { font-size: 1.7rem; font-weight: 800; margin-bottom: 10px; line-height: 1.35; color: var(--text); letter-spacing: -0.01em; }
+.meta { color: var(--text-muted); font-size: 0.85rem; margin-bottom: 28px; }
+.highlights-line { color: var(--text-secondary); font-size: 0.9rem; margin: -18px 0 28px; line-height: 1.65; }
+.hero-img { width: 100%; border-radius: var(--radius); margin-bottom: 10px; box-shadow: var(--shadow-md); }
+.hero-caption { font-size: 0.82rem; color: var(--text-muted); margin-bottom: 36px; text-align: center; font-style: italic; }
+h2 { font-size: 1.25rem; font-weight: 700; margin: 44px 0 18px; padding-bottom: 10px; border-bottom: 2px solid var(--accent-light); scroll-margin-top: 90px; color: var(--text); }
+h3 { font-size: 1.05rem; font-weight: 600; margin: 26px 0 8px; color: var(--text); }
+p { margin-bottom: 14px; color: var(--text-secondary); }
+a { color: var(--accent); text-decoration: none; font-weight: 500; }
+a:hover { color: var(--accent-hover); text-decoration: underline; }
+strong { color: var(--text); font-weight: 600; }
+.callout { background: var(--accent-light); border-left: 4px solid var(--accent); border-radius: var(--radius-sm); padding: 16px 20px; margin: 20px 0; font-size: 0.93rem; color: var(--text-secondary); }
+.main-story { background: linear-gradient(135deg, #f7fbff 0%, #fff 60%); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px 26px; margin: 18px 0 28px; box-shadow: var(--shadow-sm); }
+.main-story h3 { margin-top: 0; font-size: 1.2rem; line-height: 1.45; }
+.main-story .story-hook { color: var(--accent); font-weight: 700; margin-bottom: 14px; }
+.story-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 16px 0; }
+.story-field { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 12px 14px; font-size: 0.88rem; color: var(--text-secondary); }
+.story-field strong { display: block; margin-bottom: 4px; color: var(--text); }
+.number-chip { display: inline-block; background: var(--blue-light); color: var(--blue); border-radius: 14px; padding: 3px 10px; margin: 3px 6px 3px 0; font-size: 0.78rem; font-weight: 700; }
+.story-line { background: var(--purple-light); border-left: 4px solid var(--purple); border-radius: var(--radius-sm); padding: 14px 16px; margin-top: 14px; color: var(--text); font-weight: 700; }
+.trend-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin: 16px 0 28px; }
+.trend-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px 20px; box-shadow: var(--shadow-sm); }
+.trend-card h4 { font-size: 0.95rem; margin-bottom: 8px; color: var(--text); }
+.trend-card .trend-conflict { color: var(--red); font-size: 0.82rem; font-weight: 700; margin-bottom: 8px; }
+.trend-card p { font-size: 0.86rem; margin-bottom: 10px; }
+.trend-card .trend-sources { font-size: 0.76rem; color: var(--text-muted); line-height: 1.55; }
+.curiosity-card { background: var(--orange-light); border: 1px solid #f5ddb8; border-radius: var(--radius); padding: 20px 24px; margin: 14px 0; }
+.curiosity-card h4 { font-size: 1rem; margin-bottom: 8px; font-weight: 600; }
+.curiosity-card h4 a { color: var(--orange); }
+.curiosity-card .hook { color: var(--orange); font-weight: 700; margin-bottom: 6px; }
+.curiosity-card p { font-size: 0.88rem; color: var(--text-secondary); margin: 0 0 8px; line-height: 1.65; }
+.podcast-brief { background: #f8fafc; border: 1px solid var(--border); border-radius: var(--radius); padding: 20px 24px; margin: 18px 0; }
+.podcast-brief h4 { margin: 0 0 10px; font-size: 1rem; }
+.podcast-brief .cold-open { color: var(--accent); font-weight: 700; margin-bottom: 14px; }
+.podcast-segment { border-top: 1px solid var(--border); padding-top: 12px; margin-top: 12px; }
+.podcast-segment strong { display: block; margin-bottom: 4px; }
+.article-img { width: 100%; max-height: 380px; object-fit: cover; border-radius: var(--radius-sm); margin: 12px 0 24px; box-shadow: var(--shadow-sm); }
+.tool-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 16px 0; }
+.tool-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px 20px; transition: all 0.2s; box-shadow: var(--shadow-sm); }
+.tool-card:hover { border-color: var(--accent); box-shadow: var(--shadow-md); transform: translateY(-1px); }
+.tool-card h4 { font-size: 0.95rem; margin-bottom: 6px; font-weight: 600; }
+.tool-card h4 a { color: var(--accent); }
+.tool-card p { font-size: 0.83rem; color: var(--text-muted); margin: 0; line-height: 1.55; }
+.tool-card .tag { display: inline-block; font-size: 0.68rem; padding: 3px 8px; border-radius: 10px; background: var(--accent); color: var(--accent-text); font-weight: 600; margin-bottom: 8px; letter-spacing: 0.02em; }
+.tool-card .priority-tag { display: inline-block; font-size: 0.65rem; padding: 2px 6px; border-radius: 8px; background: var(--surface2); color: var(--text-muted); font-weight: 600; margin-left: 6px; }
+.fun-card { background: var(--orange-light); border: 1px solid #f5ddb8; border-radius: var(--radius); padding: 20px 24px; margin: 14px 0; }
+.fun-card h4 { font-size: 1rem; margin-bottom: 8px; font-weight: 600; }
+.fun-card h4 a { color: var(--orange); }
+.fun-card p { font-size: 0.88rem; color: var(--text-secondary); margin: 0; line-height: 1.65; }
+.quote-block { background: var(--purple-light); border-left: 4px solid var(--purple); border-radius: var(--radius-sm); padding: 20px 24px; margin: 18px 0; }
+.quote-block blockquote { font-size: 1.02rem; line-height: 1.65; margin-bottom: 10px; font-style: italic; color: var(--text); }
+.quote-block .quote-author { font-size: 0.82rem; color: var(--purple); font-weight: 600; margin-bottom: 6px; }
+.quote-block .quote-meta { font-size: 0.78rem; color: var(--text-muted); margin-bottom: 10px; }
+.quote-block .quote-comment { font-size: 0.88rem; color: var(--text-secondary); border-top: 1px solid #d8d0e8; padding-top: 10px; margin-top: 10px; }
+.quote-block .quote-team-insight { font-size: 0.88rem; color: var(--green-deep); background: var(--accent-light); border-radius: var(--radius-xs); padding: 8px 12px; margin-top: 8px; }
+.resource-item { background: var(--blue-light); border: 1px solid #c8dbf8; border-radius: var(--radius); padding: 18px 20px; margin: 12px 0; }
+.resource-item a { font-weight: 600; color: var(--blue); }
+.resource-item p { font-size: 0.88rem; color: var(--text-secondary); margin: 6px 0 0; }
+.concept-card { background: var(--green-light2); border-left: 4px solid var(--accent); border-radius: var(--radius-sm); padding: 20px 24px; margin: 16px 0; }
+.concept-card h4 { font-size: 1rem; font-weight: 700; color: var(--green-deep); margin-bottom: 10px; }
+.concept-card .concept-field { font-size: 0.88rem; color: var(--text-secondary); margin-bottom: 6px; line-height: 1.6; }
+.concept-card .concept-field strong { color: var(--text); font-size: 0.88rem; }
+.insight-card { background: var(--yellow-light); border-left: 4px solid var(--yellow); border-radius: var(--radius-sm); padding: 16px 20px; margin: 12px 0; }
+.insight-card p { font-size: 0.93rem; color: var(--text-secondary); margin: 0; line-height: 1.7; }
+.insight-card .insight-num { display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; border-radius: 50%; background: var(--yellow); color: #fff; font-size: 0.75rem; font-weight: 700; margin-right: 10px; flex-shrink: 0; }
+.certainty-tag { display: inline-block; font-size: 0.65rem; padding: 2px 6px; border-radius: 8px; font-weight: 600; margin-left: 8px; }
+.certainty-confirmed { background: var(--accent-light); color: var(--accent); }
+.certainty-announced { background: var(--blue-light); color: var(--blue); }
+.certainty-reported { background: var(--yellow-light); color: var(--yellow); }
+.certainty-opinion { background: var(--purple-light); color: var(--purple); }
+.certainty-rumor { background: var(--red-light); color: var(--red); }
+.footer-sources { margin-top: 44px; padding: 20px 24px; background: var(--surface2); border-radius: var(--radius); font-size: 0.78rem; color: var(--text-muted); line-height: 1.9; }
+.footer-sources strong { color: var(--text-secondary); font-size: 0.78rem; }
+@media (max-width: 860px) { .trend-grid, .story-grid { grid-template-columns: 1fr; } }
+@media (max-width: 640px) { .tool-grid { grid-template-columns: 1fr; } }
+
+  </style>
+</head>
+<body>
+
+<header class="topbar">
+  <a href="../index.html" class="topbar-brand">
+    <svg viewBox="0 0 28 28" fill="none"><circle cx="14" cy="14" r="14" fill="#2d9f6f"/><path d="M8 14.5l3.5 3.5 8.5-8" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    Tech Digest
+  </a>
+  <nav class="topbar-nav">
+    <a href="../index.html">Archive</a>
+    <a href="#main-story" class="active">Today</a>
+    <a href="#tools">Tools</a>
+    <a href="#quotes">Quotes</a>
+  </nav>
+  <div class="topbar-right">
+    <span class="topbar-date">2026-07-27</span>
+  </div>
+</header>
+
+<details class="toc-mobile">
+  <summary>📑 目录导航</summary>
+  <div class="toc-dropdown">
+    <a href="#main-story">🔥 主故事</a>
+    <a href="#trends">⚡ 冲突趋势</a>
+    <a href="#tech-news">📰 科技动态</a>
+    <a href="#ai">🤖 AI 相关</a>
+    <a href="#articles">📝 文章推荐</a>
+    <a href="#tools">🛠️ 工具推荐</a>
+    <a href="#ai-tools">🧠 AI 工具</a>
+    <a href="#concepts">🧩 本期概念库</a>
+    <a href="#curiosity">🎲 好奇心入口</a>
+    <a href="#resources">📚 资源</a>
+    <a href="#quotes">💬 言论</a>
+    <a href="#podcast">🎙️ 播客提纲</a>
+    <a href="#team-insights">✅ 对团队的启发</a>
+  </div>
+</details>
+
+<div class="page">
+  <nav class="toc">
+    <div class="toc-title">本期目录</div>
+    <a href="#main-story">🔥 主故事</a>
+    <a href="#trends">⚡ 冲突趋势</a>
+    <a href="#tech-news">📰 科技动态</a>
+    <a href="#ai">🤖 AI 相关</a>
+    <a href="#articles">📝 文章推荐</a>
+    <a href="#tools">🛠️ 工具推荐</a>
+    <a href="#ai-tools">🧠 AI 工具</a>
+    <a href="#concepts">🧩 本期概念库</a>
+    <a href="#curiosity">🎲 好奇心入口</a>
+    <a href="#resources">📚 资源</a>
+    <a href="#quotes">💬 言论</a>
+    <a href="#podcast">🎙️ 播客提纲</a>
+    <a href="#team-insights">✅ 对团队的启发</a>
+  </nav>
+
+  <main class="container">
+    <a href="../index.html" class="back">← 返回目录</a>
+    <h1>第 66 期：AI 能把不可能的重写变便宜，但不能替团队定义什么叫成功</h1>
+    <div class="meta">第 66 期 · 2026年7月27日，星期一</div>
+    <p class="highlights-line"><strong>✨ 本期亮点：</strong>AI 辅助 Tree-sitter 重写成为主故事：首次快约 20% 的不可解释版本被全部回滚 · 作者自测最终解析吞吐 +29.74%、端到端 CPU 约 -22.2%、峰值内存约 +29.8% · Lean + LLM 约 20 分钟完成性质证明但玩具程序慢约 10 倍 · SQLite WAL 只读短连接出现 7/6400 次锁 · Drone-Bench 五项串联成功率仍为 0% · Secure MCP Tunnel、Impeccable、Port Zero、Buzz 进入开发工具雷达</p>
+
+    <img class="hero-img" src="https://astgrep.com/image/blog/00-current-performance.svg" alt="ast-grep Tree-sitter Rust rewrite benchmark chart">
+    <div class="hero-caption">ast-grep 作者自测：Rust 核心的原始解析吞吐约高 29.74%，完整 outline 工作负载的用户态 CPU 时间约低 22.2%，但峰值内存约高 29.8%。</div>
+
+    <div class="callout">
+      <strong>🎯 本期核心判断：</strong>Coding Agent 正在把过去只有大团队敢做的重写和形式化验证变成个人可尝试的工程，但可信提效仍取决于人类收缩范围、保留行为基线，并同时测正确性、端到端性能、内存和可解释性。
+    </div>
+
+    <div class="callout">
+      <strong>⏱ 本期建议阅读顺序</strong><br>
+      先看主故事：为什么一次 AI 重写要先经历全部回滚，才得到可信的性能提升。<br>
+      再看证明与可靠性：Lean 自动证明、SQLite WAL 只读锁、Drone-Bench 端到端归零。<br>
+      最后看可直接试用的前端验收、端口管理、Agent 日志、MCP 内网接入和工作流工具。
+    </div>
+
+    <h2 id="main-story">🔥 主故事</h2>
+        <article class="main-story">
+      <h3>AI 重写 Tree-sitter：第一次快 20% 却会崩，全部回滚后才得到可信的 22%</h3>
+      <p class="story-hook">一段代码跑得快了约 20%，为什么作者反而把它全部删掉？因为它已经快到没人能解释，还会毫无预警地段错误。</p>
+      <p>ast-grep 的性能瓶颈长期落在 Tree-sitter：每个文件都必须先解析成语法树。对一个人来说，重写成熟 C 运行时意味着 ABI、生成语法、外部扫描器、错误恢复和庞大测试生态，过去足以让计划一直停在愿望清单。Coding Agent 把实验成本降下来后，作者让 ChatGPT 分阶段把核心迁到 Rust，并以现有测试和兼容性作为答案钥匙。</p>
+      <div class="story-grid">
+        <div class="story-field"><strong>核心冲突</strong>AI 可以快速制造一个 Benchmark 更漂亮的版本，却不能自动保证代码可解释、内存可接受、边界正确。第一次优化达到作者要求的约 20% 后，层层叠加的生成代码难以理解，并出现段错误；作者没有继续打补丁，而是把优化全部回滚。</div>
+        <div class="story-field"><strong>转折点</strong>转折不是换了更强模型，而是换了问题定义。作者移除 Agent 完整文件快照场景不需要的增量旧树复用和原生 Wasm 语法加载，先把 C 风格 Rust 整理成能局部推理的结构，再逐层分析词法、栈、子树生命周期和端到端路径。最终结果不再声称一比一替代上游 Tree-sitter，而是一套明确服务 ast-grep 与 Coding Agent 工作负载的更窄运行时。</div>
+        <div class="story-field"><strong>为什么现在发生</strong>我的判断：Coding Agent 最重要的经济变化，是让高风险实验的第一次尝试变便宜。过去个人不会启动的语言迁移、解析器改写和证明任务，现在可以快速得到可运行版本；但实验是否能进入产品，仍要靠范围选择、测试基线、性能剖析和人工可理解性。</div>
+        <div class="story-field"><strong>对团队的启发</strong>把 Agent 驱动重构分成四道门：先冻结行为基线和兼容性测试；明确目标工作负载与非目标；同时记录端到端延迟、CPU、内存、崩溃和输出等价性；任何人无法解释的优化不得因为 Benchmark 变好而合入。</div>
+      </div>
+      <p><span class="number-chip">第一次优化约快 20%，因不可读和段错误全部回滚</span><span class="number-chip">作者自测原始解析吞吐 +29.74%</span><span class="number-chip">完整 ast-grep outline 用户态 CPU 时间 1.233 秒降至 0.960 秒，约 -22.2%</span><span class="number-chip">同一完整工作负载峰值 RSS 26.52 MiB 升至 34.43 MiB，约 +29.8%</span><span class="number-chip">TypeScript 压力语料峰值内存 91.2 MiB，早期版本曾超过 1 GiB</span></p>
+      <p><strong>我的判断：</strong>标题里的「30%」只对应作者自测的解析吞吐，不是整个应用都快 30%。端到端约 22.2% 的 CPU 改善伴随约 29.8% 的峰值内存增加，而且结果尚未独立复现。真正值得复制的不是让 AI 重写核心库，而是作者愿意丢掉一个数字更漂亮、工程上却不可信的版本。</p>
+      <div class="story-line">AI 把不可能的重写变便宜，工程纪律决定它是产品还是一次漂亮的事故。</div>
+      <p><strong>来源：</strong><a href="https://astgrep.com/blog/tree-sitter-rust-rewrite" target="_blank" rel="noopener noreferrer">astgrep.com</a></p>
+    </article>
+
+    <h2 id="trends">⚡ 冲突趋势</h2>
+        <div class="trend-grid">
+      <div class="trend-card">
+        <h4>AI 让重写变便宜，但不能替团队定义成功</h4>
+        <div class="trend-conflict">局部 Benchmark 更快 vs 端到端可解释与可维护</div>
+        <p>ast-grep 最重要的动作不是让 ChatGPT 写出 Rust，而是把一个更快却会崩的版本全部回滚。</p>
+        <div class="trend-sources">news.ycombinator.com</div>
+      </div>
+      <div class="trend-card">
+        <h4>形式化证明从 10 倍人力账单变成 20 分钟实验</h4>
+        <div class="trend-conflict">强类型的验证价值 vs 传统证明工程成本</div>
+        <p>Adam Langley 报告多个 LLM 可在约 20 分钟内完成 Lean 性质证明，但玩具解压器仍慢 10 倍，扩展性也未被证明。</p>
+        <div class="trend-sources">news.ycombinator.com</div>
+      </div>
+      <div class="trend-card">
+        <h4>单项能力看起来会飞，串起来仍是 0%</h4>
+        <div class="trend-conflict">最佳单次表现 vs 连续任务联合成功率</div>
+        <p>Drone-Bench 报告部分模型单次可过 4 项，但没有任何模型通过全部五项，端到端成功率仍为 0%。</p>
+        <div class="trend-sources">andonlabs.com</div>
+      </div>
+    </div>
+
+    <h2 id="tech-news">📰 科技动态</h2>
+    <h3>1、<a href="https://hynek.me/til/sqlite-read-only-wal-locked/" target="_blank" rel="noopener noreferrer">SQLite 三天没写数据，SELECT 仍会锁：WAL 也要匹配连接生命周期</a> <span class="certainty-tag certainty-reported">reported</span></h3>
+    <p>数据库几乎不写入，却由大量短生命周期进程反复只读打开。作者发现 WAL 连接仍需更新 -shm 与空的 -wal 协调文件，打开和关闭窗口可能触发 SQLITE_BUSY；在 64 个进程各跑 100 轮的典型复现里，零超时 WAL 出现 7 次锁错误，增加 1 秒 busy timeout 或改回 DELETE journal 后为 0。所以呢？「WAL 更适合并发」必须附带连接池和负载模型。</p>
+    <img class="article-img" src="https://static.hynek.me/cards/sqlite-read-only-wal-locked.png?2208efe" alt="">
+    <h3>2、<a href="https://www.techspot.com/news/113236-us-prosecutors-charge-atlanta-man-after-grapheneos-phone.html" target="_blank" rel="noopener noreferrer">GrapheneOS 的 duress PIN 进入联邦刑案：安全功能不能替法庭证明意图</a> <span class="certainty-tag certainty-reported">reported</span></h3>
+    <p>一部 Pixel 在机场搜查中输入密码后重启并丢失数据，检方据此指控 Samuel Tunick 为阻止扣押而故意销毁内容；辩方则主张询问和无令状搜查侵犯权利。法院文件确认案件编号 1:25-CR-499，但故意毁证仍是控方指控，辩方主张也尚未裁定。所以呢？防胁迫、自动擦除和审计文案一旦进入司法场景，功能与使用意图必须严格分开。</p>
+    <img class="article-img" src="https://www.techspot.com/images2/news/bigimage/2026/07/2026-07-26-image-4.jpg" alt="">
+    <h3>3、<a href="https://killthecookiebanner.eu/" target="_blank" rel="noopener noreferrer">欧盟隐私组织要「杀死 Cookie Banner」：这是倡议，不是已通过法规</a> <span class="certainty-tag certainty-announced">announced</span></h3>
+    <p>如果浏览器已经知道用户拒绝追踪，为什么每个网站还要再问一次？欧洲民间组织推动在 Digital Omnibus 讨论中采用机器可读隐私信号，减少逐站 cookie banner；它们同时反对改革包中其他可能削弱隐私权的部分。页面明确写着成员国和欧洲议会尚未决定立场，所以这是一项倡议，不是已生效监管。</p>
+    <h3>4、<a href="https://simonwillison.net/2026/Jul/26/relay-market/" target="_blank" rel="noopener noreferrer">LLM Token 转售链浮出水面：最高 97.8% 标称折扣仍只是调查者报告</a> <span class="certainty-tag certainty-reported">reported</span></h3>
+    <p>一个没有硬消费上限的公开 AI 端点，可能不只被刷账单，还会被接进转售市场。Simon Willison 转述 Vectoral 调查：部分中继服务汇聚 API Key 后低价转售，调查者称 10 个高流量站点合计约 360 万月访问、最高标称折扣 97.8%。密钥来源可能包括试用滥用、未保护机器人、盗刷和拒付，但规模和来源尚未被模型厂商或执法机构独立确认。</p>
+
+    <h2 id="ai">🤖 AI 相关</h2>
+    <h3>1、<a href="https://www.imperialviolet.org/2026/07/26/zstd-lean.html" target="_blank" rel="noopener noreferrer">Lean + LLM 把高成本证明压到约 20 分钟，但玩具解压器仍慢 10 倍</a> <span class="certainty-tag certainty-reported">reported</span></h3>
+    <p>形式化证明过去贵得惊人：Adam Langley 引用 seL4 复盘，证明时间约是设计实现的 10 倍，证明代码超过 C 代码 20 倍。他用 Lean 写 Zstandard 解压器，并报告多个 LLM 能在约 20 分钟内自动完成 FSE 表性质证明，证明通过类型检查且无 sorry。反转也很明确：玩具解压器比命令行 zstd 慢约 10 倍，verified assembly 实验还因内存和规模问题卡住。</p>
+    <h3>2、<a href="https://developers.openai.com/blog/connect-private-mcp-servers-to-openai-products" target="_blank" rel="noopener noreferrer">OpenAI Secure MCP Tunnel：私有 MCP 无需开放入站公网，但仍经过受控中继</a> <span class="certainty-tag certainty-confirmed">confirmed</span></h3>
+    <p>企业接 MCP 的老问题是「要不要给内网工具开洞」。OpenAI 的 Secure MCP Tunnel 让内网开源客户端主动建立出站 HTTPS 长轮询，接收请求并转发给批准的本地服务；它支持流式响应、OAuth 发现、自定义 CA、代理与 MCP 侧 mTLS。这里的准确表述是「客户侧无需开放入站公网」，不是没有 OpenAI 中继，也不是免做安全审查。</p>
+    <img class="article-img" src="https://developers.openai.com/images/blog/connect-private-mcp-servers-safely.png" alt="">
+    <h3>3、<a href="https://www.anthropic.com/research/project-pilot" target="_blank" rel="noopener noreferrer">Drone-Bench：15 个模型最佳单次可过 4 项，五项串联成功率仍为 0%</a> <span class="certainty-tag certainty-reported">reported</span></h3>
+    <p>模型不是不会飞，而是会把墙看成门。Drone-Bench 把室内无人机跟踪拆成重建、定位、导航、检测和跟随五项；评测方对 15 个模型各跑 10 次，部分优秀单次运行可过 4 项，但没有任何模型通过全部五项，端到端成功率仍为 0%。所以呢？评估 Agent 不能把最佳单项分数相加，错误会沿任务链逐层放大。</p>
+    <img class="article-img" src="https://www.anthropic.com/_next/image?url=https%3A%2F%2Fwww-cdn.anthropic.com%2Fimages%2F4zrzovbb%2Fwebsite%2F614042bcff1dd452489fcab83e880ed3f880efaf-1999x1446.png&amp;w=3840&amp;q=75" alt="">
+    <h3>4、<a href="https://tech.meituan.com/2026/07/24/LongCat-LoHoSearch.html" target="_blank" rel="noopener noreferrer">旧搜索 Benchmark 被刷到 90% 后，美团用 762 万实体重新出题</a> <span class="certainty-tag certainty-reported">reported</span></h3>
+    <p>当旧考卷被刷到 90% 以上，继续庆祝分数已经没有意义。美团团队用覆盖 762 万维基实体的知识图谱构造 LoHoSearch，经人工核验形成 544 题；作者报告 GPT-5.5 得分 34.74%，DeepSeek-V4-Flash 从 BrowseComp 的 58.84% 降到 10.02%。这不是独立结论，而是 Benchmark 作者自报结果；值得团队拿走的是评测饱和后应重做问题空间。</p>
+    <img class="article-img" src="https://p0.meituan.net/meituantechblog/cb1dd059238191e0ecd15a799cdb5990578266.jpg" alt="">
+
+    <h2 id="articles">📝 文章推荐</h2>
+    <h3>1、<a href="https://www.anthropic.com/engineering/managed-agents" target="_blank" rel="noopener noreferrer">托管 Agent 的大脑和手应该分开：会话持久，容器可以短命</a></h3>
+    <p>长任务 Agent 最怕跑到一半容器消失。Anthropic 把无状态 harness、持久事件日志、隔离沙箱和凭证代理拆开，让会话不绑定某个容器，执行环境可重建，沙箱也拿不到长期 OAuth 与 Git 凭证。官方自报首 token 延迟 p50 约降 60%、p95 超过 90%，但样本和外部复现未披露。</p>
+    <h3>2、<a href="https://stephango.com/design-is-compromise" target="_blank" rel="noopener noreferrer">设计不是消灭妥协，而是公开选择自己不擅长什么</a></h3>
+    <p>「无妥协产品」听起来很强，实际往往只是拒绝承认选择。Steph Ango 认为，任何方案一旦被选中，就同时放弃其他选项；好设计不是平均满足所有人，而是针对明确受众选择值得承担的弱点。它给需求评审一个更诚实的问题：我们是否主动选对了缺点？</p>
+    <img class="article-img" src="https://stephango.com/assets/covers/design-is-compromise.png" alt="">
+    <h3>3、<a href="https://hackaday.com/2026/07/26/ever-seen-claude-use-fusion-360/" target="_blank" rel="noopener noreferrer">不学 Fusion 360，先让本地 Qwen 和 Claude 接力做钟表外壳</a></h3>
+    <p>一个不喜欢 CAD 的系统管理员，只想做自动校时数字钟，项目却一路扩展到 systemd、Python 显示程序和 LLM 操作 Fusion 360。本地 Qwen 一次接近完成、另一次仍犯错，随后 Claude 补完设计。这不是「AI 一键 CAD」的 Benchmark，而是一个不会机械设计的人用 MCP 跨过工具门槛的具体案例。</p>
+    <img class="article-img" src="https://hackaday.com/wp-content/uploads/2026/07/piclock.jpg" alt="">
+    <h3>4、<a href="https://arstechnica.com/space/2026/07/spacex-eyes-tower-catch-for-next-starship-after-auspicious-end-to-13th-flight/" target="_blank" rel="noopener noreferrer">Starship Flight 13 的方法论：完整软着陆也不能掩盖助推器硬着水</a></h3>
+    <p>Flight 13 部署 20 颗测试星、完成在轨发动机重启和 Starship 完整软着陆，团队终于获得较完整的隔热瓦返回数据；与此同时，Super Heavy 部分发动机未能在着陆燃烧中重启，助推器仍硬着水。下一次尝试塔架回收只是 Elon Musk 的条件式表述，前提是数据复核没有问题。</p>
+    <img class="article-img" src="https://cdn.arstechnica.net/wp-content/uploads/2026/07/starshipflt13_1-1152x648.jpg" alt="">
+
+    <h2 id="tools">🛠️ 工具推荐</h2>
+    <div class="tool-grid">
+      <div class="tool-card">
+        <h4><a href="https://github.com/pbakaus/impeccable" target="_blank" rel="noopener noreferrer">Impeccable</a> <span class="priority-tag">P0 Web/UI</span></h4>
+        <p>把 23 个设计命令与 60 条确定性检测规则封装为跨 Codex、Claude Code、Cursor 等工具的 Skill。适合给 Agent 生成前端增加品牌上下文和可重复视觉检查；设计改善是作者主张，先在非核心页面配合截图验收。</p>
+      </div>
+      <div class="tool-card">
+        <h4><a href="https://portzero.net/" target="_blank" rel="noopener noreferrer">Port Zero</a> <span class="priority-tag">P0 Web/Agent</span></h4>
+        <p>让服务监听 port 0，由系统分配端口，再映射到稳定的 *.portzero.local 域名。适合多 worktree、多 Agent 和并行前端环境，避免反复抢占 3000/5173；采用前验证证书、容器和网络边界。</p>
+      </div>
+      <div class="tool-card">
+        <h4><a href="https://nikolays.github.io/PGSimCity/" target="_blank" rel="noopener noreferrer">PGSimCity</a> <span class="priority-tag">P1 Backend</span></h4>
+        <p>用 14 个交互场景把 PostgreSQL 连接、进程和存储路径画成 3D 城市。适合后台培训和故障讨论；作者明确标为未经审查的早期原型，不能替代 PostgreSQL 官方文档。</p>
+      </div>
+      <div class="tool-card">
+        <h4><a href="https://github.com/avenna01-ceo/claude-code-survival-kr/tree/main/guard" target="_blank" rel="noopener noreferrer">Claude Code Guard</a> <span class="priority-tag">P1 Agent Safety</span></h4>
+        <p>用 PreToolUse hook 在 Agent 写入 .env、密钥或迁移目录前返回 exit 2，把文字提醒变成执行门禁。它故意 fail-open 且不拦 Bash，适合作为护栏示例，不是完整权限系统。</p>
+      </div>
+      <div class="tool-card">
+        <h4><a href="https://vercel.com/changelog/vercel-waf-for-blob-is-now-in-beta" target="_blank" rel="noopener noreferrer">Vercel WAF for Blob</a> <span class="priority-tag">P1 Web/Backend</span></h4>
+        <p>无需改 Blob URL 或业务代码，在 CDN 第一字节前执行 deny、challenge、rate limit、redirect 与 log。当前是 beta，共享规则和服务端 challenge 可能误伤，应先用 log 模式验证。</p>
+      </div>
+      <div class="tool-card">
+        <h4><a href="https://vercel.com/changelog/workflow-steps-now-support-extended-function-durations" target="_blank" rel="noopener noreferrer">Vercel Workflow Extended Duration</a> <span class="priority-tag">P1 Backend</span></h4>
+        <p>Pro/Enterprise 的 Workflow step beta 可从 800 秒提升到 1800 秒，Hobby 仍为 300 秒。适合长 Agent 和批处理，但必须继续设计检查点、幂等、重试与超时恢复。</p>
+      </div>
+      <div class="tool-card">
+        <h4><a href="https://pkg.go.dev/golang.org/x/tools/go/analysis" target="_blank" rel="noopener noreferrer">Go Analysis Framework</a> <span class="priority-tag">P1 Backend/Go</span></h4>
+        <p>Go 官方模块化静态分析框架，可复用 inspector、fact 与诊断机制构建团队规则。适合把业务级不变量变成可在 CI 重复执行的 analyzer，而不是继续依赖人工 Review 记忆。</p>
+      </div>
+      <div class="tool-card">
+        <h4><a href="https://beyondloom.com/decker/" target="_blank" rel="noopener noreferrer">Decker</a> <span class="priority-tag">P2 PC/Web</span></h4>
+        <p>继承 HyperCard 思路的轻量互动文档与应用平台，可在 Web、桌面和命令行使用。适合快速做内部交互原型、教学工具和可分享演示，不适合作为复杂生产前端替代品。</p>
+      </div>
+    </div>
+
+    <h2 id="ai-tools">🧠 AI 工具</h2>
+    <div class="tool-grid">
+      <div class="tool-card">
+        <span class="tag">Agent Collaboration</span>
+        <h4><a href="https://github.com/block/buzz" target="_blank" rel="noopener noreferrer">Buzz</a></h4>
+        <p>Block 的实验项目，用 Nostr 签名事件统一人、Agent、Git、CI 和审批记录，并支持三层 BYOH harness。适合研究 Agent 身份与审计架构；README 明确有尚在接线的能力，先做只读评估。</p>
+      </div>
+      <div class="tool-card">
+        <span class="tag">Multi-model API</span>
+        <h4><a href="https://github.com/andrewyng/aisuite" target="_blank" rel="noopener noreferrer">aisuite</a></h4>
+        <p>以 OpenAI 风格接口统一多家模型，再叠加 Agents、Toolkits 与 MCP。适合做模型对照和轻量适配，但生产仍需逐提供方验证参数、流式工具调用、错误语义与回退。</p>
+      </div>
+      <div class="tool-card">
+        <span class="tag">Remote Coding</span>
+        <h4><a href="https://developers.openai.com/blog/mastering-codex-remote-for-engineering" target="_blank" rel="noopener noreferrer">Codex Remote engineering guide</a></h4>
+        <p>把手机端定位成远程工程控制面：先锁定主机、工作区、分支和 worktree，再排队、引导和审查任务。最值得迁移的是「环境先于提示词，diff 先于合并」的操作纪律。</p>
+      </div>
+    </div>
+
+    <h2 id="concepts">🧩 本期概念库</h2>
+    <div class="concept-card">
+      <h4>1. Workload-Scoped Rewrite</h4>
+      <div class="concept-field"><strong>一句话解释：</strong>不追求一比一替换成熟系统，而是明确目标负载、保留可观察兼容性，并删除目标场景不需要的能力。</div>
+      <div class="concept-field"><strong>背景来源：</strong>ast-grep Tree-sitter Rust rewrite</div>
+      <div class="concept-field"><strong>为什么重要：</strong>缩小范围能让个人与 Agent 承担过去不现实的核心重写，同时减少不可验证表面积。</div>
+      <div class="concept-field"><strong>团队应用场景：</strong>重构前写目标负载、兼容面和非目标清单；Benchmark 必须覆盖实际调用路径。</div>
+    </div>
+    <div class="concept-card">
+      <h4>2. Benchmark Triangulation</h4>
+      <div class="concept-field"><strong>一句话解释：</strong>同时看局部吞吐、端到端时间、内存、崩溃率和输出等价性，避免单一指标制造虚假胜利。</div>
+      <div class="concept-field"><strong>背景来源：</strong>ast-grep parser and outline measurements</div>
+      <div class="concept-field"><strong>为什么重要：</strong>AI 很擅长按一个数字优化，也可能把成本转移到可维护性或其他资源。</div>
+      <div class="concept-field"><strong>团队应用场景：</strong>每次性能 PR 固定至少一个业务端到端指标和一个资源副作用指标。</div>
+    </div>
+    <div class="concept-card">
+      <h4>3. Proof Automation</h4>
+      <div class="concept-field"><strong>一句话解释：</strong>让 LLM 搜索证明结构，再由小型可信内核检查证明是否成立；生成者可以不可信，验证器必须确定。</div>
+      <div class="concept-field"><strong>背景来源：</strong>Lean Zstandard experiment</div>
+      <div class="concept-field"><strong>为什么重要：</strong>它可能降低形式化验证的人力门槛，但不能保证命题正确、程序高性能或证明可扩展。</div>
+      <div class="concept-field"><strong>团队应用场景：</strong>从协议解析、金额状态机或关键不变量的小范围性质开始，不直接改写整套生产系统。</div>
+    </div>
+    <div class="concept-card">
+      <h4>4. Joint Task Success</h4>
+      <div class="concept-field"><strong>一句话解释：</strong>连续任务的成功率取决于各阶段联合表现，单项最好成绩不能替代完整链路结果。</div>
+      <div class="concept-field"><strong>背景来源：</strong>Drone-Bench</div>
+      <div class="concept-field"><strong>为什么重要：</strong>Agent 的感知、导航、工具调用和恢复误差会逐步累积。</div>
+      <div class="concept-field"><strong>团队应用场景：</strong>移动端、浏览器和交易 Agent 测完整用户路径，并单独记录失败恢复能力。</div>
+    </div>
+    <div class="concept-card">
+      <h4>5. Protocol-Level Consent</h4>
+      <div class="concept-field"><strong>一句话解释：</strong>由浏览器或用户代理以机器可读信号表达隐私偏好，而不是每个网站重复弹窗询问。</div>
+      <div class="concept-field"><strong>背景来源：</strong>Kill the Cookie Banner initiative</div>
+      <div class="concept-field"><strong>为什么重要：</strong>它可能改变 Consent UI、数据默认值和合规责任的分配。</div>
+      <div class="concept-field"><strong>团队应用场景：</strong>前端把 consent 状态机与视觉弹窗解耦，为浏览器级信号和区域差异保留适配层。</div>
+    </div>
+
+    <h2 id="curiosity">🎲 好奇心入口</h2>
+    <div class="curiosity-card">
+      <h4><a href="https://swag.htmx.org/en-cad/products/htmx-4-the-game" target="_blank" rel="noopener noreferrer">htmx 4.0 独占 Game Boy？其实是一张 25 美元实体游戏卡</a></h4>
+      <div class="hook">HN 说 htmx 4.0 发布了，但你需要先找一台 Game Boy。</div>
+      <p>官方周边游戏有四关：收集 pickle、压缩客户端 JavaScript，并击败 Warren 才能「解锁源代码」。这是社区品牌产品，不是 htmx JavaScript 4.0 正式发布。 团队暗线：开源项目可以把文化变成收入和记忆点，但有趣标题仍需保留事实边界。</p>
+    </div>
+    <div class="curiosity-card">
+      <h4><a href="https://grego.site/blog/thinkphone" target="_blank" rel="noopener noreferrer">ThinkPad T480 变手机：LTE 模组把通话音频伪装成 USB 声卡</a></h4>
+      <div class="hook">一台 2018 年商务笔记本接起了电话，关键不是装 Android。</div>
+      <p>作者通过 Libreboot 移除无线网卡白名单，换入 Quectel EG25-G 并刷自由用户态固件，让模组以 USB 音频设备暴露通话音频；短信、数据和电话最终进入同一台笔记本。 团队暗线：硬件能力常被固件、白名单和接口表达限制；打通边界比替换整机更关键。运营商兼容性仅为作者案例，未独立复现。</p>
+    </div>
+
+    <h2 id="resources">📚 资源</h2>
+    <div class="resource-item">
+      <a href="https://www.gamedevs.org/uploads/introduction-to-data-oriented-design.pdf" target="_blank" rel="noopener noreferrer">Introduction to Data-Oriented Design</a>
+      <p>从数据布局、缓存和批处理理解性能，不把对象层次当成唯一设计单位。适合客户端渲染、游戏、行情和高吞吐后台做系统性补课。</p>
+    </div>
+    <div class="resource-item">
+      <a href="https://github.com/leanprover/LNSym" target="_blank" rel="noopener noreferrer">LNSym</a>
+      <p>AWS 开源的 AArch64 语义与模拟器，可探索 Lean 中的汇编等价证明。Adam Langley 的实验也显示大例子可能消耗巨量内存，当前更适合作为研究与小函数验证资源。</p>
+    </div>
+
+    <h2 id="quotes">💬 言论：本期 7 个认知增量</h2>
+    <div class="quote-block">
+      <blockquote>一个解析器快 20% 却偶尔直接消失，不是优化，而是一张会突然惊吓你的 Benchmark。</blockquote>
+      <div class="quote-author">—— ast-grep 作者观点</div>
+      <div class="quote-meta">来源：<a href="https://news.ycombinator.com/item?id=49060509" target="_blank" rel="noopener noreferrer">news.ycombinator.com</a> · 类型：译文 · 关键词：AI Workflow · 性能工程 · 代码审查</div>
+      <div class="quote-comment">💭 这次回滚比最终数字更有价值。团队真正需要奖励的是识别虚假胜利，而不是守住已经投入的 AI 代码。</div>
+      <div class="quote-team-insight">🎯 团队启发：把可解释性、崩溃和内存列入性能验收，不允许只报最快路径。</div>
+    </div>
+    <div class="quote-block">
+      <blockquote>形式化验证历史上可能花掉实现工作约 10 倍的时间，并产生超过 C 代码 20 倍的证明代码。</blockquote>
+      <div class="quote-author">—— seL4 复盘</div>
+      <div class="quote-meta">来源：<a href="https://trustworthy.systems/publications/nicta_full_text/7371.pdf" target="_blank" rel="noopener noreferrer">trustworthy.systems</a> · 类型：摘要式转述 · 关键词：形式化验证 · 工程成本</div>
+      <div class="quote-comment">💭 LLM 的机会不是让证明听起来更聪明，而是压低这张长期阻碍采用的工程账单。</div>
+      <div class="quote-team-insight">🎯 团队启发：先选价值足够高、范围足够小的不变量试点。</div>
+    </div>
+    <div class="quote-block">
+      <blockquote>WAL 允许读写并发，但连接仍需协调共享内存和日志生命周期。</blockquote>
+      <div class="quote-author">—— SQLite WAL 文档</div>
+      <div class="quote-meta">来源：<a href="https://sqlite.org/wal.html" target="_blank" rel="noopener noreferrer">sqlite.org</a> · 类型：摘要式转述 · 关键词：SQLite · 稳定性</div>
+      <div class="quote-comment">💭 文档里的能力边界没有错，错的是把它压缩成「打开 WAL 就不会锁」的口号。</div>
+      <div class="quote-team-insight">🎯 团队启发：数据库配置建议必须附带连接生命周期和并发模型。</div>
+    </div>
+    <div class="quote-block">
+      <blockquote>好设计不是没有弱点，而是为明确受众选择值得承担的弱点。</blockquote>
+      <div class="quote-author">—— Steph Ango 观点</div>
+      <div class="quote-meta">来源：<a href="https://news.ycombinator.com/item?id=49059367" target="_blank" rel="noopener noreferrer">news.ycombinator.com</a> · 类型：摘要式转述 · 关键词：产品设计 · 管理认知</div>
+      <div class="quote-comment">💭 把妥协写出来，不会让方案变差，反而让评审终于有真实对象。</div>
+      <div class="quote-team-insight">🎯 团队启发：每个重要方案都写一条明确非目标和主动接受的代价。</div>
+    </div>
+    <div class="quote-block">
+      <blockquote>无人机模型的单项能力已经可用，但最弱的一环仍能让完整任务结果归零。</blockquote>
+      <div class="quote-author">—— Andon Labs Drone-Bench</div>
+      <div class="quote-meta">来源：<a href="https://andonlabs.com/evals/drone-bench" target="_blank" rel="noopener noreferrer">andonlabs.com</a> · 类型：摘要式转述 · 关键词：Agent · 可靠性 · 评测</div>
+      <div class="quote-comment">💭 这比任何最佳单次演示都接近生产现实：用户只关心任务最后有没有完成。</div>
+      <div class="quote-team-insight">🎯 团队启发：报告 Agent 能力时默认给完整链路成功率和失败恢复率。</div>
+    </div>
+    <div class="quote-block">
+      <blockquote>泄露的模型额度可以经过账号池、代理网关和转售站，变成面向开发者销售的低价商品。</blockquote>
+      <div class="quote-author">—— Vectoral 调查观点</div>
+      <div class="quote-meta">来源：<a href="https://vectoral.com/blog/token-relay-market" target="_blank" rel="noopener noreferrer">vectoral.com</a> · 类型：摘要式转述 · 关键词：API Key · 安全 · 成本控制</div>
+      <div class="quote-comment">💭 凭证治理不能只围绕保密性，还要考虑它是否可被快速、规模化变现。</div>
+      <div class="quote-team-insight">🎯 团队启发：高价值 Token 默认硬限额、分环境、可即时吊销，并监测异常速率。</div>
+    </div>
+    <div class="quote-block">
+      <blockquote>全球制造企业的基础设施迁移故事若只有供应商数字，就仍然缺少可复核的工程证据。</blockquote>
+      <div class="quote-author">—— The Register 对 Foxconn/Arcfra 案例的核查</div>
+      <div class="quote-meta">来源：<a href="https://www.theregister.com/virtualization/2026/07/27/foxconn-drops-vmware-adopts-hyperconverged-upstart-arcrfra-for-workloads-including-ai/5278684" target="_blank" rel="noopener noreferrer">theregister.com</a> · 类型：摘要式转述 · 关键词：基础设施 · Benchmark · 事实校验</div>
+      <div class="quote-comment">💭 迁移规模可以确认，性能和成本收益却不能自动从客户案例页升级成行业事实。</div>
+      <div class="quote-team-insight">🎯 团队启发：供应商迁移必须保留基线、账单和故障数据，不能只写成功叙事。</div>
+    </div>
+
+    <h2 id="podcast">🎙️ 播客提纲</h2>
+    <div class="podcast-brief">
+      <h4>第 66 期：AI 重写核心库，为什么第一件正确的事是全部回滚</h4>
+      <div class="cold-open">一段 AI 生成的核心代码快了约 20%，作者却把它全部删掉。因为它已经没人能解释，还会直接段错误。今天我们聊的不是模型又强了多少，而是团队怎样把 AI 的速度变成可信工程。</div>
+      <div class="podcast-segment">
+        <strong>主故事：ast-grep 重写 Tree-sitter</strong>
+        <p>快 20% 的版本为什么不配进入产品？</p>
+        <p>局部数字、端到端、内存、正确性和可解释性必须一起验收。</p>
+      </div>      <div class="podcast-segment">
+        <strong>Lean 证明自动化</strong>
+        <p>过去可能要 10 倍实现时间的证明，现在约 20 分钟完成。</p>
+        <p>从小范围、高价值不变量开始，保留性能与维护门槛。</p>
+      </div>      <div class="podcast-segment">
+        <strong>SQLite 与联合成功率</strong>
+        <p>数据库没写入，SELECT 为什么还会锁？</p>
+        <p>测试连接生命周期与完整用户路径，不只测函数和单步截图。</p>
+      </div>      <div class="podcast-segment">
+        <strong>MCP 隧道与 Token 转售</strong>
+        <p>连接方向反过来，信任边界会自动变安全吗？</p>
+        <p>MCP 最小权限，Token 硬限额，所有高权限调用可审计。</p>
+      </div>
+      <p>今天的结论：AI 已经能启动过去不敢启动的重写和证明，但工程价值不在生成了多少，而在团队能否说清目标、证明等价、测到副作用，并在数字漂亮时仍然有勇气回滚。</p>
+    </div>
+
+    <h2 id="team-insights">✅ 对团队的启发</h2>
+    <div class="insight-card">
+      <p><span class="insight-num">1</span>Agent 驱动核心重写先冻结行为基线，再写目标负载与非目标；无法解释的优化即使更快也不合入。</p>
+    </div>
+    <div class="insight-card">
+      <p><span class="insight-num">2</span>性能报告至少同时给端到端时间、CPU、内存、崩溃和输出等价性；Benchmark 必须标注作者自测或独立复现。</p>
+    </div>
+    <div class="insight-card">
+      <p><span class="insight-num">3</span>多进程 SQLite、浏览器/移动端 Agent 和长任务都补完整链路压力测试，不用单项成功代替联合成功。</p>
+    </div>
+    <div class="insight-card">
+      <p><span class="insight-num">4</span>模型 API 凭证默认硬限额、分环境、可即时吊销；预算告警不能替代消费上限。</p>
+    </div>
+    <div class="insight-card">
+      <p><span class="insight-num">5</span>内网 MCP 和远程 Agent 采用出站通道、目标白名单、凭证代理与执行审计，连接更方便不能扩大默认权限。</p>
+    </div>
+
+    <div class="footer-sources">
+      <strong>📋 数据来源说明</strong><br>
+      本情报来自 66 个全球精选科技 / AI / 工程 / 系统可靠性信息源的每日更新。<br>
+      由 Cursor AI 自动生成，信息截止至 2026年7月27日，星期一。
+    </div>
+  </main>
+</div>
+
+<script>
+(function(){
+  const toc=document.querySelector('.toc');if(!toc)return;
+  const links=[...toc.querySelectorAll('a')];
+  const ids=links.map(l=>l.getAttribute('href').slice(1));
+  const secs=ids.map(id=>document.getElementById(id)).filter(Boolean);
+  function hl(){let cur=0;secs.forEach((s,i)=>{if(s.getBoundingClientRect().top<=120)cur=i;});
+  links.forEach((l,i)=>{l.classList.toggle('active',i===cur);});}
+  window.addEventListener('scroll',hl,{passive:true});hl();
+})();
+
+</script>
+</body>
+</html>

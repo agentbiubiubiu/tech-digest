@@ -1,5 +1,11 @@
 [
   {
+    "date": "2026-07-27",
+    "title": "第 66 期：AI 能把不可能的重写变便宜，但不能替团队定义什么叫成功",
+    "highlights": "AI 辅助 Tree-sitter 重写成为主故事：首次快约 20% 的不可解释版本被全部回滚 · 作者自测最终解析吞吐 +29.74%、端到端 CPU 约 -22.2%、峰值内存约 +29.8% · Lean + LLM 约 20 分钟完成性质证明但玩具程序慢约 10 倍 · SQLite WAL 只读短连接出现 7/6400 次锁 · Drone-Bench 五项串联成功率仍为 0% · Secure MCP Tunnel、Impeccable、Port Zero、Buzz 进入开发工具雷达",
+    "image": "https://astgrep.com/image/blog/00-current-performance.svg"
+  },
+  {
     "date": "2026-07-26",
     "title": "第 65 期：云平台开始从部署应用，转向给 Agent 提供电脑",
     "highlights": "Fly.io 换 CEO 并把 Sprites 升为核心业务，融资金额未披露 · Android 本机 ADB 潜在限制引发 882 分讨论，但尚非 Google 正式公告 · Ruff v0.16 默认规则从 59 条增至 413 条 · Claude Code 系统提示词据称删去超过 80% · Debian LLM 使用总决议仍处讨论期 · ICFP 用二维 littleman 语言重做 Agent 时代评测 · Freerange、shadscan、ESLint codemod、Linear Loops 进入开发工具雷达",
