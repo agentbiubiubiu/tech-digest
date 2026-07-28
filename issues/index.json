@@ -1,5 +1,11 @@
 [
   {
+    "date": "2026-07-28",
+    "title": "第 67 期：系统最危险的不是复杂故障，而是第一个未经复核的标识",
+    "highlights": "少一个下划线让错误证据链延续到 18 个月刑期 · My Eicher 未鉴权 API 被报告暴露 250 万条 OTP 与 67.6 万辆车 · Nuxt 4.5.1 / 3.21.10 修复八类安全问题 · DeepsecBench 厂商自测最佳漏洞召回率仅 30.7% · MirrorCode 报告 25 个黑盒程序中 17 个至少被完整重写一次 · Anthropic 明确反对开放权重类别禁令 · better-sqlite3 13、python-build-standalone、last30days 进入开发工具雷达",
+    "image": "https://cdn.arstechnica.net/wp-content/uploads/2026/07/GettyImages-2170708705-1152x648.jpg"
+  },
+  {
     "date": "2026-07-27",
     "title": "第 66 期：AI 能把不可能的重写变便宜，但不能替团队定义什么叫成功",
     "highlights": "AI 辅助 Tree-sitter 重写成为主故事：首次快约 20% 的不可解释版本被全部回滚 · 作者自测最终解析吞吐 +29.74%、端到端 CPU 约 -22.2%、峰值内存约 +29.8% · Lean + LLM 约 20 分钟完成性质证明但玩具程序慢约 10 倍 · SQLite WAL 只读短连接出现 7/6400 次锁 · Drone-Bench 五项串联成功率仍为 0% · Secure MCP Tunnel、Impeccable、Port Zero、Buzz 进入开发工具雷达",

@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="zh-CN"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Tech Digest #67：少一个下划线，无辜者服刑 18 个月</title>
+<meta name="description" content="一个字符如何被跨机构证据链升级成确定性；同时关注未鉴权车队 API、Nuxt 安全补丁、Raft 故障测试、开放权重政策与开发工具。">
+<meta property="og:title" content="Tech Digest #67：少一个下划线，无辜者服刑 18 个月">
+<meta property="og:description" content="一个字符如何被跨机构证据链升级成确定性；同时关注未鉴权车队 API、Nuxt 安全补丁、Raft 故障测试、开放权重政策与开发工具。">
+<meta property="og:image" content="https://cdn.arstechnica.net/wp-content/uploads/2026/07/GettyImages-2170708705-1152x648.jpg">
+<style>
+:root{--text:#17231d;--muted:#5e6c65;--line:#dce6e0;--green:#147a50;--pale:#eef8f2;--blue:#2563a8;--yellow:#9a6500;--red:#a93838;--purple:#6b4fa3;--surface:#fff}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:#f6f8f7;color:var(--text);font:16px/1.72 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;letter-spacing:0}
+a{color:var(--green);text-decoration:none}a:hover{text-decoration:underline}.topbar{position:sticky;top:0;z-index:4;display:flex;align-items:center;justify-content:space-between;padding:12px 24px;background:rgba(255,255,255,.95);border-bottom:1px solid var(--line);backdrop-filter:blur(12px)}.brand{font-weight:800}.topbar nav{display:flex;gap:16px;font-size:.9rem}
+.page{display:grid;grid-template-columns:210px minmax(0,820px);gap:36px;max-width:1120px;margin:0 auto;padding:34px 24px 70px}.toc{position:sticky;top:76px;align-self:start;display:flex;flex-direction:column;gap:7px;font-size:.84rem}.toc a{color:var(--muted)}main{min-width:0}
+h1{font-size:2.15rem;line-height:1.28;margin:10px 0 8px;letter-spacing:0}h2{font-size:1.38rem;margin:42px 0 16px;border-bottom:1px solid var(--line);padding-bottom:9px;letter-spacing:0}h3{font-size:1.06rem;line-height:1.5;margin:0 0 10px;letter-spacing:0}h4{font-size:.98rem;margin:16px 0 6px;letter-spacing:0}p{margin:0 0 13px;color:var(--muted)}
+.meta,.hero-caption,small{color:#7d8983;font-size:.82rem}.highlights,.callout{padding:16px 18px;border-left:4px solid var(--green);background:var(--pale);border-radius:6px;margin:20px 0}.article-img{width:100%;max-height:390px;object-fit:cover;border-radius:6px;margin:12px 0 6px;background:#edf1ef}.hero-caption{text-align:center;margin-top:-2px}
+.main-story,.entry,.concept,.curiosity,.resource,.quote,.podcast{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:22px;margin:14px 0}.main-story{background:linear-gradient(135deg,#f2faf5,#fff 66%)}.story-hook,.hook{font-weight:700;color:var(--green)}.story-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:16px 0}.story-field{padding:13px;border:1px solid var(--line);border-radius:6px;color:var(--muted);font-size:.9rem}.story-field strong{display:block;color:var(--text);margin-bottom:3px}.number-chip,.tag,.priority,.certainty{display:inline-block;border-radius:999px;padding:3px 9px;font-size:.72rem;font-weight:750;margin:3px 5px 3px 0}.number-chip{background:#e7f0fb;color:var(--blue)}.story-line{background:#f2eef9;border-left:4px solid var(--purple);padding:12px 14px;border-radius:6px;font-weight:700}
+.trend-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.trend-card,.tool-card{background:#fff;border:1px solid var(--line);border-radius:8px;padding:17px}.trend-conflict{color:var(--red);font-weight:750;font-size:.82rem;margin-bottom:8px}.tool-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.tag{background:var(--green);color:#fff}.priority{background:#eef1ef;color:var(--muted)}.certainty-confirmed{background:#e6f6ed;color:var(--green)}.certainty-announced{background:#e9f1fb;color:var(--blue)}.certainty-reported{background:#fff4d8;color:var(--yellow)}.certainty-opinion,.certainty-inference{background:#f1ecf8;color:var(--purple)}.certainty-rumor{background:#fbeaea;color:var(--red)}
+.fact{font-size:.86rem;padding:9px 11px;background:#fff8e8;border-radius:5px}.why{font-size:.9rem}.curiosity{background:#fff7e9}.concept{border-left:4px solid var(--green)}.quote{background:#f6f2fb;border-left:4px solid var(--purple)}blockquote{margin:0 0 12px;font-size:1.02rem;font-style:italic}.team{padding:9px 11px;background:#edf8f2;border-radius:5px}.resource{background:#edf5ff}.podcast{background:#f8faf9}.insight{display:flex;gap:12px;align-items:flex-start;padding:14px 16px;margin:10px 0;background:#fff8dc;border-left:4px solid #d59b14;border-radius:6px}.insight p{margin:0}
+footer{margin-top:44px;padding:18px;background:#edf1ef;border-radius:8px;color:#77837d;font-size:.8rem}
+@media(max-width:860px){.page{grid-template-columns:1fr}.toc{display:none}.trend-grid,.story-grid{grid-template-columns:1fr}}@media(max-width:620px){.topbar nav{display:none}.page{padding:22px 16px 54px}.tool-grid{grid-template-columns:1fr}h1{font-size:1.7rem}.main-story,.entry,.concept,.curiosity,.resource,.quote,.podcast{padding:17px}}
+</style></head><body>
+<header class="topbar"><a class="brand" href="../index.html">Tech Digest</a>
+<nav><a href="../index.html">Archive</a><a href="#main-story">Today</a><a href="#tools">Tools</a><a href="#quotes">Quotes</a></nav>
+<span>2026-07-28</span></header>
+<div class="page">
+<nav class="toc">
+  <strong>本期目录</strong>
+  <a href="#main-story">🔥 主故事</a><a href="#trends">⚡ 冲突趋势</a>
+  <a href="#tech-news">📰 科技动态</a><a href="#ai">🤖 AI 相关</a>
+  <a href="#articles">📝 文章推荐</a><a href="#tools">🛠️ 工具推荐</a>
+  <a href="#ai-tools">🧠 AI 工具</a><a href="#concepts">🧩 概念库</a>
+  <a href="#curiosity">🎲 好奇心</a><a href="#resources">📚 资源</a>
+  <a href="#quotes">💬 言论</a><a href="#podcast">🎙️ 播客</a>
+  <a href="#team-insights">✅ 团队启发</a>
+</nav>
+<main>
+<a href="../index.html">← 返回目录</a>
+<h1>第 67 期：系统最危险的不是复杂故障，而是第一个未经复核的标识</h1>
+<p class="meta">第 67 期 · 2026年7月28日，星期二</p>
+<p class="highlights"><strong>✨ 本期亮点：</strong>少一个下划线让错误证据链延续到 18 个月刑期 · My Eicher 未鉴权 API 被报告暴露 250 万条 OTP 与 67.6 万辆车 · Nuxt 4.5.1 / 3.21.10 修复八类安全问题 · DeepsecBench 厂商自测最佳漏洞召回率仅 30.7% · MirrorCode 报告 25 个黑盒程序中 17 个至少被完整重写一次 · Anthropic 明确反对开放权重类别禁令 · better-sqlite3 13、python-build-standalone、last30days 进入开发工具雷达</p>
+<img class="article-img" src="https://cdn.arstechnica.net/wp-content/uploads/2026/07/GettyImages-2170708705-1152x648.jpg" alt="键盘与数据取证场景" loading="lazy"><p class="hero-caption">一个字符的账号差异，经过平台、IP 和地址查询后，被错误链路包装成了看似完整的身份结论。</p>
+<div class="callout"><strong>🎯 本期核心判断：</strong>自动化链路会把一个字符的标识错误放大为跨机构确定性；可信系统必须让原始输入、每次转换与反证都可追溯、可暂停、可人工复核。</div>
+
+    <h2 id="main-story">🔥 主故事</h2>
+    <article class="main-story">
+      <h3>少一个下划线，无辜者服刑 18 个月：错误是如何被系统升级成事实的</h3>
+      <p class="story-hook">两条下划线被写成一条，系统没有报错，反而给出了一个看起来完整、可执行、能一路追查到底的答案。</p>
+      <p>2018 年，美国警方调查 Kik 上的儿童诱骗案。取证报告里的账号是 fus__ro_dah，但向 Kik 发出的调取请求写成了 fus_ro_dah。平台按这个错误账号返回邮箱，Google 再把邮箱关联到加拿大 IP，网络服务商又把 IP 落到 Brandon Klayme 的住址。加拿大警方后来没有在其设备上找到涉案证据，但他仍被起诉、定罪，并服完 18 个月刑期。</p>
+      <div class="story-grid">
+        <div class="story-field"><strong>核心冲突</strong>每个下游系统都可能正确完成了自己的局部任务，但没有任何一道门重新核对最初账号，也没有让「设备里没有证据」成为足以暂停流程的强反证。局部正确叠加起来，反而制造了全局灾难。</div>
+        <div class="story-field"><strong>转折点</strong>Klayme 出狱后继续上诉，辩方准备材料时才发现最初用户名不一致。新斯科舍省上诉法院随后撤销定罪，并明确写道他在事实上无罪，本不应被起诉，更不应被定罪。</div>
+        <div class="story-field"><strong>为什么是现在</strong>我的判断：Agent、数据平台和跨服务自动化正在让错误传播更快。越多系统能自动补全身份、位置、权限和风险分数，越需要把原始标识、转换规则和人工确认点设计成一等公民。</div>
+        <div class="story-field"><strong>对团队的启发</strong>为高风险链路建立四件套：保留原始输入与规范化结果的逐字符 diff；跨系统关联时记录字段来源和置信度；遇到强反证自动降级或暂停；在冻结、清算、封禁、删除和对外通报前设置独立复核。</div>
+      </div>
+      <p><span class="number-chip">2 条下划线被写成 1 条</span><span class="number-chip">涉案设备取证未发现犯罪证据</span><span class="number-chip">18 个月刑期已全部服完</span><span class="number-chip">上诉法院确认事实无罪</span></p>
+      <p><strong>我的判断：</strong>这不是一个简单的录入错误故事。真正的问题是证据链把「查到了结果」误当成「最初问题问对了」，又把下游一致性误当成上游真实性。任何涉及资金、身份、风控、封禁或生产事故的链路，都不该允许一个未经双重核对的标识直接触发不可逆动作。</p>
+      <div class="story-line">系统不会自动纠正最早的错误，只会更高效地为它积累证据。</div>
+      <p><strong>来源：</strong><a href="https://arstechnica.com/tech-policy/2026/07/police-missed-one-underscore-and-sent-the-wrong-man-to-prison/" target="_blank" rel="noopener noreferrer">arstechnica.com</a></p>
+    </article>
+    
+<h2 id="trends">⚡ 今日冲突趋势</h2><div class="trend-grid"><article class="trend-card"><h3>系统给出了答案，不代表最初的问题写对了</h3><div class="trend-conflict">局部查询全部成功 vs 原始标识一开始就错了</div><p>高风险系统必须验证问题本身，而不是只验证答案之间能否互相对上。</p><small>arstechnica.com</small></article>
+<article class="trend-card"><h3>开放权重是公共品，也可能是不可撤回风险</h3><div class="trend-conflict">开发者控制权与竞争 vs 发布后无法撤回和持续加固</div><p>Anthropic 明确反对按类别禁用开放权重，但主张对足够强的开放与闭源模型统一做强制安全测试。</p><small>anthropic.com</small></article>
+<article class="trend-card"><h3>有形式化规范，不等于实现没有分布式错误</h3><div class="trend-conflict">协议被证明过 vs 代码、磁盘和网络故障仍会组合出新状态</div><p>Antithesis 报告四个 Raft 实现都被简化故障工作负载找出状态机安全问题，结果仍待更广泛复现。</p><small>antithesis.com</small></article></div>
+<h2 id="tech-news">📰 科技动态</h2>
+<article class="entry"><h3>1、<a href="https://eaton-works.com/2026/07/27/my-eicher-hack/" target="_blank" rel="noopener noreferrer">未登录 API 曾暴露 250 万条 OTP：研究者称可接管 My Eicher 车队账户</a> <span class="certainty certainty-reported">reported</span></h3>
+<p class="hook">250 万条历史 OTP 不是日志噪声，而是一把能打开车队账户的钥匙。</p>
+<p>一个用于检查手机号的公开接口，沿路径向上访问后竟列出了内部 API。研究者称这些未鉴权接口可返回客户、用户、证件、车辆与历史 OTP，并可据此接管账户、查看实时位置和整支车队。研究者在 2025 年 11 月报告后，主要接口已无法访问，但 VECV 没有公开事故说明。</p>
+<p class="why"><strong>为什么重要：</strong>移动端只是入口，真正的爆炸半径往往在后台 API。对任何可查看资产、位置或凭证的接口，必须同时做认证、对象级授权、速率限制和数据最小化。</p>
+<p class="fact"><strong>事实边界：</strong>漏洞、67.6 万辆车、74.8 万客户和 250 万条 OTP 均来自研究者一手披露；规模口径与公司早期公开数字不一致，且没有证据表明漏洞曾被恶意利用。研究者称主要接口已修复，但未见 VECV 官方确认。</p>
+<img class="article-img" src="https://eaton-works.com/promo_gfx/volvo-eicher.jpg" alt="未登录 API 曾暴露 250 万条 OTP：研究者称可接管 My Eicher 车队账户" loading="lazy">
+</article>
+<article class="entry"><h3>2、<a href="https://nuxt.com/blog/v4-5-security" target="_blank" rel="noopener noreferrer">Nuxt 一次补八类安全问题：旧补丁的回归又制造了新的授权绕过</a> <span class="certainty certainty-announced">announced</span></h3>
+<p class="hook">安全补丁不是终点：上一轮修复本身也可能成为下一轮漏洞。</p>
+<p>Nuxt 官方发布 4.5.1、3.21.10 与 @nuxt/devtools 3.3.1，修复服务端 RCE、路由规则授权绕过、跨用户缓存泄露、DoS 和仅开发环境的 DevTools RCE。最反常识的是，一个高危授权绕过正是此前修复引入的回归；使用认证页面缓存的 Nuxt 4 用户还需清理旧 CDN/边缘缓存。</p>
+<p class="why"><strong>为什么重要：</strong>Web 团队应立即核对版本与 lockfile，并对认证页面缓存做单独排查；平台 WAF 只能覆盖部分直接利用，不能代替升级。</p>
+<p class="fact"><strong>事实边界：</strong>受影响条件、严重级别与修复版本来自 Nuxt 官方公告。服务端 RCE 需要 vue.runtimeCompiler 与特定 server island 条件；DevTools RCE 仅影响开发环境。不能写成所有 Nuxt 应用都可被远程执行。</p>
+<img class="article-img" src="https://opengraph.githubassets.com/1/nuxt/nuxt" alt="Nuxt 一次补八类安全问题：旧补丁的回归又制造了新的授权绕过" loading="lazy">
+</article>
+<article class="entry"><h3>3、<a href="https://www.theregister.com/patches/2026/07/27/microsoft-defender-for-endpoint-leaves-some-linux-boxes-defenseless-after-update/5278914" target="_blank" rel="noopener noreferrer">Defender 自动更新后重启，部分 Linux 主机的主动防护反而可能被关闭</a> <span class="certainty certainty-confirmed">confirmed</span></h3>
+<p class="hook">最危险的更新失败不是安装报错，而是安装成功、重启后安全服务静默关闭。</p>
+<p>Microsoft 确认 Defender for Endpoint Linux 版本 101.26042.0000 至 101.26042.0009 在升级或重装后重启，可能让服务处于禁用状态；通过 Defender for Cloud 自动更新的服务器也可能收到受影响版本。修复版已发布，另有 FIPS 模式 RHEL 8/9 更新问题。</p>
+<p class="why"><strong>为什么重要：</strong>补丁闭环必须包含重启后的服务状态、策略生效和遥测回报，而不只是包版本到位。</p>
+<p class="fact"><strong>事实边界：</strong>受影响版本和修复来自 Microsoft 发布说明，经 The Register 报道。Microsoft 未公开根因、受影响设备数或已利用情况，不能表述为所有 Linux 主机均失去防护。</p>
+<img class="article-img" src="https://image.theregister.com/5237244.jpg?imageId=5237244&amp;x=0&amp;y=0&amp;cropw=100&amp;croph=100&amp;panox=0&amp;panoy=0&amp;panow=100&amp;panoh=100&amp;width=1200&amp;height=683" alt="Defender 自动更新后重启，部分 Linux 主机的主动防护反而可能被关闭" loading="lazy">
+</article>
+<article class="entry"><h3>4、<a href="https://status.coinbase.com/incidents/x93vz69bx1hf" target="_blank" rel="noopener noreferrer">Coinbase 新加坡 FAST 通道短暂降级：官方记录约 9 分钟后恢复</a> <span class="certainty certainty-confirmed">confirmed</span></h3>
+<p class="hook">交易系统事故最容易被一句「已恢复」带过，但没有根因和影响量就还没形成可学习证据。</p>
+<p>Coinbase 状态页记录，新加坡 FAST 支付方式在香港时间 09:12 出现性能降级，部分用户的法币充值或提现可能延迟；09:21 标记为 resolved。事件级别为 minor，官方称资金安全，但没有披露根因、失败率或受影响用户数。</p>
+<p class="why"><strong>为什么重要：</strong>对支付与交易链路，状态页只是第一层；团队还需要延迟分位数、订单状态补偿和用户可见影响的独立记录。</p>
+<p class="fact"><strong>事实边界：</strong>状态、时间窗和影响组件来自 Coinbase 官方状态页。资金安全是官方声明；没有交易金额、用户数、失败率和根因数据，不得扩写为全站宕机或资金损失。</p>
+
+</article>
+<article class="entry"><h3>5、<a href="https://arstechnica.com/tech-policy/2026/07/google-wont-give-up-odd-war-against-ai-web-scraping-despite-court-loss/" target="_blank" rel="noopener noreferrer">Google 对 SerpApi 的 DMCA 诉讼被驳回，但抓取合法性远未一锤定音</a> <span class="certainty certainty-reported">reported</span></h3>
+<p class="hook">法院说的是「这份诉状还不够」，不是「所有网页抓取都合法」。</p>
+<p>美国法院驳回 Google 试图用 DMCA 反规避条款打击 SerpApi 搜索结果抓取的主张，认为现有诉状没有充分说明被绕过的技术措施与受保护作品之间的法定联系。不过裁定允许 Google 修改诉状，Google 也计划继续推进。</p>
+<p class="why"><strong>为什么重要：</strong>依赖抓取、搜索或数据聚合的产品，应把合同、访问控制、版权和技术规避风险分开评估，不能用一宗阶段性裁定概括全部边界。</p>
+<p class="fact"><strong>事实边界：</strong>法院命令的状态是驳回并允许修改，不是 SerpApi 的终局胜诉，也不构成对抓取行为的普遍合法化。Google 继续修改诉状的计划来自 Ars 报道。</p>
+<img class="article-img" src="https://cdn.arstechnica.net/wp-content/uploads/2026/07/GettyImages-2264310791-1152x648.jpg" alt="Google 对 SerpApi 的 DMCA 诉讼被驳回，但抓取合法性远未一锤定音" loading="lazy">
+</article>
+<h2 id="ai">🤖 AI 相关</h2>
+<article class="entry"><h3>1、<a href="https://www.anthropic.com/news/position-open-weights-models" target="_blank" rel="noopener noreferrer">Anthropic 公开回应开放权重争议：反对类别禁令，主张统一强制安全测试</a> <span class="certainty certainty-opinion">opinion</span></h3>
+<p class="hook">开放权重争论不必只剩「全面开放」和「全面禁止」两个按钮。</p>
+<p>Dario Amodei 明确表示 Anthropic 从未主张按类别禁止开放权重模型，并承认低危险能力的开放权重是公共品。其政策主张集中在限制先进芯片流向威权国家、打击工业级蒸馏，以及让足够强的开放与闭源模型都接受强制安全测试。</p>
+<p class="why"><strong>为什么重要：</strong>团队选模型时应把权重开放性、许可、数据驻留、可撤回性和安全评测拆成独立维度，不要把「开放」直接等同于「安全」或「危险」。</p>
+<p class="fact"><strong>事实边界：</strong>文章是 Anthropic CEO 的官方立场，不是监管决定或行业共识。文中关于生物风险、国家安全和攻防不对称的判断属于作者观点；三项政策建议尚不等于已实施规则。</p>
+<img class="article-img" src="https://cdn.sanity.io/images/4zrzovbb/website/62993bb857986e2808c2a75024f384e7b85312b6-2400x1254.png" alt="Anthropic 公开回应开放权重争议：反对类别禁令，主张统一强制安全测试" loading="lazy">
+</article>
+<article class="entry"><h3>2、<a href="https://vercel.com/blog/deepsecbench-evaluating-model-performance-in-finding-cybersecurity-vulnerabilities" target="_blank" rel="noopener noreferrer">DeepsecBench：Vercel 自测顶级模型在秘密漏洞集上的最佳召回率仅 30.7%</a> <span class="certainty certainty-reported">reported</span></h3>
+<p class="hook">最强扫描模型仍漏掉近七成黄金集漏洞，AI 安全审查远没到可以关灯运行的阶段。</p>
+<p>Vercel 用一个未公开开源仓库的历史版本、50 个入口文件和 231 条人工判定漏洞测试模型。其结果中 GPT-5.6 Sol xhigh 的召回率最高，为 30.7%；25 次运行中有 20 次低于 20%。榜单同时记录精度、成本与耗时，提醒团队不要只看单一总分。</p>
+<p class="why"><strong>为什么重要：</strong>AI 扫描适合成为 SAST、依赖扫描、人工审查和周期性红队之间的补充层；应在自有历史漏洞集上测漏报率。</p>
+<p class="fact"><strong>事实边界：</strong>所有分数均为 Vercel 自建 Benchmark。仓库、提交、文件和漏洞集未公开，黄金集之外的发现由裁判模型分类，无法独立复现，也不能外推为跨代码库的普适模型排名。</p>
+<img class="article-img" src="https://assets.vercel.com/image/upload/contentful/image/e5382hct74si/3CxUrn1mBhik2vi5Unbk9I/ebfd7cf34360360bf0ce29f9ee108274/deepsec_bench-3.png" alt="DeepsecBench：Vercel 自测顶级模型在秘密漏洞集上的最佳召回率仅 30.7%" loading="lazy">
+</article>
+<article class="entry"><h3>3、<a href="https://importai.substack.com/p/import-ai-466-the-bitter-lesson-for" target="_blank" rel="noopener noreferrer">MirrorCode：模型只看命令行黑盒，25 个程序里有 17 个至少被完整重写过一次</a> <span class="certainty certainty-reported">reported</span></h3>
+<p class="hook">当模型只能观察程序行为，它开始像兼容层工程师一样，从黑盒反推出整个实现。</p>
+<p>Epoch AI 与 METR 的 MirrorCode 不给模型源码和互联网，只允许通过命令行输入输出重建程序。评测方报告 25 个目标里 17 个至少出现过一次满分运行；其中一次 Claude Opus 4.7 用约 14 小时、251 美元完成评测方估计人类需 2 至 17 周的任务。</p>
+<p class="why"><strong>为什么重要：</strong>黑盒重实现能力适合兼容性验证、遗留系统替换和 API 行为复刻，但上线前仍需覆盖隐藏状态、错误语义与长期维护成本。</p>
+<p class="fact"><strong>事实边界：</strong>17/25、14 小时、251 美元和人类工期均来自评测方报告或估算，尚无独立复现。公开仓库提供 harness 与部分任务，但不能把一次最佳运行写成稳定成功率。</p>
+<img class="article-img" src="https://epoch.ai/assets/images/posts/2026/mirrorcode/mirrorcode-banner.png" alt="MirrorCode：模型只看命令行黑盒，25 个程序里有 17 个至少被完整重写过一次" loading="lazy">
+</article>
+<article class="entry"><h3>4、<a href="https://huggingface.co/blog/nvidia/cosmos-h-dreams" target="_blank" rel="noopener noreferrer">Cosmos-H-Dreams 把手术机器人世界模型推到实时，单卡约 160 FPS</a> <span class="certainty certainty-announced">announced</span></h3>
+<p class="hook">世界模型一旦快到能被实时操控，模拟就从回放结果变成进入环境。</p>
+<p>NVIDIA 在 Hugging Face 介绍 Cosmos-H-Dreams：通过少步数蒸馏、流式 KV cache、CUDA Graph 和编译优化，把动作条件手术场景接入 WebRTC 与 WebXR。作者称单张 RTX PRO 6000 上约 160 FPS，并开放代码、权重和训练入口。</p>
+<p class="why"><strong>为什么重要：</strong>即使不做机器人，端到端的蒸馏、GPU 推理、WebRTC 和 WebXR 路径也值得实时 AI 产品团队参考。</p>
+<p class="fact"><strong>事实边界：</strong>约 160 FPS、从约 10 FPS 提升及硬件条件均为作者自报 Benchmark，未独立复现。项目明确是研发平台，不是诊断系统、术中成像替代品或真实手术控制器。</p>
+<img class="article-img" src="https://cdn-uploads.huggingface.co/production/uploads/68c1279544f671330c604f4c/Cj0RZwvOSUhFGFEFKgyDw.png" alt="Cosmos-H-Dreams 把手术机器人世界模型推到实时，单卡约 160 FPS" loading="lazy">
+</article>
+<article class="entry"><h3>5、<a href="https://huggingface.co/moonshotai/Kimi-K3" target="_blank" rel="noopener noreferrer">Kimi K3 开放约 1.56TB 权重，但商业服务商先要读懂许可门槛</a> <span class="certainty certainty-announced">announced</span></h3>
+<p class="hook">权重能下载，不代表任何规模的商业服务都能无条件使用。</p>
+<p>Moonshot AI 发布 Kimi K3 权重与 vLLM、SGLang 部署路径。模型采用自定义许可：连续 12 个月合计营收超过 2000 万美元的 Model-as-a-Service 经营者，商业使用前需另行签约；特定大型商业产品还需显著展示 Kimi K3。</p>
+<p class="why"><strong>为什么重要：</strong>平台团队引入开放权重模型前，必须把许可证扫描放到模型评测之前，尤其核对营收、MAU、再分发和品牌展示条件。</p>
+<p class="fact"><strong>事实边界：</strong>权重、部署路径和许可门槛来自官方模型卡与 LICENSE。将其描述为「非标准开放许可」是工程与合规判断，不构成法律意见；模型 Benchmark 多为厂商自测，本条不采信为独立结论。</p>
+<img class="article-img" src="https://cdn-thumbnails.huggingface.co/social-thumbnails/models/moonshotai/Kimi-K3.png" alt="Kimi K3 开放约 1.56TB 权重，但商业服务商先要读懂许可门槛" loading="lazy">
+</article>
+<h2 id="articles">📝 文章推荐</h2>
+<article class="entry"><h3><a href="https://antithesis.com/blog/2026/finding-bugs-in-raft-implementations/" target="_blank" rel="noopener noreferrer">有形式化规范和多年生产验证，4 个 Raft 实现仍被故障测试找出错误</a></h3><p class="hook">协议被证明过、代码审查过、生产跑了多年，为什么三个节点仍会对同一段历史得出不同答案？</p><p>Antithesis 用只维护命令计数与哈希的简化工作负载，在三节点集群中注入网络、进程和磁盘故障，并报告 HashiCorp Raft、Aeron Cluster、OpenRaft 与 MicroRaft 都出现状态机安全问题。结果来自测试平台厂商，尚不能外推到所有版本，但方法本身很有迁移价值：用最小状态让顺序分歧无法藏起来。</p><p class="story-line">形式化证明约束协议，故障注入负责审问实现。</p><img class="article-img" src="https://antithesis.com/_astro/cover.C2TWoGrq_Z1dNdEc.jpg" alt="有形式化规范和多年生产验证，4 个 Raft 实现仍被故障测试找出错误" loading="lazy"></article>
+<article class="entry"><h3><a href="https://simonwillison.net/2026/Jul/27/an-opinionated-guide-to-which-ai-to-use-to-do-stuff/" target="_blank" rel="noopener noreferrer">AI 工具选择正在从「哪个模型」转向「把哪台电脑交给 Agent」</a></h3><p class="hook">模型名称越来越像字母汤，真正重要的问题其实只有一句：你准备把什么机器和权限交给它？</p><p>Simon Willison 指出，一年前的 AI 使用指南还围绕聊天模型和 Deep Research，如今真正拉开产品差异的是 Agent 运行在哪里、能连续做多久、拿到哪些工具和权限。这个视角比模型榜单更耐用：本机、厂商沙箱和远程托管环境的信任边界完全不同。</p><p class="story-line">选 Agent，先选执行边界，再选模型。</p><img class="article-img" src="https://substackcdn.com/image/fetch/$s_!3bzW!,w_1200,h_675,c_fill,f_jpg,q_auto:good,fl_progressive:steep,g_auto/https%3A%2F%2Fsubstack-post-media.s3.amazonaws.com%2Fpublic%2Fimages%2Fd28dff26-3041-4f2d-afaf-2011b1c59d39_1672x941.png" alt="AI 工具选择正在从「哪个模型」转向「把哪台电脑交给 Agent」" loading="lazy"></article>
+<article class="entry"><h3><a href="https://blog.bytebytego.com/p/how-nvidia-builds-open-models-for" target="_blank" rel="noopener noreferrer">NVIDIA 为什么把开放模型做成覆盖语言、机器人与科学计算的产品线</a></h3><p class="hook">开放模型不只是一份权重文件，它也可以是一条从研究到硬件生态的产品线。</p><p>ByteByteGo 采访 NVIDIA 应用深度学习研究负责人 Bryan Catanzaro，讨论 Nemotron、Cosmos 等模型如何共享基础能力，再针对语言、物理世界与科学计算做架构取舍。文章更值得读的部分不是性能口号，而是开放权重、数据和训练方法如何变成生态分发策略。</p><p class="story-line">开放策略的竞争力，来自别人能否在你的基础上继续交付产品。</p><img class="article-img" src="https://substackcdn.com/image/fetch/$s_!UrK7!,w_1200,h_675,c_fill,f_jpg,q_auto:good,fl_progressive:steep,g_auto/https%3A%2F%2Fsubstack-post-media.s3.amazonaws.com%2Fpublic%2Fimages%2F1a9d7afa-63e6-48ac-bf57-dd91a35a7ced_1554x2048.png" alt="NVIDIA 为什么把开放模型做成覆盖语言、机器人与科学计算的产品线" loading="lazy"></article>
+<h2 id="tools">🛠️ 工具推荐</h2><div class="tool-grid">
+<article class="tool-card"><div><span class="tag">Node / Electron</span><span class="priority">P0</span></div><h3><a href="https://github.com/WiseLibs/better-sqlite3/releases/tag/v13.0.0" target="_blank" rel="noopener noreferrer">better-sqlite3 13</a></h3><p>切换到 Node-API 后，预编译包理论上可跨更多 Node 与 Electron 版本复用。适合桌面端和 Node 后台减少原生依赖重编译，但仍要在目标 Electron/Bun 组合上实测。</p></article>
+<article class="tool-card"><div><span class="tag">PC / CLI</span><span class="priority">P1</span></div><h3><a href="https://gregoryszorc.com/docs/python-build-standalone/main/" target="_blank" rel="noopener noreferrer">python-build-standalone</a></h3><p>提供可嵌入、跨平台的独立 Python 发行版，适合 PC 客户端、CLI 和自动化工具随应用打包固定运行时，减少用户机器环境漂移。</p></article>
+<article class="tool-card"><div><span class="tag">跨端 / GIS</span><span class="priority">P2</span></div><h3><a href="https://github.com/opengeos/GeoLibre" target="_blank" rel="noopener noreferrer">GeoLibre</a></h3><p>同一套开源 GIS 覆盖 Web、Tauri 桌面、移动端和 Jupyter，适合需要地图、轨迹或空间数据能力的跨端团队参考其数据层与状态同步设计。</p></article>
+<article class="tool-card"><div><span class="tag">Agent Research</span><span class="priority">P1</span></div><h3><a href="https://github.com/mvanhorn/last30days-skill" target="_blank" rel="noopener noreferrer">last30days Skill</a></h3><p>为 Claude Code、Codex、Cursor、Copilot 与 Gemini CLI 聚合 Reddit、HN、GitHub、YouTube、arXiv 等近 30 天信号。适合做技术选型前的多源快速调查，使用时仍应限制外部访问和引用原文。</p></article>
+<article class="tool-card"><div><span class="tag">图像 / 后台</span><span class="priority">P2</span></div><h3><a href="https://github.com/feyninc/nobg" target="_blank" rel="noopener noreferrer">NoBg</a></h3><p>把背景移除模型的推理、训练和评测统一到一个 Python 接口，适合素材处理、客户端上传预处理与内容生产后台。模型成绩为作者自报，应先用自己的发丝、透明物和运动模糊样本验证。</p></article>
+</div>
+<h2 id="ai-tools">🧠 AI 工具</h2><div class="tool-grid">
+<article class="tool-card"><div><span class="tag">安全 Agent</span><span class="priority">P1</span></div><h3><a href="https://blogs.microsoft.com/blog/2026/07/27/rethinking-security-for-the-age-of-ai/" target="_blank" rel="noopener noreferrer">Microsoft Project Perception</a></h3><p>把红队探测、蓝队验证和绿队修复 Agent 串成安全闭环，8 月 3 日进入公开预览。适合安全团队关注，但 96% CyberGym 与近 50% 成本节省均为微软自报，试用应先限定仓库与修复权限。</p></article>
+<article class="tool-card"><div><span class="tag">AI 后台</span><span class="priority">P1</span></div><h3><a href="https://vercel.com/changelog/regional-inference-now-available-on-ai-gateway" target="_blank" rel="noopener noreferrer">Vercel AI Gateway 区域推理</a></h3><p>通过 inferenceRegion 把推理固定在美国或欧盟，并在无法满足时直接失败；响应返回实际服务区域。适合有数据驻留要求的 Web/后台 Agent，需注意它是显式启用且区域价格通常更高。</p></article>
+<article class="tool-card"><div><span class="tag">Agent UI</span><span class="priority">P2</span></div><h3><a href="https://vercel.com/changelog/claude-managed-agents-with-chat-sdk" target="_blank" rel="noopener noreferrer">Claude Managed Agents + Chat SDK</a></h3><p>把托管 Agent 的模型、工具、会话和沙箱接入类型安全的 Chat SDK，可迁移到 Web、Slack、WhatsApp 等渠道。适合快速做内部 Agent 原型，正式使用前需审查托管数据、工具权限与退出机制。</p></article>
+<article class="tool-card"><div><span class="tag">语音 / PC</span><span class="priority">P3</span></div><h3><a href="https://github.com/moeru-ai/airi" target="_blank" rel="noopener noreferrer">Project AIRI</a></h3><p>自托管实时语音、角色记忆与游戏交互平台，覆盖 Web、macOS 和 Windows。更适合研究实时语音、角色卡和本地记忆的产品原型，不建议直接接入工作账号或生产数据。</p></article>
+</div>
+<h2 id="concepts">🧩 本期概念库</h2>
+<article class="concept"><h3>1. Input Lineage（输入血缘）</h3><p><strong>一句话解释：</strong>为每个关键字段保留原始值、规范化值、转换规则、调用方和时间，能够逐步还原它如何变成最终决策输入。</p><p><strong>为什么重要：</strong>只有最终值而没有输入血缘时，下游系统越一致，越可能把错误包装成可信事实。</p><p><strong>团队应用：</strong>订单、账户、设备、链上地址和风控标识必须保留原始 payload 与规范化 diff。</p></article>
+<article class="concept"><h3>2. Contradiction Gate（反证闸门）</h3><p><strong>一句话解释：</strong>当后续证据与当前结论强冲突时，系统应自动降级置信度、暂停不可逆动作并要求独立复核。</p><p><strong>为什么重要：</strong>没有反证闸门，自动化只能积累支持当前路径的证据，无法主动退出错误假设。</p><p><strong>团队应用：</strong>清算、冻结、封禁、删库和事故定级前，定义哪些反证必须强制停止流程。</p></article>
+<article class="concept"><h3>3. Fail-Closed Residency（驻留失败即拒绝）</h3><p><strong>一句话解释：</strong>当指定数据或计算区域无法满足时直接失败，而不是为了可用性悄悄路由到其他地区。</p><p><strong>为什么重要：</strong>合规约束若能被静默回退，就只是一个可用性偏好，不是真正的控制。</p><p><strong>团队应用：</strong>为模型、日志、对象存储和支付服务定义不可回退的区域与审计字段。</p></article>
+<article class="concept"><h3>4. Implementation Adversarial Testing（实现对抗测试）</h3><p><strong>一句话解释：</strong>在协议和单元测试之外，持续注入网络、进程、磁盘和时间故障，检查实现是否仍满足状态机不变量。</p><p><strong>为什么重要：</strong>形式化规范不能覆盖语言运行时、持久化、并发和恢复代码中的全部组合错误。</p><p><strong>团队应用：</strong>对撮合外围、账本、消息消费和配置中心建立最小状态模型与故障注入回归。</p></article>
+<h2 id="curiosity">🎲 还能这样？今日好奇心</h2>
+<article class="curiosity"><h3><a href="https://www.404media.co/luddite-events-nyc-off-tech-summer-of-ludd/" target="_blank" rel="noopener noreferrer">约 100 人戴着尖帽，在纽约给 OpenAI 办了一场没有网站的街头审判</a></h3><p class="hook">一个反技术活动最有效的传播机制，恰好不是网站、社交媒体或推荐算法。</p><p>404 Media 记者现场记录 Summer of Ludd：日程靠电话号码、纸质海报、书店和口耳相传，参与者组织无手机舞会、线下约会工作坊和象征性审判。人数与场景来自记者一手见闻；对 AI 影响的指控属于参与者观点。</p><p><strong>背后的启发：</strong>对技术产品的反感常常不是功能问题，而是人们对失去选择权、社交节奏和退出通道的反应。</p><img class="article-img" src="https://storage.ghost.io/c/0f/76/0f76b548-bc58-4f25-abc3-3f5ebca07da4/content/images/size/w1200/2026/07/signal-2026-07-07-22-55-36-911_004.jpg" alt="约 100 人戴着尖帽，在纽约给 OpenAI 办了一场没有网站的街头审判" loading="lazy"></article>
+<article class="curiosity"><h3><a href="https://hackaday.com/2026/07/27/regain-some-trust-in-unknown-usb-drives/" target="_blank" rel="noopener noreferrer">先毁掉 U 盘首尾各 34 个扇区，再允许它靠近电脑</a></h3><p class="hook">这个硬件不是读取陌生 U 盘，而是先让它失去被正常读取的资格。</p><p>USB Neutralizer 用 Raspberry Pi Pico 删除介质开头和结尾各 34 个 LBA 扇区，破坏分区元数据，再让用户重新格式化。它不处理固件级攻击、复合 HID、高压 USB Killer，也不会安全擦除全部数据。</p><p><strong>背后的启发：</strong>对不可信输入，最稳妥的第一步有时不是更聪明地解析，而是先把自动解释能力拿掉。</p><img class="article-img" src="https://hackaday.com/wp-content/uploads/2026/07/usb_neutralizer-main.jpg" alt="先毁掉 U 盘首尾各 34 个扇区，再允许它靠近电脑" loading="lazy"></article>
+<h2 id="resources">📚 资源</h2>
+<article class="resource"><h3><a href="https://pagedout.institute/download/PagedOut_009.pdf" target="_blank" rel="noopener noreferrer">Paged Out! 第 9 期</a></h3><p>面向底层、逆向、系统与极客编程的社区 PDF 杂志，适合按兴趣跳读。下载文件应按不可信文档处理，并在隔离环境中打开。</p></article>
+<article class="resource"><h3><a href="https://arxiv.org/html/2603.24755v1" target="_blank" rel="noopener noreferrer">SlopCodeBench 论文</a></h3><p>让 Coding Agent 在逐步揭示需求的多检查点任务中持续演进代码，关注回归与可维护性，而不是一次性通过测试。适合团队设计自己的长周期 Agent 评测。</p></article>
+<h2 id="quotes">💬 言论：本期认知增量</h2>
+<article class="quote"><blockquote>Klayme 在事实上无罪。他本不应被起诉，更不应被定罪。</blockquote><p><strong><a href="https://decisions.courts.ns.ca/nsc/nsca/en/item/523839/index.do" target="_blank" rel="noopener noreferrer">新斯科舍省上诉法院</a></strong> · 译文 · 数据质量 / 证据链</p><p>一句法院结论背后，是一个字符被多个机构逐步包装成确定性的全过程。</p><p class="team"><strong>团队启发：</strong>任何不可逆动作都要能回溯到原始输入，而不是只看下游拼接后的结论。</p></article>
+<article class="quote"><blockquote>开放权重扩大参与 AI 经济的入口、加强部分场景的竞争，也让客户获得更强控制权。</blockquote><p><strong><a href="https://images.nvidia.com/pdf/Open-Weights-and-American-AI-Leadership.pdf" target="_blank" rel="noopener noreferrer">开放权重与美国 AI 领导力公开信</a></strong> · 摘要式转述 · 开放权重 / 生态</p><p>开放的价值是可部署、可修改和可竞争，但价值判断不能替代具体能力等级的安全测试。</p><p class="team"><strong>团队启发：</strong>模型选型要同时记录开放性、许可证、部署控制和安全评测结果。</p></article>
+<article class="quote"><blockquote>开放权重一旦发布，封禁账户、更新防护、控制访问和撤回模型这些手段就永久失效。</blockquote><p><strong><a href="https://www.aisi.gov.uk/blog/how-far-behind-the-frontier-are-leading-open-weight-models-on-cyber" target="_blank" rel="noopener noreferrer">英国 AI Security Institute</a></strong> · 译文 · 模型安全 / 可撤回性</p><p>这不是反对开放，而是提醒团队：可撤回性本身是一项安全能力。</p><p class="team"><strong>团队启发：</strong>发布前评审要把不可逆性纳入门禁，不能假设上线后还能补救。</p></article>
+<article class="quote"><blockquote>每一美元都买到了一点正确性，但没有谁买得足够多。</blockquote><p><strong><a href="https://github.com/humanlayer/advanced-context-engineering-for-coding-agents/blob/main/benchmarking-opus-5-on-slop-code-bench.md" target="_blank" rel="noopener noreferrer">HumanLayer / SlopCodeBench 实验</a></strong> · 译文 · Coding Agent / 评测</p><p>小样本结果不能证明成本与正确性线性相关，却很好地指出了长周期 Agent 的现实：更多推理不等于无缺陷交付。</p><p class="team"><strong>团队启发：</strong>Agent 预算要和回归通过率、缺陷存量与代码膨胀一起看。</p></article>
+<article class="quote"><blockquote>安全扫描的关键问题不是哪个模型总分最高，而是哪种模型、在哪类任务上、以什么频率运行。</blockquote><p><strong><a href="https://vercel.com/ai-gateway/leaderboards/deepsecbench" target="_blank" rel="noopener noreferrer">Vercel DeepsecBench</a></strong> · 摘要式转述 · 安全工程 / 成本</p><p>这比选一个冠军模型更接近真实安全运营：廉价高频扫描与昂贵深审可以分层。</p><p class="team"><strong>团队启发：</strong>按代码风险分层设置扫描频率和模型，而不是所有仓库统一一档。</p></article>
+<article class="quote"><blockquote>权重可以取得，但达到特定营收或用户规模的商业服务仍需额外协议或品牌展示。</blockquote><p><strong><a href="https://huggingface.co/moonshotai/Kimi-K3/blob/main/LICENSE" target="_blank" rel="noopener noreferrer">Kimi K3 License</a></strong> · 摘要式转述 · 许可证 / 模型供应链</p><p>「能下载」和「可按我们的商业模式使用」是两件完全不同的事。</p><p class="team"><strong>团队启发：</strong>模型许可证要像代码依赖许可证一样进入准入清单和发布审计。</p></article>
+<article class="quote"><blockquote>牛瘤胃里的新细胞器把产氢微生物与产甲烷古菌之间缺失的一段机制补了出来。</blockquote><p><strong><a href="https://www.quantamagazine.org/a-new-way-that-a-cows-inner-world-shapes-earths-atmosphere-20260727/" target="_blank" rel="noopener noreferrer">Quanta Magazine</a></strong> · 摘要式转述 · 科学 / 系统思维</p><p>复杂系统里看似宏观的结果，常常由一个此前没被观察到的中间结构决定。</p><p class="team"><strong>团队启发：</strong>排障时别只盯输入和输出，未知的中间状态往往才是因果链缺口。</p></article>
+<h2 id="podcast">🎙️ 播客提纲</h2><article class="podcast">
+<h3>一个下划线，为什么能把错误送进监狱</h3>
+<p class="hook">两条下划线被写成一条，系统没有说「查无此人」，它给出了另一个人的完整身份。真正可怕的，是后面每一步都运行得很正常。</p>
+<h4>主故事：错误如何获得确定性</h4><p>讲清原始账号差异、跨平台查询、设备无证据仍未暂停，以及上诉发现错误的转折。</p>
+<h4>车队 API：集中控制的爆炸半径</h4><p>强调数据来自研究者、官方未确认规模、没有恶意利用证据，并落到后端对象级授权。</p>
+<h4>AI 安全与开放权重</h4><p>区分 Vercel 自建 Benchmark、Anthropic 的政策观点和团队可执行的分层扫描。</p>
+<p>今天记住一句：系统不会自动纠正最早的错误，只会更高效地为它积累证据。</p></article>
+<h2 id="team-insights">✅ 对团队的启发</h2>
+<div class="insight"><strong>1</strong><p>为订单号、账户 ID、设备 ID、地址和交易哈希保留原始值与规范化值；任何字符级变化都要可查询、可告警。</p></div>
+<div class="insight"><strong>2</strong><p>把强反证写进流程：设备无证据、余额不一致、签名不匹配或回执缺失时，自动停止不可逆动作并升级人工复核。</p></div>
+<div class="insight"><strong>3</strong><p>本周核对 Nuxt 与 Nuxt DevTools 版本；升级后检查 lockfile，并清理可能残留用户 payload 的 CDN/边缘缓存。</p></div>
+<div class="insight"><strong>4</strong><p>AI 安全扫描先在自有历史漏洞集上建立召回率与成本基线，再决定 PR 级、每日级和里程碑级的模型组合。</p></div>
+<div class="insight"><strong>5</strong><p>Agent 选型表新增执行位置、数据驻留、最小权限、可撤回性和许可证五列，避免只按模型能力排名。</p></div>
+<footer><strong>信息源：</strong>65+ 个全球精选科技、AI、工程与系统可靠性来源。报道、观点、推断与作者自测均按各条事实边界标注。<br>
+Tech Digest # 67 · 2026-07-28</footer>
+</main></div></body></html>
