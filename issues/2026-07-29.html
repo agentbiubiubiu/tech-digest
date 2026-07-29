@@ -37,7 +37,7 @@ footer{margin-top:44px;padding:18px;background:#edf1ef;border-radius:8px;color:#
 <a href="../index.html">← 返回目录</a>
 <h1>第 68 期：AI 研究的瓶颈，正在从发现答案转向证明答案</h1>
 <p class="meta">第 68 期 · 2026年7月29日，星期三</p>
-<p class="highlights"><strong>✨ 本期亮点：</strong>Claude Mythos 报告约 60 小时削弱 HAWK 候选参数、7 轮 AES 攻击快约 200-800 倍，但均不影响当前生产系统 · 人类为 AES 结果追加数百小时验证 · Google ATLAS 的 1500 万次交互更支持任务级协作 · Cyera 签意向书拟约 10 亿美元收购 Oasis，交易尚未完成 · Apple 26.6、uv 0.12、Codex Security、LFM2.5、Cloudflarebase 进入今日雷达</p>
+<p class="highlights"><strong>✨ 本期亮点：</strong>Claude Mythos 报告约 60 小时削弱 HAWK 候选参数、7 轮 AES 攻击快约 200-800 倍，但均不影响当前生产系统 · 人类为 AES 结果追加数百小时验证 · Google ATLAS 的 1500 万次交互更支持任务级协作 · Cyera 签意向书拟约 10 亿美元收购 Oasis，交易尚未完成 · Apple 26.6、uv 0.12、Codex Security、LFM2.5、Cloudflarebase 进入今日雷达 · 24 小时社区雷达发现一份端到端效率样本：作者自述代码从约 10% AI 转为约 90% AI，但整体任务只从约 5 天缩到 4 天</p>
 <img class="article-img" src="https://www.anthropic.com/api/opengraph-illustration?name=Object-LaptopSecure&amp;backgroundColor=sky" alt="密码学研究与安全计算插图" loading="lazy"><p class="hero-caption">Claude Mythos 的两项密码分析结果都不影响当前生产系统；变化发生在研究与验证的速度差上。</p>
 <div class="callout"><strong>🎯 本期核心判断：</strong>当模型能用数十小时生成研究级结论，团队最稀缺的能力不再只是提出假设，而是建立可复现证据、独立验证和负责任披露的吞吐量。</div>
 <h2 id="main-story">🔥 主故事</h2>
@@ -162,16 +162,18 @@ footer{margin-top:44px;padding:18px;background:#edf1ef;border-radius:8px;color:#
 <article class="quote"><blockquote>安全团队正在用为另一个时代设计的方法，保护复杂度快速上升的环境。</blockquote><p><strong><a href="https://blogs.microsoft.com/blog/2026/07/27/rethinking-security-for-the-age-of-ai/" target="_blank" rel="noopener noreferrer">Microsoft</a></strong> · 摘要式转述 · security / agents</p><p>厂商判断有方向价值，但产品分数仍需独立验证。</p><p class="team"><strong>团队启发：</strong>允许 Agent 执行修复前，先让它证明证据链和回滚路径。</p></article>
 <article class="quote"><blockquote>26.6 的重点不是新功能，而是安全修复和下一阶段索引迁移。</blockquote><p><strong><a href="https://support.apple.com/en-gb/128067" target="_blank" rel="noopener noreferrer">Apple 安全更新材料</a></strong> · 摘要式转述 · Apple / release</p><p>维护版本同样可能改变性能与测试基线。</p><p class="team"><strong>团队启发：</strong>系统版本回归要同时覆盖安全、耗电、索引和首启性能。</p></article>
 <article class="quote"><blockquote>非人身份安全正在从后台配置项，变成 Agent 平台的核心资产。</blockquote><p><strong><a href="https://www.cyera.com/press-releases/cyera-raises-600-million-at-12-billion-valuation-to-continue-building-the-trust-layer-for-the-ai-era" target="_blank" rel="noopener noreferrer">Cyera 交易与市场信号</a></strong> · 编辑判断 · NHI / identity</p><p>这是基于交易方向的推断，不是交易完成后的效果证明。</p><p class="team"><strong>团队启发：</strong>盘点所有 Agent 使用的人类账号、共享 Token 和无法即时吊销的凭证。</p></article>
+<article class="quote"><blockquote>我的工作不是写代码，而是解决问题和交付功能；写代码只是过去完成它的方式。</blockquote><p><strong><a href="https://probablydance.com/2026/07/27/if-ai-writes-all-the-code-what-do-the-programmers-do/" target="_blank" rel="noopener noreferrer">Malte Skarupke</a></strong> · 译文 · AI Workflow / 工程效率 / 代码审查</p><p>作者自述代码构成在 8 个月内从约 10% AI 转为约 90% AI，但这次复杂优化整体只从估计 5 天缩到 4 天。代码生成大幅加速，不等于端到端交付同比例加速。</p><p class="team"><strong>团队启发：</strong>评估 Coding Agent 时同时记录生成占比、验证时间、Benchmark 时间和端到端周期。</p></article>
 <h2 id="podcast">🎙️ 播客提纲</h2><article class="podcast">
 <h3>当模型一周发现结果，人类要花多久证明它</h3>
 <p class="hook">Claude 用约 60 小时找到更强密码攻击，但人类随后花了数百小时确认。发现答案变快之后，证明答案成了新瓶颈。</p>
 <h4>主故事：密码攻击与现实边界</h4><p>讲清目标、数字、成本、人类验证和两项结果都不影响当前生产系统。</p>
 <h4>工作自动化：先看任务，不看岗位口号</h4><p>解释样本阈值，强调使用尝试不等于成功或岗位替代。</p>
+<h4>社区温度：约 90% AI 代码，端到端只快了一天</h4><p>开发者 Malte Skarupke 复盘一次复杂 GPU kernel 优化：AI 帮他定位代码、提出修复并生成 Benchmark，但人仍要理解约束、比较复杂度、处理不同 Agent 的冲突结论并做最终简化。这是个人案例，不代表普遍生产率，却清楚提醒我们：写代码只是交付链路的一段。</p>
 <h4>开发工具：从 uv 到 Codex Security</h4><p>推荐 uv、Cloudflarebase、Codex Security、All Ears，并给出最小权限试用边界。</p>
 <p>模型可以帮我们更快找到答案，但可信系统的价值，仍取决于谁来证明它。</p></article>
 <h2 id="team-insights">✅ 对团队的启发</h2>
 <div class="insight"><strong>1</strong><p>高风险 Agent 输出必须带最小复现、环境、证据来源和独立复跑状态。</p></div>
-<div class="insight"><strong>2</strong><p>把验证完成率和验证时延纳入 Agent 平台指标，避免只追求生成吞吐。</p></div>
+<div class="insight"><strong>2</strong><p>把验证完成率、验证时延和端到端交付周期纳入 Agent 平台指标，避免用 AI 生成代码占比代替真实效率。</p></div>
 <div class="insight"><strong>3</strong><p>iOS/macOS 客户端本周补测 26.6，重点观察 Spotlight 索引、耗电和首启。</p></div>
 <div class="insight"><strong>4</strong><p>后台盘点非人身份，禁止 Agent 复用人的长期 Token 或共享生产账号。</p></div>
 <div class="insight"><strong>5</strong><p>评估 Codex Security、LFM2.5 等工具时，使用自有历史漏洞与真实长文档，不引用供应商榜单代替验收。</p></div>

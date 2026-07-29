@@ -2,7 +2,7 @@
   {
     "date": "2026-07-29",
     "title": "第 68 期：AI 研究的瓶颈，正在从发现答案转向证明答案",
-    "highlights": "Claude Mythos 报告约 60 小时削弱 HAWK 候选参数、7 轮 AES 攻击快约 200-800 倍，但均不影响当前生产系统 · 人类为 AES 结果追加数百小时验证 · Google ATLAS 的 1500 万次交互更支持任务级协作 · Cyera 签意向书拟约 10 亿美元收购 Oasis，交易尚未完成 · Apple 26.6、uv 0.12、Codex Security、LFM2.5、Cloudflarebase 进入今日雷达",
+    "highlights": "Claude Mythos 报告约 60 小时削弱 HAWK 候选参数、7 轮 AES 攻击快约 200-800 倍，但均不影响当前生产系统 · 人类为 AES 结果追加数百小时验证 · Google ATLAS 的 1500 万次交互更支持任务级协作 · Cyera 签意向书拟约 10 亿美元收购 Oasis，交易尚未完成 · Apple 26.6、uv 0.12、Codex Security、LFM2.5、Cloudflarebase 进入今日雷达 · 24 小时社区雷达发现一份端到端效率样本：作者自述代码从约 10% AI 转为约 90% AI，但整体任务只从约 5 天缩到 4 天",
     "image": "https://www.anthropic.com/api/opengraph-illustration?name=Object-LaptopSecure&backgroundColor=sky"
   },
   {
