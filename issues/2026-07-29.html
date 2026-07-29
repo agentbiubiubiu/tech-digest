@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="zh-CN"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Tech Digest #68：Claude 改进密码攻击，人类花数百小时验证</title>
+<meta name="description" content="Claude Mythos 在 60 小时内削弱 HAWK 候选方案，并为 7 轮 AES 找到更快攻击；两项均不影响当前生产系统，但验证能力已成为新瓶颈。">
+<meta property="og:title" content="Tech Digest #68：Claude 改进密码攻击，人类花数百小时验证">
+<meta property="og:description" content="Claude Mythos 在 60 小时内削弱 HAWK 候选方案，并为 7 轮 AES 找到更快攻击；两项均不影响当前生产系统，但验证能力已成为新瓶颈。">
+<meta property="og:image" content="https://www.anthropic.com/api/opengraph-illustration?name=Object-LaptopSecure&amp;backgroundColor=sky">
+<style>
+:root{--text:#17231d;--muted:#5e6c65;--line:#dce6e0;--green:#147a50;--pale:#eef8f2;--blue:#2563a8;--yellow:#9a6500;--red:#a93838;--purple:#6b4fa3;--surface:#fff}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:#f6f8f7;color:var(--text);font:16px/1.72 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;letter-spacing:0}
+a{color:var(--green);text-decoration:none}a:hover{text-decoration:underline}.topbar{position:sticky;top:0;z-index:4;display:flex;align-items:center;justify-content:space-between;padding:12px 24px;background:rgba(255,255,255,.95);border-bottom:1px solid var(--line);backdrop-filter:blur(12px)}.brand{font-weight:800}.topbar nav{display:flex;gap:16px;font-size:.9rem}
+.page{display:grid;grid-template-columns:210px minmax(0,820px);gap:36px;max-width:1120px;margin:0 auto;padding:34px 24px 70px}.toc{position:sticky;top:76px;align-self:start;display:flex;flex-direction:column;gap:7px;font-size:.84rem}.toc a{color:var(--muted)}main{min-width:0}
+h1{font-size:2.15rem;line-height:1.28;margin:10px 0 8px;letter-spacing:0}h2{font-size:1.38rem;margin:42px 0 16px;border-bottom:1px solid var(--line);padding-bottom:9px;letter-spacing:0}h3{font-size:1.06rem;line-height:1.5;margin:0 0 10px;letter-spacing:0}h4{font-size:.98rem;margin:16px 0 6px;letter-spacing:0}p{margin:0 0 13px;color:var(--muted)}
+.meta,.hero-caption,small{color:#7d8983;font-size:.82rem}.highlights,.callout{padding:16px 18px;border-left:4px solid var(--green);background:var(--pale);border-radius:6px;margin:20px 0}.article-img{width:100%;max-height:390px;object-fit:cover;border-radius:6px;margin:12px 0 6px;background:#edf1ef}.hero-caption{text-align:center;margin-top:-2px}
+.main-story,.entry,.concept,.curiosity,.resource,.quote,.podcast{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:22px;margin:14px 0}.main-story{background:linear-gradient(135deg,#f2faf5,#fff 66%)}.story-hook,.hook{font-weight:700;color:var(--green)}.story-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:16px 0}.story-field{padding:13px;border:1px solid var(--line);border-radius:6px;color:var(--muted);font-size:.9rem}.story-field strong{display:block;color:var(--text);margin-bottom:3px}.number-chip,.tag,.priority,.certainty{display:inline-block;border-radius:999px;padding:3px 9px;font-size:.72rem;font-weight:750;margin:3px 5px 3px 0}.number-chip{background:#e7f0fb;color:var(--blue)}.story-line{background:#f2eef9;border-left:4px solid var(--purple);padding:12px 14px;border-radius:6px;font-weight:700}
+.trend-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.trend-card,.tool-card{background:#fff;border:1px solid var(--line);border-radius:8px;padding:17px}.trend-conflict{color:var(--red);font-weight:750;font-size:.82rem;margin-bottom:8px}.tool-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.tag{background:var(--green);color:#fff}.priority{background:#eef1ef;color:var(--muted)}.certainty-confirmed{background:#e6f6ed;color:var(--green)}.certainty-announced{background:#e9f1fb;color:var(--blue)}.certainty-reported{background:#fff4d8;color:var(--yellow)}.certainty-opinion,.certainty-inference{background:#f1ecf8;color:var(--purple)}.certainty-rumor{background:#fbeaea;color:var(--red)}
+.fact{font-size:.86rem;padding:9px 11px;background:#fff8e8;border-radius:5px}.why{font-size:.9rem}.curiosity{background:#fff7e9}.concept{border-left:4px solid var(--green)}.quote{background:#f6f2fb;border-left:4px solid var(--purple)}blockquote{margin:0 0 12px;font-size:1.02rem;font-style:italic}.team{padding:9px 11px;background:#edf8f2;border-radius:5px}.resource{background:#edf5ff}.podcast{background:#f8faf9}.insight{display:flex;gap:12px;align-items:flex-start;padding:14px 16px;margin:10px 0;background:#fff8dc;border-left:4px solid #d59b14;border-radius:6px}.insight p{margin:0}
+footer{margin-top:44px;padding:18px;background:#edf1ef;border-radius:8px;color:#77837d;font-size:.8rem}
+@media(max-width:860px){.page{grid-template-columns:1fr}.toc{display:none}.trend-grid,.story-grid{grid-template-columns:1fr}}@media(max-width:620px){.topbar nav{display:none}.page{padding:22px 16px 54px}.tool-grid{grid-template-columns:1fr}h1{font-size:1.7rem}.main-story,.entry,.concept,.curiosity,.resource,.quote,.podcast{padding:17px}}
+</style></head><body>
+<header class="topbar"><a class="brand" href="../index.html">Tech Digest</a>
+<nav><a href="../index.html">Archive</a><a href="#main-story">Today</a><a href="#tools">Tools</a><a href="#quotes">Quotes</a></nav>
+<span>2026-07-29</span></header>
+<div class="page">
+<nav class="toc">
+  <strong>本期目录</strong>
+  <a href="#main-story">🔥 主故事</a><a href="#trends">⚡ 冲突趋势</a>
+  <a href="#tech-news">📰 科技动态</a><a href="#ai">🤖 AI 相关</a>
+  <a href="#articles">📝 文章推荐</a><a href="#tools">🛠️ 工具推荐</a>
+  <a href="#ai-tools">🧠 AI 工具</a><a href="#concepts">🧩 概念库</a>
+  <a href="#curiosity">🎲 好奇心</a><a href="#resources">📚 资源</a>
+  <a href="#quotes">💬 言论</a><a href="#podcast">🎙️ 播客</a>
+  <a href="#team-insights">✅ 团队启发</a>
+</nav>
+<main>
+<a href="../index.html">← 返回目录</a>
+<h1>第 68 期：AI 研究的瓶颈，正在从发现答案转向证明答案</h1>
+<p class="meta">第 68 期 · 2026年7月29日，星期三</p>
+<p class="highlights"><strong>✨ 本期亮点：</strong>Claude Mythos 报告约 60 小时削弱 HAWK 候选参数、7 轮 AES 攻击快约 200-800 倍，但均不影响当前生产系统 · 人类为 AES 结果追加数百小时验证 · Google ATLAS 的 1500 万次交互更支持任务级协作 · Cyera 签意向书拟约 10 亿美元收购 Oasis，交易尚未完成 · Apple 26.6、uv 0.12、Codex Security、LFM2.5、Cloudflarebase 进入今日雷达</p>
+<img class="article-img" src="https://www.anthropic.com/api/opengraph-illustration?name=Object-LaptopSecure&amp;backgroundColor=sky" alt="密码学研究与安全计算插图" loading="lazy"><p class="hero-caption">Claude Mythos 的两项密码分析结果都不影响当前生产系统；变化发生在研究与验证的速度差上。</p>
+<div class="callout"><strong>🎯 本期核心判断：</strong>当模型能用数十小时生成研究级结论，团队最稀缺的能力不再只是提出假设，而是建立可复现证据、独立验证和负责任披露的吞吐量。</div>
+<h2 id="main-story">🔥 主故事</h2>
+    <article class="main-story">
+      <h3>Claude 改进密码攻击后，真正昂贵的工作才开始</h3>
+      <p class="story-hook">HAWK 经历两年专家审查，Claude Mythos 用约 60 小时找到更强攻击；但另一项 AES 结果让两名研究者又花了数百小时验证。</p>
+      <p>Anthropic 报告，Claude Mythos Preview 在一个多 Agent 沙箱中研究后量子签名候选 HAWK，发现其格结构里此前未被利用的对称性，把小参数 HAWK-256 的预期完整密钥恢复成本从约 2^64 降到已演示的约 2^38。另一套自动脚手架让模型研究 7 轮 AES-128，在三天内生成数亿 token，最终提出 Möbius Bridge，使既有 meet-in-the-middle 攻击快约 200 至 800 倍。</p>
+      <div class="story-grid">
+        <div class="story-field"><strong>核心冲突</strong>模型可以低成本并行搜索假设、写验证代码和反复失败，但密码学结论的正确性、原创性与现实影响不能由同一个模型自证。发现速度上升后，人工复核、独立复现和披露协调反而成为排队最久的环节。</div>
+        <div class="story-field"><strong>转折点</strong>最关键的边界不是攻击数字，而是 Anthropic 明确写出：HAWK 尚未部署，AES 结果只针对 10 轮标准中的 7 轮版本，两项都不要求现有生产系统修改。真正变化的是研究流程，模型从实现漏洞扫描进入算法本身的研究，而人类验证能力开始跟不上生成速度。</div>
+        <div class="story-field"><strong>为什么是现在</strong>我的判断：Coding Agent、自动实验和多 Agent 编排会把同样的矛盾带进日常研发。未来阻塞团队的未必是缺少补丁，而是一次产生太多看似可信、彼此关联、却尚未独立验证的补丁与结论。</div>
+        <div class="story-field"><strong>对团队的启发</strong>为高风险 Agent 输出建立验证队列：模型先提交最小复现、环境与完整证据；独立执行器重跑；领域专家只审查分歧和影响；涉及安全、资金、权限或生产状态的结论，在双重确认前只能标为「报告」或「待复现」。</div>
+      </div>
+      <p><span class="number-chip">HAWK 研究约 60 小时</span><span class="number-chip">两项主要结果各约 10 万美元 API 成本</span><span class="number-chip">7 轮 AES 攻击快约 200-800 倍</span><span class="number-chip">AES 结果由研究者追加数百小时验证</span></p>
+      <p><strong>我的判断：</strong>不要把这件事写成「AI 破解了 AES」。更准确的表述是：厂商报告模型改进了对 7 轮 AES 的学术攻击，并削弱了一个仍在标准化过程中的 HAWK 候选参数。它的工程意义不在立即换算法，而在于验证系统必须升级：可复现实验、独立裁判、失败样本留存、影响分级和披露闸门都要成为 Agent 平台的一部分。</p>
+      <div class="story-line">模型把发现答案变快之后，证明答案才成为系统真正的关键路径。</div>
+      <p><strong>来源：</strong><a href="https://www.anthropic.com/research/discovering-cryptographic-weaknesses" target="_blank" rel="noopener noreferrer">www.anthropic.com</a></p>
+    </article>
+<h2 id="trends">⚡ 今日冲突趋势</h2><div class="trend-grid"><article class="trend-card"><h3>发现速度越快，验证债务越容易堆积</h3><div class="trend-conflict">数亿 token 的自动探索 vs 数百小时的人类确认</div><p>Agent 平台的吞吐量不能只算生成了多少结果，还要算多少结果完成独立复现。</p><small>anthropic.com</small></article>
+<article class="trend-card"><h3>AI 正在进入工作，但远没有覆盖整份工作</h3><div class="trend-conflict">15M 次真实交互的广泛使用 vs 仅 3% 职业有至少四分之三任务达到显著使用</div><p>Google ATLAS 样本更支持「任务级协作」，而不是整份职业被一次性自动化。</p><small>arstechnica.com</small></article>
+<article class="trend-card"><h3>安全 Agent 能扩张防守，也能扩张误判</h3><div class="trend-conflict">供应商自测 96% Benchmark 分数 vs 预览产品仍需生产前独立评估</div><p>越是能自动修复的安全工具，越要把证据、权限和回滚设计在执行之前。</p><small>arstechnica.com</small></article></div>
+<h2 id="tech-news">📰 科技动态</h2>
+<article class="entry"><h3>1、<a href="https://blog.modelcontextprotocol.io/posts/2026-07-28/" target="_blank" rel="noopener noreferrer">MCP 2026-07-28 规范转向无状态核心，移除初始化握手与会话 ID</a> <span class="certainty certainty-已证实">已证实</span></h3>
+<p class="hook">MCP 不再要求基础设施先理解一段会话，普通 HTTP 网关可以按单个请求做决策。</p>
+<p>MCP 官方发布新版规范，把核心从双向有状态连接改为请求/响应式无状态模式，并移除 initialize/initialized 握手与 Mcp-Session-Id。每个请求可携带协议版本、客户端身份和能力，新增请求头便于网关路由、计量和授权；TypeScript、Python、Go 与 C# Tier 1 SDK 已同步。</p>
+<p class="why"><strong>为什么重要：</strong>Agent 平台和后台团队应建立协议迁移测试：旧握手、会话状态、服务端回调、OAuth 发行者校验、缓存提示和网关请求头都要逐项验证。</p>
+<p class="fact"><strong>事实边界：</strong>协议与 SDK 变化来自 MCP 官方博客。生态下载量属于维护者自报，本条不将其作为采用率事实；旧客户端和 Server 的兼容窗口仍需按各 SDK 发布说明确认。</p>
+<img class="article-img" src="https://blog.modelcontextprotocol.io/og-image.png" alt="MCP 2026-07-28 规范转向无状态核心，移除初始化握手与会话 ID" loading="lazy">
+</article>
+<article class="entry"><h3>2、<a href="https://arstechnica.com/gadgets/2026/07/ios-and-macos-26-6-arrive-today-paving-the-way-for-ios-and-macos-27/" target="_blank" rel="noopener noreferrer">Apple 发布 iOS、iPadOS、macOS、watchOS 与 tvOS 26.6</a> <span class="certainty certainty-已证实">已证实</span></h3>
+<p class="hook">这是一轮看似平淡、实际安全面很大的收尾更新。</p>
+<p>Apple 已发布 26.6 系列维护更新，macOS 26.6 安全公告列出超过 150 项修复；旧设备另有 macOS 14.8.8 与 15.7.8。iOS/iPadOS 26.6 还会优化 Spotlight 索引，为后续系统版本准备数据。</p>
+<p class="why"><strong>为什么重要：</strong>iOS/macOS 客户端团队应在测试矩阵中加入 26.6，并关注 Spotlight 重建带来的磁盘、耗电、搜索与首启性能变化。</p>
+<p class="fact"><strong>事实边界：</strong>版本发布由 Apple 安全公告与媒体报道交叉确认；「为 iOS 27 铺路」来自发布说明与媒体解释，不等于 iOS 27 已正式定档。</p>
+<img class="article-img" src="https://cdn.arstechnica.net/wp-content/uploads/2026/07/macOS-26-6-update-1152x648-1785182231.jpg" alt="Apple 发布 iOS、iPadOS、macOS、watchOS 与 tvOS 26.6" loading="lazy">
+</article>
+<article class="entry"><h3>3、<a href="https://techcrunch.com/2026/07/28/cyera-agrees-to-acquire-oasis-security-for-1b-to-safeguard-proliferating-ai-agents/" target="_blank" rel="noopener noreferrer">Cyera 签署意向书，拟以约 10 亿美元收购 Oasis Security</a> <span class="certainty certainty-报道/尚未完成">报道/尚未完成</span></h3>
+<p class="hook">Agent 身份正在从 IAM 边角问题变成十亿美元级并购标的。</p>
+<p>TechCrunch 报道，Cyera 已签署收购 Oasis Security 的意向书，交易规模约 10 亿美元，预计以现金为主、部分股票支付。Oasis 聚焦 AI Agent 等非人身份；交易后计划并入统一身份与数据安全平台。</p>
+<p class="why"><strong>为什么重要：</strong>后台与平台团队需要把 Agent 当独立主体管理：专属身份、最小权限、短期凭证、行为审计和即时吊销，而不是复用人的长期 Token。</p>
+<p class="fact"><strong>事实边界：</strong>约 10 亿美元、支付结构、Oasis 融资额与 Cyera 估值均来自 TechCrunch 及公司材料。当前状态是签署意向书，不是交易已经交割；监管、尽调和最终条款仍可能变化。</p>
+<img class="article-img" src="https://techcrunch.com/wp-content/uploads/2018/02/tc-backlight-e1689786273147.png?w=1200" alt="Cyera 签署意向书，拟以约 10 亿美元收购 Oasis Security" loading="lazy">
+</article>
+<article class="entry"><h3>4、<a href="https://arstechnica.com/tech-policy/2026/07/5th-circuit-blocks-texas-law-requiring-websites-to-filter-harmful-speech/" target="_blank" rel="noopener noreferrer">美国第五巡回法院阻止德州强制平台过滤「有害」内容</a> <span class="certainty certainty-已证实/部分阻止">已证实/部分阻止</span></h3>
+<p class="hook">监管标题写成「法律被推翻」会丢掉最重要的剩余义务。</p>
+<p>第五巡回法院裁定，SCOPE Act 的监控与过滤要求因与 Section 230 冲突而被联邦法优先排除。但裁决不是整部法律失效：年龄注册、未成年人定向广告限制等其他条款仍可能执行。</p>
+<p class="why"><strong>为什么重要：</strong>Web 与移动产品应把内容过滤、年龄验证、广告限制分成独立合规模块，并按司法辖区维护状态，避免用一个总开关表达复杂裁决。</p>
+<p class="fact"><strong>事实边界：</strong>裁决状态来自法院文件与报道。被阻止的是监控与过滤要求，不是 SCOPE Act 全部条款；本条不是法律意见。</p>
+<img class="article-img" src="https://cdn.arstechnica.net/wp-content/uploads/2024/07/texas-flag-1152x648-1785178684.jpg" alt="美国第五巡回法院阻止德州强制平台过滤「有害」内容" loading="lazy">
+</article>
+<article class="entry"><h3>5、<a href="https://arstechnica.com/space/2026/07/reaction-wheel-failures-leave-swift-rescue-mission-spinning-in-orbit/" target="_blank" rel="noopener noreferrer">Swift 救援卫星 Link 的 3 个反作用轮中有 2 个被报告不可用</a> <span class="certainty certainty-事故已证实/处置中">事故已证实/处置中</span></h3>
+<p class="hook">真正有恢复价值的不是「没有故障」，而是电力、通信与控制面仍在。</p>
+<p>NASA 与 Katalyst 正评估 Link 卫星的姿态控制问题；初步调查称 3 个反作用轮中有 2 个不可用。卫星仍有电力并能与地面通信，团队计划先恢复稳定姿态，再决定是否调整接近和捕获 Swift 的方案。</p>
+<p class="why"><strong>为什么重要：</strong>可靠性设计应明确最小可恢复面：遥测、远程配置、降级控制和安全停止。关键执行器失败后，保住观测与控制通道就是后续修复的前提。</p>
+<p class="fact"><strong>事实边界：</strong>故障状态来自 NASA 引述和 Katalyst 初步调查；根因、是否可恢复、是否继续接近 Swift 尚未确定，不能写成任务已经失败。</p>
+<img class="article-img" src="https://cdn.arstechnica.net/wp-content/uploads/2026/07/link_arrays_katalyst-1152x648.jpg" alt="Swift 救援卫星 Link 的 3 个反作用轮中有 2 个被报告不可用" loading="lazy">
+</article>
+<article class="entry"><h3>6、<a href="https://arstechnica.com/ai/2026/07/despite-ai-hype-googles-data-shows-workers-arent-automating-themselves-away/" target="_blank" rel="noopener noreferrer">Google ATLAS 分析 1500 万次 Gemini 工作交互：多数职业仍只覆盖部分任务</a> <span class="certainty certainty-研究报告/样本结论">研究报告/样本结论</span></h3>
+<p class="hook">真实使用数据更像一张任务地图，而不是一张职业消失名单。</p>
+<p>Google 研究样本显示，只有 21% 的 O*NET 工作任务达到至少 25 次相关 Gemini 交互的门槛；29% 的职业没有任何任务达到该门槛，另有 30% 的职业只有不到四分之一任务达到。仅 3% 的职业至少四分之三任务出现显著使用。</p>
+<p class="why"><strong>为什么重要：</strong>团队应按任务拆 ROI：高频、认知型、可验证的环节先自动化；不要用岗位名估算替代率，也不要把请求次数等同于成功完成或节省工时。</p>
+<p class="fact"><strong>事实边界：</strong>样本、阈值和比例来自 Google ATLAS 论文，经 Ars 报道。数据只覆盖 Gemini 交互，「尝试使用」不等于任务完成、质量提升或岗位被替代。</p>
+<img class="article-img" src="https://cdn.arstechnica.net/wp-content/uploads/2026/07/GettyImages-1711353151-1152x648.jpg" alt="Google ATLAS 分析 1500 万次 Gemini 工作交互：多数职业仍只覆盖部分任务" loading="lazy">
+</article>
+<h2 id="ai">🤖 AI 相关</h2>
+<article class="entry"><h3>1、<a href="https://arstechnica.com/security/2026/07/microsoft-unveils-ai-security-tools-it-says-outperform-competing-platforms/" target="_blank" rel="noopener noreferrer">Microsoft 发布 MDASH 与 Project Perception 预览，主打多 Agent 安全运营</a> <span class="certainty certainty-厂商发布/Benchmark 自测">厂商发布/Benchmark 自测</span></h3>
+<p class="hook">安全 Agent 的榜单分数不能代替你自己的代码、权限与误报成本。</p>
+<p>Microsoft 称，使用 MAI-Cyber-1-Flash 的 MDASH 在 CyberGYM 上得到 96%，比其引用的 Claude Mythos 分数高 12 点；Project Perception 则按任务选择模型，让不同 Agent 执行红队、蓝队和修复工作。两项工具仍处预览。</p>
+<p class="why"><strong>为什么重要：</strong>在非生产仓库以影子模式试跑，记录召回、误报、成本、修复可回滚性；任何自动修改必须使用独立身份和最小权限。</p>
+<p class="fact"><strong>事实边界：</strong>96%、12 点差距、成本和 90% 任务覆盖均为 Microsoft 自测或目标，未由本次运行独立复现；产品仍是预览，不能外推为跨环境稳定优势。</p>
+<img class="article-img" src="https://cdn.arstechnica.net/wp-content/uploads/2025/09/microsoft-logo-1024x648.jpg" alt="Microsoft 发布 MDASH 与 Project Perception 预览，主打多 Agent 安全运营" loading="lazy">
+</article>
+<article class="entry"><h3>2、<a href="https://arstechnica.com/ai/2026/07/chatgpt-stops-cloning-famous-writers-voices-but-may-capture-a-similar-feeling/" target="_blank" rel="noopener noreferrer">ChatGPT 被观察到拒绝直接模仿在世作者风格，改为提供宽泛特征</a> <span class="certainty certainty-媒体观察/非正式公告">媒体观察/非正式公告</span></h3>
+<p class="hook">模型行为可以先于公开政策变化，产品不能把隐式行为当稳定 API。</p>
+<p>Ars 测试与用户反馈显示，ChatGPT 开始拒绝直接要求复制在世作者风格的提示，同时愿意总结更宽泛的语气和叙事特征。报道没有找到当时公开 Model Spec 中明确对应的文字规则。</p>
+<p class="why"><strong>为什么重要：</strong>内容产品应维护可回归的提示测试集，并为风格、版权与品牌语气设置自己的策略层；不要依赖供应商未文档化的拒答行为。</p>
+<p class="fact"><strong>事实边界：</strong>这是 Ars 的行为观察与用户反馈，不是 OpenAI 正式发布说明；不同模型、账户、地区和时间可能表现不同。</p>
+<img class="article-img" src="https://cdn.arstechnica.net/wp-content/uploads/2026/07/GettyImages-2264560291-1152x648.jpg" alt="ChatGPT 被观察到拒绝直接模仿在世作者风格，改为提供宽泛特征" loading="lazy">
+</article>
+<article class="entry"><h3>3、<a href="https://huggingface.co/blog/LiquidAI/lfm2-5-encoders" target="_blank" rel="noopener noreferrer">LFM2.5 发布 230M/350M 编码器，目标是在 CPU 上处理 8192 token</a> <span class="certainty certainty-厂商发布/Benchmark 自测">厂商发布/Benchmark 自测</span></h3>
+<p class="hook">很多分类、PII 检测和意图路由任务，并不需要把请求送进大型生成模型。</p>
+<p>Liquid AI 发布 LFM2.5-Encoder-230M 与 350M，把因果解码器改成双向注意力、非因果短卷积和掩码语言建模。官方称两款支持 8192 token，230M 在长上下文 CPU 测试中约比 ModernBERT-base 快 3.7 倍，并开放评测框架与原始结果。</p>
+<p class="why"><strong>为什么重要：</strong>后台与客户端侧推理团队可在自有长文档上比较延迟、峰值内存、准确率和量化效果，优先验证 CPU 常驻服务的性价比。</p>
+<p class="fact"><strong>事实边界：</strong>3.7 倍、任务排名和质量比较均为 Liquid AI 自测；虽公开评测框架和原始结果，本次运行未复现，不能视为所有硬件和输入分布上的普适优势。</p>
+<img class="article-img" src="https://cdn-uploads.huggingface.co/production/uploads/644249b08443bce4c9890a0f/NK2qOmfzkFc_Yc82LhgSj.png" alt="LFM2.5 发布 230M/350M 编码器，目标是在 CPU 上处理 8192 token" loading="lazy">
+</article>
+<h2 id="articles">📝 文章推荐</h2>
+<article class="entry"><h3><a href="https://mlugg.co.uk/posts/incremental-compilation-internals/" target="_blank" rel="noopener noreferrer">Zig 增量编译内部：把函数级依赖图一路接到二进制补丁</a></h3><p class="hook">真正快的增量编译不是缓存整个模块，而是让语言语义暴露足够精确的失效边界。</p><p>Zig 核心团队成员解释，编译器如何缓存文件级 ZIR，再把语义分析拆成可追踪依赖的 analysis units，最终只重编译变化声明并直接修补输出二进制。作者演示一个真实像素编辑器初次构建约 5 秒，后续修改约 50-70ms。</p><p class="story-line"></p></article>
+<article class="entry"><h3><a href="https://huggingface.co/blog/allenai/olmoearth-infrastructure" target="_blank" rel="noopener noreferrer">OlmoEarth：把行星尺度推理拆成 CPU I/O、GPU 推理和 CPU 后处理</a></h3><p class="hook">昂贵 GPU 空转的根因，常常不是算得慢，而是数据准备没有按硬件特性解耦。</p><p>Ai2 介绍 OlmoEarth Platform：卫星影像先由 CPU 做获取、重投影和对齐，GPU 只负责前向推理，CPU 再拼接并导出 Zarr、GeoTIFF 或 GeoJSON。平台把大陆级任务拆成数千分区，报告可在约一天内处理数十 TB 影像。</p><p class="story-line"></p><img class="article-img" src="https://www.datocms-assets.com/64837/1784901325-olmoearth-engineering-blog-inference-google-docs-image-2.png" alt="OlmoEarth：把行星尺度推理拆成 CPU I/O、GPU 推理和 CPU 后处理" loading="lazy"></article>
+<article class="entry"><h3><a href="https://joomy.korkutblech.com/posts/2026-07-28-why-rocq-is-better.html" target="_blank" rel="noopener noreferrer">为什么有人仍选 Rocq 做程序验证，而不是追随 Lean 热度</a></h3><p class="hook">工具选择要按证明对象和最终产物，而不是只按社区热度。</p><p>作者把讨论限定在程序验证而非数学形式化，比较了 Rocq 的 CoInductive/CoFixpoint、互递归和索引 codata、程序抽取与 Lean 当前库编码。核心观点是：Lean 在数学社区有势能，但 Rocq 对可执行共递归程序仍提供更直接的内核级表达。</p><p class="story-line"></p></article>
+<article class="entry"><h3><a href="https://blogs.kde.org/2026/07/28/making-kio-copy-many-files-fast/" target="_blank" rel="noopener noreferrer">KDE 追了 12 年的小文件复制性能债：先去 IPC，再做批处理</a></h3><p class="hook">单次 IPC 很便宜，乘以 5000 后就会成为整个产品体验。</p><p>KDE 工程文章称，KIO 6.29 主分支把本地 file worker 的 socket 往返改为线程间内存传输后，5000 个 4KB 文件的作者自测从 1616ms 降到 396ms。仍在评审的 batch-copy 补丁进一步报告 88ms，接近同机 cp 的 81ms。</p><p class="story-line"></p><img class="article-img" src="https://blogs.kde.org/2026/07/28/making-kio-copy-many-files-fast/offcpu-batch.svg" alt="KDE 追了 12 年的小文件复制性能债：先去 IPC，再做批处理" loading="lazy"></article>
+<h2 id="tools">🛠️ 工具推荐</h2><div class="tool-grid">
+<article class="tool-card"><div><span class="tag">Python/Backend</span><span class="priority">P0</span></div><h3><a href="https://github.com/astral-sh/uv/releases/tag/0.12.0" target="_blank" rel="noopener noreferrer">uv 0.12.0</a></h3><p>Python 项目管理器的新主版本点。`uv init` 默认创建 `src/` 包布局、配置 `uv_build` 和命令入口；同时收紧旧压缩格式与可能覆盖解释器的 wheel 路径。现有项目不受默认布局变化影响，升级前应检查 lockfile 和 CI。</p></article>
+<article class="tool-card"><div><span class="tag">Web/Backend</span><span class="priority">P1</span></div><h3><a href="https://github.com/cloudflarebase/cloudflarebase" target="_blank" rel="noopener noreferrer">Cloudflarebase</a></h3><p>运行在自有 Cloudflare 账户里的开源 Firebase 替代方案，目前以认证为第一能力：每个项目使用 Durable Object、Better Auth 与嵌入式 SQLite，并提供 OpenAPI 3.1。项目明确独立于 Cloudflare，数据库与存储仍在后续路线。</p></article>
+<article class="tool-card"><div><span class="tag">iOS/macOS</span><span class="priority">P1</span></div><h3><a href="https://www.markdownfinder.app/en" target="_blank" rel="noopener noreferrer">MD Flow</a></h3><p>原生 macOS、iOS、iPadOS Markdown 文件浏览器，面向已有文档目录和 AI 产物，强调本地读取、无账号和不强制上云。适合在 Apple 设备间快速检查需求、报告和 Agent 输出。</p></article>
+<article class="tool-card"><div><span class="tag">macOS/客户端</span><span class="priority">P2</span></div><h3><a href="https://openotp.app" target="_blank" rel="noopener noreferrer">OpenOTP</a></h3><p>开源 macOS 邮件验证码填充工具，直接通过 Gmail/IMAP 读取，凭证存 Keychain，验证码只在内存短期保存，并默认隐藏自身验证码 UI 的屏幕录制内容。它是早期个人项目；安装前应审查源码或使用发布包，不直接执行网页脚本。</p></article>
+<article class="tool-card"><div><span class="tag">Web/Research</span><span class="priority">P1</span></div><h3><a href="https://github.com/twalichiewicz/HNewhere" target="_blank" rel="noopener noreferrer">HNewhere</a></h3><p>MIT 许可 userscript，把 Hacker News 讨论以可缩放侧栏放到原文章旁，并自动匹配历史 HN 讨论。适合技术调研时同时看原文和同行质疑，依赖 HN API 与 Algolia。</p></article>
+</div>
+<h2 id="ai-tools">🧠 AI 工具</h2><div class="tool-grid">
+<article class="tool-card"><div><span class="tag">AI/治理</span><span class="priority">P0</span></div><h3><a href="https://github.com/microsoft/agent-governance-toolkit" target="_blank" rel="noopener noreferrer">Microsoft AI Agent Governance Toolkit</a></h3><p>微软公开预览的 Agent 治理 SDK，把工具调用、消息和委派放到确定性策略引擎后，再叠加身份、沙箱、审计、kill switch 与 SLO。覆盖 Python、TypeScript、.NET/MCP、Copilot CLI 和 Claude Code 等接入面；GA 前可能有破坏性变更。</p></article>
+<article class="tool-card"><div><span class="tag">AI/Security</span><span class="priority">P0</span></div><h3><a href="https://github.com/openai/codex-security" target="_blank" rel="noopener noreferrer">Codex Security</a></h3><p>OpenAI 发布的 CLI 与 TypeScript SDK，可扫描仓库、审查变更、跟踪发现并接入 CI。需要 Node.js 22+、Python 3.10+ 与 Codex Security 访问权限；先在非生产仓库对比现有 SAST 的增量价值。</p></article>
+<article class="tool-card"><div><span class="tag">AI/PC 客户端</span><span class="priority">P2</span></div><h3><a href="https://github.com/WutIsHummus/TrueDeck" target="_blank" rel="noopener noreferrer">TrueDeck</a></h3><p>MIT 许可的多 Agent 终端工作台，在同一项目里并排运行 Codex、Claude、Cursor、Gemini 等原生 CLI，并管理面板、会话恢复、记忆和 MCP。属于早期社区项目，先用公开仓库和最小权限环境试跑。</p></article>
+<article class="tool-card"><div><span class="tag">AI/macOS</span><span class="priority">P1</span></div><h3><a href="https://github.com/tomelliot/all-ears" target="_blank" rel="noopener noreferrer">All Ears</a></h3><p>面向 Apple Silicon macOS 的本地会议流水线，把录音、转写、清理和摘要拆成可组合 CLI；Google Meet 可在浏览器端先分离参与者音轨，再做本地转写。需要 macOS 15+ 与 Swift 6，隐私优势仍取决于你配置的摘要模型。</p></article>
+<article class="tool-card"><div><span class="tag">AI/Web</span><span class="priority">P2</span></div><h3><a href="https://studio.academa.ai/" target="_blank" rel="noopener noreferrer">Academa Studio</a></h3><p>社区项目把 Manim 的 Python API 用 Rust、PyO3、WGPU 重做，并通过 Pyodide/WASM 与 WebGPU 放进浏览器，配 Monaco 实时预览和 AI 辅助。适合快速制作算法、数学和系统流程动画，当前能力主要来自作者说明。</p></article>
+</div>
+<h2 id="concepts">🧩 本期概念库</h2>
+<article class="concept"><h3>1. 验证债务（Verification Debt）</h3><p><strong>一句话解释：</strong>系统生成的结论、补丁或告警超过独立复现能力后，尚未验证的队列会像技术债一样持续累积。</p><p><strong>为什么重要：</strong>安全与研究结论越高风险，未验证积压越可能被误当成已证实事实。</p><p><strong>团队应用：</strong>同时统计结果生成量、复现完成率、分歧数和平均验证时延。</p></article>
+<article class="concept"><h3>2. Reduced-round cryptanalysis</h3><p><strong>一句话解释：</strong>先研究轮数更少的密码算法变体，用于理解攻击技术和完整算法的安全余量。</p><p><strong>为什么重要：</strong>攻破 7 轮 AES 不等于攻破标准的 10 轮 AES，二者现实影响完全不同。</p><p><strong>团队应用：</strong>汇报安全研究时，把目标版本、威胁模型、轮数和现实利用成本放在标题附近。</p></article>
+<article class="concept"><h3>3. 非人身份（NHI）</h3><p><strong>一句话解释：</strong>服务账号、机器人、工作负载和 AI Agent 等不对应自然人的数字主体。</p><p><strong>为什么重要：</strong>Agent 会跨系统行动，复用人的 Token 会放大权限、归责与吊销风险。</p><p><strong>团队应用：</strong>为每个 Agent 分配独立身份、短期凭证、明确作用域和完整审计。</p></article>
+<article class="concept"><h3>4. 增量失效边界</h3><p><strong>一句话解释：</strong>一次变更后，系统能精确判定必须重算的最小依赖集合。</p><p><strong>为什么重要：</strong>边界越细且越可证明，构建、缓存和数据流水线越快，也越不容易返回陈旧结果。</p><p><strong>团队应用：</strong>把依赖来源、缓存键和失效原因写入诊断输出，而不只记录命中/未命中。</p></article>
+<h2 id="curiosity">🎲 还能这样？今日好奇心</h2>
+<article class="curiosity"><h3><a href="https://mac-classic.com/news/half-life-ported-to-mac-os-9/" target="_blank" rel="noopener noreferrer">《Half-Life》被移植到 Mac OS 9</a></h3><p class="hook">2026 年的新作品，目标平台却是一个早已退出主流的经典 Mac 系统。</p><p>Mac Classic 发布可下载的 Half-Life 1.0.1 Mac OS 9 移植信息。页面细节不多，但项目说明了兼容层、老硬件和社区维护仍能让旧平台获得新软件。</p><p><strong>背后的启发：</strong>长期兼容不是情怀专属；稳定文件格式、可移植依赖和开放源码会显著延长软件寿命。</p></article>
+<article class="curiosity"><h3><a href="https://unawatch.com/" target="_blank" rel="noopener noreferrer">一块能拧开换电池、USB-C 充电、还能自己写 App 的 GPS 手表</a></h3><p class="hook">智能手表不一定要把电池、传感器、充电线和软件生态一起封死。</p><p>UNA 宣称采用 280mAh 可更换硬壳电池、IP68 USB-C 充电线，并向开发者开放 SDK。可维修、可升级和开放能力均来自厂商页面，实际耐用性仍需独立评测。</p><p><strong>背后的启发：</strong>硬件产品的长期价值，越来越取决于维修边界、标准接口和第三方扩展能力。</p><img class="article-img" src="https://unawatch.com/cdn/shop/files/Email_push_1443cdb0-ca95-41c3-b79a-c5b6c06bbe99.png?v=1783965410&amp;width=2400" alt="一块能拧开换电池、USB-C 充电、还能自己写 App 的 GPS 手表" loading="lazy"></article>
+<h2 id="resources">📚 资源</h2>
+<article class="resource"><h3><a href="https://arxiv.org/abs/2607.18538" target="_blank" rel="noopener noreferrer">CryptanalysisBench</a></h3><p>Anthropic 与 ETH Zurich、Tel Aviv University、University of Haifa 合作整理的密码分析 Benchmark，用于比较模型在多类密码任务上的能力。使用时必须区分 Benchmark 分数、端到端可运行攻击和现实系统影响。</p></article>
+<article class="resource"><h3><a href="https://github.com/anthropics/cryptography-research-demo" target="_blank" rel="noopener noreferrer">cryptography-research-demo</a></h3><p>Anthropic 随 HAWK 研究公开的演示代码。适合安全研究者复核攻击路径；不要在生产密钥、生产网络或未授权目标上运行。</p></article>
+<h2 id="quotes">💬 言论：本期认知增量</h2>
+<article class="quote"><blockquote>最有价值的提示并不复杂：不要因为任务看起来不可能，就提前放弃搜索。</blockquote><p><strong><a href="https://simonwillison.net/2026/Jul/28/discovering-cryptographic-weaknesses-with-claude/" target="_blank" rel="noopener noreferrer">Simon Willison 对 Anthropic 研究的摘要</a></strong> · 摘要式转述 · Agent / research</p><p>提示词在这里更像研究管理，而不是直接提供密码学答案。</p><p class="team"><strong>团队启发：</strong>把「何时停止」和「何时继续探索」写进 Agent 预算与评审规则。</p></article>
+<article class="quote"><blockquote>HAWK 的发现说明，标准化前的公开对抗审查正在按预期发挥作用。</blockquote><p><strong><a href="https://anthropic.com/document/hawk_key_recovery.pdf" target="_blank" rel="noopener noreferrer">Anthropic HAWK 论文</a></strong> · 摘要式转述 · cryptography / verification</p><p>发现弱点不等于标准化失败，恰恰可能是流程成功。</p><p class="team"><strong>团队启发：</strong>把预发布红队结果视作阻止风险进入生产的证据，而不是单纯负面指标。</p></article>
+<article class="quote"><blockquote>7 轮 AES 攻击的进步有研究价值，但没有改变完整 AES-128 的生产安全结论。</blockquote><p><strong><a href="https://anthropic.com/document/aes_mobius_bridge.pdf" target="_blank" rel="noopener noreferrer">Möbius Bridge 论文</a></strong> · 摘要式转述 · AES / certainty</p><p>标题里的目标边界决定读者会不会得出错误结论。</p><p class="team"><strong>团队启发：</strong>安全通报首屏必须写清受影响版本、配置、轮数与利用前提。</p></article>
+<article class="quote"><blockquote>当前数据更支持 AI 补充职业中的部分任务，而不是完整接管整份工作。</blockquote><p><strong><a href="https://ai.google/static/documents/GoogleATLASv1.pdf" target="_blank" rel="noopener noreferrer">Google ATLAS 研究</a></strong> · 研究结论转述 · work / automation</p><p>交互覆盖率不是生产率，也不是岗位替代率。</p><p class="team"><strong>团队启发：</strong>自动化项目按任务粒度建立基线、质量和节省时间证据。</p></article>
+<article class="quote"><blockquote>安全团队正在用为另一个时代设计的方法，保护复杂度快速上升的环境。</blockquote><p><strong><a href="https://blogs.microsoft.com/blog/2026/07/27/rethinking-security-for-the-age-of-ai/" target="_blank" rel="noopener noreferrer">Microsoft</a></strong> · 摘要式转述 · security / agents</p><p>厂商判断有方向价值，但产品分数仍需独立验证。</p><p class="team"><strong>团队启发：</strong>允许 Agent 执行修复前，先让它证明证据链和回滚路径。</p></article>
+<article class="quote"><blockquote>26.6 的重点不是新功能，而是安全修复和下一阶段索引迁移。</blockquote><p><strong><a href="https://support.apple.com/en-gb/128067" target="_blank" rel="noopener noreferrer">Apple 安全更新材料</a></strong> · 摘要式转述 · Apple / release</p><p>维护版本同样可能改变性能与测试基线。</p><p class="team"><strong>团队启发：</strong>系统版本回归要同时覆盖安全、耗电、索引和首启性能。</p></article>
+<article class="quote"><blockquote>非人身份安全正在从后台配置项，变成 Agent 平台的核心资产。</blockquote><p><strong><a href="https://www.cyera.com/press-releases/cyera-raises-600-million-at-12-billion-valuation-to-continue-building-the-trust-layer-for-the-ai-era" target="_blank" rel="noopener noreferrer">Cyera 交易与市场信号</a></strong> · 编辑判断 · NHI / identity</p><p>这是基于交易方向的推断，不是交易完成后的效果证明。</p><p class="team"><strong>团队启发：</strong>盘点所有 Agent 使用的人类账号、共享 Token 和无法即时吊销的凭证。</p></article>
+<h2 id="podcast">🎙️ 播客提纲</h2><article class="podcast">
+<h3>当模型一周发现结果，人类要花多久证明它</h3>
+<p class="hook">Claude 用约 60 小时找到更强密码攻击，但人类随后花了数百小时确认。发现答案变快之后，证明答案成了新瓶颈。</p>
+<h4>主故事：密码攻击与现实边界</h4><p>讲清目标、数字、成本、人类验证和两项结果都不影响当前生产系统。</p>
+<h4>工作自动化：先看任务，不看岗位口号</h4><p>解释样本阈值，强调使用尝试不等于成功或岗位替代。</p>
+<h4>开发工具：从 uv 到 Codex Security</h4><p>推荐 uv、Cloudflarebase、Codex Security、All Ears，并给出最小权限试用边界。</p>
+<p>模型可以帮我们更快找到答案，但可信系统的价值，仍取决于谁来证明它。</p></article>
+<h2 id="team-insights">✅ 对团队的启发</h2>
+<div class="insight"><strong>1</strong><p>高风险 Agent 输出必须带最小复现、环境、证据来源和独立复跑状态。</p></div>
+<div class="insight"><strong>2</strong><p>把验证完成率和验证时延纳入 Agent 平台指标，避免只追求生成吞吐。</p></div>
+<div class="insight"><strong>3</strong><p>iOS/macOS 客户端本周补测 26.6，重点观察 Spotlight 索引、耗电和首启。</p></div>
+<div class="insight"><strong>4</strong><p>后台盘点非人身份，禁止 Agent 复用人的长期 Token 或共享生产账号。</p></div>
+<div class="insight"><strong>5</strong><p>评估 Codex Security、LFM2.5 等工具时，使用自有历史漏洞与真实长文档，不引用供应商榜单代替验收。</p></div>
+<footer><strong>信息源：</strong>65+ 个全球精选科技、AI、工程与系统可靠性来源。报道、观点、推断与作者自测均按各条事实边界标注。<br>
+Tech Digest # 68 · 2026-07-29</footer>
+</main></div></body></html>
