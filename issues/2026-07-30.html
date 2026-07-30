@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="zh-CN"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Tech Digest #69：提示注入开始沿文档传播</title>
+<meta name="description" content="研究者报告 Copilot for Word 中的隐藏提示可篡改内容并复制到新文档；今天从文档蠕虫、npm 多包攻击到可执行评测，讨论 AI 工作流的信任边界。">
+<meta property="og:title" content="Tech Digest #69：提示注入开始沿文档传播">
+<meta property="og:description" content="研究者报告 Copilot for Word 中的隐藏提示可篡改内容并复制到新文档；今天从文档蠕虫、npm 多包攻击到可执行评测，讨论 AI 工作流的信任边界。">
+<meta property="og:image" content="https://enklypesalt.com/assets/images/2026-07-28/Initial%20Attack%20Vector%20-%20blurred.png">
+<style>
+:root{--text:#17231d;--muted:#5e6c65;--line:#dce6e0;--green:#147a50;--pale:#eef8f2;--blue:#2563a8;--yellow:#9a6500;--red:#a93838;--purple:#6b4fa3;--surface:#fff}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:#f6f8f7;color:var(--text);font:16px/1.72 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;letter-spacing:0}
+a{color:var(--green);text-decoration:none}a:hover{text-decoration:underline}.topbar{position:sticky;top:0;z-index:4;display:flex;align-items:center;justify-content:space-between;padding:12px 24px;background:rgba(255,255,255,.95);border-bottom:1px solid var(--line);backdrop-filter:blur(12px)}.brand{font-weight:800}.topbar nav{display:flex;gap:16px;font-size:.9rem}
+.page{display:grid;grid-template-columns:210px minmax(0,820px);gap:36px;max-width:1120px;margin:0 auto;padding:34px 24px 70px}.toc{position:sticky;top:76px;align-self:start;display:flex;flex-direction:column;gap:7px;font-size:.84rem}.toc a{color:var(--muted)}main{min-width:0}
+h1{font-size:2.15rem;line-height:1.28;margin:10px 0 8px;letter-spacing:0}h2{font-size:1.38rem;margin:42px 0 16px;border-bottom:1px solid var(--line);padding-bottom:9px;letter-spacing:0}h3{font-size:1.06rem;line-height:1.5;margin:0 0 10px;letter-spacing:0}h4{font-size:.98rem;margin:16px 0 6px;letter-spacing:0}p{margin:0 0 13px;color:var(--muted)}
+.meta,.hero-caption,small{color:#7d8983;font-size:.82rem}.highlights,.callout{padding:16px 18px;border-left:4px solid var(--green);background:var(--pale);border-radius:6px;margin:20px 0}.article-img{width:100%;max-height:390px;object-fit:cover;border-radius:6px;margin:12px 0 6px;background:#edf1ef}.hero-caption{text-align:center;margin-top:-2px}
+.main-story,.entry,.concept,.curiosity,.resource,.quote,.podcast{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:22px;margin:14px 0}.main-story{background:linear-gradient(135deg,#f2faf5,#fff 66%)}.story-hook,.hook{font-weight:700;color:var(--green)}.story-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:16px 0}.story-field{padding:13px;border:1px solid var(--line);border-radius:6px;color:var(--muted);font-size:.9rem}.story-field strong{display:block;color:var(--text);margin-bottom:3px}.number-chip,.tag,.priority,.certainty{display:inline-block;border-radius:999px;padding:3px 9px;font-size:.72rem;font-weight:750;margin:3px 5px 3px 0}.number-chip{background:#e7f0fb;color:var(--blue)}.story-line{background:#f2eef9;border-left:4px solid var(--purple);padding:12px 14px;border-radius:6px;font-weight:700}
+.trend-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.trend-card,.tool-card{background:#fff;border:1px solid var(--line);border-radius:8px;padding:17px}.trend-conflict{color:var(--red);font-weight:750;font-size:.82rem;margin-bottom:8px}.tool-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.tag{background:var(--green);color:#fff}.priority{background:#eef1ef;color:var(--muted)}.certainty-confirmed{background:#e6f6ed;color:var(--green)}.certainty-announced{background:#e9f1fb;color:var(--blue)}.certainty-reported{background:#fff4d8;color:var(--yellow)}.certainty-opinion,.certainty-inference{background:#f1ecf8;color:var(--purple)}.certainty-rumor{background:#fbeaea;color:var(--red)}
+.fact{font-size:.86rem;padding:9px 11px;background:#fff8e8;border-radius:5px}.why{font-size:.9rem}.curiosity{background:#fff7e9}.concept{border-left:4px solid var(--green)}.quote{background:#f6f2fb;border-left:4px solid var(--purple)}blockquote{margin:0 0 12px;font-size:1.02rem;font-style:italic}.team{padding:9px 11px;background:#edf8f2;border-radius:5px}.resource{background:#edf5ff}.podcast{background:#f8faf9}.insight{display:flex;gap:12px;align-items:flex-start;padding:14px 16px;margin:10px 0;background:#fff8dc;border-left:4px solid #d59b14;border-radius:6px}.insight p{margin:0}
+footer{margin-top:44px;padding:18px;background:#edf1ef;border-radius:8px;color:#77837d;font-size:.8rem}
+@media(max-width:860px){.page{grid-template-columns:1fr}.toc{display:none}.trend-grid,.story-grid{grid-template-columns:1fr}}@media(max-width:620px){.topbar nav{display:none}.page{padding:22px 16px 54px}.tool-grid{grid-template-columns:1fr}h1{font-size:1.7rem}.main-story,.entry,.concept,.curiosity,.resource,.quote,.podcast{padding:17px}}
+</style></head><body>
+<header class="topbar"><a class="brand" href="../index.html">Tech Digest</a>
+<nav><a href="../index.html">Archive</a><a href="#main-story">Today</a><a href="#tools">Tools</a><a href="#quotes">Quotes</a></nav>
+<span>2026-07-30</span></header>
+<div class="page">
+<nav class="toc">
+  <strong>本期目录</strong>
+  <a href="#main-story">🔥 主故事</a><a href="#trends">⚡ 冲突趋势</a>
+  <a href="#tech-news">📰 科技动态</a><a href="#ai">🤖 AI 相关</a>
+  <a href="#articles">📝 文章推荐</a><a href="#tools">🛠️ 工具推荐</a>
+  <a href="#ai-tools">🧠 AI 工具</a><a href="#concepts">🧩 概念库</a>
+  <a href="#curiosity">🎲 好奇心</a><a href="#resources">📚 资源</a>
+  <a href="#quotes">💬 言论</a><a href="#podcast">🎙️ 播客</a>
+  <a href="#team-insights">✅ 团队启发</a>
+</nav>
+<main>
+<a href="../index.html">← 返回目录</a>
+<h1>第 69 期：当文档开始携带指令，AI 工作流就成了新的供应链</h1>
+<p class="meta">第 69 期 · 2026年7月30日，星期四</p>
+<p class="highlights"><strong>✨ 本期亮点：</strong>Word 提示注入被报告可随新文档继续传播，公开时变体仍可复现 · Socket 报告 18 个 npm 包把恶意加载链拆进多个依赖 · HANDBOOK.md 作者基准中，124 页规则下最佳严格通过率仅 36.2% · Airbnb 用 Eval-Driven Development 把真实失败模式写成持续评测 · Datadog 报告用 9700 万参数模型把每日约 100 亿事件筛到约 1 万条再交给 Agent · X 社区雷达成功抓取 PaperPush、Claude 移动教程与 Stanford LLM 课程线索</p>
+<img class="article-img" src="https://enklypesalt.com/assets/images/2026-07-28/Initial%20Attack%20Vector%20-%20blurred.png" alt="Word 文档提示注入攻击流程截图" loading="lazy"><p class="hero-caption">研究者演示：外部 Word 文档中的隐藏提示可影响 Copilot 输出，并随生成的新文档继续传播。该结论来自协调披露研究，微软未发布独立公告。</p>
+<div class="callout"><strong>🎯 本期核心判断：</strong>当 AI 开始读取、改写并转发工作内容，文档、规则和上下文本身都会成为可执行供应链。团队不能只给模型更多提示词，而要把来源隔离、确定性校验、最小权限和可追踪评测放到模型之外。</div>
+<h2 id="main-story">🔥 主故事</h2>
+    <article class="main-story">
+      <h3>一份 Word 文档，如何把提示注入带进下一份报告</h3>
+      <p class="story-hook">攻击者不需要让员工运行宏，只要让 Copilot 把一段隐藏指令当成工作上下文。</p>
+      <p>安全研究者 Håkon Måløy 报告，他在外部 Word 文档中放入白底白字的隐藏提示。当用户让 Copilot 参考这份文档处理财务数据时，模型会按攻击者意图修改结果，并把隐藏提示复制进新生成的内部文档。以后即使原始恶意文件不再出现，只要同事继续引用被污染的文档，攻击链就可能延续。</p>
+      <div class="story-grid">
+        <div class="story-field"><strong>核心冲突</strong>Agent 必须读取业务文档才能创造价值，但模型看到的“资料”和“指令”往往进入同一上下文。传统文件边界仍然存在，语义边界却被压平：一个被授权读取的文档，也可能借模型获得写入和传播能力。</div>
+        <div class="story-field"><strong>转折点</strong>关键变化不是“又一个提示注入”，而是传播机制。攻击指令不再只影响当前对话，而会被写进新的业务产物，在后续检索和生成中再次触发。文档由静态数据变成携带行为的节点。</div>
+        <div class="story-field"><strong>为什么是现在</strong>企业正在把 Copilot、Coding Agent 和知识库接入同一条工作流。读、写、搜索、转发一旦连通，单次提示注入就可能升级为跨文档、跨会话、跨人员的供应链问题。</div>
+        <div class="story-field"><strong>对团队的启发</strong>给企业 Agent 增加四道闸门：外部内容与用户指令分通道；生成物记录输入来源；金额、权限、身份和配置变更使用非模型校验；跨文档复制隐藏内容、异常格式或不可见文本时触发阻断与审计。</div>
+      </div>
+      <p><span class="number-chip">协调披露历时 144 天</span><span class="number-chip">研究者称 2026 年 3 月 31 日微软确认所报告行为</span><span class="number-chip">研究者记录两轮缓解措施</span><span class="number-chip">研究者称 7 月 28 日仍可用变体复现</span></p>
+      <p><strong>我的判断：</strong>这不是微软已经确认的通用“AI 蠕虫”事件，而是研究者在协调披露后公开的可复现实验；微软没有独立发布公告或 CVE。工程上仍应按真实攻击类别处理：模型输入必须保留来源标签，外部内容不能获得指令优先级，写入的新文档要记录生成链，敏感数据变更要经过确定性校验。</p>
+      <div class="story-line">当文档既是资料又能携带指令，文件流转就变成了代码执行链。</div>
+      <p><strong>来源：</strong><a href="https://enklypesalt.com/posts/context-collapse-part3-ai-worming-through-word/" target="_blank" rel="noopener noreferrer">enklypesalt.com</a></p>
+    </article>
+<h2 id="trends">⚡ 今日冲突趋势</h2><div class="trend-grid"><article class="trend-card"><h3>上下文越丰富，输入供应链越长</h3><div class="trend-conflict">Agent 自动检索更多资料 vs 外部内容获得隐性指令权</div><p>检索增强不能只计算召回率，还要追踪每段上下文的来源、权限和传播路径。</p><small>enklypesalt.com · socket.dev</small></article>
+<article class="trend-card"><h3>规则写得更长，不代表 Agent 更合规</h3><div class="trend-conflict">20-124 页企业规则 vs 作者基准中 36.2% 最佳严格通过率</div><p>关键规则要从提示词迁移为权限、类型、测试和审批条件。</p><small>arxiv.org · medium.com</small></article>
+<article class="trend-card"><h3>Agent 推理昂贵，前置筛选必须便宜</h3><div class="trend-conflict">每天约 100 亿安全事件 vs 约 1 万条高价值 Agent 输入</div><p>让小模型做高召回筛选，让昂贵 Agent 只处理带证据的少量候选。</p><small>datadoghq.com · bair.berkeley.edu</small></article></div>
+<h2 id="tech-news">📰 科技动态</h2>
+<article class="entry"><h3>1、<a href="https://socket.dev/blog/npm-rat-targets-alibaba" target="_blank" rel="noopener noreferrer">Socket 报告：18 个 npm 包把 RAT 加载链拆进多个依赖</a> <span class="certainty certainty-安全厂商报告">安全厂商报告</span></h3>
+<p class="hook">单个包看起来无害，整棵依赖树拼起来才出现完整攻击链。</p>
+<p>Socket 分析称，攻击者把恶意逻辑拆到多个看似正常的 npm 包中，组合后可绕过 Node.js vm 沙箱、下载跨平台 RAT，并包含 Aone、钉钉和中文开发工具相关逻辑。</p>
+<p class="why"><strong>为什么重要：</strong>Web、Node.js 和跨端团队应审计依赖图、安装脚本与运行时下载行为，而不是只看单包代码和下载量。</p>
+<p class="fact"><strong>事实边界：</strong>包链和行为来自 Socket 研究；“针对阿里开发者”是根据仿冒包名及 Aone、钉钉相关代码作出的归因，不是阿里官方确认。</p>
+<img class="article-img" src="https://cdn.sanity.io/images/cgdhsj6q/production/8a8cb545ad0872bae8a8b0ed458fa9c201f5eb2e-1672x941.png?w=1600&amp;q=95&amp;fit=max&amp;auto=format" alt="Socket 报告：18 个 npm 包把 RAT 加载链拆进多个依赖" loading="lazy">
+</article>
+<article class="entry"><h3>2、<a href="https://www.microsoft.com/en-us/investor/events/fy-2026/earnings-fy-2026-q4" target="_blank" rel="noopener noreferrer">微软确认 Anthropic 投资带来 32 亿美元会计收益</a> <span class="certainty certainty-已证实">已证实</span></h3>
+<p class="hook">云平台既投资外部模型公司，也在用自研模型降低推理成本。</p>
+<p>微软 FY2026 Q4 电话会披露，Anthropic 投资本季度带来 32 亿美元收益；同期季度资本开支为 410 亿美元，并继续强调自研 MAI 模型与可替换模型架构。</p>
+<p class="why"><strong>为什么重要：</strong>企业应把模型视为可替换组件，把长期资产放在数据、评测、业务上下文和治理层。</p>
+<p class="fact"><strong>事实边界：</strong>32 亿美元是微软官方披露的投资会计收益，不等同于现金回款、融资额、收购价格或 Anthropic 当前估值。</p>
+
+</article>
+<article class="entry"><h3>3、<a href="https://www.fcc.gov/document/fcc-adds-foreign-produced-power-inverters-and-robots-covered-list-0" target="_blank" rel="noopener noreferrer">FCC 将外国制造的机器人和电力逆变器加入 Covered List</a> <span class="certainty certainty-已证实">已证实</span></h3>
+<p class="hook">机器人还未大规模进入家庭，监管已经把摄像头、执行器和远程更新视为基础设施风险。</p>
+<p>FCC 宣布把外国生产的机器人与电力逆变器加入限制清单，新设备原则上无法获得进入美国市场所需的设备授权；政府认定无国家安全风险时可例外，已安装设备不受影响。</p>
+<p class="why"><strong>为什么重要：</strong>机器人、IoT 和客户端团队要提前盘点组件来源、远程控制面和设备认证，不要等发布前再补合规。</p>
+<p class="fact"><strong>事实边界：</strong>限制由 FCC 官方公告确认；它针对新设备授权和进口准入，不是召回或禁用现有设备，并保留例外机制。</p>
+
+</article>
+<article class="entry"><h3>4、<a href="https://blog.cloudflare.com/post-quantum-authentication-to-origins/" target="_blank" rel="noopener noreferrer">Cloudflare 为源站 mTLS 加入后量子身份认证</a> <span class="certainty certainty-官方发布">官方发布</span></h3>
+<p class="hook">后量子迁移不只要保护密文，还要避免未来有人伪造服务器身份。</p>
+<p>Cloudflare 为 Authenticated Origin Pulls 与 Custom Origin Trust Store 加入基于 ML-DSA 的后量子认证，覆盖 Cloudflare 到源站的身份校验链路。</p>
+<p class="why"><strong>为什么重要：</strong>涉及 CDN、API 网关、源站 mTLS 和长期敏感数据的后台团队，应开始盘点签名算法与证书链。</p>
+<p class="fact"><strong>事实边界：</strong>功能范围由 Cloudflare 官方确认；当前只覆盖指定源站认证产品，不代表所有客户端到站点连接都已完整后量子化。</p>
+<img class="article-img" src="https://blog.cloudflare.com/_emdash/api/media/file/01KYN5V56B8HHHZ71NTH17JJVV.png" alt="Cloudflare 为源站 mTLS 加入后量子身份认证" loading="lazy">
+</article>
+<article class="entry"><h3>5、<a href="https://github.blog/security/supply-chain-security/tame-dependabot-group-your-updates-slow-the-cadence-keep-security-fast/" target="_blank" rel="noopener noreferrer">GitHub 建议把普通 Dependabot 更新降频，安全更新保持快速</a> <span class="certainty certainty-官方工程实践">官方工程实践</span></h3>
+<p class="hook">安全机器人也会制造足够多的噪声，让真正紧急的更新被忽略。</p>
+<p>GitHub 以 Microsoft GCToolkit 为例，建议按生态合并普通版本更新并降低到月度节奏，同时保持安全更新快速处理，以减少重复 PR、CI 和人工审查。</p>
+<p class="why"><strong>为什么重要：</strong>Web、iOS、Android、PC 和后台仓库都可直接调整 `dependabot.yml`，把维护更新与安全响应拆成不同节奏。</p>
+<p class="fact"><strong>事实边界：</strong>92/578 提交与 61 次升级来自 GitHub 对单一案例仓库的统计，不能外推为所有仓库的普遍收益。</p>
+<img class="article-img" src="https://github.blog/wp-content/uploads/2026/01/generic-security-logo-github-blocks.png?fit=1920%2C1080" alt="GitHub 建议把普通 Dependabot 更新降频，安全更新保持快速" loading="lazy">
+</article>
+<h2 id="ai">🤖 AI 相关</h2>
+<article class="entry"><h3>1、<a href="https://arxiv.org/abs/2607.25398" target="_blank" rel="noopener noreferrer">HANDBOOK.md：长达 124 页的规则，最佳严格通过率仍只有 36.2%</a> <span class="certainty certainty-作者 Benchmark 报告">作者 Benchmark 报告</span></h3>
+<p class="hook">把规则完整塞进上下文，不等于 Agent 在第 30 步仍然服从。</p>
+<p>论文用 65 个跨金融、医疗账单、保险、物流和 HR 的任务，测试 Agent 能否持续遵守 20 至 124 页规则。在必须满足全部条件的严格评分下，作者报告 30 种配置中最佳通过率为 36.2%。</p>
+<p class="why"><strong>为什么重要：</strong>关键政策要转为确定性校验、权限限制和可测试验收条件，不能只依赖系统提示。</p>
+<p class="fact"><strong>事实边界：</strong>数字来自作者公开基准，尚未看到独立复现；任务和规则为研究环境，不能直接外推到所有企业流程。</p>
+
+</article>
+<article class="entry"><h3>2、<a href="https://medium.com/airbnb-engineering/eval-driven-development-lessons-from-evaluating-genai-at-scale-e817e5ae5788" target="_blank" rel="noopener noreferrer">Airbnb 用 Eval-Driven Development 把 GenAI 失败模式写进开发流程</a> <span class="certainty certainty-官方工程实践">官方工程实践</span></h3>
+<p class="hook">AI 功能的规格，往往是在真实失败输出里被发现的。</p>
+<p>Airbnb 工程团队把 EDD 类比 TDD：先检查真实输出，提炼失败模式，再把它们编码为确定性检查、LLM Judge 与人工评审，并增加 Agent trace 评测。</p>
+<p class="why"><strong>为什么重要：</strong>适合 Web、移动端和后台 AI 功能：先建立失败样本，再选择规则、Judge 或人工评审，不要只盯一个总分。</p>
+<p class="fact"><strong>事实边界：</strong>样本规模和 Judge 一致率是文章中的实践建议或示例，不是 Airbnb 全部生产系统的统一指标。</p>
+<img class="article-img" src="https://miro.medium.com/v2/resize:fit:1200/1*XK40dh-lXviuXXY_WhUCUA.jpeg" alt="Airbnb 用 Eval-Driven Development 把 GenAI 失败模式写进开发流程" loading="lazy">
+</article>
+<article class="entry"><h3>3、<a href="https://www.datadoghq.com/blog/ai/ai-security-detection-pipeline/" target="_blank" rel="noopener noreferrer">Datadog 报告：先把每日约 100 亿事件筛到约 1 万条，再交给 Agent</a> <span class="certainty certainty-厂商工程报告">厂商工程报告</span></h3>
+<p class="hook">昂贵推理的前提，不是更大的模型，而是更好的候选集。</p>
+<p>Datadog 介绍安全检测管线：约 9700 万参数的 Mambark 模型先高召回筛选事件，把每天约 100 亿条输入缩到约 1 万条，再由更昂贵的 Agent 做解释和调查。</p>
+<p class="why"><strong>为什么重要：</strong>后台与安全团队可复用两级架构：便宜模型做高召回筛选，Agent 只处理带证据的少量候选。</p>
+<p class="fact"><strong>事实边界：</strong>规模、模型效果和成本估计来自 Datadog，未披露完整硬件与独立复现；当前面向设计伙伴，不能视为通用生产 Benchmark。</p>
+<img class="article-img" src="https://web-assets.dd-static.net/42588/1784301707-security-detection-hero.jpg" alt="Datadog 报告：先把每日约 100 亿事件筛到约 1 万条，再交给 Agent" loading="lazy">
+</article>
+<article class="entry"><h3>4、<a href="https://bair.berkeley.edu/blog/2026/07/29/cuda-to-mlx-k-search/" target="_blank" rel="noopener noreferrer">BAIR 用 K-Search 自动搜索 CUDA 到 MLX 的高性能实现</a> <span class="certainty certainty-作者 Benchmark 报告">作者 Benchmark 报告</span></h3>
+<p class="hook">Agent 的优势不是一次写对 kernel，而是把编译、测量和改写变成搜索循环。</p>
+<p>Berkeley 团队让 Agent 迭代生成、编译和测量 MLX kernel。作者报告注意力实现从 CUDA 基线的 0.26 倍提升到 0.97 倍，并在特定 Mamba prefill 场景达到相对 mlx-lm 最高 20 倍。</p>
+<p class="why"><strong>为什么重要：</strong>端侧 AI 与客户端性能团队可借鉴：固定正确性门槛和真实硬件 Benchmark，让 Agent 优化可测目标。</p>
+<p class="fact"><strong>事实边界：</strong>结果来自作者在指定模型、硬件与 kernel 上的测量；20 倍不是所有 MLX 模型或任务的普遍提升。</p>
+<img class="article-img" src="https://bair.berkeley.edu/static/blog/cuda-to-mlx-k-search/cover.png" alt="BAIR 用 K-Search 自动搜索 CUDA 到 MLX 的高性能实现" loading="lazy">
+</article>
+<article class="entry"><h3>5、<a href="https://tech.meituan.com/2026/07/28/CatPaw-LongCat.html" target="_blank" rel="noopener noreferrer">美团发布 CatPaw，称内部覆盖 9 万员工与 3 万个 Agent</a> <span class="certainty certainty-产品已发布；规模为厂商自报">产品已发布；规模为厂商自报</span></h3>
+<p class="hook">当 Agent 数量达到员工人数三分之一，权限、凭证和成本才是主系统。</p>
+<p>美团发布基于 LongCat 2.0 的 CatPaw，覆盖个人工作台与企业 Managed Agents，提供云端运行、多 Agent 并发、凭证托管、租户隔离、可观测性和私有化部署。</p>
+<p class="why"><strong>为什么重要：</strong>企业 Agent 平台要补齐沙箱、凭证代理、租户隔离、观测、成本和跨端任务连续性。</p>
+<p class="fact"><strong>事实边界：</strong>产品与体验入口由美团官方确认；9 万员工、3 万 Agent、冷启动等规模数据为美团自报，未独立验证。</p>
+<img class="article-img" src="https://p1.meituan.net/meituantechblog/c420461dabaf2d73c4ca4ec3b106af25470856.jpg" alt="美团发布 CatPaw，称内部覆盖 9 万员工与 3 万个 Agent" loading="lazy">
+</article>
+<h2 id="articles">📝 文章推荐</h2>
+<article class="entry"><h3><a href="https://newsletter.pragmaticengineer.com/p/inside-anthropic" target="_blank" rel="noopener noreferrer">Anthropic 内部如何开发软件：生成更快后，验证成为瓶颈</a></h3><p class="hook">实现从一年压到数天后，最昂贵的工作变成证明代码可信。</p><p>The Pragmatic Engineer 采访四位相关人员，描述 Anthropic 内部从实现转向规划、审查与验证的变化，并提到凭证在出口代理处注入，Agent、沙箱和会话看不到原始凭证。</p><p class="story-line"></p><img class="article-img" src="https://substackcdn.com/image/fetch/$s_!0GCi!,w_1200,h_675,c_fill,f_jpg,q_auto:good,fl_progressive:steep,g_auto/https%3A%2F%2Fsubstack-post-media.s3.amazonaws.com%2Fpublic%2Fimages%2Ff86124b7-b1c1-4e0e-9f57-42f5e6de75ed_2048x976.png" alt="Anthropic 内部如何开发软件：生成更快后，验证成为瓶颈" loading="lazy"></article>
+<article class="entry"><h3><a href="https://blog.trailofbits.com/2026/07/28/how-we-use-goal-to-find-bugs-in-patch-the-planet/" target="_blank" rel="noopener noreferrer">Trail of Bits：让 Agent 找漏洞时，一个 Agent 只负责一个可验证结果</a></h3><p class="hook">维护者以为背后是一支安全团队，实际是一名工程师加目标驱动 Agent。</p><p>Trail of Bits 总结三条实践：让 Agent 起草并反向审查目标、定义结果而不是执行路径、每个 Agent 只承担一个结果。团队报告在多个项目中发现 11 个历史漏洞变体。</p><p class="story-line"></p><img class="article-img" src="https://blog.trailofbits.com/2026/07/28/how-we-use-goal-to-find-bugs-in-patch-the-planet/goal_ptp_banner.png" alt="Trail of Bits：让 Agent 找漏洞时，一个 Agent 只负责一个可验证结果" loading="lazy"></article>
+<article class="entry"><h3><a href="https://blog.bytebytego.com/p/how-chatgpt-optimizes-its-agent-loop" target="_blank" rel="noopener noreferrer">ChatGPT Agent Loop 的性能不只取决于模型</a></h3><p class="hook">Agent 的浪费可能发生在每轮重复发送、解析和处理同一批上下文。</p><p>ByteByteGo 把 Agent 性能拆成 Harness、API 和推理三层，讨论持久 WebSocket、稳定提示前缀、延迟工具发现、增量 tokenize、KV Cache 和 prefill/decode 分离。</p><p class="story-line"></p><img class="article-img" src="https://substackcdn.com/image/fetch/$s_!VkzQ!,w_1200,h_675,c_fill,f_jpg,q_auto:good,fl_progressive:steep,g_auto/https%3A%2F%2Fsubstack-post-media.s3.amazonaws.com%2Fpublic%2Fimages%2Fa4314ac2-a739-4ae7-ab1d-2bc1bae512db_1695x2048.png" alt="ChatGPT Agent Loop 的性能不只取决于模型" loading="lazy"></article>
+<article class="entry"><h3><a href="https://drewdevault.com/blog/AI-in-Linux/" target="_blank" rel="noopener noreferrer">AI 应该进入 Linux 的上游开发流程吗</a></h3><p class="hook">生成补丁近乎免费时，开源维护者的审查时间反而更稀缺。</p><p>Drew DeVault 讨论 AI 生成补丁进入 Linux 等开源项目时的责任、审查和维护成本。核心不是禁止工具，而是谁承担证明补丁正确、可维护且没有把验证成本转嫁给社区。</p><p class="story-line"></p></article>
+<h2 id="tools">🛠️ 工具推荐</h2><div class="tool-grid">
+<article class="tool-card"><div><span class="tag">Linux/Desktop</span><span class="priority">P1</span></div><h3><a href="https://starling.build/" target="_blank" rel="noopener noreferrer">Starling Desktop</a></h3><p>用 Swift、C/C++ 构建的 Linux 桌面环境，可运行 Chrome、Slack、Zoom，支持 Wayland 与 X11。作者称 6 个月完成约 33.5 万行代码；当前为 v0.2.1 早期预览，主要在 Ubuntu 26.04 AMD 环境测试。</p></article>
+<article class="tool-card"><div><span class="tag">Web/Backend/Product</span><span class="priority">P0</span></div><h3><a href="https://prelint.com/" target="_blank" rel="noopener noreferrer">Prelint</a></h3><p>把 PR 与产品规格、ADR 和历史决策对照，检查 AI 代码是否悄悄改变定价、权限、合规或领域语言。适合先在只读 PR 检查中试用；厂商声称的约 40% 发现率没有公开样本。</p></article>
+<article class="tool-card"><div><span class="tag">macOS/On-device AI</span><span class="priority">P1</span></div><h3><a href="https://github.com/drumih/turbo-fieldfare" target="_blank" rel="noopener noreferrer">TurboFieldfare</a></h3><p>Swift/Metal 模型专用运行时，通过按 token 从 SSD 加载专家，让 8GB M2 Mac 运行 Gemma 4 26B-A4B。作者自报约 2GB RAM、5.1-6.3 tok/s；完整模型仍占约 14.3GB 磁盘。</p></article>
+<article class="tool-card"><div><span class="tag">Backend/Language</span><span class="priority">P2</span></div><h3><a href="https://gleam.run/news/a-field-day-for-gleams-language-server/" target="_blank" rel="noopener noreferrer">Gleam 1.18</a></h3><p>语言服务器新增 record 字段跳转、引用查找、重命名和模块重命名 import 更新。官方在部分工程测得格式化最高快 13%、峰值内存低 10%，不代表所有项目。</p></article>
+<article class="tool-card"><div><span class="tag">PC/Coding Agent</span><span class="priority">P2</span></div><h3><a href="https://github.com/1jehuang/jcode" target="_blank" rel="noopener noreferrer">jcode</a></h3><p>跨平台 Coding Agent TUI，支持多模型、MCP 与多会话。项目方自测关闭本地 embedding 时单会话约 27.8MB PSS；仍在快速迭代，建议在无敏感凭证仓库对照质量与稳定性。</p></article>
+<article class="tool-card"><div><span class="tag">Web/iOS/Android/Voice</span><span class="priority">P1</span></div><h3><a href="https://github.com/huggingface/speech-to-speech" target="_blank" rel="noopener noreferrer">Hugging Face Speech-to-Speech</a></h3><p>模块化本地语音 Agent 管线，把 VAD、STT、LLM、TTS 暴露为 OpenAI Realtime 兼容 WebSocket API，可接 vLLM、llama.cpp 或托管模型；近期修复 macOS MLX 多线程 Metal 队列崩溃。</p></article>
+</div>
+<h2 id="ai-tools">🧠 AI 工具</h2><div class="tool-grid">
+<article class="tool-card"><div><span class="tag">Web/iOS/Android/Backend</span><span class="priority">P0</span></div><h3><a href="https://developers.openai.com/blog/custom-code-review-rules-for-codex" target="_blank" rel="noopener noreferrer">Codex 自定义代码审查规则</a></h3><p>把仓库特定规则写入 `AGENTS.md`，让 Codex Review 按架构、测试与安全约束检查 PR。OpenAI 内部评测报告 98% 对 58.3%，但未披露样本规模，团队仍需用自己的历史 PR 建基线。</p></article>
+<article class="tool-card"><div><span class="tag">Backend/MCP</span><span class="priority">P0</span></div><h3><a href="https://developers.openai.com/blog/connect-private-mcp-servers-to-openai-products" target="_blank" rel="noopener noreferrer">Secure MCP Tunnel</a></h3><p>通过出站 HTTPS 长轮询把私有 MCP Server 接入 OpenAI 产品，无需开放入站公网端点。数据仍经过 OpenAI 端点；上线前应审查认证、数据范围、日志和撤销机制。</p></article>
+<article class="tool-card"><div><span class="tag">iOS/Android/Coding Agent</span><span class="priority">P1</span></div><h3><a href="https://developers.openai.com/blog/mastering-codex-remote-for-engineering" target="_blank" rel="noopener noreferrer">Codex Remote 移动工作流</a></h3><p>从移动端 Queue、Steer、并行 side chat 和 Goal 管理远程工程任务。适合排队检查、日志分析和文档工作；涉及生产写入仍应保留人工确认与最小权限。</p></article>
+<article class="tool-card"><div><span class="tag">PC/Team Workflow</span><span class="priority">P2</span></div><h3><a href="https://github.com/different-ai/openwork" target="_blank" rel="noopener noreferrer">OpenWork</a></h3><p>开源跨平台 AI 工作流桌面应用，可把 skills、MCP 和连接配置复用于 Codex、Claude Code、Cursor 及团队设备。v0.18.11 的 Windows 安装包暂未签名，远程指令必须人工审查。</p></article>
+<article class="tool-card"><div><span class="tag">Research/AI Tool</span><span class="priority">P2</span></div><h3><a href="https://x.com/lpachter/status/2082582760913510779" target="_blank" rel="noopener noreferrer">PaperPush</a></h3><p>X 社区发现的 AI 学术投稿辅助工具线索，目标是检查稿件与投稿流程。当前仅核验推文和产品演示存在，尚未独立验证准确率、隐私策略与出版社兼容性；上传未公开论文前必须先审查数据条款。</p></article>
+</div>
+<h2 id="concepts">🧩 本期概念库</h2>
+<article class="concept"><h3>1. 上下文供应链（Context Supply Chain）</h3><p><strong>一句话解释：</strong>进入模型上下文的文档、网页、检索结果和工具输出，会共同影响后续决策与生成物。</p><p><strong>为什么重要：</strong>任一外部内容都可能携带误导指令，并通过新生成内容继续传播。</p><p><strong>团队应用：</strong>为每段上下文保留来源、信任级别、权限和传播记录。</p></article>
+<article class="concept"><h3>2. 语义信任边界（Semantic Trust Boundary）</h3><p><strong>一句话解释：</strong>传统权限只判断能否读取文件；语义边界还要判断文件中的文字能否被当作指令执行。</p><p><strong>为什么重要：</strong>“可读”不应自动等于“可改变 Agent 行为”。</p><p><strong>团队应用：</strong>把用户指令、系统规则、外部资料和工具结果分通道处理。</p></article>
+<article class="concept"><h3>3. 严格通过率（Strict Pass Rate）</h3><p><strong>一句话解释：</strong>任务必须满足全部规则才算通过，而不是部分正确或模型自称已完成。</p><p><strong>为什么重要：</strong>长流程中一个关键条件失败，就可能让整体结果不可用或不合规。</p><p><strong>团队应用：</strong>对资金、权限和合规流程使用全条件验收，并报告失败条件。</p></article>
+<article class="concept"><h3>4. 分层推理（Cascaded Reasoning）</h3><p><strong>一句话解释：</strong>先用便宜、快速的规则或小模型筛选，再把少量高价值候选交给昂贵 Agent 深入处理。</p><p><strong>为什么重要：</strong>它把 Agent 成本集中在真正需要解释和决策的输入上。</p><p><strong>团队应用：</strong>记录每一层的召回、误报、延迟和单位有效结果成本。</p></article>
+<h2 id="curiosity">🎲 还能这样？今日好奇心</h2>
+<article class="curiosity"><h3><a href="https://christianselig.com/2026/07/vision-pro-house/" target="_blank" rel="noopener noreferrer">用一个上午把未来住宅搬进 Vision Pro</a></h3><p class="hook">一个长期闲置的头显，在最难撤销的现实决策上找到了用途：墙到底应该放在哪里。</p><p>Christian Selig 将住宅平面图建模、导出 USDZ，再用 Claude 与 Codex 写出 Vision Pro 查看器，实现漫游、地形跟随和现实视图切换。</p><p><strong>背后的启发：</strong>AI 编程让一次性的高价值工具变得值得做；空间计算最适合预演昂贵且不可逆的现实决策。</p><img class="article-img" src="https://christianselig.com/2026/07/vision-pro-house/hero.jpeg" alt="用一个上午把未来住宅搬进 Vision Pro" loading="lazy"></article>
+<article class="curiosity"><h3><a href="https://deepmind.google/models/lyria/" target="_blank" rel="noopener noreferrer">Lyria 3.5 把音乐生成继续推向可编辑工作流</a></h3><p class="hook">生成音乐的下一步不是更长的样片，而是让创作者能控制结构、风格和局部修改。</p><p>Google DeepMind 更新 Lyria 系列能力，强调音乐生成、转换和创作控制。官方尚未提供可与其他模型直接比较的独立 Benchmark。</p><p><strong>背后的启发：</strong>创作工具的护城河会从一次生成质量，转向可编辑性、版权治理和现有制作流程的集成。</p><img class="article-img" src="https://lh3.googleusercontent.com/1M9XfxVqkMo2QOJEnVbtQaUWDi52VOhu4ZB6pC5V1GmklVyqE6wsblOiPoQrCnBKkRdRJ5wtR3ApDp31SqgPslO6eYtRTHzR7sY" alt="Lyria 3.5 把音乐生成继续推向可编辑工作流" loading="lazy"></article>
+<h2 id="resources">📚 资源</h2>
+<article class="resource"><h3><a href="https://cheatsheetseries.owasp.org/cheatsheets/LLM_Prompt_Injection_Prevention_Cheat_Sheet.html" target="_blank" rel="noopener noreferrer">OWASP LLM Prompt Injection Prevention Cheat Sheet</a></h3><p>提示注入防护清单，覆盖输入分离、输出校验、最小权限、人机确认和远程内容风险。用于设计控制面，不代表单一措施可以彻底阻止攻击。</p></article>
+<article class="resource"><h3><a href="https://platform.openai.com/docs/guides/evals-design" target="_blank" rel="noopener noreferrer">OpenAI Evals Design Guide</a></h3><p>从任务定义、数据集、评分器到持续评测的设计指南。适合把业务失败模式转成可重复的回归门禁。</p></article>
+<h2 id="quotes">💬 言论：本期认知增量</h2>
+<article class="quote"><blockquote>前沿竞赛需要一种所有参与者都能接受的减速机制，否则单家公司没有主动踩刹车的激励。</blockquote><p><strong><a href="https://www.pacingthefrontier.com/" target="_blank" rel="noopener noreferrer">Pacing the Frontier 联署</a></strong> · 摘要式转述/观点 · AI治理 / 协调</p><p>抓取时页面显示 1,273 名签名者；人数会变化，观点不代表其雇主。</p><p class="team"><strong>团队启发：</strong>高风险能力发布前，预先定义触发暂停、升级审查和跨团队协调的阈值。</p></article>
+<article class="quote"><blockquote>顶级 AI 创业公司很少发表研究，能力进步与公开知识之间的距离正在扩大。</blockquote><p><strong><a href="https://www.science.org/content/article/ai-s-top-startups-are-barely-publishing" target="_blank" rel="noopener noreferrer">Science 报道</a></strong> · 摘要式转述/报道 · 研究 / 透明度</p><p>报道观察不能直接证明企业停止研究，但提示外部可验证证据减少。</p><p class="team"><strong>团队启发：</strong>评估厂商能力时，区分产品演示、技术报告、可复现代码和独立研究。</p></article>
+<article class="quote"><blockquote>一次 AI 热潮结束后，留下来的通常不是所有估值，而是被真正吸收进工作流的能力。</blockquote><p><strong><a href="https://andrewkelley.me/post/after-the-ai-crash.html" target="_blank" rel="noopener noreferrer">After the AI Crash</a></strong> · 摘要式转述/观点 · 周期 / 生产力</p><p>这是作者对行业周期的判断，不是市场预测事实。</p><p class="team"><strong>团队启发：</strong>工具预算绑定可测工作流收益，不绑定热点叙事或融资规模。</p></article>
+<article class="quote"><blockquote>金融 Agent 的价值不只在答案，更在每个数字能否追溯到来源和计算链。</blockquote><p><strong><a href="https://www.latent.space/p/financial-agents" target="_blank" rel="noopener noreferrer">Latent Space 对金融 Agent 的讨论</a></strong> · 摘要式转述 · 金融 / 可审计</p><p>涉及金额和交易状态时，模型输出必须保留来源、时间和确定性。</p><p class="team"><strong>团队启发：</strong>金额、估值、交易和监管结论默认要求原始来源与计算过程。</p></article>
+<article class="quote"><blockquote>Claude 可以把本地 SEO 调研串成流程，但真正可复用的是输入模板、检查点和结果结构。</blockquote><p><strong><a href="https://x.com/indexsy/status/2082554100810719349" target="_blank" rel="noopener noreferrer">Indexsy 的 X 实践分享</a></strong> · 社区实践摘要 · Claude / workflow</p><p>这是个人工作流分享，不是独立生产率 Benchmark。</p><p class="team"><strong>团队启发：</strong>把重复调研做成带输入约束、证据字段和人工检查点的 skill。</p></article>
+<article class="quote"><blockquote>两小时课程最有价值的不是模型名，而是把 LLM 原理、训练和应用边界连成同一张地图。</blockquote><p><strong><a href="https://x.com/Krishnasagrawal/status/2082542151343460704" target="_blank" rel="noopener noreferrer">Stanford LLM 课程社区推荐</a></strong> · 社区资源摘要 · LLM / 课程</p><p>X 帖子与课程入口已抓取；课程质量判断仍应以完整内容为准。</p><p class="team"><strong>团队启发：</strong>每周保留一段系统学习时间，避免认知只由碎片化工具发布驱动。</p></article>
+<article class="quote"><blockquote>移动端 Claude 教程的意义，是把 Agent 从桌面长会话变成随时排队、检查和纠偏的工作入口。</blockquote><p><strong><a href="https://x.com/Nozelcode/status/2082553264659181723" target="_blank" rel="noopener noreferrer">Nozelcode 的 X 教程</a></strong> · 社区教程摘要 · Claude / mobile</p><p>约 8 分钟教程存在已核验；效率提升属于使用建议，未独立量化。</p><p class="team"><strong>团队启发：</strong>移动端只开放低风险排队和验收，高风险写入保留桌面确认。</p></article>
+<article class="quote"><blockquote>TypeScript 7 的十倍演示很吸引人，但 Compiler API 兼容性决定团队何时真正迁移。</blockquote><p><strong><a href="https://javascriptweekly.com/issues/796" target="_blank" rel="noopener noreferrer">JavaScript Weekly 对 Anders Hejlsberg 演示的摘要</a></strong> · 摘要式转述/报道 · TypeScript / 迁移</p><p>约 10 倍来自 VS Code 约 130 万行代码库演示，不是所有项目的通用 Benchmark。</p><p class="team"><strong>团队启发：</strong>升级前同时测编译速度、IDE、框架插件和 Compiler API 依赖。</p></article>
+<h2 id="podcast">🎙️ 播客提纲</h2><article class="podcast">
+<h3>当文档开始携带指令，AI 工作流如何守住边界</h3>
+<p class="hook">一份 Word 文档里的隐藏文字，不只改变当前答案，还可能被复制进下一份内部报告。</p>
+<h4>主故事：从提示注入到文档传播</h4><p>讲清隐藏提示、生成物复制、协调披露和未获微软独立公告确认的事实边界。</p>
+<h4>供应链：恶意意图被拆进多个 npm 包</h4><p>解释逐包扫描为何不足，以及归因仍属于 Socket 报告。</p>
+<h4>评测：124 页规则与 36.2% 严格通过率</h4><p>结合 HANDBOOK.md 与 Airbnb EDD，解释如何把政策转成可执行门禁和失败样本。</p>
+<h4>工具与 X 社区雷达</h4><p>推荐 Prelint、Speech-to-Speech、Codex Review 规则和 Secure MCP Tunnel，并明确试用边界。</p>
+<p>Agent 可以让工作流更快，但只有信任边界清楚，速度才不会放大错误。</p></article>
+<h2 id="team-insights">✅ 对团队的启发</h2>
+<div class="insight"><strong>1</strong><p>企业 Agent 的输入必须保留来源标签；外部文档、网页和邮件不得与系统指令同权。</p></div>
+<div class="insight"><strong>2</strong><p>金额、权限、身份、配置与交易状态变更必须由确定性代码校验，模型只能提出候选。</p></div>
+<div class="insight"><strong>3</strong><p>把高频失败样本写进持续评测，分别使用规则、LLM Judge 和人工评审，不用单一总分掩盖关键失败。</p></div>
+<div class="insight"><strong>4</strong><p>依赖安全从逐包扫描升级到整棵依赖图和运行时组合行为审计。</p></div>
+<div class="insight"><strong>5</strong><p>工具试用先在只读、无敏感凭证环境进行，记录质量、失败率、成本和回滚路径后再扩大权限。</p></div>
+<footer><strong>信息源：</strong>65+ 个全球精选科技、AI、工程与系统可靠性来源。报道、观点、推断与作者自测均按各条事实边界标注。<br>
+Tech Digest # 69 · 2026-07-30</footer>
+</main></div></body></html>

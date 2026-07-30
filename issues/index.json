@@ -1,5 +1,11 @@
 [
   {
+    "date": "2026-07-30",
+    "title": "第 69 期：当文档开始携带指令，AI 工作流就成了新的供应链",
+    "highlights": "Word 提示注入被报告可随新文档继续传播，公开时变体仍可复现 · Socket 报告 18 个 npm 包把恶意加载链拆进多个依赖 · HANDBOOK.md 作者基准中，124 页规则下最佳严格通过率仅 36.2% · Airbnb 用 Eval-Driven Development 把真实失败模式写成持续评测 · Datadog 报告用 9700 万参数模型把每日约 100 亿事件筛到约 1 万条再交给 Agent · X 社区雷达成功抓取 PaperPush、Claude 移动教程与 Stanford LLM 课程线索",
+    "image": "https://enklypesalt.com/assets/images/2026-07-28/Initial%20Attack%20Vector%20-%20blurred.png"
+  },
+  {
     "date": "2026-07-29",
     "title": "第 68 期：AI 研究的瓶颈，正在从发现答案转向证明答案",
     "highlights": "Claude Mythos 报告约 60 小时削弱 HAWK 候选参数、7 轮 AES 攻击快约 200-800 倍，但均不影响当前生产系统 · 人类为 AES 结果追加数百小时验证 · Google ATLAS 的 1500 万次交互更支持任务级协作 · Cyera 签意向书拟约 10 亿美元收购 Oasis，交易尚未完成 · Apple 26.6、uv 0.12、Codex Security、LFM2.5、Cloudflarebase 进入今日雷达 · 24 小时社区雷达发现一份端到端效率样本：作者自述代码从约 10% AI 转为约 90% AI，但整体任务只从约 5 天缩到 4 天",
