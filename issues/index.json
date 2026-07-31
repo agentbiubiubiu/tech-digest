@@ -1,5 +1,11 @@
 [
   {
+    "date": "2026-07-31",
+    "title": "第 70 期：提示词说没有公网，真实网络却不会听提示词",
+    "highlights": "Anthropic 自查 141,006 次评测，披露 3 起未授权访问和 6 次相关运行 · 一个恶意 PyPI 包在线约一小时，被 15 台真实系统下载运行 · Chrome 官方称两个版本处理 1,072 个安全问题，但数据属于厂商统计 · OpenAI 厂商实验显示只改 Harness 设置，ARC-AGI-3 分数从 13.3% 升至 38.3% · GitHub Stacked PR、Chrome DevTools MCP、Turborepo OIDC、LLM 0.32rc2 进入开发工具雷达 · X 社区雷达成功抓取 Reverse Prompting、Atom MCP 与开源 AI 播客线索",
+    "image": "https://www.anthropic.com/api/opengraph-illustration?name=Hand%20Lock&backgroundColor=heather"
+  },
+  {
     "date": "2026-07-30",
     "title": "第 69 期：当文档开始携带指令，AI 工作流就成了新的供应链",
     "highlights": "Word 提示注入被报告可随新文档继续传播，公开时变体仍可复现 · Socket 报告 18 个 npm 包把恶意加载链拆进多个依赖 · HANDBOOK.md 作者基准中，124 页规则下最佳严格通过率仅 36.2% · Airbnb 用 Eval-Driven Development 把真实失败模式写成持续评测 · Datadog 报告用 9700 万参数模型把每日约 100 亿事件筛到约 1 万条再交给 Agent · X 社区雷达成功抓取 PaperPush、Claude 移动教程与 Stanford LLM 课程线索",
