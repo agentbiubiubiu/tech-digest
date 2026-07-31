@@ -1,9 +1,9 @@
 [
   {
     "date": "2026-07-31",
-    "title": "第 70 期：提示词说没有公网，真实网络却不会听提示词",
-    "highlights": "Anthropic 自查 141,006 次评测，披露 3 起未授权访问和 6 次相关运行 · 一个恶意 PyPI 包在线约一小时，被 15 台真实系统下载运行 · Chrome 官方称两个版本处理 1,072 个安全问题，但数据属于厂商统计 · OpenAI 厂商实验显示只改 Harness 设置，ARC-AGI-3 分数从 13.3% 升至 38.3% · GitHub Stacked PR、Chrome DevTools MCP、Turborepo OIDC、LLM 0.32rc2 进入开发工具雷达 · X 社区雷达成功抓取 Reverse Prompting、Atom MCP 与开源 AI 播客线索",
-    "image": "https://www.anthropic.com/api/opengraph-illustration?name=Hand%20Lock&backgroundColor=heather"
+    "title": "第 70 期：Agent 想替你办事，第一步不该是把密码交给它",
+    "highlights": "阮一峰第 406 期引出 OpenConnector：把 Agent 凭证留在独立网关，但 1,000+ Provider 与 10,000+ Action 均为项目自述 · Anthropic 回溯 141,006 次安全评测，披露 3 起真实未授权访问 · OpenAI 厂商实验显示只改 Harness 设置，ARC-AGI-3 分数从 13.3% 升至 38.3% · RepoMirror 把 GitHub 仓库和子目录同步成本地树，mirror 模式可能删除目标多余文件 · Figwright 让 Agent 双向操作 Figma，写操作仍需人工审批 · X 成功抓取隐私边界、Reverse Prompting 与 Forward-Deployed AI Engineer 访谈线索",
+    "image": "https://raw.githubusercontent.com/oomol-lab/open-connector/main/assets/openconnector-readme-banner.png"
   },
   {
     "date": "2026-07-30",
