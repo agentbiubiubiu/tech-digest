@@ -37,14 +37,14 @@ footer{margin-top:44px;padding:18px;background:#edf1ef;border-radius:8px;color:#
 <a href="../index.html">← 返回目录</a>
 <h1>第 70 期：Agent 想替你办事，第一步不该是把密码交给它</h1>
 <p class="meta">第 70 期 · 2026年7月31日，星期五</p>
-<p class="highlights"><strong>✨ 本期亮点：</strong>阮一峰第 406 期引出 OpenConnector：把 Agent 凭证留在独立网关，但 1,000+ Provider 与 10,000+ Action 均为项目自述 · Anthropic 回溯 141,006 次安全评测，披露 3 起真实未授权访问 · OpenAI 厂商实验显示只改 Harness 设置，ARC-AGI-3 分数从 13.3% 升至 38.3% · RepoMirror 把 GitHub 仓库和子目录同步成本地树，mirror 模式可能删除目标多余文件 · Figwright 让 Agent 双向操作 Figma，写操作仍需人工审批 · X 成功抓取隐私边界、Reverse Prompting 与 Forward-Deployed AI Engineer 访谈线索</p>
+<p class="highlights"><strong>✨ 本期亮点：</strong>OpenConnector 把 Agent 凭证留在独立网关，但 1,000+ Provider 与 10,000+ Action 均为项目自述 · Anthropic 回溯 141,006 次安全评测，披露 3 起真实未授权访问 · OpenAI 厂商实验显示只改 Harness 设置，ARC-AGI-3 分数从 13.3% 升至 38.3% · RepoMirror 把 GitHub 仓库和子目录同步成本地树，mirror 模式可能删除目标多余文件 · Figwright 让 Agent 双向操作 Figma，写操作仍需人工审批 · X 成功抓取隐私边界、Reverse Prompting 与 Forward-Deployed AI Engineer 访谈线索</p>
 <img class="article-img" src="https://raw.githubusercontent.com/oomol-lab/open-connector/main/assets/openconnector-readme-banner.png" alt="OpenConnector 连接网关项目横幅" loading="lazy"><p class="hero-caption">OpenConnector 架构图来自项目仓库。功能、Provider 与 Action 数量属于项目自述，本期未将其视为独立安全审计结论。</p>
 <div class="callout"><strong>🎯 本期核心判断：</strong>Agent 生产化的瓶颈正在从“有没有工具”转向“谁保管授权、谁限制动作、谁留下证据”；密码、OAuth、预算和写权限必须留在模型上下文之外，由可撤销、可审计的执行层按需开放。</div>
 <h2 id="main-story">🔥 主故事</h2>
     <article class="main-story">
       <h3>Agent 想替你查邮件，密码到底应该交给谁</h3>
       <p class="story-hook">一个 Agent 能调用一万个动作并不稀奇。真正困难的是：它执行动作时，能不能永远看不到你的密码。</p>
-      <p>阮一峰《科技爱好者周刊》第 406 期介绍了 OpenConnector。顺着周刊外链回到项目仓库，可以看到它把 OAuth、API Key、连接身份和执行日志放进独立网关。Agent 只拿连接别名、动作 Schema 和执行结果，通过 SDK、CLI、MCP、HTTP 或 OpenAPI 请求网关代办。</p>
+      <p>OpenConnector 的第一方项目仓库显示，它把 OAuth、API Key、连接身份和执行日志放进独立网关。Agent 只拿连接别名、动作 Schema 和执行结果，通过 SDK、CLI、MCP、HTTP 或 OpenAPI 请求网关代办。</p>
       <div class="story-grid">
         <div class="story-field"><strong>核心冲突</strong>Agent 越有用，越需要接触邮箱、代码仓库、数据库和协作工具。把凭证直接写进提示词或进程环境最省事，却会让日志、上下文、子 Agent 和错误回显都成为泄漏面。把授权放进网关能缩小暴露范围，但也把网关变成新的高价值控制点。</div>
         <div class="story-field"><strong>转折点</strong>“凭证不进入 Agent”不等于授权问题消失。自托管版本仍要求团队自行注册 OAuth App、配置加密和 Token 刷新；托管版本代管 OAuth，则需要重新评估第三方信任、数据经过路径和撤销能力。网关只有配合最小 Scope、Action 白名单、短期 Runtime Token 和审计日志，才真正成为策略执行点。</div>
