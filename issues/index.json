@@ -1,5 +1,11 @@
 [
   {
+    "date": "2026-08-04",
+    "title": "第 71 期：Agent 真正需要的不是一台常驻容器，而是一套会调度、会留痕的电脑",
+    "highlights": "Cloudflare 以早期预览发布 @cloudflare/computer，让 Agent 在 isolate、Linux 容器与浏览器间按需切换 · OpenAI 公布 GPT-Live 全双工语音架构，把模型委派移到异步路径 · JFrog 复现 6 个高危 SQLite CVE 后报告全部无法成立，AI 生成只是研究者判断而非已证实来源 · Vercel Blob WAF 全面可用，拒绝流量在数据传输前完成 · AMD 发布官方 Agent Skills 仓库，面向 Codex、Claude Code、Cursor 与 Gemini CLI · X 24 小时雷达成功抓取 AMD Skills、Prompt Caching 和 GPT-Live 工程线索",
+    "image": "https://opengraph.githubassets.com/1/cloudflare/workspace"
+  },
+  {
     "date": "2026-07-31",
     "title": "第 70 期：Agent 想替你办事，第一步不该是把密码交给它",
     "highlights": "OpenConnector 把 Agent 凭证留在独立网关，但 1,000+ Provider 与 10,000+ Action 均为项目自述 · Anthropic 回溯 141,006 次安全评测，披露 3 起真实未授权访问 · OpenAI 厂商实验显示只改 Harness 设置，ARC-AGI-3 分数从 13.3% 升至 38.3% · RepoMirror 把 GitHub 仓库和子目录同步成本地树，mirror 模式可能删除目标多余文件 · Figwright 让 Agent 双向操作 Figma，写操作仍需人工审批 · X 成功抓取隐私边界、Reverse Prompting 与 Forward-Deployed AI Engineer 访谈线索",

@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="zh-CN"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Tech Digest #71：Agent 需要一套会调度、会留痕的电脑</title>
+<meta name="description" content="从 @cloudflare/computer、GPT-Live、AMD Skills 和假 CVE 事件，理解 Agent 运行时、验证边界与开发提效。">
+<meta property="og:title" content="Tech Digest #71：Agent 需要一套会调度、会留痕的电脑">
+<meta property="og:description" content="从 @cloudflare/computer、GPT-Live、AMD Skills 和假 CVE 事件，理解 Agent 运行时、验证边界与开发提效。">
+<meta property="og:image" content="https://opengraph.githubassets.com/1/cloudflare/workspace">
+<style>
+:root{--text:#17231d;--muted:#5e6c65;--line:#dce6e0;--green:#147a50;--pale:#eef8f2;--blue:#2563a8;--yellow:#9a6500;--red:#a93838;--purple:#6b4fa3;--surface:#fff}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:#f6f8f7;color:var(--text);font:16px/1.72 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;letter-spacing:0}
+a{color:var(--green);text-decoration:none}a:hover{text-decoration:underline}.topbar{position:sticky;top:0;z-index:4;display:flex;align-items:center;justify-content:space-between;padding:12px 24px;background:rgba(255,255,255,.95);border-bottom:1px solid var(--line);backdrop-filter:blur(12px)}.brand{font-weight:800}.topbar nav{display:flex;gap:16px;font-size:.9rem}
+.page{display:grid;grid-template-columns:210px minmax(0,820px);gap:36px;max-width:1120px;margin:0 auto;padding:34px 24px 70px}.toc{position:sticky;top:76px;align-self:start;display:flex;flex-direction:column;gap:7px;font-size:.84rem}.toc a{color:var(--muted)}main{min-width:0}
+h1{font-size:2.15rem;line-height:1.28;margin:10px 0 8px;letter-spacing:0}h2{font-size:1.38rem;margin:42px 0 16px;border-bottom:1px solid var(--line);padding-bottom:9px;letter-spacing:0}h3{font-size:1.06rem;line-height:1.5;margin:0 0 10px;letter-spacing:0}h4{font-size:.98rem;margin:16px 0 6px;letter-spacing:0}p{margin:0 0 13px;color:var(--muted)}
+.meta,.hero-caption,small{color:#7d8983;font-size:.82rem}.highlights,.callout{padding:16px 18px;border-left:4px solid var(--green);background:var(--pale);border-radius:6px;margin:20px 0}.article-img{width:100%;max-height:390px;object-fit:cover;border-radius:6px;margin:12px 0 6px;background:#edf1ef}.hero-caption{text-align:center;margin-top:-2px}
+.main-story,.entry,.concept,.curiosity,.resource,.quote,.podcast{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:22px;margin:14px 0}.main-story{background:linear-gradient(135deg,#f2faf5,#fff 66%)}.story-hook,.hook{font-weight:700;color:var(--green)}.story-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:16px 0}.story-field{padding:13px;border:1px solid var(--line);border-radius:6px;color:var(--muted);font-size:.9rem}.story-field strong{display:block;color:var(--text);margin-bottom:3px}.number-chip,.tag,.priority,.certainty{display:inline-block;border-radius:999px;padding:3px 9px;font-size:.72rem;font-weight:750;margin:3px 5px 3px 0}.number-chip{background:#e7f0fb;color:var(--blue)}.story-line{background:#f2eef9;border-left:4px solid var(--purple);padding:12px 14px;border-radius:6px;font-weight:700}
+.trend-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.trend-card,.tool-card{background:#fff;border:1px solid var(--line);border-radius:8px;padding:17px}.trend-conflict{color:var(--red);font-weight:750;font-size:.82rem;margin-bottom:8px}.tool-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.tag{background:var(--green);color:#fff}.priority{background:#eef1ef;color:var(--muted)}.certainty-confirmed{background:#e6f6ed;color:var(--green)}.certainty-announced{background:#e9f1fb;color:var(--blue)}.certainty-reported{background:#fff4d8;color:var(--yellow)}.certainty-opinion,.certainty-inference{background:#f1ecf8;color:var(--purple)}.certainty-rumor{background:#fbeaea;color:var(--red)}
+.fact{font-size:.86rem;padding:9px 11px;background:#fff8e8;border-radius:5px}.why{font-size:.9rem}.curiosity{background:#fff7e9}.concept{border-left:4px solid var(--green)}.quote{background:#f6f2fb;border-left:4px solid var(--purple)}blockquote{margin:0 0 12px;font-size:1.02rem;font-style:italic}.team{padding:9px 11px;background:#edf8f2;border-radius:5px}.resource{background:#edf5ff}.podcast{background:#f8faf9}.insight{display:flex;gap:12px;align-items:flex-start;padding:14px 16px;margin:10px 0;background:#fff8dc;border-left:4px solid #d59b14;border-radius:6px}.insight p{margin:0}
+footer{margin-top:44px;padding:18px;background:#edf1ef;border-radius:8px;color:#77837d;font-size:.8rem}
+@media(max-width:860px){.page{grid-template-columns:1fr}.toc{display:none}.trend-grid,.story-grid{grid-template-columns:1fr}}@media(max-width:620px){.topbar nav{display:none}.page{padding:22px 16px 54px}.tool-grid{grid-template-columns:1fr}h1{font-size:1.7rem}.main-story,.entry,.concept,.curiosity,.resource,.quote,.podcast{padding:17px}}
+</style></head><body>
+<header class="topbar"><a class="brand" href="../index.html">Tech Digest</a>
+<nav><a href="../index.html">Archive</a><a href="#main-story">Today</a><a href="#tools">Tools</a><a href="#quotes">Quotes</a></nav>
+<span>2026-08-04</span></header>
+<div class="page">
+<nav class="toc">
+  <strong>本期目录</strong>
+  <a href="#main-story">🔥 主故事</a><a href="#trends">⚡ 冲突趋势</a>
+  <a href="#tech-news">📰 科技动态</a><a href="#ai">🤖 AI 相关</a>
+  <a href="#articles">📝 文章推荐</a><a href="#tools">🛠️ 工具推荐</a>
+  <a href="#ai-tools">🧠 AI 工具</a><a href="#concepts">🧩 概念库</a>
+  <a href="#curiosity">🎲 好奇心</a><a href="#resources">📚 资源</a>
+  <a href="#quotes">💬 言论</a><a href="#podcast">🎙️ 播客</a>
+  <a href="#team-insights">✅ 团队启发</a>
+</nav>
+<main>
+<a href="../index.html">← 返回目录</a>
+<h1>第 71 期：Agent 真正需要的不是一台常驻容器，而是一套会调度、会留痕的电脑</h1>
+<p class="meta">第 71 期 · 2026年8月4日，星期二</p>
+<p class="highlights"><strong>✨ 本期亮点：</strong>Cloudflare 以早期预览发布 @cloudflare/computer，让 Agent 在 isolate、Linux 容器与浏览器间按需切换 · OpenAI 公布 GPT-Live 全双工语音架构，把模型委派移到异步路径 · JFrog 复现 6 个高危 SQLite CVE 后报告全部无法成立，AI 生成只是研究者判断而非已证实来源 · Vercel Blob WAF 全面可用，拒绝流量在数据传输前完成 · AMD 发布官方 Agent Skills 仓库，面向 Codex、Claude Code、Cursor 与 Gemini CLI · X 24 小时雷达成功抓取 AMD Skills、Prompt Caching 和 GPT-Live 工程线索</p>
+<img class="article-img" src="https://opengraph.githubassets.com/1/cloudflare/workspace" alt="Cloudflare workspace 项目预览图" loading="lazy"><p class="hero-caption">@cloudflare/computer 当前为早期预览。架构、可扩展性与成本优势来自 Cloudflare 官方说明，本期未把它视为独立 Benchmark。</p>
+<div class="callout"><strong>🎯 本期核心判断：</strong>Agent 基础设施正在从“给模型挂一组工具”转向“给任务分配可切换的计算环境”；真正有价值的运行时要统一文件状态、按需选择隔离级别，并把每次写入、命令和外部动作留下可审计证据。</div>
+<h2 id="main-story">🔥 主故事</h2>
+    <article class="main-story">
+      <h3>一个 Agent 为什么不该从头到尾占着同一台容器</h3>
+      <p class="story-hook">读 JSON、跑 npm、打开浏览器是三种完全不同的负载，却经常被塞进同一台常驻容器。</p>
+      <p>Cloudflare 在 8 月 3 日发布 @cloudflare/computer 早期预览。它给 Agent 暴露统一工作区，底层再按任务选择 isolate、完整 Linux 容器或浏览器。文件系统由 SQLite 持久化，容器通过 FUSE 访问同一份文件，Agent 不必自己同步多个执行环境。</p>
+      <div class="story-grid">
+        <div class="story-field"><strong>核心冲突</strong>完整容器兼容性强，却启动更慢、成本更高；isolate 轻量、启动快，却不能直接运行所有原生二进制。如果把两者暴露成互不相干的工具，模型还要承担资源选择、状态同步和错误恢复。</div>
+        <div class="story-field"><strong>转折点</strong>更重要的变化不是多一个沙箱产品，而是把运行时选择从 Prompt 中抽出来。Agent 只表达要读文件、运行命令或操作网页，平台负责选择执行后端；所有操作再统一经过权限门禁、审计和观测。</div>
+        <div class="story-field"><strong>为什么是现在</strong>Coding Agent 正从几分钟的补丁任务走向长时间、多环境工作流。当同一任务要处理仓库、依赖、浏览器和外部 API 时，运行时调度会直接决定成本、延迟和安全边界。</div>
+        <div class="story-field"><strong>对团队的启发</strong>先用同一份测试仓库跑三类任务：纯文件变更放轻量后端，原生编译放容器，网页验收放浏览器。记录冷启动、执行时长、失败重试、文件一致性和单任务成本；任何网络、发布、删除和凭证动作保留显式审批。</div>
+      </div>
+      <p><span class="number-chip">2026-08-03 发布早期预览</span><span class="number-chip">当前提供 isolate 与 Linux container 两类 exec 后端</span><span class="number-chip">共享文件系统由 SQLite 持久化</span><span class="number-chip">官方设想覆盖数亿到数十亿并发 Agent，但尚无独立规模验证</span></p>
+      <p><strong>我的判断：</strong>我更关注的是“统一状态加可替换后端”这个模式，而不是 Cloudflare 对规模的预测。已经证实的是项目代码、两类执行后端、共享文件系统和审计接口存在；横向扩展、成本与生产稳定性仍属于厂商主张，需要用真实仓库和任务负载验证。</p>
+      <div class="story-line">Agent 需要的不是永远开着的一台机器，而是一套知道什么时候该用哪台机器的系统。</div>
+      <p><strong>来源：</strong><a href="https://blog.cloudflare.com/cloudflare-computer/" target="_blank" rel="noopener noreferrer">blog.cloudflare.com</a></p>
+    </article>
+<h2 id="trends">⚡ 今日冲突趋势</h2><div class="trend-grid"><article class="trend-card"><h3>Agent 要完整电脑，但不该每一步都占着完整容器</h3><div class="trend-conflict">兼容性与隔离能力 vs 启动速度、成本和并发密度</div><p>统一工作区，按任务切换 isolate、容器和浏览器，把后端选择交给运行时。</p><small>blog.cloudflare.com · github.com</small></article>
+<article class="trend-card"><h3>语音越像连续对话，推理和工具调用越要异步</h3><div class="trend-conflict">持续听说的低延迟路径 vs 深度推理与外部工具的长耗时</div><p>主语音流保持连续，把复杂推理委派到独立异步路径，再动态合并结果。</p><small>openai.com</small></article>
+<article class="trend-card"><h3>生成候选越来越便宜，证明候选仍然昂贵</h3><div class="trend-conflict">AI 批量生成漏洞和代码 vs 人工复现、测试与责任归属</div><p>没有可复现证据的安全报告和代码输出，只能进入候选队列，不能直接进入生产事实库。</p><small>research.jfrog.com · gruhn.me</small></article></div>
+<h2 id="tech-news">📰 科技动态</h2>
+<article class="entry"><h3>1、<a href="https://openai.com/index/continuous-voice-interaction-with-gpt-live/" target="_blank" rel="noopener noreferrer">GPT-Live 改用全双工语音模型，推理委派不再阻塞对话</a> <span class="certainty certainty-官方工程说明">官方工程说明</span></h3>
+<p class="hook">真正自然的语音 Agent，不能每次思考时都让整段对话停下来。</p>
+<p>OpenAI 说明 GPT-Live 移除独立 turn detector，让模型同时监听和说话；深度推理与工具调用通过异步路径委派给更强模型，主语音流继续运行。</p>
+<p class="why"><strong>为什么重要：</strong>语音 App 应把媒体流、推理委派和业务工具拆成独立时延预算，而不是串行管线。</p>
+<p class="fact"><strong>事实边界：</strong>架构和时间来自 OpenAI；自然度、规模和响应优势没有独立 Benchmark。</p>
+<img class="article-img" src="https://images.ctfassets.net/kftzwdyauwt9/yTlvMCvVXsIfkU2OOi99f/157c83857ebe75544195add9e1f75039/gpt-live-responsive-seo-card.png?w=1600&amp;h=900&amp;fit=fill" alt="GPT-Live 改用全双工语音模型，推理委派不再阻塞对话" loading="lazy">
+</article>
+<article class="entry"><h3>2、<a href="https://vercel.com/changelog/vercel-waf-for-blob-is-now-generally-available" target="_blank" rel="noopener noreferrer">Vercel Blob WAF 全面可用，拒绝请求在数据传输前完成</a> <span class="certainty certainty-官方 GA 公告">官方 GA 公告</span></h3>
+<p class="hook">AI 图片、用户上传和付费下载的恶意流量，最好在产生存储出网费用前被挡住。</p>
+<p>Vercel 宣布 Blob WAF 在所有计划上进入 GA，可按 IP、国家和路径执行拒绝、挑战或限流，不要求修改 Blob URL 或应用代码。</p>
+<p class="why"><strong>为什么重要：</strong>Web 与后台团队可把对象存储防护并入现有边缘规则，同时验证误杀、缓存和计费边界。</p>
+<p class="fact"><strong>事实边界：</strong>功能范围来自 Vercel 官方；实际防护效果和成本节省需按业务流量验证。</p>
+<img class="article-img" src="https://assets.vercel.com/image/upload/contentful/image/e5382hct74si/nY1cXBWmX1t9YT9OkZTGS/11b47e364e3bfeea0d0aa95db20db21c/vercel_waf_for_blob_is_generally_available_og_card__1_.jpg" alt="Vercel Blob WAF 全面可用，拒绝请求在数据传输前完成" loading="lazy">
+</article>
+<article class="entry"><h3>3、<a href="https://research.jfrog.com/post/sqlite-critical-cves-or-llm-slops/" target="_blank" rel="noopener noreferrer">JFrog 复现 6 个 SQLite 高危 CVE，报告称全部无法成立</a> <span class="certainty certainty-安全研究报告；AI 生成属性为研究者判断">安全研究报告；AI 生成属性为研究者判断</span></h3>
+<p class="hook">漏洞编号、CVSS 和 PoC 都齐全，也可能仍然没有一个可复现的漏洞。</p>
+<p>JFrog 在隔离容器中编译目标 SQLite 版本，并用 ASan 执行报告附带的 PoC；六项报告涉及不存在的函数、无关代码或无法触发的查询。</p>
+<p class="why"><strong>为什么重要：</strong>安全流水线必须把版本源码、可运行 PoC、Sanitizer 结果和维护者确认设为准入条件。</p>
+<p class="fact"><strong>事实边界：</strong>六项无法复现来自 JFrog 方法与结果；“AI 生成”基于检测器和文本特征，不能表述为已证实作者身份或生成过程。</p>
+
+</article>
+<article class="entry"><h3>4、<a href="https://openai.com/index/ten-advances-in-mathematics/" target="_blank" rel="noopener noreferrer">OpenAI 公布 10 项数学与理论计算机科学结果</a> <span class="certainty certainty-厂商研究声明，需数学社区持续复核">厂商研究声明，需数学社区持续复核</span></h3>
+<p class="hook">答案不是终点：模型结果还要经过人类手稿、形式化证书和社区验证。</p>
+<p>OpenAI 称未发布的 Astra 模型解决或推进 10 个长期开放问题，人类整理手稿后由模型生成 Lean 证明证书，并公开相关材料。</p>
+<p class="why"><strong>为什么重要：</strong>研发团队可借鉴“候选生成、独立整理、形式化验证、公开复核”的四阶段链路。</p>
+<p class="fact"><strong>事实边界：</strong>数量、成本和贡献归属来自 OpenAI；本期不把结果视为已完成独立学术共识。</p>
+<img class="article-img" src="https://images.ctfassets.net/kftzwdyauwt9/5RUlCTeEvzWYd2DDpdcNgh/f38e144bf6f5911074b1939c1528ed2b/Frame__4_.png?w=1600&amp;h=900&amp;fit=fill" alt="OpenAI 公布 10 项数学与理论计算机科学结果" loading="lazy">
+</article>
+<h2 id="ai">🤖 AI 相关</h2>
+<article class="entry"><h3>1、<a href="https://epoch.ai/MirrorCode" target="_blank" rel="noopener noreferrer">MirrorCode 用“从规格重做完整程序”测试长时程 Coding Agent</a> <span class="certainty certainty-研究机构 Benchmark；结果与规模需按公开方法解释">研究机构 Benchmark；结果与规模需按公开方法解释</span></h3>
+<p class="hook">会修一个函数，不代表能独立完成一个有真实规格和测试的项目。</p>
+<p>Epoch AI 的 MirrorCode 要求模型在看不到原始源码的情况下端到端重实现程序，把评测从单函数补全拉到项目理解、规划、实现和测试。</p>
+<p class="why"><strong>为什么重要：</strong>团队评估 Coding Agent 时应加入跨文件计划、构建、测试、恢复和最终验收，不只看 pass@1。</p>
+<p class="fact"><strong>事实边界：</strong>本期确认评测目标和公开页面存在；不外推任何模型排名或自主完成上限。</p>
+<img class="article-img" src="https://epoch.ai/assets/images/posts/2026/mirrorcode/mirrorcode-banner.png" alt="MirrorCode 用“从规格重做完整程序”测试长时程 Coding Agent" loading="lazy">
+</article>
+<article class="entry"><h3>2、<a href="https://www.quantamagazine.org/why-the-legendary-erdos-problems-are-falling-to-ai-20260803/" target="_blank" rel="noopener noreferrer">Erdős 问题为何成为 AI 数学能力的集中试验场</a> <span class="certainty certainty-一级科学媒体报道；具体结果仍需同行复核">一级科学媒体报道；具体结果仍需同行复核</span></h3>
+<p class="hook">AI 的数学突破集中出现在同一个问题传统里，可能并不只是模型偏爱某位数学家。</p>
+<p>Quanta 回顾 AI 在若干 Erdős 问题上的进展，并指出问题库具备清晰陈述、长期公开、跨领域技巧和人类维护的状态记录，因而特别适合验证模型。</p>
+<p class="why"><strong>为什么重要：</strong>构建内部评测时，应维护可复现、状态明确、有历史基线的问题库，而不是随机收集题目。</p>
+<p class="fact"><strong>事实边界：</strong>文章报道和模型声明可确认；“数学能力发生相变”属于受访者评价，不是统一学术结论。</p>
+<img class="article-img" src="https://www.quantamagazine.org/wp-content/uploads/2026/08/Erdos-cr.DVDP-Social.jpg" alt="Erdős 问题为何成为 AI 数学能力的集中试验场" loading="lazy">
+</article>
+<h2 id="articles">📝 文章推荐</h2>
+<article class="entry"><h3><a href="https://vercel.com/blog/how-factory-scaled-its-cloud-backend-to-tens-of-millions-of-daily-requests" target="_blank" rel="noopener noreferrer">Factory 用单个 Next.js 后端承载每日数千万 API 请求</a></h3><p class="hook">前端框架一路长成后台平台，省下基础设施团队，也把供应商依赖集中到一处。</p><p>Vercel 案例称 Factory 将 API routes、middleware、webhook 和内部工具放在同一 Next.js 后端，Droids 通过 API 自动部署，工程师保留高风险决策审核。</p><p class="story-line"></p></article>
+<article class="entry"><h3><a href="https://blog.exe.dev/devtools-must-be-open-source" target="_blank" rel="noopener noreferrer">开源开发工具的新价值：让 Agent 帮你持续维护个人分叉</a></h3><p class="hook">以前不值得维护的个人定制，可能因为 Agent 负责重放补丁而重新划算。</p><p>David Crawshaw 认为 Coding Agent 同时降低了修改工具和跟进上游的成本：本地改动可以进入版本控制，再由定时任务拉取上游、重放补丁并运行验证。</p><p class="story-line"></p></article>
+<article class="entry"><h3><a href="https://spectrum.ieee.org/electronics-corrosion-multiphysics-simulation" target="_blank" rel="noopener noreferrer">湿气消失以后，电子故障可能只剩一个找不到的根因</a></h3><p class="hook">水汽会消失，故障现场却可能因此失去最关键的证据。</p><p>IEEE Spectrum 的赞助内容介绍 DTU 团队用多物理场模型模拟湿度、腐蚀和 PCB 漏电，希望在电动车、风电和数据中心设计阶段发现环境失效。</p><p class="story-line"></p><img class="article-img" src="https://spectrum.ieee.org/media-library/heatmap-of-electrolyte-potential-and-tangential-current-density-on-a-metal-plate.png?id=67522194&amp;width=980" alt="湿气消失以后，电子故障可能只剩一个找不到的根因" loading="lazy"></article>
+<article class="entry"><h3><a href="https://bjorg.bjornroche.com/management/ai-productivity-gap/" target="_blank" rel="noopener noreferrer">AI 让写代码快了，为什么完整功能仍没有快十倍</a></h3><p class="hook">把一天里最容易加速的一小时变快三倍，不会自动让整天快十倍。</p><p>Bjorn Roche 用示例工时表解释：高级工程师的大量时间仍花在需求、设计、评审、部署和协作，即使编码快 3 倍，作者示例中的全天节省也只有约 15%。</p><p class="story-line"></p></article>
+<h2 id="tools">🛠️ 工具推荐</h2><div class="tool-grid">
+<article class="tool-card"><div><span class="tag">PC/Backend/Remote Debugging</span><span class="priority">P0</span></div><h3><a href="https://github.com/richlegrand/bitbang" target="_blank" rel="noopener noreferrer">BitBang</a></h3><p>通过 WebRTC 建立端到端加密的点对点连接，配套 bitbang-cli 可把终端、文件或内网页面通过二维码或 URL 分享。它仍依赖轻量信令服务器完成握手；远程终端权限很高，必须使用临时测试机、限制监听范围并核对二进制校验和。</p></article>
+<article class="tool-card"><div><span class="tag">Backend/LLM Context</span><span class="priority">P1</span></div><h3><a href="https://github.com/simonw/condense-json/releases/tag/1.0" target="_blank" rel="noopener noreferrer">condense-json 1.0</a></h3><p>用替换表压缩 JSON 中重复字符串，再可逆还原；1.0 增加特殊键转义、确定性的重叠匹配和 malformed data 异常。适合减少送入 LLM 的重复结构，但压缩表本身也占 Token，必须用真实载荷测净收益并保留 round-trip 测试。</p></article>
+</div>
+<h2 id="ai-tools">🧠 AI 工具</h2><div class="tool-grid">
+<article class="tool-card"><div><span class="tag">AI/Web/iOS/Android/PC/Backend</span><span class="priority">P0</span></div><h3><a href="https://github.com/amd/skills" target="_blank" rel="noopener noreferrer">AMD Skills</a></h3><p>AMD 官方 Agent Skill 目录，面向 Codex、Claude Code、Cursor 和 Gemini CLI，把 ROCm、Ryzen AI 与客户端到云端的工作流写成可选 Skill。安装会把外部指令引入 Agent，应先审查目标 Skill、锁定提交并在测试仓库验证。</p></article>
+<article class="tool-card"><div><span class="tag">AI Model Evaluation</span><span class="priority">P1</span></div><h3><a href="https://www.interconnects.ai/p/introducing-our-artifacts-hub-and" target="_blank" rel="noopener noreferrer">Interconnects Artifacts Hub</a></h3><p>把开放模型的能力、采用度和相似性指标放在一个持续更新的页面中，适合筛选候选模型。指标组合和排名由站点定义，下载量与社区采用不等于生产质量，选型前仍需自建任务集。</p></article>
+</div>
+<h2 id="concepts">🧩 本期概念库</h2>
+<article class="concept"><h3>1. 执行后端调度（Execution Backend Scheduling）</h3><p><strong>一句话解释：</strong>根据任务能力、隔离、延迟和成本，在 isolate、容器、浏览器等后端之间选择执行环境。</p><p><strong>为什么重要：</strong>模型不应通过 Prompt 自行承担所有资源决策和状态同步。</p><p><strong>团队应用：</strong>把文件、命令、浏览器和网络动作声明成能力需求，由平台路由并记录选择理由。</p></article>
+<article class="concept"><h3>2. 全双工推理（Full-Duplex Inference）</h3><p><strong>一句话解释：</strong>输入与输出持续并行，模型可以边听边说，而复杂推理通过异步支路完成。</p><p><strong>为什么重要：</strong>语音体验的瓶颈从模型首 Token 延迟扩展到整条媒体与委派管线。</p><p><strong>团队应用：</strong>分别测采集、模型、工具、合成和网络抖动，并设计可取消的异步委派。</p></article>
+<article class="concept"><h3>3. 可复现准入门禁（Reproducibility Gate）</h3><p><strong>一句话解释：</strong>候选漏洞或模型输出只有在指定版本、环境和测试步骤下可复现，才进入事实库。</p><p><strong>为什么重要：</strong>编号、评分和流畅解释都不能替代可运行证据。</p><p><strong>团队应用：</strong>安全报告强制附版本、PoC、Sanitizer/日志结果和维护者状态。</p></article>
+<article class="concept"><h3>4. 端到端生产率（End-to-End Productivity）</h3><p><strong>一句话解释：</strong>从需求澄清到上线验收的完整周期，而不是单独统计生成代码速度。</p><p><strong>为什么重要：</strong>局部编码提速可能被评审、返工、测试和部署成本抵消。</p><p><strong>团队应用：</strong>同时跟踪交付周期、返工率、缺陷逃逸、评审时间和 AI 生成比例。</p></article>
+<h2 id="curiosity">🎲 还能这样？今日好奇心</h2>
+<article class="curiosity"><h3><a href="https://hackaday.com/2026/08/03/energizing-a-vacuum-tube-flip-flop-module-of-the-ibm-604/" target="_blank" rel="noopener noreferrer">1948 年 IBM 604 的一个触发器模块，能装下多少逻辑</a></h3><p class="hook">一只双三极管、一些电阻电容，就组成了早期计算机的翻转触发逻辑。</p><p>Ken Shirriff 逆向并重新上电 IBM 604 的 TR-3 模块，展示真空管翻转器如何生成时序和脉冲；后来的 IBM 650 转向更可靠的二极管逻辑。</p><p><strong>背后的启发：</strong>抽象层每次进步，都在把难以稳定的模拟交互压缩成更容易组合和验证的数字接口。</p><img class="article-img" src="https://hackaday.com/wp-content/uploads/2026/07/ibm-tr3-module.jpg" alt="1948 年 IBM 604 的一个触发器模块，能装下多少逻辑" loading="lazy"></article>
+<article class="curiosity"><h3><a href="https://spectrum.ieee.org/ieee-milestone-digital-medical-records" target="_blank" rel="noopener noreferrer">第一套全院级电子病历，为什么需要一支光笔</a></h3><p class="hook">1960 年代的医生和护士不习惯键盘，于是系统先为他们发明了更自然的输入方式。</p><p>Lockheed 与 El Camino Hospital 开发 MIS-I，用于入院、检验、影像、预约和账单；界面用光笔降低当时医护人员的输入门槛。</p><p><strong>背后的启发：</strong>技术推广的关键经常不是核心算法，而是把交互方式改造成用户已经理解的动作。</p></article>
+<h2 id="resources">📚 资源</h2>
+<article class="resource"><h3><a href="https://www.latent.space/p/inference-eng" target="_blank" rel="noopener noreferrer">Inference Engineering Masterclass</a></h3><p>约 1 小时 41 分钟的推理工程访谈，适合作为 autoregressive 与 diffusion serving 的体系化入口。节目元数据中的融资金额属于节目方表述，本期未核验也不采用。</p></article>
+<article class="resource"><h3><a href="https://x.com/gkcs_/status/2084361052658287044" target="_blank" rel="noopener noreferrer">Prompt Caching 6 分钟讲解</a></h3><p>用 exact query cache、semantic cache 和 trade-off 三段解释 LLM 缓存。适合后台与 AI 工程面试复习；视频是教学内容，不代表任何厂商最佳实践或性能 Benchmark。</p></article>
+<h2 id="quotes">💬 言论：本期认知增量</h2>
+<article class="quote"><blockquote>不要只是转发 AI 输出；读懂、验证，再用自己的话回应。</blockquote><p><strong><a href="https://gruhn.me/blog/2026-08-03/" target="_blank" rel="noopener noreferrer">Niklas Gruhn</a></strong> · 作者观点摘要 · AI 协作 / 验证</p><p>原文批评把未经处理的大段模型输出直接扔给同事。</p><p class="team"><strong>团队启发：</strong>PR、方案和群聊里的 AI 内容必须由发送者承担理解与验证责任。</p></article>
+<article class="quote"><blockquote>Gas Town 在模型行为变化后不再收敛，总想继续修改自己。</blockquote><p><strong><a href="https://simonwillison.net/2026/Aug/4/steve-yegge/" target="_blank" rel="noopener noreferrer">Steve Yegge，经 Simon Willison 转引</a></strong> · 作者原话译文 · Coding Agent / 收敛</p><p>这是个人工具经验，不代表对应模型在所有任务上的统一行为。</p><p class="team"><strong>团队启发：</strong>Agent 升级要跑长任务收敛回归，不只看短题能力。</p></article>
+<article class="quote"><blockquote>AMD Skills 把硬件软件栈的知识、脚本和实践打包给 Coding Agent。</blockquote><p><strong><a href="https://x.com/AIatAMD/status/2084376136985764032" target="_blank" rel="noopener noreferrer">AMD 官方 X 账号</a></strong> · 官方发布摘要 · Agent Skills / AMD</p><p>兼容范围由 AMD 声明，采用前仍要逐个审查 Skill 内容。</p><p class="team"><strong>团队启发：</strong>外部 Skill 按代码依赖管理：审查、锁版本、测试后再启用。</p></article>
+<article class="quote"><blockquote>GPT-Live 可以在说话的同时继续听，并把复杂任务异步交给更强模型。</blockquote><p><strong><a href="https://x.com/OpenAI/status/2084378415818579975" target="_blank" rel="noopener noreferrer">OpenAI 官方 X 账号</a></strong> · 官方发布摘要 · 全双工语音 / 模型委派</p><p>功能架构由官方文章确认；实际打断率和端到端延迟仍需独立测试。</p><p class="team"><strong>团队启发：</strong>语音 Agent 验收要覆盖打断、并发监听和异步委派后的上下文一致性。</p></article>
+<article class="quote"><blockquote>这些积分是 API 余额，不是 ChatGPT 或 Claude 订阅。</blockquote><p><strong><a href="https://x.com/nftmufettisi/status/2084291944167899221" target="_blank" rel="noopener noreferrer">AgentRouter 使用教程作者</a></strong> · 社区教程摘要 · API 余额 / Coding Agent</p><p>涉及第三方路由服务；费率、隐私和模型来源必须以服务条款核验。</p><p class="team"><strong>团队启发：</strong>不要把消费额度、模型订阅和 API 路由余额混为同一权限与计费关系。</p></article>
+<article class="quote"><blockquote>每天抓取上游更新并自动 rebase，让个人工具分支不必长期脱离主线。</blockquote><p><strong><a href="https://simonwillison.net/2026/Aug/3/david-crawshaw/" target="_blank" rel="noopener noreferrer">David Crawshaw，经 Simon Willison 转引</a></strong> · 作者观点摘要 · 开源工具 / Agent 维护</p><p>这是作者对 Agent 辅助维护个人分支的工作流设想，不是普遍成本结论。</p><p class="team"><strong>团队启发：</strong>内部工具分支可试验自动跟进上游，但合并仍要经过测试和人工审查。</p></article>
+<h2 id="podcast">🎙️ 播客提纲</h2><article class="podcast">
+<h3></h3>
+<p class="hook">同一个 Agent，为什么读文件、编译和打开网页要占着同一台容器？</p>
+<h4>主故事：运行时开始替 Agent 选择电脑</h4><p>解释 isolate、容器、浏览器与共享文件系统的分工，并标明早期预览边界。</p>
+<h4>快讯：GPT-Live 与异步委派</h4><p>解释全双工语音为什么必须把深度推理移出主媒体路径。</p>
+<h4>快讯：假 CVE 与复现门禁</h4><p>说明六个 SQLite 报告为何在版本源码和 ASan 测试下无法成立。</p>
+<h4>工具：AMD Skills 与 BitBang</h4><p>介绍硬件知识技能化和零配置远程调试，同时说明供应链与高权限风险。</p>
+<p>Agent 真正需要的不是更多自由，而是更合适的执行环境和更完整的证据。</p></article>
+<h2 id="team-insights">✅ 对团队的启发</h2>
+<div class="insight"><strong>1</strong><p>为 Agent 任务声明能力需求，让平台选择轻量运行时、容器或浏览器，而不是默认常驻完整容器。</p></div>
+<div class="insight"><strong>2</strong><p>所有 Agent 执行后端共享同一状态模型，并为命令、文件写入、网络和浏览器动作留下统一审计轨迹。</p></div>
+<div class="insight"><strong>3</strong><p>漏洞和高风险事实只有在指定版本与环境中可复现，才允许进入生产事实库或修复队列。</p></div>
+<div class="insight"><strong>4</strong><p>外部 Skill、MCP 和脚本按供应链依赖审查并锁定版本，禁止直接把网页安装命令交给生产 Agent。</p></div>
+<div class="insight"><strong>5</strong><p>AI 提效同时测需求到上线周期、评审负担、返工率和缺陷，不用生成代码比例替代生产率。</p></div>
+<footer><strong>信息源：</strong>65+ 个全球精选科技、AI、工程与系统可靠性来源。报道、观点、推断与作者自测均按各条事实边界标注。<br>
+Tech Digest # 71 · 2026-08-04</footer>
+</main></div></body></html>
