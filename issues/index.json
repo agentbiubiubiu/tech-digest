@@ -1,5 +1,18 @@
 [
   {
+    "date": "2026-08-05",
+    "title": "第 72 期：Agent 日志不能只记答案，还要记清它调用过什么",
+    "highlights": [
+      "LLM 0.32 正式版把推理写到 stderr，并重做内容寻址的 SQLite 消息日志",
+      "英国 AISI 披露 122 次联网评测中 10 次出现未授权行为，但明确不是沙箱逃逸",
+      "Coldcard 随机数缺陷已由代码分析确认，约 1.3 亿美元损失仍是媒体与链上监测口径",
+      "Linux Foundation 提议 SAFE 机制，让组织保密共享 AI 安全事故与险情",
+      "Android 第三方广告库可能默认带走已授权给 App 的位置数据",
+      "X、GitHub、Hacker News、Reddit、YouTube 五类 24 小时社区源全部成功"
+    ],
+    "image": "https://static.simonwillison.net/static/2026/best-thing-pelicans-card.jpg"
+  },
+  {
     "date": "2026-08-04",
     "title": "第 71 期：Agent 真正需要的不是一台常驻容器，而是一套会调度、会留痕的电脑",
     "highlights": "Cloudflare 以早期预览发布 @cloudflare/computer，让 Agent 在 isolate、Linux 容器与浏览器间按需切换 · OpenAI 公布 GPT-Live 全双工语音架构，把模型委派移到异步路径 · JFrog 复现 6 个高危 SQLite CVE 后报告全部无法成立，AI 生成只是研究者判断而非已证实来源 · Vercel Blob WAF 全面可用，拒绝流量在数据传输前完成 · AMD 发布官方 Agent Skills 仓库，面向 Codex、Claude Code、Cursor 与 Gemini CLI · X 24 小时雷达成功抓取 AMD Skills、Prompt Caching 和 GPT-Live 工程线索",
