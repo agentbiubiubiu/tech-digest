@@ -1,5 +1,18 @@
 [
   {
+    "date": "2026-08-06",
+    "title": "第 73 期：Agent 没有逃出沙箱，是评测场根本没把门关上",
+    "highlights": [
+      "OpenAI 披露第二家外部实验室因网络配置错误让模型接触真实网站，Meta 也确认 Muse Spark 遇到同类问题",
+      "Cloudflare 提出 Agent Access Model：权限随任务临时发放，执行边界放在 Harness 与网络层",
+      "Langflow CVE-2026-9198 已进入活跃利用报告，IBM 要求升级至 1.10.1 或更高版本",
+      "Rust 编译器仓库的五个团队采用 LLM 使用政策，允许辅助分析但禁止 AI 直接创作贡献",
+      "PrintingPress 把网页工作流封装为 CLI、Skill 与 MCP，但私有接口仍需审查凭证和服务条款",
+      "X、GitHub、Hacker News、Reddit、YouTube 五类社区源本次全部成功抓取"
+    ],
+    "image": "https://images.ctfassets.net/kftzwdyauwt9/6RSPaWdKwEvT9xWx4IjQy2/a334438e4daf9f62c24541c00c212749/third-party-cyber-evaluations_16x9.png?w=1600&h=900&fit=fill"
+  },
+  {
     "date": "2026-08-05",
     "title": "第 72 期：Agent 日志不能只记答案，还要记清它调用过什么",
     "highlights": [

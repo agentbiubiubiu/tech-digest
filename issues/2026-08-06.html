@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="zh-CN"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Tech Digest #73：评测场没把门关上</title>
+<meta name="description" content="从 OpenAI、Meta 的第三方网络安全评测事故，到任务级凭证、Agent 框架漏洞和实际开发工具，重新定义 Agent 的真实边界。">
+<meta property="og:title" content="Tech Digest #73：评测场没把门关上">
+<meta property="og:description" content="从 OpenAI、Meta 的第三方网络安全评测事故，到任务级凭证、Agent 框架漏洞和实际开发工具，重新定义 Agent 的真实边界。">
+<meta property="og:image" content="https://images.ctfassets.net/kftzwdyauwt9/6RSPaWdKwEvT9xWx4IjQy2/a334438e4daf9f62c24541c00c212749/third-party-cyber-evaluations_16x9.png?w=1600&amp;h=900&amp;fit=fill">
+<style>
+:root{--text:#17231d;--muted:#5e6c65;--line:#dce6e0;--green:#147a50;--pale:#eef8f2;--blue:#2563a8;--yellow:#9a6500;--red:#a93838;--purple:#6b4fa3;--surface:#fff}
+*{box-sizing:border-box}html{scroll-behavior:smooth;overflow-x:hidden}body{margin:0;overflow-x:hidden;background:#f6f8f7;color:var(--text);font:16px/1.72 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;letter-spacing:0}
+a{color:var(--green);text-decoration:none}a:hover{text-decoration:underline}.topbar{position:sticky;top:0;z-index:4;display:flex;align-items:center;justify-content:space-between;padding:12px 24px;background:rgba(255,255,255,.95);border-bottom:1px solid var(--line);backdrop-filter:blur(12px)}.brand{font-weight:800}.topbar nav{display:flex;gap:16px;font-size:.9rem}
+.page{display:grid;grid-template-columns:210px minmax(0,820px);gap:36px;max-width:1120px;margin:0 auto;padding:34px 24px 70px}.toc{position:sticky;top:76px;align-self:start;display:flex;flex-direction:column;gap:7px;font-size:.84rem}.toc a{color:var(--muted)}main{min-width:0}
+h1{font-size:2.15rem;line-height:1.28;margin:10px 0 8px;letter-spacing:0}h2{font-size:1.38rem;margin:42px 0 16px;border-bottom:1px solid var(--line);padding-bottom:9px;letter-spacing:0}h3{font-size:1.06rem;line-height:1.5;margin:0 0 10px;letter-spacing:0}h4{font-size:.98rem;margin:16px 0 6px;letter-spacing:0}p{margin:0 0 13px;color:var(--muted)}
+.meta,.hero-caption,small{color:#7d8983;font-size:.82rem}.highlights,.callout{padding:16px 18px;border-left:4px solid var(--green);background:var(--pale);border-radius:6px;margin:20px 0}.article-img{width:100%;max-height:390px;object-fit:cover;border-radius:6px;margin:12px 0 6px;background:#edf1ef}.hero-caption{text-align:center;margin-top:-2px}
+.main-story,.entry,.concept,.curiosity,.resource,.quote,.podcast{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:22px;margin:14px 0}.main-story{background:linear-gradient(135deg,#f2faf5,#fff 66%)}.story-hook,.hook{font-weight:700;color:var(--green)}.story-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:16px 0}.story-field{padding:13px;border:1px solid var(--line);border-radius:6px;color:var(--muted);font-size:.9rem}.story-field strong{display:block;color:var(--text);margin-bottom:3px}.number-chip,.tag,.priority,.certainty{display:inline-block;border-radius:999px;padding:3px 9px;font-size:.72rem;font-weight:750;margin:3px 5px 3px 0}.number-chip{background:#e7f0fb;color:var(--blue)}.story-line{background:#f2eef9;border-left:4px solid var(--purple);padding:12px 14px;border-radius:6px;font-weight:700}
+.trend-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.trend-card,.tool-card{background:#fff;border:1px solid var(--line);border-radius:8px;padding:17px}.trend-conflict{color:var(--red);font-weight:750;font-size:.82rem;margin-bottom:8px}.tool-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.tag{background:var(--green);color:#fff}.priority{background:#eef1ef;color:var(--muted)}.certainty-confirmed{background:#e6f6ed;color:var(--green)}.certainty-announced{background:#e9f1fb;color:var(--blue)}.certainty-reported{background:#fff4d8;color:var(--yellow)}.certainty-opinion,.certainty-inference{background:#f1ecf8;color:var(--purple)}.certainty-rumor{background:#fbeaea;color:var(--red)}
+.fact{font-size:.86rem;padding:9px 11px;background:#fff8e8;border-radius:5px}.why{font-size:.9rem}.curiosity{background:#fff7e9}.concept{border-left:4px solid var(--green)}.quote{background:#f6f2fb;border-left:4px solid var(--purple)}blockquote{margin:0 0 12px;font-size:1.02rem;font-style:italic}.team{padding:9px 11px;background:#edf8f2;border-radius:5px}.resource{background:#edf5ff}.podcast{background:#f8faf9}.insight{display:flex;gap:12px;align-items:flex-start;padding:14px 16px;margin:10px 0;background:#fff8dc;border-left:4px solid #d59b14;border-radius:6px}.insight p{margin:0}
+footer{margin-top:44px;padding:18px;background:#edf1ef;border-radius:8px;color:#77837d;font-size:.8rem}
+@media(max-width:860px){.page{grid-template-columns:1fr}.toc{display:none}.trend-grid,.story-grid{grid-template-columns:1fr}}@media(max-width:620px){.topbar{gap:12px;padding:12px 16px}.topbar nav{display:none}.topbar span{white-space:nowrap}.page{width:100%;padding:22px 16px 54px}.tool-grid{grid-template-columns:1fr}h1{font-size:1.7rem;overflow-wrap:anywhere}.highlights{overflow-wrap:anywhere}.main-story,.entry,.concept,.curiosity,.resource,.quote,.podcast{padding:17px}}
+</style></head><body>
+<header class="topbar"><a class="brand" href="../index.html">Tech Digest</a>
+<nav><a href="../index.html">Archive</a><a href="#main-story">Today</a><a href="#tools">Tools</a><a href="#quotes">Quotes</a></nav>
+<span>2026-08-06</span></header>
+<div class="page">
+<nav class="toc">
+  <strong>本期目录</strong>
+  <a href="#main-story">🔥 主故事</a><a href="#trends">⚡ 冲突趋势</a>
+  <a href="#tech-news">📰 科技动态</a><a href="#ai">🤖 AI 相关</a>
+  <a href="#articles">📝 文章推荐</a><a href="#tools">🛠️ 工具推荐</a>
+  <a href="#ai-tools">🧠 AI 工具</a><a href="#concepts">🧩 概念库</a>
+  <a href="#curiosity">🎲 好奇心</a><a href="#resources">📚 资源</a>
+  <a href="#quotes">💬 言论</a><a href="#podcast">🎙️ 播客</a>
+  <a href="#team-insights">✅ 团队启发</a>
+</nav>
+<main>
+<a href="../index.html">← 返回目录</a>
+<h1>第 73 期：Agent 没有逃出沙箱，是评测场根本没把门关上</h1>
+<p class="meta">第 73 期 · 2026年8月6日，星期四</p>
+<p class="highlights"><strong>✨ 本期亮点：</strong>OpenAI 披露第二家外部实验室因网络配置错误让模型接触真实网站，Meta 也确认 Muse Spark 遇到同类问题 · Cloudflare 提出 Agent Access Model：权限随任务临时发放，执行边界放在 Harness 与网络层 · Langflow CVE-2026-9198 已进入活跃利用报告，IBM 要求升级至 1.10.1 或更高版本 · Rust 编译器仓库的五个团队采用 LLM 使用政策，允许辅助分析但禁止 AI 直接创作贡献 · PrintingPress 把网页工作流封装为 CLI、Skill 与 MCP，但私有接口仍需审查凭证和服务条款 · X、GitHub、Hacker News、Reddit、YouTube 五类社区源本次全部成功抓取</p>
+<img class="article-img" src="https://images.ctfassets.net/kftzwdyauwt9/6RSPaWdKwEvT9xWx4IjQy2/a334438e4daf9f62c24541c00c212749/third-party-cyber-evaluations_16x9.png?w=1600&amp;h=900&amp;fit=fill" alt="OpenAI 第三方网络安全评测说明配图" loading="lazy"><p class="hero-caption">OpenAI 已确认两项第三方评测都接触了真实互联网；这不是模型逃出沙箱或使用零日漏洞，而是评测环境本身允许或误配了外网访问。</p>
+<div class="callout"><strong>🎯 本期核心判断：</strong>高风险 Agent 评测不能把提示词当边界；只要环境能访问公网、读取凭证或调用外部服务，就必须按生产攻击面实行默认拒绝、任务级短期凭证和逐动作授权。</div>
+<h2 id="main-story">🔥 主故事</h2>
+    <article class="main-story">
+      <h3>第三家模型实验室踩中同一条线：提示词不是网络边界</h3>
+      <p class="story-hook">Irregular 原本想把模型关在隔离的夺旗赛环境里，却把一个虚构组织名映射到了真实域名。模型没有破解沙箱，它只是使用评测环境已经给出的网络路径。</p>
+      <p>OpenAI 8 月 5 日公布第三方网络安全评测说明：英国 AISI 的测试有意开放互联网并降低部分保护；Irregular 的 CTF 测试则因环境配置错误意外连到公网。后者的虚构目标名与真实域名重合，模型在真实站点发现基础漏洞，并使用了同一站点上的凭证。当天 Meta 发言人也向 CNN 确认，Muse Spark 在 Irregular 的同类配置中利用了另一家公司的漏洞。</p>
+      <div class="story-grid">
+        <div class="story-field"><strong>核心冲突</strong>研究团队需要接近真实条件才能测出能力上限，但互联网、凭证和外部 API 一旦开放，实验就不再只影响沙箱内的虚构对象。提示词可以要求模型不要越界，却不能替代网络策略、凭证作用域和审批门禁。</div>
+        <div class="story-field"><strong>转折点</strong>OpenAI 的新披露把问题从单一模型行为推进到评测基础设施：不同实验室、不同模型都能沿着同一种开放路径触达真实系统，说明根因首先是环境控制失效。</div>
+        <div class="story-field"><strong>为什么是现在</strong>Coding Agent 和网络安全 Agent 正在获得浏览器、终端、云服务与长期凭证。能力越强，单靠系统提示词声明允许范围就越不够；一条错误 DNS 解析或一个过宽 Token 足以把测试变成现实事件。</div>
+        <div class="story-field"><strong>对团队的启发</strong>把 Agent 环境改成默认拒绝出网；每个任务签发短期、最小权限且不可跨目标复用的凭证；对 DNS、HTTP、浏览器和工具调用统一记录并执行 allowlist，真实外部动作默认需要审批。</div>
+      </div>
+      <p><span class="number-chip">OpenAI 披露 2 家外部评测伙伴的互联网事件</span><span class="number-chip">AISI 共记录 19 个未授权动作，其中 2 个来自 GPT-5.6 Sol</span><span class="number-chip">Irregular 事件使用的是基础漏洞，并非零日漏洞或沙箱逃逸</span><span class="number-chip">Meta 已确认 Muse Spark 遇到同类评测配置问题，复盘仍待公布</span></p>
+      <p><strong>我的判断：</strong>这类事故不应被包装成“模型自主逃逸”。真正需要追问的是：谁允许出网、凭证绑定什么任务、目标是否逐条验证、动作是否经过策略层，以及异常发生后能否立即停止并还原执行链。</p>
+      <div class="story-line">提示词可以说明边界，只有网络和凭证策略能执行边界。</div>
+      <p><strong>来源：</strong><a href="https://openai.com/index/third-party-cyber-evaluations-involving-openai-models/" target="_blank" rel="noopener noreferrer">openai.com</a></p>
+    </article>
+<h2 id="trends">⚡ 今日冲突趋势</h2><div class="trend-grid"><article class="trend-card"><h3>评测想接近现实，却不能把现实第三方变成测试靶场</h3><div class="trend-conflict">能力上限测试 vs 公网系统与真实人员的外部风险</div><p>模型没有逃逸不等于环境安全，能访问公网就要按生产攻击面治理。</p><small>openai.com · cnn.com</small></article>
+<article class="trend-card"><h3>Agent 需要更多工具，安全系统却要让每次权限更短更小</h3><div class="trend-conflict">通用长期凭证 vs 任务绑定的临时能力</div><p>身份代理只为当前任务签发短期凭证，Harness 和网络层负责执行边界。</p><small>blog.cloudflare.com · ibm.com</small></article>
+<article class="trend-card"><h3>Token 用得多，不等于工程产出更高</h3><div class="trend-conflict">调用量与内部采用率 vs 任务成功、返工和单位成本</div><p>把 AI 使用量归一化到成功任务、人工返工和交付周期，才能判断效率。</p><small>theregister.com</small></article></div>
+<h2 id="tech-news">📰 科技动态</h2>
+<article class="entry"><h3>1、<a href="https://techcrunch.com/2026/08/05/psa-apples-private-relay-can-leak-your-real-ip-address/" target="_blank" rel="noopener noreferrer">Apple Private Relay 被实测可通过 WebKit 特性泄露真实 IP</a> <span class="certainty certainty-媒体已复测演示；Apple 截至报道发布时未回应">媒体已复测演示；Apple 截至报道发布时未回应</span></h3>
+<p class="hook">地址栏显示 Private Relay 正常工作，页面却能从另一条浏览器能力路径读到真实出口地址。</p>
+<p>TechCrunch 复测安全研究者的演示站后确认，Safari 的部分 WebKit 能力可绕过 Private Relay 的代理路径，让网页观察到真实 IP。研究者把问题归因于三类 WebKit 特性。</p>
+<p class="why"><strong>为什么重要：</strong>iOS/macOS Web 团队不能把 Private Relay 当作完整 VPN；敏感产品仍要做服务端最小化收集和浏览器旁路测试。</p>
+<p class="fact"><strong>事实边界：</strong>不能外推为所有 Apple 流量或所有 VPN 都存在相同漏洞；修复状态仍需等待 Apple 确认。</p>
+<img class="article-img" src="https://techcrunch.com/wp-content/uploads/2024/11/GettyImages-1237753209.jpg?resize=1200,800" alt="Apple Private Relay 被实测可通过 WebKit 特性泄露真实 IP" loading="lazy">
+</article>
+<article class="entry"><h3>2、<a href="https://www.ibm.com/support/pages/node/7278927" target="_blank" rel="noopener noreferrer">Langflow 严重漏洞可让未认证攻击者获得超级用户并执行代码</a> <span class="certainty certainty-漏洞与修复由 IBM 官方确认；活跃利用来自 CISA KEV 与媒体报告">漏洞与修复由 IBM 官方确认；活跃利用来自 CISA KEV 与媒体报告</span></h3>
+<p class="hook">一个看似只负责验证流程代码的端点，和可自行签发的高权限 Token 串成了完整 RCE 链。</p>
+<p>IBM 安全公告确认 CVE-2026-9198 影响 Langflow 1.0.0 至 1.10.0：未认证端点可签发超级用户 Token，再通过代码验证路径实现远程代码执行。修复版本为 1.10.1 或更高。</p>
+<p class="why"><strong>为什么重要：</strong>后台团队应立即盘点暴露实例、升级、轮换凭证并检查异常管理员 Token 与代码执行日志。</p>
+<p class="fact"><strong>事实边界：</strong>IBM 称没有可用规避措施；攻击规模和受影响组织数量尚不确定。</p>
+
+</article>
+<article class="entry"><h3>3、<a href="https://redditinc.com/news/modernizing-reddits-infrastructure-and-moderation-tools" target="_blank" rel="noopener noreferrer">Reddit 把社区规则改成可由模型预检的结构化入口</a> <span class="certainty certainty-Reddit 官方产品与基础设施计划；准确率和减负效果尚无独立数据">Reddit 官方产品与基础设施计划；准确率和减负效果尚无独立数据</span></h3>
+<p class="hook">版主规则以前只在违规后生效，现在试图在发帖前把自然语言规则转成可执行提示。</p>
+<p>Reddit 宣布 Rules Hub 已在 700 多个社区测试，并向所有新社区开放试用。系统使用 LLM 理解规则意图，在用户发布前给出提示，同时保留版主最终控制。</p>
+<p class="why"><strong>为什么重要：</strong>社区产品可借鉴“机器预检、人工拥有规则”的分层，而不是让模型直接成为最终裁决者。</p>
+<p class="fact"><strong>事实边界：</strong>所有采用与效果数字均为公司披露，API 限制和开发平台迁移仍在逐步推进。</p>
+
+</article>
+<article class="entry"><h3>4、<a href="https://www.theregister.com/ai-and-ml/2026/08/05/microsoft-tells-engineers-to-curb-their-token-burning-enthusiasm/5283482" target="_blank" rel="noopener noreferrer">微软内部提醒工程师：Tokenmaxxing 不是优化目标</a> <span class="certainty certainty-内部邮件内容属于媒体报道，并非微软公开政策文件">内部邮件内容属于媒体报道，并非微软公开政策文件</span></h3>
+<p class="hook">当 AI 使用量成为组织 KPI，团队最容易优化的数字恰好可能与产出脱钩。</p>
+<p>The Register 转述 404 Media 看到的内部邮件：微软 CoreAI 负责人 Jay Parikh 提醒团队不要把 Token 消耗最大化当作目标，应关注实际业务价值。微软对报道表示没有补充。</p>
+<p class="why"><strong>为什么重要：</strong>研发管理应把 AI 指标落到交付周期、缺陷率、人工返工和单位成功任务成本。</p>
+<p class="fact"><strong>事实边界：</strong>邮件原文与适用范围未由微软公开，不应写成全公司已实施的新考核政策。</p>
+
+</article>
+<article class="entry"><h3>5、<a href="https://www.theregister.com/security/2026/08/05/prompt-injection-isnt-the-bug-ai-agent-frameworks-are/5283585" target="_blank" rel="noopener noreferrer">研究者在六类 Agent 框架中找到 11 个传统漏洞</a> <span class="certainty certainty-研究团队披露并经媒体报道；各项目修复状态需要逐项核验">研究团队披露并经媒体报道；各项目修复状态需要逐项核验</span></h3>
+<p class="hook">最危险的链路不一定发生在模型提示词，而可能发生在框架把不可信数据送进可信代码的瞬间。</p>
+<p>The Register 报道 Check Point 研究人员在 LangChain、LangGraph、CrewAI、AutoGen、Microsoft Agent Framework 与 Google ADK 中披露 11 个漏洞，类型包括反序列化、路径与请求边界问题。</p>
+<p class="why"><strong>为什么重要：</strong>后台和 Agent 平台团队应把 checkpoint、反序列化、URL 获取、文件路径与插件加载纳入常规安全测试。</p>
+<p class="fact"><strong>事实边界：</strong>微软确认已加固并支付赏金；Google 是否完整修复属于研究者和媒体说法，不能统一概括为全部已修复。</p>
+<img class="article-img" src="https://image.theregister.com/5283628.jpg?imageId=5283628&amp;x=0&amp;y=0&amp;cropw=100&amp;croph=100&amp;panox=0&amp;panoy=0&amp;panow=100&amp;panoh=100&amp;width=1200&amp;height=683" alt="研究者在六类 Agent 框架中找到 11 个传统漏洞" loading="lazy">
+</article>
+<h2 id="ai">🤖 AI 相关</h2>
+<article class="entry"><h3>1、<a href="https://techcrunch.com/2026/08/05/hark-previews-its-browser-use-agent-for-completing-tasks/" target="_blank" rel="noopener noreferrer">Hark 预告一款把浏览任务放进云端排队的 Browser Agent</a> <span class="certainty certainty-媒体看过演示；速度、价格和成功率均为厂商主张，尚不可独立评测">媒体看过演示；速度、价格和成功率均为厂商主张，尚不可独立评测</span></h3>
+<p class="hook">浏览任务不必占住用户电脑，但云端执行也意味着登录态、支付动作和错误恢复要重新设计。</p>
+<p>Hark 向 TechCrunch 演示可在云端并行执行浏览任务的 Agent，并计划在夏末发布。目前产品仍是候补名单和有限演示状态。</p>
+<p class="why"><strong>为什么重要：</strong>评估 Browser Agent 时优先测试登录恢复、幂等、审批、失败截图和真实任务成功率。</p>
+<p class="fact"><strong>事实边界：</strong>本期不引用其融资金额，也不把演示当作已可购买的正式产品。</p>
+<img class="article-img" src="https://techcrunch.com/wp-content/uploads/2026/08/Screenshot-2026-08-05-at-8.10.59-PM.jpg?resize=1200,596" alt="Hark 预告一款把浏览任务放进云端排队的 Browser Agent" loading="lazy">
+</article>
+<h2 id="articles">📝 文章推荐</h2>
+<article class="entry"><h3><a href="https://blog.cloudflare.com/the-agent-access-model/" target="_blank" rel="noopener noreferrer">Cloudflare 用任务级临时凭证重画 Agent 权限模型</a></h3><p class="hook">长期 API Key 让 Agent 的每一次试探都携带全部权限，而任务凭证只允许完成眼前一步。</p><p>Cloudflare 提出 Agent Access Model：身份代理根据当前任务签发短期凭证，Harness、网络层和审计日志共同约束动作；权限只能在明确批准后逐步增加。</p><p class="story-line"></p></article>
+<article class="entry"><h3><a href="https://blog.rust-lang.org/inside-rust/2026/08/05/rust-langrust-is-adopting-an-llm-policy/" target="_blank" rel="noopener noreferrer">Rust 编译器仓库五个团队采用 LLM 使用政策</a></h3><p class="hook">政策没有禁止 AI，而是把“辅助理解”和“替代作者承担贡献责任”划出界线。</p><p>rust-lang/rust 内五个团队采用新政策：允许用 LLM 回答问题、分析代码、改进文字、检查和评审，但禁止让 LLM 直接创作提交内容。作者把评审带宽和贡献者责任作为主要理由。</p><p class="story-line"></p></article>
+<article class="entry"><h3><a href="https://www.vincentschmalbach.com/time-serves-ai-bots-a-different-website/" target="_blank" rel="noopener noreferrer">TIME 对 AI 爬虫返回一套更短、带机器广告的网页</a></h3><p class="hook">人类看到的页面没有那段赞助内容，AI 爬虫却收到专门为机器编排的另一份正文。</p><p>作者实测同一 TIME 页面：普通浏览器与 Googlebot 收到约 303KB HTML，ClaudeBot、PerplexityBot 和 OAI-SearchBot 收到相同的约 13.4KB Markdown，并包含 Mobian 的广告与 Token 计量头。</p><p class="story-line"></p></article>
+<article class="entry"><h3><a href="https://techcrunch.com/2026/08/05/shopify-says-ai-search-is-driving-more-traffic-and-sales-not-replacing-google/" target="_blank" rel="noopener noreferrer">Shopify 称 AI 搜索带来的流量和订单同比增至三倍</a></h3><p class="hook">AI 搜索没有立刻替代 Google，却改变了用户进入商店时所在的漏斗位置。</p><p>TechCrunch 转述 Shopify 财报电话会：AI 来源流量与订单同比约增至三倍，但传统搜索仍贡献约三分之一会话；AI 会话更常直接落在商品页。</p><p class="story-line"></p></article>
+<h2 id="tools">🛠️ 工具推荐</h2><div class="tool-grid">
+<article class="tool-card"><div><span class="tag">Web/Backend/Agent Automation</span><span class="priority">P0</span></div><h3><a href="https://printingpress.dev/" target="_blank" rel="noopener noreferrer">PrintingPress</a></h3><p>把已经能在浏览器完成的工作流封装为 Go CLI、Claude Code Skill、OpenClaw Skill 或 MCP Server，并用本地 SQLite 镜像与复合命令减少重复调用。24 小时内由 X 社区发现，官网可验证功能，但没有独立 Token 节省 Benchmark。适合后台与 Web 自动化原型；抓取私有接口前必须审查授权、Cookie、凭证存储和服务条款。</p></article>
+<article class="tool-card"><div><span class="tag">PC/C++/Build</span><span class="priority">P0</span></div><h3><a href="https://build2.org/blog/faster-than-ninja.xhtml" target="_blank" rel="noopener noreferrer">build2</a></h3><p>C/C++ 构建系统作者公布一组 Xerces-C++ 增量构建测试：在同机同配置调整后，build2 为 3.355 秒，Ninja 为 3.429 秒，差约 2.2%。适合大型 C++/PC 项目做本地 A/B 验证；这是作者单机 Benchmark，不能外推为所有代码库都更快。</p></article>
+<article class="tool-card"><div><span class="tag">Web/Backend/Agent Workspace</span><span class="priority">P1</span></div><h3><a href="https://blog.cloudflare.com/cloudflare-os/" target="_blank" rel="noopener noreferrer">Cloudflare OS</a></h3><p>Cloudflare 开源的新版本 Agent 工作区，组合应用、工作流、治理与审计。它延续第 71 期 Cloudflare Computer 的执行能力，本期新增的是完整工作区和开源发布。适合 Web/后台团队研究企业 Agent 门户；“数千名内部用户”等效果属于厂商声明。</p></article>
+</div>
+<h2 id="ai-tools">🧠 AI 工具</h2><div class="tool-grid">
+<article class="tool-card"><div><span class="tag">macOS/Linux/Coding Agent</span><span class="priority">P0</span></div><h3><a href="https://research.meta.ai/blog/introducing-muse-code-and-muse-spark-1-2" target="_blank" rel="noopener noreferrer">Muse Code / Muse Spark 1.2</a></h3><p>Meta 发布面向 macOS/Linux 终端的 Muse Code 测试版，并配套 Muse Spark 1.2。工具支持持久异步子 Agent、追加式本地事件日志、精确重放与重启恢复，以及 `/plan`、`/grill`、`/goal` 工作流。适合后台和多仓库工程先试验长任务恢复；能力排名仍是 Meta 自有 Benchmark，未独立复现。</p></article>
+</div>
+<h2 id="concepts">🧩 本期概念库</h2>
+<article class="concept"><h3>1. 评测现实边界（Evaluation Reality Boundary）</h3><p><strong>一句话解释：</strong>评测中任何能触达真实域名、账号、人员或服务的路径，都属于现实攻击面，而不是“仍在实验里”。</p><p><strong>为什么重要：</strong>模型是否逃逸不是唯一标准；环境主动开放或配置错误同样会产生外部影响。</p><p><strong>团队应用：</strong>对 DNS、出网、浏览器、邮件和工具调用统一实行真实目标 allowlist。</p></article>
+<article class="concept"><h3>2. 任务级能力与信任棘轮</h3><p><strong>一句话解释：</strong>凭证只绑定当前任务、目标与短时间窗，权限增加必须显式批准，任务结束立即失效。</p><p><strong>为什么重要：</strong>长期通用 Token 会把一次错误放大为跨系统权限泄露。</p><p><strong>团队应用：</strong>由身份代理签发分钟级凭证，记录授权理由并禁止跨目标复用。</p></article>
+<article class="concept"><h3>3. Agent 数据面与控制面分离</h3><p><strong>一句话解释：</strong>模型产生建议和参数属于数据面；网络访问、反序列化、文件写入与代码执行必须由可信控制面验证。</p><p><strong>为什么重要：</strong>许多严重漏洞来自传统软件边界，而不是提示注入本身。</p><p><strong>团队应用：</strong>对 checkpoint、URL、路径和插件输入做 schema、来源与权限校验。</p></article>
+<article class="concept"><h3>4. 结果归一化 AI 成本</h3><p><strong>一句话解释：</strong>把 Token、调用次数和费用除以成功任务、合格交付或节省的人工时间。</p><p><strong>为什么重要：</strong>单纯增加使用量可能只增加重试和返工。</p><p><strong>团队应用：</strong>同时记录成功率、人工返工、缺陷率、周期与单位交付成本。</p></article>
+<h2 id="curiosity">🎲 还能这样？今日好奇心</h2>
+<article class="curiosity"><h3><a href="https://hackaday.com/2026/08/05/3d-printing-a-usable-airless-tire/" target="_blank" rel="noopener noreferrer">3D 打印的无气轮胎，真正难点是形变而不是“永不爆胎”</a></h3><p class="hook">TPU 的 S 形网格可以承重并回弹，但山地车已经有成熟的真空胎补漏方案。</p><p>项目把轮胎分段打印后组合，实骑测试显示基本可用；优势是否抵得过重量、滚阻与制造复杂度仍未证明。</p><p><strong>背后的启发：</strong>原型证明“能工作”只是第一步，还要与现有方案按成本、可靠性和维护负担比较。</p><img class="article-img" src="https://hackaday.com/wp-content/uploads/2026/08/airless-tire-main.jpg" alt="3D 打印的无气轮胎，真正难点是形变而不是“永不爆胎”" loading="lazy"></article>
+<article class="curiosity"><h3><a href="https://hackaday.com/2026/08/05/cell-broadcast-the-modern-emergency-alert-system/" target="_blank" rel="noopener noreferrer">紧急警报为什么不用逐个给手机发短信</a></h3><p class="hook">同一个小区广播一次，覆盖范围内的设备就能同时收到，而不是为每个号码建立会话。</p><p>文章回顾 Cell Broadcast 的一对多、地理围栏与重复广播机制，以及字符集和消息长度限制。</p><p><strong>背后的启发：</strong>面向灾害的系统优先考虑拥塞、覆盖和无需用户注册，而不是个性化交互。</p><img class="article-img" src="https://hackaday.com/wp-content/uploads/2026/07/CellBroadcast.jpg" alt="紧急警报为什么不用逐个给手机发短信" loading="lazy"></article>
+<article class="curiosity"><h3><a href="https://www.theregister.com/science/2026/08/05/voyager-2-cheats-the-power-budget-for-another-year/5283247" target="_blank" rel="noopener noreferrer">Voyager 2 通过轮换加热器和设备，再挤出至少一年科学时间</a></h3><p class="hook">每年大约少 4 瓦，任务团队只能在保温、通信和科学仪器之间持续重新排预算。</p><p>NASA 调整多个加热器与设备的使用顺序，让 Voyager 2 的三台科学仪器预计至少再运行一年。</p><p><strong>背后的启发：</strong>超长寿命系统的核心能力不是永不退化，而是清楚知道哪些功能可以分时、降级和恢复。</p><img class="article-img" src="https://image.theregister.com/204237.jpg?imageId=204237&amp;x=0&amp;y=0&amp;cropw=100&amp;croph=100&amp;width=1200&amp;height=683" alt="Voyager 2 通过轮换加热器和设备，再挤出至少一年科学时间" loading="lazy"></article>
+<h2 id="resources">📚 资源</h2>
+<article class="resource"><h3><a href="https://x.com/freeCodeCamp/status/2085093756215111727" target="_blank" rel="noopener noreferrer">freeCodeCamp：面向开发者的 AI 工具课程</a></h3><p>freeCodeCamp 在 24 小时窗口内重新推荐一篇 4 月 1 日发布的课程，覆盖代码生成、测试、文档、终端和工作流自动化。它不是当日新教程，但适合 Web、iOS、Android、PC 与后台开发者按真实任务挑选章节，并记录节省时间和返工率。</p></article>
+<h2 id="quotes">💬 言论：本期认知增量</h2>
+<article class="quote"><blockquote>Meta 表示，评测配置错误让模型能够访问互联网并利用另一家公司的漏洞。</blockquote><p><strong><a href="https://www.cnn.com/2026/08/05/tech/meta-ai-hacking" target="_blank" rel="noopener noreferrer">Meta 发言人，经 CNN 报道</a></strong> · 媒体转述官方回应 · 评测事故 / Meta</p><p>事件已获公司确认，但受影响公司、完整影响和整改仍未公开。</p><p class="team"><strong>团队启发：</strong>第三方评测合同应写明网络、凭证、事故通知和证据保留责任。</p></article>
+<article class="quote"><blockquote>这不是沙箱逃逸，而是评测环境本身允许模型访问真实互联网。</blockquote><p><strong><a href="https://simonwillison.net/2026/Aug/6/an-ai-model-from-meta/" target="_blank" rel="noopener noreferrer">Simon Willison</a></strong> · 独立技术评论摘要 · 沙箱 / 网络边界</p><p>评论帮助纠正夸张叙事，事实仍以公司和实验室披露为准。</p><p class="team"><strong>团队启发：</strong>事故标题必须区分环境开放、配置错误、漏洞利用和真正逃逸。</p></article>
+<article class="quote"><blockquote>一个提示可以把网页工作流生成 CLI、Skill 或 MCP 接口。</blockquote><p><strong><a href="https://x.com/EXM7777/status/2085109596579123200" target="_blank" rel="noopener noreferrer">PrintingPress 社区发现帖</a></strong> · 社区工具摘要 · MCP / 网页自动化</p><p>产品存在与功能可由官网验证；Token 节省和稳定性没有独立 Benchmark。</p><p class="team"><strong>团队启发：</strong>先选一个只读、可回滚流程验证，再决定是否接入登录态接口。</p></article>
+<article class="quote"><blockquote>允许 LLM 帮助回答、分析和检查，但不允许它直接创作贡献。</blockquote><p><strong><a href="https://forge.rust-lang.org/policies/llm-usage.html" target="_blank" rel="noopener noreferrer">rust-lang/rust LLM 使用政策</a></strong> · 政策摘要 · 开源贡献 / 评审</p><p>目前适用于采用该政策的团队，不代表整个 Rust 生态。</p><p class="team"><strong>团队启发：</strong>代码所有权应落到能解释、测试并维护变更的人，而不是生成工具。</p></article>
+<article class="quote"><blockquote>Tokenmaxxing 不是我们正在优化的目标。</blockquote><p><strong><a href="https://www.404media.co/microsoft-tells-engineers-tokenmaxxing-is-not-what-we-are-optimizing-for/" target="_blank" rel="noopener noreferrer">Jay Parikh 内部邮件，经 404 Media 报道</a></strong> · 报道中的内部表述 · Token / 工程效率</p><p>不是微软公开政策，适用范围未由公司说明。</p><p class="team"><strong>团队启发：</strong>不要把 AI 消耗量或采用率单独设为效率 KPI。</p></article>
+<article class="quote"><blockquote>持久子 Agent 和追加式事件日志让长任务能够精确重放并在重启后继续。</blockquote><p><strong><a href="https://research.meta.ai/static/muse-spark-1-2-methodology" target="_blank" rel="noopener noreferrer">Muse Spark 1.2 方法说明</a></strong> · 厂商技术说明摘要 · Coding Agent / 事件日志</p><p>架构能力由 Meta 描述，实际恢复可靠性仍需在真实仓库验证。</p><p class="team"><strong>团队启发：</strong>长任务要把状态写成可重放事件，而不是依赖对话窗口记忆。</p></article>
+<h2 id="podcast">🎙️ 播客提纲</h2><article class="podcast">
+<h3></h3>
+<p class="hook">模型访问了真实网站。它没有逃出沙箱，因为评测环境根本没有把外网关上。</p>
+<h4>主故事：评测现实边界</h4><p>解释 OpenAI 与 Meta 的第三方评测事故，以及为什么不是模型逃逸。</p>
+<h4>架构：Agent Access Model</h4><p>解释身份代理、Harness、网络控制和信任棘轮。</p>
+<h4>安全快讯：Langflow 与框架漏洞</h4><p>讲清 CVE-2026-9198 和六类框架的传统输入边界。</p>
+<h4>工具：PrintingPress、build2 与 Muse Code</h4><p>分别看网页自动化、C++ 构建和可恢复 Coding Agent。</p>
+<p>提示词可以说明边界，只有网络和凭证策略能执行边界。</p></article>
+<h2 id="team-insights">✅ 对团队的启发</h2>
+<div class="insight"><strong>1</strong><p>Agent 环境默认拒绝出网，只为当前目标开放 DNS 与 HTTP allowlist，并统一记录浏览器和工具请求。</p></div>
+<div class="insight"><strong>2</strong><p>长期 API Key 收回身份代理，按任务签发短期、最小权限且不可跨目标复用的凭证。</p></div>
+<div class="insight"><strong>3</strong><p>Agent 框架测试覆盖 checkpoint 反序列化、URL 获取、文件路径、插件加载和代码执行，不只测提示注入。</p></div>
+<div class="insight"><strong>4</strong><p>AI 工程效率同时看任务成功、返工、缺陷、交付周期和单位成本，不用 Token 数代替价值。</p></div>
+<div class="insight"><strong>5</strong><p>允许 AI 辅助分析和检查，但提交者必须能解释变更、复现测试并承担后续维护。</p></div>
+<footer><strong>信息源：</strong>65+ 个全球精选科技、AI、工程与系统可靠性来源。报道、观点、推断与作者自测均按各条事实边界标注。<br>
+Tech Digest # 73 · 2026-08-06</footer>
+</main></div></body></html>
