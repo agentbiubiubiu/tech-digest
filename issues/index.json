@@ -1,5 +1,18 @@
 [
   {
+    "date": "2026-08-07",
+    "title": "第 74 期：GitHub 恢复了，但漏掉的 push 不会自动回来",
+    "highlights": [
+      "GitHub Actions 与 Pages 故障持续约 10 小时 42 分，部分 push 与 PR 触发事件无法自动重放",
+      "Datasette 修复一类可绕过 execute-sql 限制、读取同库私有表的 SQL 注入问题",
+      "AMD 已签署收购 Taalas 的最终协议，但交易仍待惯常交割条件与监管批准",
+      "FLAWED 用真实 CVE、重复采样和交叉验证测试 AI 补丁，但运行不可信代码时需要隔离 Docker 主机",
+      "Jujutsu 0.44 调整 Git 标签的 fetch/push 默认行为，升级前应在沙箱验证发布流程",
+      "X 当日重新传播 Agent Skills 旧课程；官方页面确认主讲为 Elie Schoppik，并非帖子暗示的 Andrew Ng"
+    ],
+    "image": "https://image.theregister.com/1682042.jpg?imageId=1682042&x=0&y=0&cropw=100&croph=100&panox=0&panoy=0&panow=100&panoh=100&width=1200&height=683"
+  },
+  {
     "date": "2026-08-06",
     "title": "第 73 期：Agent 没有逃出沙箱，是评测场根本没把门关上",
     "highlights": [

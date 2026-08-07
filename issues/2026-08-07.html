@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="zh-CN"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Tech Digest #74：状态页变绿后，还要对账</title>
+<meta name="description" content="从 GitHub 不可重放事件，到 AI 补丁验证、供应链安全与开发工具，建立故障恢复后的工程闭环。">
+<meta property="og:title" content="Tech Digest #74：状态页变绿后，还要对账">
+<meta property="og:description" content="从 GitHub 不可重放事件，到 AI 补丁验证、供应链安全与开发工具，建立故障恢复后的工程闭环。">
+<meta property="og:image" content="https://image.theregister.com/1682042.jpg?imageId=1682042&amp;x=0&amp;y=0&amp;cropw=100&amp;croph=100&amp;panox=0&amp;panoy=0&amp;panow=100&amp;panoh=100&amp;width=1200&amp;height=683">
+<style>
+:root{--text:#17231d;--muted:#5e6c65;--line:#dce6e0;--green:#147a50;--pale:#eef8f2;--blue:#2563a8;--yellow:#9a6500;--red:#a93838;--purple:#6b4fa3;--surface:#fff}
+*{box-sizing:border-box}html{scroll-behavior:smooth;overflow-x:hidden}body{margin:0;overflow-x:hidden;background:#f6f8f7;color:var(--text);font:16px/1.72 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;letter-spacing:0}
+a{color:var(--green);text-decoration:none}a:hover{text-decoration:underline}.topbar{position:sticky;top:0;z-index:4;display:flex;align-items:center;justify-content:space-between;padding:12px 24px;background:rgba(255,255,255,.95);border-bottom:1px solid var(--line);backdrop-filter:blur(12px)}.brand{font-weight:800}.topbar nav{display:flex;gap:16px;font-size:.9rem}
+.page{display:grid;grid-template-columns:210px minmax(0,820px);gap:36px;max-width:1120px;margin:0 auto;padding:34px 24px 70px}.toc{position:sticky;top:76px;align-self:start;display:flex;flex-direction:column;gap:7px;font-size:.84rem}.toc a{color:var(--muted)}main{min-width:0}
+h1{font-size:2.15rem;line-height:1.28;margin:10px 0 8px;letter-spacing:0}h2{font-size:1.38rem;margin:42px 0 16px;border-bottom:1px solid var(--line);padding-bottom:9px;letter-spacing:0}h3{font-size:1.06rem;line-height:1.5;margin:0 0 10px;letter-spacing:0}h4{font-size:.98rem;margin:16px 0 6px;letter-spacing:0}p{margin:0 0 13px;color:var(--muted)}
+.meta,.hero-caption,small{color:#7d8983;font-size:.82rem}.highlights,.callout{padding:16px 18px;border-left:4px solid var(--green);background:var(--pale);border-radius:6px;margin:20px 0}.article-img{width:100%;max-height:390px;object-fit:cover;border-radius:6px;margin:12px 0 6px;background:#edf1ef}.hero-caption{text-align:center;margin-top:-2px}
+.main-story,.entry,.concept,.curiosity,.resource,.quote,.podcast{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:22px;margin:14px 0}.main-story{background:linear-gradient(135deg,#f2faf5,#fff 66%)}.story-hook,.hook{font-weight:700;color:var(--green)}.story-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:16px 0}.story-field{padding:13px;border:1px solid var(--line);border-radius:6px;color:var(--muted);font-size:.9rem}.story-field strong{display:block;color:var(--text);margin-bottom:3px}.number-chip,.tag,.priority,.certainty{display:inline-block;border-radius:999px;padding:3px 9px;font-size:.72rem;font-weight:750;margin:3px 5px 3px 0}.number-chip{background:#e7f0fb;color:var(--blue)}.story-line{background:#f2eef9;border-left:4px solid var(--purple);padding:12px 14px;border-radius:6px;font-weight:700}
+.trend-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.trend-card,.tool-card{background:#fff;border:1px solid var(--line);border-radius:8px;padding:17px}.trend-conflict{color:var(--red);font-weight:750;font-size:.82rem;margin-bottom:8px}.tool-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.tag{background:var(--green);color:#fff}.priority{background:#eef1ef;color:var(--muted)}.certainty-confirmed{background:#e6f6ed;color:var(--green)}.certainty-announced{background:#e9f1fb;color:var(--blue)}.certainty-reported{background:#fff4d8;color:var(--yellow)}.certainty-opinion,.certainty-inference{background:#f1ecf8;color:var(--purple)}.certainty-rumor{background:#fbeaea;color:var(--red)}
+.fact{font-size:.86rem;padding:9px 11px;background:#fff8e8;border-radius:5px}.why{font-size:.9rem}.curiosity{background:#fff7e9}.concept{border-left:4px solid var(--green)}.quote{background:#f6f2fb;border-left:4px solid var(--purple)}blockquote{margin:0 0 12px;font-size:1.02rem;font-style:italic}.team{padding:9px 11px;background:#edf8f2;border-radius:5px}.resource{background:#edf5ff}.podcast{background:#f8faf9}.insight{display:flex;gap:12px;align-items:flex-start;padding:14px 16px;margin:10px 0;background:#fff8dc;border-left:4px solid #d59b14;border-radius:6px}.insight p{margin:0}
+footer{margin-top:44px;padding:18px;background:#edf1ef;border-radius:8px;color:#77837d;font-size:.8rem}
+@media(max-width:860px){.page{grid-template-columns:1fr}.toc{display:none}.trend-grid,.story-grid{grid-template-columns:1fr}}@media(max-width:620px){.topbar{gap:12px;padding:12px 16px}.topbar nav{display:none}.topbar span{white-space:nowrap}.page{width:100%;padding:22px 16px 54px}.tool-grid{grid-template-columns:1fr}h1{font-size:1.7rem;overflow-wrap:anywhere}.highlights{overflow-wrap:anywhere}.main-story,.entry,.concept,.curiosity,.resource,.quote,.podcast{padding:17px}}
+</style></head><body>
+<header class="topbar"><a class="brand" href="../index.html">Tech Digest</a>
+<nav><a href="../index.html">Archive</a><a href="#main-story">Today</a><a href="#tools">Tools</a><a href="#quotes">Quotes</a></nav>
+<span>2026-08-07</span></header>
+<div class="page">
+<nav class="toc">
+  <strong>本期目录</strong>
+  <a href="#main-story">🔥 主故事</a><a href="#trends">⚡ 冲突趋势</a>
+  <a href="#tech-news">📰 科技动态</a><a href="#ai">🤖 AI 相关</a>
+  <a href="#articles">📝 文章推荐</a><a href="#tools">🛠️ 工具推荐</a>
+  <a href="#ai-tools">🧠 AI 工具</a><a href="#concepts">🧩 概念库</a>
+  <a href="#curiosity">🎲 好奇心</a><a href="#resources">📚 资源</a>
+  <a href="#quotes">💬 言论</a><a href="#podcast">🎙️ 播客</a>
+  <a href="#team-insights">✅ 团队启发</a>
+</nav>
+<main>
+<a href="../index.html">← 返回目录</a>
+<h1>第 74 期：GitHub 恢复了，但漏掉的 push 不会自动回来</h1>
+<p class="meta">第 74 期 · 2026年8月7日，星期五</p>
+<p class="highlights"><strong>✨ 本期亮点：</strong>GitHub Actions 与 Pages 故障持续约 10 小时 42 分，部分 push 与 PR 触发事件无法自动重放 · Datasette 修复一类可绕过 execute-sql 限制、读取同库私有表的 SQL 注入问题 · AMD 已签署收购 Taalas 的最终协议，但交易仍待惯常交割条件与监管批准 · FLAWED 用真实 CVE、重复采样和交叉验证测试 AI 补丁，但运行不可信代码时需要隔离 Docker 主机 · Jujutsu 0.44 调整 Git 标签的 fetch/push 默认行为，升级前应在沙箱验证发布流程 · X 当日重新传播 Agent Skills 旧课程；官方页面确认主讲为 Elie Schoppik，并非帖子暗示的 Andrew Ng</p>
+<img class="article-img" src="https://image.theregister.com/1682042.jpg?imageId=1682042&amp;x=0&amp;y=0&amp;cropw=100&amp;croph=100&amp;panox=0&amp;panoy=0&amp;panow=100&amp;panoh=100&amp;width=1200&amp;height=683" alt="GitHub 服务故障报道配图" loading="lazy"><p class="hero-caption">GitHub 官方事故记录确认服务已经恢复，但部分未处理的 push 与 PR 工作流事件不能自动重放，需要客户主动重新触发。</p>
+<div class="callout"><strong>🎯 本期核心判断：</strong>关键交付平台恢复绿灯不等于业务恢复；队列、Webhook 和不可重放事件必须单独对账，而 Copilot 代码评审与 Coding Agent 接入同一控制面后，故障半径已经从 CI 扩展到更多研发环节。</div>
+<h2 id="main-story">🔥 主故事</h2>
+    <article class="main-story">
+      <h3>绿色状态页能结束事故，只有事件对账能结束业务影响</h3>
+      <p class="story-hook">GitHub 在恢复公告里留下了一句比绿色状态更重要的话：部分 push 和 PR 事件没有被处理，而且无法自动重放。</p>
+      <p>GitHub 官方时间线显示，Actions、Pages、Copilot 代码评审、Copilot Coding Agent、托管与自托管 Runner、Webhook 以及 Enterprise Importer 都在事故中受影响。8 月 6 日 20:34 UTC，Webhook 处理率仍约为 15%，排队任务成功率约为 65%；之后任务成功率逐步回升到 97% 和 99%，最终于 8 月 7 日 02:04 UTC 宣布恢复。</p>
+      <div class="story-grid">
+        <div class="story-field"><strong>核心冲突</strong>平台可以把服务恢复到可用状态，却无法替团队判断哪些提交、评审、发布和外部通知在中间丢失。只盯状态页的团队会把“基础设施恢复”误当成“交付链完整”。</div>
+        <div class="story-field"><strong>转折点</strong>恢复过程不仅要修 Runner 分配和队列积压，还要面对不可重放事件。GitHub 明确建议受影响客户推送新提交、更新 PR 或手动重跑任务；部分 ARC 用户还需要删除卡住的 Pod 并重新部署。</div>
+        <div class="story-field"><strong>为什么是现在</strong>代码评审 Agent、Coding Agent、CI、Pages 和 Webhook 越来越依赖同一平台控制面。以前一次 GitHub 故障主要拖慢构建，现在还可能让自动评审、代理任务和发布通知同时失联。</div>
+        <div class="story-field"><strong>对团队的启发</strong>建立交付事件账本；服务恢复后按 commit、PR、Webhook 和发布状态执行对账；为热修保留备用构建路径；Copilot 评审或 Coding Agent 不可用时降级到人工流程，而不是阻塞全部合并。</div>
+      </div>
+      <p><span class="number-chip">从媒体记录的首次报告 15:22 UTC 到官方恢复 02:04 UTC，约 10 小时 42 分</span><span class="number-chip">20:34 UTC 时 Webhook 处理率约 15%</span><span class="number-chip">同一时间排队任务成功率约 65%，此前低点约 30%-40%</span><span class="number-chip">部分 push 与 PR 触发事件无法自动重放</span></p>
+      <p><strong>我的判断：</strong>这次事故的根因分析尚未发布，不能归因给 AI。可以确定的是，团队自己的恢复设计必须覆盖“事件没有进入队列”这一类空洞：按 commit SHA、PR 状态和发布记录重新对账，而不是只检查队列是否清空。</p>
+      <div class="story-line">绿色状态页能结束事故，只有事件对账能结束业务影响。</div>
+      <p><strong>来源：</strong><a href="https://www.githubstatus.com/incidents/qcvjkzcs7j74" target="_blank" rel="noopener noreferrer">www.githubstatus.com</a></p>
+    </article>
+<h2 id="trends">⚡ 今日冲突趋势</h2><div class="trend-grid"><article class="trend-card"><h3>平台恢复不等于交付完整</h3><div class="trend-conflict">状态页绿灯 vs 不可重放事件仍需业务对账</div><p>恢复检查必须从服务可用扩展到 commit、PR、Webhook 和发布结果一致。</p><small>githubstatus.com</small></article>
+<article class="trend-card"><h3>AI 会生成候选补丁，证明正确仍是工程工作</h3><div class="trend-conflict">快速产出 patch vs 漏洞消失、行为不变与回归可复现</div><p>补丁评测要同时检查 exploit、测试、行为差异与重复采样。</p><small>github.com · 1password.com</small></article>
+<article class="trend-card"><h3>审批越多，不代表人类控制越强</h3><div class="trend-conflict">逐条弹窗带来的表面控制 vs 时间压力下的审批疲劳</div><p>审批界面必须展示目标、数据流和副作用，并把高风险动作优先抬升。</p><small>theregister.com</small></article></div>
+<h2 id="tech-news">📰 科技动态</h2>
+<article class="entry"><h3>1、<a href="https://github.com/simonw/datasette/releases/tag/1.0a38" target="_blank" rel="noopener noreferrer">Datasette 修复混合公私表配置下的 SQL 注入</a> <span class="certainty certainty-项目官方发布说明，已证实；作者称受影响配置较少见">项目官方发布说明，已证实；作者称受影响配置较少见</span></h3>
+<p class="hook">表级权限看似隔离，数据库级 SQL 入口却把公开表变成了进入私有数据的跳板。</p>
+<p>Datasette 1.0a38 修复一类权限边界漏洞：当同一数据库同时存在公开表和私有表时，拥有任一公开表访问权的用户可能绕过 execute-sql 限制执行 SQL 注入，并以只读方式访问私有数据。0.65.3 也包含修复。</p>
+<p class="why"><strong>为什么重要：</strong>使用 Datasette 的后台应先识别同库混合公私表，再升级并补一条越权回归测试。</p>
+<p class="fact"><strong>事实边界：</strong>漏洞只提供只读访问，且需要特定权限组合；不能概括为所有 Datasette 部署均可被远程接管。</p>
+<img class="article-img" src="https://opengraph.githubassets.com/1/simonw/datasette" alt="Datasette 修复混合公私表配置下的 SQL 注入" loading="lazy">
+</article>
+<article class="entry"><h3>2、<a href="https://ir.amd.com/news-events/press-releases/detail/1296/amd-acquires-taalas-to-advance-compute-solutions-for-rapidly-growing-ai-inference-market/" target="_blank" rel="noopener noreferrer">AMD 签署收购 AI 推理芯片公司 Taalas 的最终协议</a> <span class="certainty certainty-最终协议已由 AMD 官方确认；交易尚未完成，金额未披露">最终协议已由 AMD 官方确认；交易尚未完成，金额未披露</span></h3>
+<p class="hook">通用加速器继续扩张的同时，AMD 也在买入把特定模型更深地固化到芯片中的路线。</p>
+<p>AMD 宣布已签署收购 Taalas 的最终协议，希望把面向特定模型的推理芯片能力纳入计算产品组合。交易金额未披露，完成仍取决于惯常交割条件与监管批准。</p>
+<p class="why"><strong>为什么重要：</strong>后台与客户端团队短期无需迁移，真正需要跟踪的是后续产品化、模型适配范围和实际成本数据。</p>
+<p class="fact"><strong>事实边界：</strong>Taalas 的性能与效率表述属于厂商声明，本期不把它当作独立 Benchmark。</p>
+<img class="article-img" src="https://d1io3yog0oux5.cloudfront.net/_c242d804004339900dff147578c6c06a/amd/db/834/7308/social_image_resized.jpg" alt="AMD 签署收购 AI 推理芯片公司 Taalas 的最终协议" loading="lazy">
+</article>
+<article class="entry"><h3>3、<a href="https://www.theregister.com/ai-and-ml/2026/08/06/microsoft-excludes-domain-exclusion-from-ms-365-copilot-days-after-rolling-it-out/5284106" target="_blank" rel="noopener noreferrer">Microsoft 365 Copilot 撤回刚上线的域名排除功能</a> <span class="certainty certainty-回滚由微软官方更新确认；原因未公开，媒体的 allow-list 建议属于观点">回滚由微软官方更新确认；原因未公开，媒体的 allow-list 建议属于观点</span></h3>
+<p class="hook">管理员刚获得一个内容治理开关，几天后它又从产品中消失。</p>
+<p>微软官方更新称，Microsoft 365 Copilot 的 Domain Exclusion 功能已经回滚，团队正在评估下一步，未说明原因。原设计允许管理员通过 CSV 或 PowerShell 排除最多 1,000 个域名。</p>
+<p class="why"><strong>为什么重要：</strong>企业后台不要把单一产品开关当成完整防线，应继续使用数据分级、访问控制和输出审计。</p>
+<p class="fact"><strong>事实边界：</strong>不能推断回滚源于安全漏洞；微软只确认回滚和继续评估。</p>
+<img class="article-img" src="https://image.theregister.com/5284130.jpg?imageId=5284130&amp;x=0&amp;y=0&amp;cropw=100&amp;croph=100&amp;panox=0&amp;panoy=0&amp;panow=100&amp;panoh=100&amp;width=1200&amp;height=683" alt="Microsoft 365 Copilot 撤回刚上线的域名排除功能" loading="lazy">
+</article>
+<article class="entry"><h3>4、<a href="https://techcrunch.com/2026/08/06/hacker-pleads-guilty-to-stealing-data-from-more-than-165-snowflake-customers/" target="_blank" rel="noopener noreferrer">Snowflake 客户数据盗窃案被告认罪</a> <span class="certainty certainty-认罪与案件范围由司法部确认；判刑尚未发生">认罪与案件范围由司法部确认；判刑尚未发生</span></h3>
+<p class="hook">一次身份与云配置问题最终横跨 165 家客户，说明共享平台事件的真实边界在租户凭证。</p>
+<p>美国司法部与媒体确认，加拿大男子 Connor Moucka 已就侵入一家云存储服务商客户账户并敲诈认罪。案件涉及超过 165 家企业、数十亿条记录；判刑定于 10 月 27 日。</p>
+<p class="why"><strong>为什么重要：</strong>后台团队应强制 MFA、禁用长期凭证、监控异常数据导出，并把第三方云账户纳入统一身份响应。</p>
+<p class="fact"><strong>事实边界：</strong>约 250 万美元赎金、约 50 万美元数据销售和 950 万美元损失来自司法部案件材料；最终量刑仍待法院决定。</p>
+<img class="article-img" src="https://techcrunch.com/wp-content/uploads/2024/11/snowflake-data-breaches.jpg?resize=1200,800" alt="Snowflake 客户数据盗窃案被告认罪" loading="lazy">
+</article>
+<article class="entry"><h3>5、<a href="https://techcrunch.com/2026/08/06/china-linked-lightspy-spyware-caught-targeting-victims-in-13-countries-including-the-us/" target="_blank" rel="noopener noreferrer">LightSpy 间谍软件被发现扩展到 13 个国家</a> <span class="certainty certainty-技术能力与范围来自安全厂商研究；与中国相关及单一商业运营者均为研究者归因">技术能力与范围来自安全厂商研究；与中国相关及单一商业运营者均为研究者归因</span></h3>
+<p class="hook">一个最初被当作移动端威胁的工具链，正在扩展到桌面和网络边界。</p>
+<p>Arctic Wolf 研究人员称，LightSpy 的基础设施和模块已经覆盖 13 个国家，可针对手机、Apple 设备、Linux、Windows 与路由器，并包含擦除数据等能力；研究者观察到至少 117 台服务器。</p>
+<p class="why"><strong>为什么重要：</strong>iOS、Android、PC 和后台团队应共享 IOC、统一证书与网络异常检测，并保留设备擦除前的取证流程。</p>
+<p class="fact"><strong>事实边界：</strong>归因没有政府或司法确认；不能把研究者判断写成已证实的国家行动。</p>
+<img class="article-img" src="https://techcrunch.com/wp-content/uploads/2021/11/china_hack.jpg?resize=1200,800" alt="LightSpy 间谍软件被发现扩展到 13 个国家" loading="lazy">
+</article>
+<h2 id="ai">🤖 AI 相关</h2>
+<article class="entry"><h3>1、<a href="https://techcrunch.com/2026/08/06/openai-brings-unlimited-chatgpt-text-chats-to-free-users/" target="_blank" rel="noopener noreferrer">ChatGPT 免费用户将获得不限量文本对话，其他模态仍有配额</a> <span class="certainty certainty-产品能力由 OpenAI 页面确认；8 月 6 日媒体报道当前推出，官方页面元数据标为 8 月 4 日">产品能力由 OpenAI 页面确认；8 月 6 日媒体报道当前推出，官方页面元数据标为 8 月 4 日</span></h3>
+<p class="hook">免费层不再用文本轮数打断长对话，但高成本模态仍维持单独配额。</p>
+<p>OpenAI 产品更新称，免费用户将逐步默认使用 GPT-5.6 Luna，并可不限量进行文本对话；文件、图像、语音和图像生成仍有独立限制。Plus 与 Pro 也获得 GPT-5.6 Sol 及可调节思考深度。</p>
+<p class="why"><strong>为什么重要：</strong>日常研究可把长文本拆解留在免费层，涉及文件、图像或稳定深度推理时再根据真实任务评估付费。</p>
+<p class="fact"><strong>事实边界：</strong>OpenAI 关于事实错误降低 62% 和 68% 的数字属于内部评测，不是独立 Benchmark。</p>
+<img class="article-img" src="https://techcrunch.com/wp-content/uploads/2025/04/GettyImages-2205105208.jpg?resize=1200,800" alt="ChatGPT 免费用户将获得不限量文本对话，其他模态仍有配额" loading="lazy">
+</article>
+<h2 id="articles">📝 文章推荐</h2>
+<article class="entry"><h3><a href="https://www.theregister.com/ai-and-ml/2026/08/06/humans-in-the-loop-miss-a-third-of-dangerous-ai-coding-agent-requests/5284236" target="_blank" rel="noopener noreferrer">60 秒审批游戏暴露 Human-in-the-loop 的脆弱位置</a></h3><p class="hook">把人放进审批回路并不会自动形成控制；倒计时、重复请求和模糊命令会压缩判断。</p><p>The Register 当日采访并报道 ScaleX 的审批游戏：超过 4 万轮、40.9 万次决策中，玩家平均识别约 66.3% 的危险请求，7% 的参与者批准了全部动作。</p><p class="story-line"></p><img class="article-img" src="https://image.theregister.com/5251269.jpg?imageId=5251269&amp;x=0&amp;y=0&amp;cropw=100&amp;croph=100&amp;panox=0&amp;panoy=0&amp;panow=100&amp;panoh=100&amp;width=1200&amp;height=683" alt="60 秒审批游戏暴露 Human-in-the-loop 的脆弱位置" loading="lazy"></article>
+<article class="entry"><h3><a href="https://www.theregister.com/ai-and-ml/2026/08/07/how-the-famed-usenix-security-conf-is-managing-a-flood-of-papers-in-the-ai-era/5284374" target="_blank" rel="noopener noreferrer">USENIX Security 面对论文洪峰，先从不存在的引用下手</a></h3><p class="hook">审核资源被投稿洪峰挤压时，最先可自动执行的规则不是判断作者用了什么模型，而是验证引用是否存在。</p><p>USENIX Security 收到 3,030 篇有效投稿，高于上一年的约 2,400 篇。首轮 1,181 篇投稿中，21 篇因至少包含 3 个不存在的引用被拒；组织方没有声称这些引用全部由 AI 生成。</p><p class="story-line"></p><img class="article-img" src="https://image.theregister.com/5284394.jpg?imageId=5284394&amp;x=0&amp;y=0&amp;cropw=100&amp;croph=100&amp;panox=0&amp;panoy=0&amp;panow=100&amp;panoh=100&amp;width=1200&amp;height=683" alt="USENIX Security 面对论文洪峰，先从不存在的引用下手" loading="lazy"></article>
+<article class="entry"><h3><a href="https://matklad.github.io/2026/08/06/neat-io-threaded.html" target="_blank" rel="noopener noreferrer">Zig 用阻塞系统调用实现可取消 I/O</a></h3><p class="hook">异步接口不一定要求每一步都非阻塞；真正难的是取消请求能否被内核中的阻塞调用可靠看见。</p><p>文章拆解 Zig 新的 Io.Threaded：底层仍使用阻塞系统调用，但通过共享内存标记、信号、中断后的 EINTR 与确认循环提供取消能力，试图把接口语义与操作系统机制连接起来。</p><p class="story-line"></p></article>
+<article class="entry"><h3><a href="https://cloud.google.com/blog/topics/threat-intelligence/unc6671-targets-financial-services-and-enterprise-cloud-environments" target="_blank" rel="noopener noreferrer">语音钓鱼开始直接打到员工私人电话</a></h3><p class="hook">企业可以保护工单系统和办公邮箱，却很难阻止攻击者绕到员工私人号码上制造紧迫感。</p><p>Google Threat Intelligence 报告称，攻击者冒充同事或帮助台，拨打员工私人电话，引导其在仿冒页面输入凭证和 MFA 信息，再进入企业云环境。Google 将多个品牌暂时归入 UNC6671。</p><p class="story-line"></p><img class="article-img" src="https://techcrunch.com/wp-content/uploads/2026/08/blackstone-wall-street.jpg?resize=1200,800" alt="语音钓鱼开始直接打到员工私人电话" loading="lazy"></article>
+<h2 id="tools">🛠️ 工具推荐</h2><div class="tool-grid">
+<article class="tool-card"><div><span class="tag">AI 补丁验证 / 后台安全</span><span class="priority">高</span></div><h3><a href="https://github.com/Off-by-1-Labs/FLAWED" target="_blank" rel="noopener noreferrer">FLAWED</a></h3><p>面向安全补丁 Agent 的开源评测框架。它从真实漏洞提交构造任务，只提供漏洞描述而隐藏上游修复，再用容器、重复采样、交叉验证和作弊检测判断补丁是否消除漏洞且保持原行为。支持 Claude、Codex 与 Gemini CLI。它会执行不可信代码并挂载 Docker Socket，后者近似主机 root 权限，仅应在隔离的专用机器运行。1Password 公开的 6 个 CVE、6,080 个补丁结果是项目方自测，不能当独立行业排名。</p></article>
+<article class="tool-card"><div><span class="tag">版本控制 / 全平台</span><span class="priority">高</span></div><h3><a href="https://github.com/jj-vcs/jj/releases/tag/v0.44.0" target="_blank" rel="noopener noreferrer">Jujutsu 0.44</a></h3><p>版本控制工具 Jujutsu 的新版本稳定了标签 fetch/push，并默认推送被跟踪标签；`jj git push --all` 现在也包含标签，同时加入 `jj absorb -i` 与多项 `jj run` 参数。标签默认行为属于破坏性变化，维护发布脚本的 Web、移动端和后台团队应先在测试仓验证 tag 创建、fetch、push 与回滚，再升级共享环境。</p></article>
+<article class="tool-card"><div><span class="tag">Web 基础设施</span><span class="priority">中</span></div><h3><a href="https://bozo.httpd.rocks/" target="_blank" rel="noopener noreferrer">bozohttpd 实战指南</a></h3><p>一份用 NetBSD 自带 bozohttpd、inetd 和 ACME 搭建多站点 HTTPS 服务的操作指南。适合学习最小 HTTP 服务、进程隔离和证书配置，也可作为本地静态站点实验；inetd 每次连接启动进程，作者没有把它定位为高性能生产替代品。本条由 24 小时社区雷达发现，原页面无可靠发布日期，不写成今日新发布。</p></article>
+</div>
+<h2 id="ai-tools">🧠 AI 工具</h2><div class="tool-grid">
+<article class="tool-card"><div><span class="tag">Coding Agent / 全平台开发</span><span class="priority">高</span></div><h3><a href="https://github.blog/ai-and-ml/github-copilot/a-guide-to-slash-commands-in-the-github-copilot-app/" target="_blank" rel="noopener noreferrer">GitHub Copilot App Slash Commands</a></h3><p>GitHub 给出 Copilot 应用斜杠命令工作流：先用 `/plan` 把任务拆成可检查步骤，用 `/spar` 讨论方案，用 `/clear` 清掉不再需要的上下文，再用 `/model` 切换模型。桌面端可并行维护多个会话，适合把 iOS、Android、Web 和后台任务分开；具体命令会随客户端上下文与版本变化，使用时以界面可用项为准。</p></article>
+</div>
+<h2 id="concepts">🧩 本期概念库</h2>
+<article class="concept"><h3>1. 恢复后对账</h3><p><strong>一句话解释：</strong>服务恢复后，不只检查当前请求是否成功，还要核对故障窗口内所有应发生的事件是否已经产生预期结果。</p><p><strong>为什么重要：</strong>它能发现没有进入队列、因而不会被普通重试机制看见的空洞。</p><p><strong>团队应用：</strong>按 commit SHA、PR、Webhook ID 与发布版本生成待核对清单。</p></article>
+<article class="concept"><h3>2. 事件重放缺口</h3><p><strong>一句话解释：</strong>事件在持久化或进入队列前丢失，平台没有足够记录自动重建原始动作。</p><p><strong>为什么重要：</strong>队列清空和错误率归零都无法证明这类事件已经补齐。</p><p><strong>团队应用：</strong>保存业务侧事件账本，并提供幂等的人工重放入口。</p></article>
+<article class="concept"><h3>3. 语义补丁正确性</h3><p><strong>一句话解释：</strong>补丁不仅要通过现有测试，还要消除原 exploit、保持合法行为并避免引入新漏洞。</p><p><strong>为什么重要：</strong>生成式模型很容易给出表面合理、局部测试通过的修改。</p><p><strong>团队应用：</strong>将 exploit 回归、行为差异、静态分析与重复采样组合进评测。</p></article>
+<article class="concept"><h3>4. 审批疲劳</h3><p><strong>一句话解释：</strong>人在高频、低信息量或有时间压力的确认中逐渐形成机械批准习惯。</p><p><strong>为什么重要：</strong>Human-in-the-loop 只有在信息足够、风险分层和可拒绝时才形成真实控制。</p><p><strong>团队应用：</strong>合并低风险确认，高风险动作突出目标、数据流和不可逆影响。</p></article>
+<h2 id="curiosity">🎲 还能这样？今日好奇心</h2>
+<article class="curiosity"><h3><a href="https://hackaday.com/2026/08/06/calculus-free-pid-almost-in-a-spreadsheet/" target="_blank" rel="noopener noreferrer">把 PID 控制器放进电子表格</a></h3><p class="hook">不用先推公式，改三个增益就能看见系统如何追上目标、过冲和恢复。</p><p>作者在 Google Sheets 中模拟被控对象与 PID 控制器，用 0.1 秒步长观察 Kp、Ki、Kd 和扰动对输出的影响。它是教学模拟，不连接真实硬件。</p><p><strong>背后的启发：</strong>把抽象控制问题做成可操作反馈，比只背参数定义更容易形成直觉。</p><img class="article-img" src="https://hackaday.com/wp-content/uploads/2025/12/Spreadsheets.jpg" alt="把 PID 控制器放进电子表格" loading="lazy"></article>
+<article class="curiosity"><h3><a href="https://hackaday.com/2026/08/06/rubidium-frequency-standard-explained/" target="_blank" rel="noopener noreferrer">铷频率标准如何把振荡器锁到原子跃迁</a></h3><p class="hook">稳定时钟不是让晶振永远不漂，而是持续用原子信号把它拉回正确位置。</p><p>文章拆解铷-87 频率标准的三类单元，并解释如何利用约 6.835 GHz 超精细跃迁产生误差信号，再反馈校正振荡器。</p><p><strong>背后的启发：</strong>高可靠系统通常不追求部件绝对不漂，而是设计可观测、可校正的闭环。</p><img class="article-img" src="https://hackaday.com/wp-content/uploads/2026/08/rube.png" alt="铷频率标准如何把振荡器锁到原子跃迁" loading="lazy"></article>
+<article class="curiosity"><h3><a href="https://hackaday.com/2026/08/06/phantomdrive-keeps-your-secrets-out-of-sight/" target="_blank" rel="noopener noreferrer">PhantomDrive 在同一 U 盘里藏第二个文件系统</a></h3><p class="hook">公开分区里写入一段特定内容，固件才会切换到隐藏的加密存储。</p><p>这个开源实验项目用 CH569 处理 AES-256，并根据写入公开分区的 `password:` 指令解锁隐藏文件系统。作者明确表示它没有经过专业安全审计。</p><p><strong>背后的启发：</strong>有趣的隐蔽机制不等于可依赖的安全产品；密钥处理、侧信道和取证痕迹仍需审计。</p><img class="article-img" src="https://hackaday.com/wp-content/uploads/2026/08/phantom_feat.jpg" alt="PhantomDrive 在同一 U 盘里藏第二个文件系统" loading="lazy"></article>
+<h2 id="resources">📚 资源</h2>
+<article class="resource"><h3><a href="https://www.deeplearning.ai/courses/agent-skills-with-anthropic" target="_blank" rel="noopener noreferrer">Agent Skills with Anthropic</a></h3><p>一门 2 小时 19 分、10 课时的短课，覆盖 Skills、MCP、Subagents，以及在 Claude API、Claude Code 和 Agent SDK 中组织可复用能力。它由 DeepLearning.AI 与 Anthropic 制作，官方页面列出的讲师是 Elie Schoppik。当天 X 帖子让这门 1 月发布的旧课程重新传播，并暗示由 Andrew Ng 主讲；本期保留学习价值，同时纠正发布时间和讲师信息。</p></article>
+<h2 id="quotes">💬 言论：本期认知增量</h2>
+<article class="quote"><blockquote>事故已解决，但部分未处理事件无法自动重放。</blockquote><p><strong><a href="https://www.theregister.com/devops/2026/08/06/latest-github-outage-squeezes-actions-pages-to-death/5284297" target="_blank" rel="noopener noreferrer">GitHub Status 事故摘要</a></strong> · 官方时间线摘要 · GitHub / 事件重放</p><p>详细根因分析仍待 GitHub 发布。</p><p class="team"><strong>团队启发：</strong>状态恢复后必须运行交付事件对账。</p></article>
+<article class="quote"><blockquote>GitHub Actions 正在经历降级，团队正在调查。</blockquote><p><strong><a href="https://x.com/githubstatus/status/2085420732511576303" target="_blank" rel="noopener noreferrer">GitHub Status on X</a></strong> · 当日 X 状态快照 · X / Actions</p><p>X 抓取成功；事实以官方事故页的完整时间线为准。</p><p class="team"><strong>团队启发：</strong>社区快照适合发现速度，正式复盘要回到第一方记录。</p></article>
+<article class="quote"><blockquote>AI 生成的补丁仍需要人类评审。</blockquote><p><strong><a href="https://1password.com/blog/why-ai-generated-patches-still-require-human-review" target="_blank" rel="noopener noreferrer">1Password FLAWED 研究</a></strong> · 厂商研究结论摘要 · AI patch / 安全</p><p>6 个 CVE 与 6,080 个补丁是项目方自测，尚非独立复现。</p><p class="team"><strong>团队启发：</strong>把候选补丁和可证明的修复分成两个阶段。</p></article>
+<article class="quote"><blockquote>这门课展示如何创建、评估和组织 Agent Skills。</blockquote><p><strong><a href="https://x.com/RohOnChain/status/2085440040134717869" target="_blank" rel="noopener noreferrer">当日 X 课程推荐</a></strong> · 当日 X 重新传播 · Agent Skills / 教程</p><p>课程实际发布于 1 月，官方列出的讲师是 Elie Schoppik；帖子中的人物暗示不作为事实。</p><p class="team"><strong>团队启发：</strong>社区推荐负责发现，课程身份与发布时间必须回到官方页面核验。</p></article>
+<article class="quote"><blockquote>插件会把 MCP、CLI、Skills、Hooks 和文档组织成可分发单元。</blockquote><p><strong><a href="https://x.com/TobinSouth/status/2085435639743627624" target="_blank" rel="noopener noreferrer">Tobin South on X</a></strong> · 个人观点摘要 · Plugins / MCP</p><p>这是对工具生态打包方式的个人判断，不是 OpenAI 官方路线图。</p><p class="team"><strong>团队启发：</strong>内部工具包应把运行时能力、说明和安全边界一起版本化。</p></article>
+<article class="quote"><blockquote>域名排除功能已经回滚，团队正在评估下一步。</blockquote><p><strong><a href="https://techcommunity.microsoft.com/blog/microsoft365copilotblog/update-domain-exclusion-for-microsoft-365-copilot/4543648" target="_blank" rel="noopener noreferrer">Microsoft 365 Copilot 官方更新</a></strong> · 官方产品状态摘要 · Copilot / 治理</p><p>微软没有公开回滚原因。</p><p class="team"><strong>团队启发：</strong>产品级开关变化时，组织自己的数据访问策略仍要独立生效。</p></article>
+<article class="quote"><blockquote>被告已就云客户数据盗窃和敲诈相关罪名认罪。</blockquote><p><strong><a href="https://www.justice.gov/opa/pr/canadian-man-pleads-guilty-hacking-us-cloud-storage-provider-and-extorting-its-customers" target="_blank" rel="noopener noreferrer">美国司法部</a></strong> · 司法状态摘要 · 云安全 / 认罪</p><p>认罪已证实，判刑安排在 10 月 27 日，尚无最终刑期。</p><p class="team"><strong>团队启发：</strong>云租户身份和大规模导出必须进入统一异常检测。</p></article>
+<h2 id="podcast">🎙️ 播客提纲</h2><article class="podcast">
+<h3></h3>
+<p class="hook">GitHub 状态页恢复了，但你在故障窗口里推送的那次提交，可能永远不会自动触发流水线。</p>
+<h4>主故事：恢复后的事件空洞</h4><p>从 Actions、Webhook 和不可重放事件讲清平台恢复与业务恢复的区别。</p>
+<h4>安全修复：Datasette</h4><p>解释表级权限为何仍可能被数据库级查询绕过。</p>
+<h4>工具：FLAWED 与 Jujutsu</h4><p>看 AI 补丁验证框架和标签默认行为变化。</p>
+<h4>AI 学习：Slash Commands 与 Agent Skills</h4><p>用计划、上下文清理和可复用技能减少返工，并纠正 X 课程帖的时间与讲师信息。</p>
+<p>绿色状态页能结束事故，只有事件对账能结束业务影响。</p></article>
+<h2 id="team-insights">✅ 对团队的启发</h2>
+<div class="insight"><strong>1</strong><p>维护以 commit、PR、Webhook 和发布版本为键的交付事件账本，平台恢复后自动列出缺口。</p></div>
+<div class="insight"><strong>2</strong><p>为发布热修保留备用 CI；Copilot 评审和 Coding Agent 不可用时降级到人工，而不是冻结全部合并。</p></div>
+<div class="insight"><strong>3</strong><p>AI 安全补丁必须通过原 exploit、回归测试、行为差异与新漏洞扫描，不能只看测试变绿。</p></div>
+<div class="insight"><strong>4</strong><p>Agent 审批界面显示目标、数据来源、写入范围和不可逆影响，并按风险减少低价值弹窗。</p></div>
+<div class="insight"><strong>5</strong><p>教程与工具由 X 快速发现，再用官方文档核对版本、讲师、运行前提与安全边界。</p></div>
+<footer><strong>信息源：</strong>65+ 个全球精选科技、AI、工程与系统可靠性来源。报道、观点、推断与作者自测均按各条事实边界标注。<br>
+Tech Digest # 74 · 2026-08-07</footer>
+</main></div></body></html>
