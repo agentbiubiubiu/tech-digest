@@ -1,5 +1,18 @@
 [
   {
+    "date": "2026-08-08",
+    "title": "第 75 期：不是少用 Agent，而是别让最贵模型替你改标点",
+    "highlights": [
+      "Rippling 称 AI 支出一度相当于研发薪酬预算的 40%，治理后降至约 15%；这些数字属于企业自报",
+      "Databricks 称内部智能路由平均降低超过 30% 的任务成本，Harness 与缓存调整又减少近 50% 生成 Token",
+      "OpenAI 对 Astra 的初步内部评估无法排除 Critical 网络安全能力，因此暂停不符合强化控制的部分内部活动",
+      "Cloudflare Kitesurf 把 Agent 浏览器放进 Workers，当前仍处于 Browser Run 免费 Beta",
+      "X 当日发现的 Agent Orchestrator 可给并行编码 Agent 分配独立 worktree，并接回 CI 与评审反馈",
+      "Claude Code 官方账号宣布会话间可发送摘要接力，不会转交完整历史或文件"
+    ],
+    "image": "https://www.databricks.com/sites/default/files/2026-08/2026-08-blog-managing-coding-costs.png"
+  },
+  {
     "date": "2026-08-07",
     "title": "第 74 期：GitHub 恢复了，但漏掉的 push 不会自动回来",
     "highlights": [
