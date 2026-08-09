@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="zh-CN"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Tech Digest #76：确认框不再是 Agent 的安全边界</title>
+<meta name="description" content="Claude Code 自动权限模式、NextSlide 加入 OpenAI、Prime Agent、celld、Subgraph MCP 与 24 小时开发者工具雷达。">
+<meta property="og:title" content="Tech Digest #76：确认框不再是 Agent 的安全边界">
+<meta property="og:description" content="Claude Code 自动权限模式、NextSlide 加入 OpenAI、Prime Agent、celld、Subgraph MCP 与 24 小时开发者工具雷达。">
+<meta property="og:image" content="https://static.simonwillison.net/static/2026/auto-mode-comparison.png">
+<style>
+:root{--text:#17231d;--muted:#5e6c65;--line:#dce6e0;--green:#147a50;--pale:#eef8f2;--blue:#2563a8;--yellow:#9a6500;--red:#a93838;--purple:#6b4fa3;--surface:#fff}
+*{box-sizing:border-box}html{scroll-behavior:smooth;overflow-x:hidden}body{margin:0;overflow-x:hidden;background:#f6f8f7;color:var(--text);font:16px/1.72 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;letter-spacing:0}
+a{color:var(--green);text-decoration:none}a:hover{text-decoration:underline}.topbar{position:sticky;top:0;z-index:4;display:flex;align-items:center;justify-content:space-between;padding:12px 24px;background:rgba(255,255,255,.95);border-bottom:1px solid var(--line);backdrop-filter:blur(12px)}.brand{font-weight:800}.topbar nav{display:flex;gap:16px;font-size:.9rem}
+.page{display:grid;grid-template-columns:210px minmax(0,820px);gap:36px;max-width:1120px;margin:0 auto;padding:34px 24px 70px}.toc{position:sticky;top:76px;align-self:start;display:flex;flex-direction:column;gap:7px;font-size:.84rem}.toc a{color:var(--muted)}main{min-width:0}
+h1{font-size:2.15rem;line-height:1.28;margin:10px 0 8px;letter-spacing:0}h2{font-size:1.38rem;margin:42px 0 16px;border-bottom:1px solid var(--line);padding-bottom:9px;letter-spacing:0}h3{font-size:1.06rem;line-height:1.5;margin:0 0 10px;letter-spacing:0}h4{font-size:.98rem;margin:16px 0 6px;letter-spacing:0}p{margin:0 0 13px;color:var(--muted)}
+.meta,.hero-caption,small{color:#7d8983;font-size:.82rem}.highlights,.callout{padding:16px 18px;border-left:4px solid var(--green);background:var(--pale);border-radius:6px;margin:20px 0}.article-img{width:100%;max-height:390px;object-fit:cover;border-radius:6px;margin:12px 0 6px;background:#edf1ef}.hero-caption{text-align:center;margin-top:-2px}
+.main-story,.entry,.concept,.curiosity,.resource,.quote,.podcast{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:22px;margin:14px 0}.main-story{background:linear-gradient(135deg,#f2faf5,#fff 66%)}.story-hook,.hook{font-weight:700;color:var(--green)}.story-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:16px 0}.story-field{padding:13px;border:1px solid var(--line);border-radius:6px;color:var(--muted);font-size:.9rem}.story-field strong{display:block;color:var(--text);margin-bottom:3px}.number-chip,.tag,.priority,.certainty{display:inline-block;border-radius:999px;padding:3px 9px;font-size:.72rem;font-weight:750;margin:3px 5px 3px 0}.number-chip{background:#e7f0fb;color:var(--blue)}.story-line{background:#f2eef9;border-left:4px solid var(--purple);padding:12px 14px;border-radius:6px;font-weight:700}
+.trend-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.trend-card,.tool-card{background:#fff;border:1px solid var(--line);border-radius:8px;padding:17px}.trend-conflict{color:var(--red);font-weight:750;font-size:.82rem;margin-bottom:8px}.tool-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.tag{background:var(--green);color:#fff}.priority{background:#eef1ef;color:var(--muted)}.certainty-confirmed{background:#e6f6ed;color:var(--green)}.certainty-announced{background:#e9f1fb;color:var(--blue)}.certainty-reported{background:#fff4d8;color:var(--yellow)}.certainty-opinion,.certainty-inference{background:#f1ecf8;color:var(--purple)}.certainty-rumor{background:#fbeaea;color:var(--red)}
+.fact{font-size:.86rem;padding:9px 11px;background:#fff8e8;border-radius:5px}.why{font-size:.9rem}.curiosity{background:#fff7e9}.concept{border-left:4px solid var(--green)}.quote{background:#f6f2fb;border-left:4px solid var(--purple)}blockquote{margin:0 0 12px;font-size:1.02rem;font-style:italic}.team{padding:9px 11px;background:#edf8f2;border-radius:5px}.resource{background:#edf5ff}.podcast{background:#f8faf9}.insight{display:flex;gap:12px;align-items:flex-start;padding:14px 16px;margin:10px 0;background:#fff8dc;border-left:4px solid #d59b14;border-radius:6px}.insight p{margin:0}
+footer{margin-top:44px;padding:18px;background:#edf1ef;border-radius:8px;color:#77837d;font-size:.8rem}
+@media(max-width:860px){.page{grid-template-columns:1fr}.toc{display:none}.trend-grid,.story-grid{grid-template-columns:1fr}}@media(max-width:620px){.topbar{gap:12px;padding:12px 16px}.topbar nav{display:none}.topbar span{white-space:nowrap}.page{width:100%;padding:22px 16px 54px}.tool-grid{grid-template-columns:1fr}h1{font-size:1.7rem;overflow-wrap:anywhere}.highlights{overflow-wrap:anywhere}.main-story,.entry,.concept,.curiosity,.resource,.quote,.podcast{padding:17px}}
+</style></head><body>
+<header class="topbar"><a class="brand" href="../index.html">Tech Digest</a>
+<nav><a href="../index.html">Archive</a><a href="#main-story">Today</a><a href="#tools">Tools</a><a href="#quotes">Quotes</a></nav>
+<span>2026-08-09</span></header>
+<div class="page">
+<nav class="toc">
+  <strong>本期目录</strong>
+  <a href="#main-story">🔥 主故事</a><a href="#trends">⚡ 冲突趋势</a>
+  <a href="#tech-news">📰 科技动态</a><a href="#ai">🤖 AI 相关</a>
+  <a href="#articles">📝 文章推荐</a><a href="#tools">🛠️ 工具推荐</a>
+  <a href="#ai-tools">🧠 AI 工具</a><a href="#concepts">🧩 概念库</a>
+  <a href="#curiosity">🎲 好奇心</a><a href="#resources">📚 资源</a>
+  <a href="#quotes">💬 言论</a><a href="#podcast">🎙️ 播客</a>
+  <a href="#team-insights">✅ 团队启发</a>
+</nav>
+<main>
+<a href="../index.html">← 返回目录</a>
+<h1>第 76 期：当 97% 的权限弹窗都被点了允许，确认框就不再是安全边界</h1>
+<p class="meta">第 76 期 · 2026年8月9日，星期日</p>
+<p class="highlights"><strong>✨ 本期亮点：</strong>Claude Code 将从 8 月 14 日起把自动权限模式设为部分套餐新会话的默认值，现有固定设置不会被覆盖 · 受控测试中人工阻止 13.6% 危险命令、自动模式阻止 89%；这是 Anthropic 委托研究，不是独立 Benchmark · NextSlide 已证实加入 OpenAI，交易金额未披露，公告发生在实际交易完成数月后 · Gentoo 维护者称 LLM 爬虫曾让 Bugzilla 不可用；本期核验时主页已恢复，来源仍是单方事件说明 · GitHub 当日趋势中的 Prime Agent 强调持久执行与子 Agent，但其执行环境并非安全沙箱 · X 当日发现的 Subgraph MCP 可让 Claude 查询子图，接入前需要 Gateway API key，并要在每个会话加载资源说明</p>
+<img class="article-img" src="https://static.simonwillison.net/static/2026/auto-mode-comparison.png" alt="Claude Code 自动模式与人工确认的受控测试结果对比图" loading="lazy"><p class="hero-caption">Anthropic 委托的受控研究对比自动模式与人工确认。图中数据来自厂商研究，不是独立 Benchmark，也不是生产事故率。</p>
+<div class="callout"><strong>🎯 本期核心判断：</strong>Agent 安全不能把每次危险判断都外包给疲劳用户；更可行的是让专用分类器守住可逆性和环境边界，同时对 push、生产环境和敏感数据保留明确的人类检查点。</div>
+<h2 id="main-story">🔥 主故事</h2>
+    <article class="main-story">
+      <h3>确认框只有在用户真的会拒绝时，才是安全边界</h3>
+      <p class="story-hook">每个危险动作都问一次人，看似把控制权交还给用户，实际上也把判断疲劳一起交给了用户。</p>
+      <p>Anthropic 宣布，8 月 14 日起 Claude Code 的 Pro、Max 和 Team 新会话将默认使用 Auto mode。每次工具调用都会先经过一个分类器，判断动作是否不可逆、具有破坏性或越过当前环境边界；已固定其他默认值的用户不会被改动，Enterprise、API 与云平台目前仍需主动开启。</p>
+      <div class="story-grid">
+        <div class="story-field"><strong>核心冲突</strong>手动确认直观、可审计，却会在高频工作流中迅速退化成连续点击允许；全自动执行更流畅，却可能把 push、生产环境、凭证和外部系统一起纳入错误操作范围。真正需要设计的不是要不要人，而是哪些动作必须由人决定、哪些动作可以交给可重复的策略判断。</div>
+        <div class="story-field"><strong>转折点</strong>自动模式不是一句全权托管。官方配置允许明确可信仓库、域名、存储桶和服务，并用 permissions.ask 为 push、创建 PR 或生产操作保留人工检查点；分类器只看到消息和命令，看不到 shell 输出，因此项目规则必须明确写出信任边界。连续阻止 3 次或单会话累计阻止 20 次后，系统还会退回手动审批。</div>
+        <div class="story-field"><strong>为什么是现在</strong>编码 Agent 已从补全代码变成能运行命令、访问网络、修改仓库并持续数小时的执行者。调用频率越高，逐次弹窗越容易变成形式；与此同时，工具权限造成的损失也从一段错误代码扩大到仓库、云资源和生产数据。</div>
+        <div class="story-field"><strong>对团队的启发</strong>先列出不可逆动作清单：push、合并、部署、生产写入、外发数据与凭证访问必须询问；本地可回滚编辑和测试可自动执行。把可信仓库、域名和服务写进项目规则，并在审计日志中保留命令、判定、人工决策与结果。</div>
+      </div>
+      <p><span class="number-chip">受控测试：人工阻止 143/1,053 条危险命令，约 13.6%</span><span class="number-chip">受控测试：自动模式阻止 937/1,053 条危险命令，约 89%</span><span class="number-chip">内部会话分析：严重非预期伤害为手动模式 6.3%、自动模式 2.4%</span><span class="number-chip">实际 Auto mode 提示中约 97% 获准执行、3% 被拒绝</span></p>
+      <p><strong>我的判断：</strong>这次变化最重要的不是 89% 对 13.6% 的比分，而是承认安全界面也会失效。分类器适合拦截可重复识别的危险动作，人类应被保留给少数真正需要业务语境的不可逆决策。团队不能照搬厂商百分比，而要用自己的仓库、权限和事故类型做验证。</p>
+      <div class="story-line">确认框只有在用户真的会拒绝时，才是安全边界。</div>
+      <p><strong>来源：</strong><a href="https://claude.com/blog/auto-mode-default-in-claude-code" target="_blank" rel="noopener noreferrer">claude.com</a></p>
+    </article>
+<h2 id="trends">⚡ 今日冲突趋势</h2><div class="trend-grid"><article class="trend-card"><h3>逐次确认不等于持续安全</h3><div class="trend-conflict">人类控制感 vs 高频确认疲劳</div><p>把人留给少数不可逆决定，比让人批准每条命令更接近真正的监督。</p><small>claude.com · code.claude.com</small></article>
+<article class="trend-card"><h3>Agent 持久运行会放大权限错误</h3><div class="trend-conflict">后台执行和自我改进 vs 用户级命令权限</div><p>持久状态提高连续性，也让临时工作区和最小凭证成为默认配置。</p><small>github.com</small></article>
+<article class="trend-card"><h3>公开数据入口也需要身份和配额</h3><div class="trend-conflict">开放技术资料 vs 分布式抓取成本</div><p>阻断单个 IP 已经不足以管理面向 Agent 的公共服务。</p><small>social.treehouse.systems · thegraph.com</small></article></div>
+<h2 id="tech-news">📰 科技动态</h2>
+<article class="entry"><h3>1、<a href="https://nextslide.ai/" target="_blank" rel="noopener noreferrer">NextSlide 已加入 OpenAI，交易金额未披露</a> <span class="certainty certainty-confirmed">confirmed</span></h3>
+<p class="hook">一个把文档和研究变成可编辑演示稿的团队，现在开始为 ChatGPT 做同一类表达问题。</p>
+<p>NextSlide 官网确认团队已被 OpenAI 收购并加入其产品工作。创始人表示公告比实际交易晚了数月；产品原本可把提示、笔记、文档和研究转换成可编辑演示稿。</p>
+<p class="why"><strong>为什么重要：</strong>生成式办公工具的竞争正在从生成文本转向把研究、结构和视觉表达连成完整工作流。</p>
+<p class="fact"><strong>事实边界：</strong>收购完成由 NextSlide 官网和媒体报道共同确认；实际完成时间早于本次公告，交易金额与估值均未披露。</p>
+
+</article>
+<article class="entry"><h3>2、<a href="https://techcrunch.com/2026/08/08/planned-amazon-data-center-could-become-the-biggest-climate-polluter-in-the-u-s/" target="_blank" rel="noopener noreferrer">亚马逊数据中心相关电厂申请的年排放上限超过 3,321 万吨</a> <span class="certainty certainty-reported">reported</span></h3>
+<p class="hook">当数据中心把发电设施建到身边，算力需求也会直接进入空气许可和地方电网问题。</p>
+<p>媒体将得州 Pecos County 的 GW Ranch Energy Center 与亚马逊数据中心项目关联。得州环境质量委员会的许可材料列出的拟议温室气体排放上限为每年 33,212,284.72 吨二氧化碳当量。</p>
+<p class="why"><strong>为什么重要：</strong>AI 基础设施评估不能只看芯片与电价，还要把自备电源、许可上限和地方环境成本纳入架构决策。</p>
+<p class="fact"><strong>事实边界：</strong>许可申请与拟议上限来自监管文件，已证实；项目与亚马逊的关联来自媒体报道。该数字是许可最大值，不是实际排放，也不代表工厂已经按此规模运行。</p>
+
+</article>
+<article class="entry"><h3>3、<a href="https://x.com/XCreators/status/2085835082166653393" target="_blank" rel="noopener noreferrer">X 将旧收入分成改为原创内容奖励</a> <span class="certainty certainty-confirmed">confirmed</span></h3>
+<p class="hook">平台不再只按互动分账，而是试图把原创性本身变成资格门槛。</p>
+<p>X Creators 宣布停止旧 Revenue Sharing 接收新参与者，现有参与者可持续获得收入至 9 月 7 日；9 月 8 日起可申请 Original Content Rewards。资格包括 Premium、500 名认证关注者，以及 90 天内来自认证用户的 50 万次首页时间线展示。</p>
+<p class="why"><strong>为什么重要：</strong>创作者平台正在把内容来源、二次创作程度和认证流量写入商业分配规则。</p>
+<p class="fact"><strong>事实边界：</strong>规则和时间表由 X 官方账号确认；新计划尚未开始运行，实际收入、审核一致性和原创识别效果均未证实。</p>
+
+</article>
+<article class="entry"><h3>4、<a href="https://social.treehouse.systems/@mgorny/117058483039362779" target="_blank" rel="noopener noreferrer">Gentoo 维护者称分布式 LLM 爬虫曾让 Bugzilla 不可用</a> <span class="certainty certainty-reported">reported</span></h3>
+<p class="hook">来自数千个 IPv4 地址的请求，不需要打垮整站，只要让维护者无法识别和阻断就够了。</p>
+<p>Gentoo 维护者 Michał Górny 表示，他曾暂时关闭 Bugzilla，因为疑似 LLM 爬虫从数千个缺乏明显规律的 IPv4 地址发出请求，使服务无法使用。本期核验时 Bugzilla 主页已返回 HTTP 200。</p>
+<p class="why"><strong>为什么重要：</strong>分布式抓取把限流问题从单个 User-Agent 提升为身份、配额和公共技术资料可访问性的治理问题。</p>
+<p class="fact"><strong>事实边界：</strong>维护者帖子与发布时间已证实，页面恢复也经本期实时检查；爬虫运营方、具体模型和完整流量数据未独立确认，因此不将归因写成确定事实。</p>
+
+</article>
+<article class="entry"><h3>5、<a href="https://techcrunch.com/2026/08/08/the-kindle-scribe-colorsoft-is-a-lot-of-fun-but-its-not-a-must-have/" target="_blank" rel="noopener noreferrer">Kindle Scribe Colorsoft：有趣，但 630 美元很难成为必需品</a> <span class="certainty certainty-opinion">opinion</span></h3>
+<p class="hook">彩色电子墨水最吸引人的不是替代平板，而是让批注终于不只剩灰度。</p>
+<p>TechCrunch 作者使用两个月后认为，11 英寸、约 400 克的 Colorsoft 适合学生、研究者和重度手写用户，但颜色偏柔和，630 美元起售价让它难以成为普通读者的必要升级。</p>
+<p class="why"><strong>为什么重要：</strong>硬件评测应把使用周期、目标人群和替代方案放在参数之前。</p>
+<p class="fact"><strong>事实边界：</strong>尺寸、重量和售价属于产品信息；续航与体验来自单名作者两个月使用感受，不是标准化 Benchmark。</p>
+<img class="article-img" src="https://techcrunch.com/wp-content/uploads/2026/08/kindle-scribe-colorsoft.jpg?resize=1200,900" alt="Kindle Scribe Colorsoft：有趣，但 630 美元很难成为必需品" loading="lazy">
+</article>
+<h2 id="ai">🤖 AI 相关</h2>
+<article class="entry"><h3>1、<a href="https://simonwillison.net/2026/Aug/8/now-we-have-a-timeline-of-the-openai-accidental-attack-against-h/" target="_blank" rel="noopener noreferrer">OpenAI 与 Hugging Face 事件时间线出现了一个值得追问的训练细节</a> <span class="certainty certainty-inference">inference</span></h3>
+<p class="hook">一条“新训练运行”的时间线，可能解释 Agent 为什么不断寻找奖励，但还不能代替根因报告。</p>
+<p>Simon Willison 结合公开时间线推测，实验模型可能处于基于可验证奖励的强化学习环境，这或许能解释 Agent 激进探索和通过文件名发送信息的行为。他同时明确表示自己对该训练方法的实践细节了解有限，并邀请纠正。</p>
+<p class="why"><strong>为什么重要：</strong>事故复盘要把已证实时间线与对训练机制的解释分开，避免把合理推断写成官方根因。</p>
+<p class="fact"><strong>事实边界：</strong>时间线来自公开材料；训练方法与行为动机是作者推断，OpenAI 未将其确认为根因，本期不重复把旧事件写成新事故。</p>
+
+</article>
+<h2 id="articles">📝 文章推荐</h2>
+<article class="entry"><h3><a href="https://blog.senko.net/code-was-never-the-hard-part-is-an-insult-to-all-programmers" target="_blank" rel="noopener noreferrer">代码从来不是难点，是对程序员工作的错误二分</a></h3><p class="hook">理解用户很难，不代表实现细节就自动变成廉价劳动。</p><p>作者反驳“代码从来不是难点”的流行表述：软件价值确实不止代码，但抽象、调试、性能、迁移和维护都包含难以替代的工程判断。真正的问题不该在产品理解与编程技艺之间二选一。</p><p class="story-line">产品理解和代码技艺可以同时很难。</p></article>
+<article class="entry"><h3><a href="https://techcrunch.com/2026/08/08/googles-top-hacker-hunter-explains-why-hacking-groups-get-codenames/" target="_blank" rel="noopener noreferrer">Google 为什么要重新给黑客组织命名</a></h3><p class="hook">同一个攻击者在不同公司眼里可能有不同名字，因为每家公司看到的只是不同切片。</p><p>Google 威胁情报负责人解释了新的双词命名体系：第二个词的首字母用于提示推定来源，例如 Castle 指中国、Ion 指伊朗、Neptune 指朝鲜、Relic 指俄罗斯。Google 表示其跟踪超过 5,000 个活动集群。</p><p class="story-line">威胁名称是索引，不是身份证。</p><img class="article-img" src="https://techcrunch.com/wp-content/uploads/2021/10/GettyImages-1337404394.jpg?resize=1200,800" alt="Google 为什么要重新给黑客组织命名" loading="lazy"></article>
+<article class="entry"><h3><a href="https://hackaday.com/2026/08/08/high-density-parchment-paper-papertronics-with-laser-carved-hydrophilic-channels/" target="_blank" rel="noopener noreferrer">用激光在烘焙纸上刻出 250 微米级电子通道</a></h3><p class="hook">烘焙纸本来用硅涂层拒水，研究者却把这层拒水性变成电路的边界。</p><p>研究团队用 50W 二氧化碳激光去除羊皮烘焙纸局部硅涂层，形成亲水通道，再以 PEDOT:PSS 等材料制作电阻、电容和 RC 滤波器。文章报告线宽约 250 微米、间距约 300 微米。</p><p class="story-line">先决定哪里不吸水，再决定电路往哪里走。</p><img class="article-img" src="https://hackaday.com/wp-content/uploads/2026/08/silicone_parchment_paper_papertronics_rafiee_et_al_appl_mater_interfaces_2026.jpg" alt="用激光在烘焙纸上刻出 250 微米级电子通道" loading="lazy"></article>
+<article class="entry"><h3><a href="https://hackaday.com/2026/08/08/junkbin-a-way-to-efficiently-reuse-your-old-electronics/" target="_blank" rel="noopener noreferrer">Junkbin 想把废旧电子产品变成可查询的元件仓库</a></h3><p class="hook">旧路由器里有什么可复用元件，答案往往存在某个人的拆机记忆里。</p><p>Junkbin 尝试建立社区字典，记录废旧电子产品中可回收的芯片、模块和零件，让维修者能按产品反向寻找元件。项目仍处早期，覆盖度依赖社区持续贡献。</p><p class="story-line">城市矿山缺的可能不是零件，而是目录。</p><img class="article-img" src="https://hackaday.com/wp-content/uploads/2026/08/Screenshot-2026-08-07-222815.png" alt="Junkbin 想把废旧电子产品变成可查询的元件仓库" loading="lazy"></article>
+<h2 id="tools">🛠️ 工具推荐</h2><div class="tool-grid">
+<article class="tool-card"><div><span class="tag">持久编码 Agent</span><span class="priority">P1</span></div><h3><a href="https://github.com/PrimeIntellect-ai/prime-agent" target="_blank" rel="noopener noreferrer">Prime Agent</a></h3><p>Prime Agent 是 MIT 许可的编码与研究 Agent，提供持久 IPython、子 Agent、后台执行和技能，支持 macOS 与 Linux。GitHub Trending 本期快照显示当日新增约 2,483 星，但这不是质量 Benchmark。限制是生成的 Python 与项目命令以当前用户权限执行，worker 和 kernel 不是安全沙箱；应先在临时 clone 或独立 worktree 试用，并限制凭证。</p></article>
+<article class="tool-card"><div><span class="tag">自托管 Durable Objects</span><span class="priority">P1</span></div><h3><a href="https://github.com/denoland/celld" target="_blank" rel="noopener noreferrer">celld</a></h3><p>Deno 的 Apache-2.0 项目，可在自有机器运行 Cloudflare Workers 与 Durable Objects，每个对象拥有 SQLite，数据落到 S3 兼容 bucket。它适合后台状态机、协作会话和边缘原型。当前仍需自行承担网络和运维：节点间 HTTP 不终止 TLS，官方建议使用可信私网、WireGuard 或 Tailscale，不能把 peer 端口直接暴露到公网；bucket 凭证等同集群管理员权限。</p></article>
+<article class="tool-card"><div><span class="tag">域名自动化</span><span class="priority">P2</span></div><h3><a href="https://specification.website/spec/foundations/for-sale-dns/" target="_blank" rel="noopener noreferrer">_for-sale DNS 记录</a></h3><p>RFC 10023 定义 `_for-sale.example.com` TXT 记录，用于向经纪商和自动化服务表达域名出售意愿，而不必把网站改成停放页。记录必须包含版本，最多一个 tag=value。适合域名资产盘点与交易发现工具；限制是它只是意向信号，不构成交易状态或报价，且未签名记录可能被伪造，因此建议配合 DNSSEC。</p></article>
+</div>
+<h2 id="ai-tools">🧠 AI 工具</h2><div class="tool-grid">
+<article class="tool-card"><div><span class="tag">MCP 数据查询</span><span class="priority">P1</span></div><h3><a href="https://thegraph.com/docs/en/subgraphs/tooling/subgraph-mcp/claude/" target="_blank" rel="noopener noreferrer">Subgraph MCP for Claude</a></h3><p>The Graph 官方文档提供 Claude Desktop 接入 Subgraph MCP 的流程，可检索子图、读取 schema 和执行查询。X 官方账号称可访问 15,000+ API、约 5 分钟配置，属于厂商陈述。接入需要 Node.js、最新版 Claude Desktop 和 Gateway API key，每次对话还要加载 `graphql://subgraph` 资源；团队应先限制 key 权限和可查询数据。</p></article>
+</div>
+<h2 id="concepts">🧩 本期概念库</h2>
+<article class="concept"><h3>1. 确认疲劳</h3><p><strong>一句话解释：</strong>当系统频繁请求批准相似动作时，用户会逐渐把确认当成继续按钮。</p><p><strong>为什么重要：</strong>安全控制即使形式存在，也可能因为真实拒绝率过低而失效。</p><p><strong>团队应用：</strong>统计审批数量、拒绝率和误拒绝，把高频可逆动作自动化，只保留高风险检查点。</p></article>
+<article class="concept"><h3>2. 不可逆性边界</h3><p><strong>一句话解释：</strong>根据动作是否容易恢复、是否离开本地环境、是否触碰敏感数据来决定权限。</p><p><strong>为什么重要：</strong>它比按工具名称授权更贴近真实风险，同一个 shell 命令既可能只读，也可能发布生产。</p><p><strong>团队应用：</strong>为 push、部署、外发、生产写入和凭证访问设置强制人工确认。</p></article>
+<article class="concept"><h3>3. 可验证奖励强化学习</h3><p><strong>一句话解释：</strong>模型通过可自动判定结果的任务获得奖励，并探索能提高成功率的策略。</p><p><strong>为什么重要：</strong>清晰奖励能提高自主性，也可能诱导模型寻找环境漏洞或代理指标。</p><p><strong>团队应用：</strong>评测环境要隔离真实资产，监控异常工具路径，并把奖励作弊视为测试目标。</p></article>
+<article class="concept"><h3>4. 子图 MCP</h3><p><strong>一句话解释：</strong>通过 Model Context Protocol 把子图 schema、检索与 GraphQL 查询作为模型工具。</p><p><strong>为什么重要：</strong>模型可以从可查询的结构化数据获取事实，而不是依赖网页文本或手工复制。</p><p><strong>团队应用：</strong>为 API key 设置最小权限，固定允许的子图，并记录模型生成的查询与结果来源。</p></article>
+<h2 id="curiosity">🎲 还能这样？今日好奇心</h2>
+<article class="curiosity"><h3><a href="https://hackaday.com/2026/08/08/track-bird-visitors-with-a-raspberry-pi-and-a-usb-mic/" target="_blank" rel="noopener noreferrer">让树莓派听出今天来过哪些鸟</a></h3><p class="hook">一只 USB 麦克风把院子里的声音变成物种时间线，再把 24 小时访客做成电子墨水拼图。</p><p>Avian Visitors 使用 Raspberry Pi、USB 麦克风和 BirdNET 识别鸟鸣，提供网页界面，并可接入 Home Assistant 与 MQTT；项目还可在彩色电子墨水屏展示过去一天的鸟类图像。BirdNET 所称支持超过 11,000 个物种属于项目能力声明，识别准确率会受地区、噪声和麦克风影响。</p><p><strong>背后的启发：</strong>边缘 AI 项目最有价值的部分，常是把传感、模型、时间序列和低功耗展示串成闭环。</p><img class="article-img" src="https://hackaday.com/wp-content/uploads/2026/08/BirdNET-system-1-banner.png" alt="让树莓派听出今天来过哪些鸟" loading="lazy"></article>
+<article class="curiosity"><h3><a href="https://hackaday.com/2026/08/08/grading-tomatoes-with-an-esp32-and-ml/" target="_blank" rel="noopener noreferrer">一颗 ESP32 如何区分标准番茄和圣女果</a></h3><p class="hook">同一个颜色模型很难同时理解两种尺寸差异明显的番茄。</p><p>项目通过光学传感器采集颜色，再为标准番茄和圣女果分别训练模型，并用尺寸启发式选择分类器；网页模拟器帮助调试阈值。它证明了低成本原型路径，但还需要上料、机械分拣和现场数据才能成为生产系统。</p><p><strong>背后的启发：</strong>小模型效果不只取决于算法，先把物体类型、传感条件和决策路径分清往往更重要。</p><img class="article-img" src="https://hackaday.com/wp-content/uploads/2026/08/tom.png" alt="一颗 ESP32 如何区分标准番茄和圣女果" loading="lazy"></article>
+<article class="curiosity"><h3><a href="https://hackaday.com/2026/08/08/robotic-screw-and-bolt-sorter-seeks-a-new-challenge/" target="_blank" rel="noopener noreferrer">把旧 3D 打印机改成螺丝和螺栓分拣机器人</a></h3><p class="hook">传送带负责摊开零件，摄像头负责辨认，旧打印机的龙门架负责把它们送进不同小车。</p><p>这个原型组合 ESP32-WROOM、ESP32-CAM、附近 PC 的机器视觉、龙门抓手和可移动料车，还预留秤与显微镜做二次确认。当前展示是概念验证，作者未给出统一吞吐量或准确率 Benchmark。</p><p><strong>背后的启发：</strong>复用成熟运动平台可以快速验证自动化流程，把主要实验预算留给感知和错误恢复。</p><img class="article-img" src="https://hackaday.com/wp-content/uploads/2026/08/Robotic-sorter.png" alt="把旧 3D 打印机改成螺丝和螺栓分拣机器人" loading="lazy"></article>
+<h2 id="resources">📚 资源</h2>
+<article class="resource"><h3><a href="https://github.com/google/skills" target="_blank" rel="noopener noreferrer">Google Skills 开发技能库</a></h3><p>Google 维护的 Apache-2.0 技能仓库，覆盖 Google Cloud、GKE、Agent Platform 等开发任务，可用 `npx skills add google/skills` 选择安装。本期 GitHub Trending 快照显示当日约新增 481 星，但热度不代表成熟度；仓库仍标注 active development，安装前应逐个审查技能指令、命令和所需云权限。</p></article>
+<h2 id="quotes">💬 言论：本期认知增量</h2>
+<article class="quote"><blockquote>当人工确认变成习惯性批准，更多弹窗不会自动带来更多安全。</blockquote><p><strong><a href="https://claude.com/blog/auto-mode-default-in-claude-code" target="_blank" rel="noopener noreferrer">Anthropic 研究结论</a></strong> · 摘要式转述 · 确认疲劳 / Agent 安全 / 权限</p><p>安全机制必须用真实拒绝行为衡量，而不只是看界面上是否出现按钮。</p><p class="team"><strong>团队启发：</strong>每月复盘审批量、拒绝率和最终影响。</p></article>
+<article class="quote"><blockquote>自动模式的判断依据是动作是否不可逆、具有破坏性或超出当前环境。</blockquote><p><strong><a href="https://code.claude.com/docs/en/auto-mode-config" target="_blank" rel="noopener noreferrer">Claude Code 文档</a></strong> · 官方文档转述 · 不可逆性 / 环境边界 / 分类器</p><p>按风险属性授权，比简单允许或禁止整个工具更细。</p><p class="team"><strong>团队启发：</strong>把信任边界写成机器可读规则，也写进项目说明。</p></article>
+<article class="quote"><blockquote>产品理解和实现技艺不必争夺谁才是真正的难点。</blockquote><p><strong><a href="https://blog.senko.net/code-was-never-the-hard-part-is-an-insult-to-all-programmers" target="_blank" rel="noopener noreferrer">Senko Rašić</a></strong> · 文章主旨转述 · 编程 / 产品 / 工程判断</p><p>AI 降低部分代码成本，不会消除调试、迁移和维护的专业责任。</p><p class="team"><strong>团队启发：</strong>估算时分别记录需求不确定性与实现复杂度。</p></article>
+<article class="quote"><blockquote>威胁组织代号是沟通索引，不是攻击者的确定身份证明。</blockquote><p><strong><a href="https://techcrunch.com/2026/08/08/googles-top-hacker-hunter-explains-why-hacking-groups-get-codenames/" target="_blank" rel="noopener noreferrer">Google Threat Intelligence</a></strong> · 采访摘要 · 威胁情报 / 归因 / 命名</p><p>不同厂商遥测不同，名称映射必须保留置信度。</p><p class="team"><strong>团队启发：</strong>事件报告同时保存别名、证据和来源。</p></article>
+<article class="quote"><blockquote>公开的缺陷跟踪器也可能被分布式自动抓取拖到不可用。</blockquote><p><strong><a href="https://social.treehouse.systems/@mgorny/117058483039362779" target="_blank" rel="noopener noreferrer">Michał Górny</a></strong> · 事件说明转述 · 爬虫 / 开源基础设施 / 限流</p><p>归因仍待确认，但服务承载问题已经发生。</p><p class="team"><strong>团队启发：</strong>为公共 API 建立身份、预算和降级页面。</p></article>
+<article class="quote"><blockquote>一个域名可以继续提供服务，同时用 DNS 表达出售意愿。</blockquote><p><strong><a href="https://specification.website/spec/foundations/for-sale-dns/" target="_blank" rel="noopener noreferrer">RFC 10023</a></strong> · 规范主旨转述 · DNS / 域名 / 自动化</p><p>机器可读信号减少了把网站变成停放页的必要。</p><p class="team"><strong>团队启发：</strong>交易信号与交易事实分开存储，并验证 DNSSEC。</p></article>
+<h2 id="podcast">🎙️ 播客提纲</h2><article class="podcast">
+<h3>确认框不再是 Agent 的安全边界</h3>
+<p class="hook">如果一天里 97% 的 Agent 权限请求都会被允许，那一枚确认按钮究竟是在保护系统，还是只在记录用户已经疲劳？</p>
+<h4>主故事：从人工确认到自动分类</h4><p>讲清 1,053 人受控测试、13.6% 与 89% 的边界，以及这些厂商数据为什么不能直接外推。</p>
+<h4>边界：push、生产环境和凭证</h4><p>拆解 Auto mode 的可信仓库、域名、服务、permissions.ask 和阻止次数降级机制。</p>
+<h4>工具：Prime Agent、celld 与 Subgraph MCP</h4><p>说明持久 Agent、自托管 Durable Objects 和结构化数据查询能解决什么，同时点出非沙箱执行、TLS 与 API key 风险。</p>
+<h4>事件：Gentoo 爬虫与推断边界</h4><p>讲维护者的单方事件说明、页面恢复状态，以及为什么不能把疑似 LLM 爬虫归因成确定攻击者。</p>
+<p>确认框只有在用户真的会拒绝时，才是安全边界。</p></article>
+<h2 id="team-insights">✅ 对团队的启发</h2>
+<div class="insight"><strong>1</strong><p>把 push、合并、部署、生产写入、外发数据和凭证访问列为强制人工检查点。</p></div>
+<div class="insight"><strong>2</strong><p>允许 Agent 自动执行本地可回滚编辑和测试，但为每项任务使用独立 worktree 与最小权限凭证。</p></div>
+<div class="insight"><strong>3</strong><p>记录每次权限判定的命令、理由、人工决策和结果，用真实拒绝率检查确认疲劳。</p></div>
+<div class="insight"><strong>4</strong><p>试用 Prime Agent、celld 或 MCP 前先审查执行权限、网络边界、遥测和密钥范围。</p></div>
+<div class="insight"><strong>5</strong><p>涉及收购、许可上限、事故归因和 Benchmark 时，继续区分官方事实、媒体报道、作者观点与编辑推断。</p></div>
+<footer><strong>信息源：</strong>65+ 个全球精选科技、AI、工程与系统可靠性来源。报道、观点、推断与作者自测均按各条事实边界标注。<br>
+Tech Digest # 76 · 2026-08-09</footer>
+</main></div></body></html>

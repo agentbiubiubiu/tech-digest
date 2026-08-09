@@ -1,5 +1,18 @@
 [
   {
+    "date": "2026-08-09",
+    "title": "第 76 期：当 97% 的权限弹窗都被点了允许，确认框就不再是安全边界",
+    "highlights": [
+      "Claude Code 将从 8 月 14 日起把自动权限模式设为部分套餐新会话的默认值，现有固定设置不会被覆盖",
+      "受控测试中人工阻止 13.6% 危险命令、自动模式阻止 89%；这是 Anthropic 委托研究，不是独立 Benchmark",
+      "NextSlide 已证实加入 OpenAI，交易金额未披露，公告发生在实际交易完成数月后",
+      "Gentoo 维护者称 LLM 爬虫曾让 Bugzilla 不可用；本期核验时主页已恢复，来源仍是单方事件说明",
+      "GitHub 当日趋势中的 Prime Agent 强调持久执行与子 Agent，但其执行环境并非安全沙箱",
+      "X 当日发现的 Subgraph MCP 可让 Claude 查询子图，接入前需要 Gateway API key，并要在每个会话加载资源说明"
+    ],
+    "image": "https://static.simonwillison.net/static/2026/auto-mode-comparison.png"
+  },
+  {
     "date": "2026-08-08",
     "title": "第 75 期：不是少用 Agent，而是别让最贵模型替你改标点",
     "highlights": [
