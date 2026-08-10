@@ -1,5 +1,18 @@
 [
   {
+    "date": "2026-08-10",
+    "title": "第 77 期：一个沉默十年的 Zsh 数据丢失 Bug，靠主动崩溃才抓住",
+    "highlights": [
+      "Zsh 的退出压缩流程曾在 SIGINT 中断读取后继续覆盖历史文件，相关 Bug 存在约十年，5.9.2 已修复",
+      "作者把同一故障做成 Agent Eval，约三次尝试花费超过 300 美元；结果属于单任务作者自测，不是通用 Benchmark",
+      "Claude 生成的 Dark Hours 与既有开源项目高度相似并复现旧 Bug，发布者随后关闭项目并取消 iOS 计划",
+      "Situational Awareness 据报道向 Source Foundry 投资 4 亿美元、累计 5 亿美元；金额未获公司公告或监管文件独立确认",
+      "T3 Code 可从 iOS、Android、Web 和桌面端控制本机编码 Agent，但新任务默认 Full access，远程接入应使用私有网络",
+      "Gilroy 官方确认 AWS 数据中心已开工；媒体争议聚焦公众在 2024 年意见期结束后才广泛注意到项目"
+    ],
+    "image": "https://agentbiubiubiu.github.io/tech-digest/assets/2026-08-10-zsh-history-bug.png"
+  },
+  {
     "date": "2026-08-09",
     "title": "第 76 期：当 97% 的权限弹窗都被点了允许，确认框就不再是安全边界",
     "highlights": [
