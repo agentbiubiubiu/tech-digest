@@ -1,5 +1,18 @@
 [
   {
+    "date": "2026-08-11",
+    "title": "第 78 期：CI 的无密码通行证，不该由作业自己填写目的地",
+    "highlights": [
+      "GitHub 官方文档确认，拥有 id-token: write 的作业可请求 OIDC Token 并自定义 audience；限制 audience 的语法仍只是安全研究者建议，不是 GitHub 已发布功能",
+      "Docker Sandboxes 为 Codex、Claude Code 等 Agent 提供独立 microVM；隔离强度与安全性属于 Docker 产品声明，网络和文件策略仍需团队自行配置",
+      "Meta 发布 300 亿参数 Muse Glimmer，并称可在单张消费级 GPU 的 Mac 或 PC 上运行；性能结论来自厂商 Benchmark，llama.cpp、MLX 和 ExecuTorch 优化仍标为即将提供",
+      "据 TechCrunch 转述 Bloomberg，OpenAI 完成约 70 亿美元员工股份要约、对应 8,520 亿美元估值；OpenAI 未回应，金额与完成状态未获公司公告独立确认",
+      "404 Media 与 Proof News 调查的至少 21 个安保机器人部署中，至少 13 个已经结束；这是特定样本调查，不是整个机器人安保行业的失败率",
+      "X 当日发现 Diffusion Studio 发布者宣布 Mac 版上线并开源，但其官网仍写着 Mac 与 MCP 即将推出，状态冲突，本期不把它列为已验证可安装工具"
+    ],
+    "image": "https://blog.yossarian.net/assets/oidc-aud.jpg"
+  },
+  {
     "date": "2026-08-10",
     "title": "第 77 期：一个沉默十年的 Zsh 数据丢失 Bug，靠主动崩溃才抓住",
     "highlights": [
