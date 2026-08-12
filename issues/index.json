@@ -1,5 +1,18 @@
 [
   {
+    "date": "2026-08-12",
+    "title": "第 79 期：加密推理没有被破解，却被较弱模型复述了",
+    "highlights": [
+      "研究团队称，Anthropic、OpenAI 与 Google 的加密推理块可在同厂模型间重放，并通过较弱模型恢复隐藏推理；这是论文演示，不代表三家厂商已发生生产入侵",
+      "作者从 6,708 条公开 Agent 轨迹重建 315,320 个推理块，报告发现 704 个隐私项，其中 64 个只存在于隐藏推理；数字来自作者研究，尚无独立复现",
+      "X 当日重新带火 gstack：GitHub 快照显示约 12.76 万 Star、23 个工程角色工具；仓库创建于 3 月，不是当天发布，安装脚本和自动更新仍需先审查",
+      "Xcode 27 Beta 5 官方发布说明确认新的 Agent 与 MCP 能力；三项 App Intents / SwiftUI Skills 的名称来自 X 开发者实机观察，本机 Xcode 26.2 无法复核",
+      "Mojo 1.0 承诺 1.x 期间以增量兼容为主；近 200 名贡献者提交 1,100 多个 PR、改动超过 20 万行的数字来自 Modular 官方统计",
+      "Signal 的自动密钥验证要求客户端接受三家审计方共同认可、七天内签署的 Merkle Tree 头；Trail of Bits 的实现与运营说明已公开"
+    ],
+    "image": "https://stolen-thoughts.com/assets/fig1-extraction-fidelity.svg"
+  },
+  {
     "date": "2026-08-11",
     "title": "第 78 期：CI 的无密码通行证，不该由作业自己填写目的地",
     "highlights": [
