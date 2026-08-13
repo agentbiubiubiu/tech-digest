@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="zh-CN"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Tech Digest #80：19 次数据库损坏之后，真正抓住 Bug 的是证据</title>
+<meta name="description" content="Tailscale 用事务日志、VFS 追踪与生产告警定位 SQLite 中至少存在 16 年的竞态。AI 让生成更便宜后，可观测、复现与验证正在成为真正的交付瓶颈。">
+<meta property="og:title" content="Tech Digest #80：19 次数据库损坏之后，真正抓住 Bug 的是证据">
+<meta property="og:description" content="Tailscale 用事务日志、VFS 追踪与生产告警定位 SQLite 中至少存在 16 年的竞态。AI 让生成更便宜后，可观测、复现与验证正在成为真正的交付瓶颈。">
+<meta property="og:image" content="https://tailscale.com/api/og-image?id=45389fc1-da6e-4e0d-82f6-140651c6ba57">
+<style>
+:root{--text:#17231d;--muted:#5e6c65;--line:#dce6e0;--green:#147a50;--pale:#eef8f2;--blue:#2563a8;--yellow:#9a6500;--red:#a93838;--purple:#6b4fa3;--surface:#fff}
+*{box-sizing:border-box}html{scroll-behavior:smooth;overflow-x:hidden}body{margin:0;overflow-x:hidden;background:#f6f8f7;color:var(--text);font:16px/1.72 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;letter-spacing:0}
+a{color:var(--green);text-decoration:none}a:hover{text-decoration:underline}.topbar{position:sticky;top:0;z-index:4;display:flex;align-items:center;justify-content:space-between;padding:12px 24px;background:rgba(255,255,255,.95);border-bottom:1px solid var(--line);backdrop-filter:blur(12px)}.brand{font-weight:800}.topbar nav{display:flex;gap:16px;font-size:.9rem}
+.page{display:grid;grid-template-columns:210px minmax(0,820px);gap:36px;max-width:1120px;margin:0 auto;padding:34px 24px 70px}.toc{position:sticky;top:76px;align-self:start;display:flex;flex-direction:column;gap:7px;font-size:.84rem}.toc a{color:var(--muted)}main{min-width:0}
+h1{font-size:2.15rem;line-height:1.28;margin:10px 0 8px;letter-spacing:0}h2{font-size:1.38rem;margin:42px 0 16px;border-bottom:1px solid var(--line);padding-bottom:9px;letter-spacing:0}h3{font-size:1.06rem;line-height:1.5;margin:0 0 10px;letter-spacing:0}h4{font-size:.98rem;margin:16px 0 6px;letter-spacing:0}p{margin:0 0 13px;color:var(--muted)}
+.meta,.hero-caption,small{color:#7d8983;font-size:.82rem}.highlights,.callout{padding:16px 18px;border-left:4px solid var(--green);background:var(--pale);border-radius:6px;margin:20px 0}.article-img{width:100%;max-height:390px;object-fit:cover;border-radius:6px;margin:12px 0 6px;background:#edf1ef}.hero-caption{text-align:center;margin-top:-2px}
+.main-story,.entry,.concept,.curiosity,.resource,.quote,.podcast{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:22px;margin:14px 0}.main-story{background:linear-gradient(135deg,#f2faf5,#fff 66%)}.story-hook,.hook{font-weight:700;color:var(--green)}.story-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:16px 0}.story-field{padding:13px;border:1px solid var(--line);border-radius:6px;color:var(--muted);font-size:.9rem}.story-field strong{display:block;color:var(--text);margin-bottom:3px}.number-chip,.tag,.priority,.certainty{display:inline-block;border-radius:999px;padding:3px 9px;font-size:.72rem;font-weight:750;margin:3px 5px 3px 0}.number-chip{background:#e7f0fb;color:var(--blue)}.story-line{background:#f2eef9;border-left:4px solid var(--purple);padding:12px 14px;border-radius:6px;font-weight:700}
+.trend-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.trend-card,.tool-card{background:#fff;border:1px solid var(--line);border-radius:8px;padding:17px}.trend-conflict{color:var(--red);font-weight:750;font-size:.82rem;margin-bottom:8px}.tool-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.tag{background:var(--green);color:#fff}.priority{background:#eef1ef;color:var(--muted)}.certainty-confirmed{background:#e6f6ed;color:var(--green)}.certainty-announced{background:#e9f1fb;color:var(--blue)}.certainty-reported{background:#fff4d8;color:var(--yellow)}.certainty-opinion,.certainty-inference{background:#f1ecf8;color:var(--purple)}.certainty-rumor{background:#fbeaea;color:var(--red)}
+.fact{font-size:.86rem;padding:9px 11px;background:#fff8e8;border-radius:5px}.why{font-size:.9rem}.curiosity{background:#fff7e9}.concept{border-left:4px solid var(--green)}.quote{background:#f6f2fb;border-left:4px solid var(--purple)}blockquote{margin:0 0 12px;font-size:1.02rem;font-style:italic}.team{padding:9px 11px;background:#edf8f2;border-radius:5px}.resource{background:#edf5ff}.podcast{background:#f8faf9}.insight{display:flex;gap:12px;align-items:flex-start;padding:14px 16px;margin:10px 0;background:#fff8dc;border-left:4px solid #d59b14;border-radius:6px}.insight p{margin:0}
+footer{margin-top:44px;padding:18px;background:#edf1ef;border-radius:8px;color:#77837d;font-size:.8rem}
+@media(max-width:860px){.page{grid-template-columns:1fr}.toc{display:none}.trend-grid,.story-grid{grid-template-columns:1fr}}@media(max-width:620px){.topbar{gap:12px;padding:12px 16px}.topbar nav{display:none}.topbar span{white-space:nowrap}.page{width:100%;padding:22px 16px 54px}.tool-grid{grid-template-columns:1fr}h1{font-size:1.7rem;overflow-wrap:anywhere}.highlights{overflow-wrap:anywhere}.main-story,.entry,.concept,.curiosity,.resource,.quote,.podcast{padding:17px}}
+</style></head><body>
+<header class="topbar"><a class="brand" href="../index.html">Tech Digest</a>
+<nav><a href="../index.html">Archive</a><a href="#main-story">Today</a><a href="#tools">Tools</a><a href="#quotes">Quotes</a></nav>
+<span>2026-08-13</span></header>
+<div class="page">
+<nav class="toc">
+  <strong>本期目录</strong>
+  <a href="#main-story">🔥 主故事</a><a href="#trends">⚡ 冲突趋势</a>
+  <a href="#tech-news">📰 科技动态</a><a href="#ai">🤖 AI 相关</a>
+  <a href="#articles">📝 文章推荐</a><a href="#tools">🛠️ 工具推荐</a>
+  <a href="#ai-tools">🧠 AI 工具</a><a href="#concepts">🧩 概念库</a>
+  <a href="#curiosity">🎲 好奇心</a><a href="#resources">📚 资源</a>
+  <a href="#quotes">💬 言论</a><a href="#podcast">🎙️ 播客</a>
+  <a href="#team-insights">✅ 团队启发</a>
+</nav>
+<main>
+<a href="../index.html">← 返回目录</a>
+<h1>第 80 期：19 次数据库损坏之后，真正抓住 Bug 的是证据</h1>
+<p class="meta">第 80 期 · 2026年8月13日，星期四</p>
+<p class="highlights"><strong>✨ 本期亮点：</strong>Tailscale 官方披露半年内出现 19 次 SQLite 数据库损坏；SQLite 开发者定位到检查点与写事务之间的罕见竞态，并估计该问题至少存在 16 年 · SQLite 3.52.0 修复竞态后又触发表达式索引误报，版本被撤回；3.51.3 仅带 WAL-Reset 修复，3.53.0 再加入索引自愈机制 · GitHub 官方称 7 月发生 8 起服务降级事件；8 月 6 日 Actions 长时间故障的完整根因分析仍未完成，不能把当前说明当最终 RCA · WhatsApp 公布 Scam Alert 有限 Beta：分类在设备端执行，消息不自动上传；透明账本、公开权重与可验证 TEE 属于官方设计，尚待研究者持续检验 · CodeBurn 从 X 当日线索进入工具区；仓库称可本地统计 37 种 AI 编码工具，约 9,276 Star、MIT 许可，Star 与功能描述都不等于质量 Benchmark · Qwen3.8 开放模型卡披露 2.4T 总参数、95B 激活参数；全部性能数字来自 Qwen 自测，其中包含内部 Benchmark，部署前必须用真实任务复测</p>
+<img class="article-img" src="https://tailscale.com/api/og-image?id=45389fc1-da6e-4e0d-82f6-140651c6ba57" alt="Tailscale SQLite WAL-Reset 故障复盘封面" loading="lazy"><p class="hero-caption">Tailscale 官方复盘记录了 19 次数据库损坏、事务回放、VFS 追踪与分阶段修复。事故影响和恢复数据来自公司披露。</p>
+<div class="callout"><strong>🎯 本期核心判断：</strong>AI 正在压低代码和内容的生成成本，但没有压低错误的证明成本。真正能扩大团队产能的，不是让 Agent 写得更多，而是让上下文、变更、评测、故障和回滚都留下可复现证据。</div>
+<h2 id="main-story">🔥 主故事</h2>
+    <article class="main-story">
+      <h3>19 次数据库损坏之后，真正抓住 Bug 的不是猜测，而是可回放证据</h3>
+      <p class="story-hook">故障有时相隔数小时，有时消失六周。没有可靠复现步骤时，唯一能推进调查的办法，是让下一次故障留下更多证据。</p>
+      <p>Tailscale 每个控制平面分片由单个 Go 进程独占一个 SQLite 数据库，并定期把完整快照上传到 S3。2025 年 8 月起，备份检查陆续发现损坏；半年内共出现 19 次，早期恢复会让部分新设备或配置变更没有保留。</p>
+      <div class="story-grid">
+        <div class="story-field"><strong>核心冲突</strong>架构遵守 SQLite 单写者模型，代码多年未变，故障又与分片、客户、负载和时间无明显关系。团队无法在实验环境稳定复现，只能在生产中加入被动取证，同时把恢复时间从超过一小时逐步压到一小时以内。</div>
+        <div class="story-field"><strong>转折点</strong>事务日志两次无法干净回放，暴露出已提交写入对后续事务不可见。SQLite 开发者随后用 tmstmpvfs 追踪虚拟文件系统，定位到检查点和写事务之间的竞态：检查点误以为 WAL 页面已经复制，实际数据却没有落入主库。</div>
+        <div class="story-field"><strong>为什么是现在</strong>Agent 可以在几分钟内生成大量代码、测试和配置，变更吞吐正在超过人工审查吞吐。越依赖自动化，团队越需要把故障从一句“看起来不对”变成可重放事务、可比较输出和可验证门禁。</div>
+        <div class="story-field"><strong>对团队的启发</strong>为 Agent 任务保留输入版本、工具调用、补丁、测试结果和回滚点；对低频故障增加不会改变业务行为的取证信号；修复上线后等待积极证据，而不是把一段安静期当成完成。</div>
+      </div>
+      <p><span class="number-chip">6 个月内出现 19 次数据库损坏</span><span class="number-chip">SQLite 开发者估计竞态至少存在 16 年</span><span class="number-chip">3.52.0 被撤回，3.51.3 单独交付竞态修复</span><span class="number-chip">首次积极证据出现后又运行 4 个月无事故</span></p>
+      <p><strong>我的判断：</strong>这次复盘最值得复制的不是某条 SQLite 配置，而是证据链：持续完整性检查先发现损坏，事务日志缩小问题边界，VFS 追踪抓住竞态，金丝雀暴露第二个问题，最后再用一次真实碰撞证明修复确实生效。</p>
+      <div class="story-line">安静不是修复证据；能再次撞上旧条件而系统保持正确，才是。</div>
+      <p><strong>来源：</strong><a href="https://tailscale.com/blog/sqlite-wal-reset-bug" target="_blank" rel="noopener noreferrer">tailscale.com</a></p>
+    </article>
+<h2 id="trends">⚡ 今日冲突趋势</h2><div class="trend-grid"><article class="trend-card"><h3>生成吞吐 vs 验证吞吐</h3><div class="trend-conflict">Agent 可以同时提交更多改动，代码评审、测试和故障定位却不会自动同比提速。</div><p>代码越便宜，证明它正确就越昂贵。</p><small>newsletter.pragmaticengineer.com · github.blog</small></article>
+<article class="trend-card"><h3>端侧识别 vs 隐私可验证</h3><div class="trend-conflict">模型可以在手机上识别诈骗，但用户仍需知道模型、遥测和服务器端代码是否按承诺运行。</div><p>不上传正文只是起点，可验证执行才是隐私承诺的证据。</p><small>engineering.fb.com</small></article>
+<article class="trend-card"><h3>AI 供给暴涨 vs 付费需求</h3><div class="trend-conflict">生成式 3D 模型占上传量约六分之一，却只占平台披露收入的九十分之一。</div><p>产量是生成能力，收入才是用户认可。</p><small>404media.co</small></article></div>
+<h2 id="tech-news">📰 科技动态</h2>
+<article class="entry"><h3>1、<a href="https://github.blog/news-insights/company-news/github-availability-report-july-2026/" target="_blank" rel="noopener noreferrer">GitHub 披露 7 月 8 起服务降级，Actions 完整 RCA 仍在路上</a> <span class="certainty certainty-announced">announced</span></h3>
+<p class="hook">一份月报把 7 月故障和 8 月 6 日的长时间 Actions 中断放在同一条架构迁移线上。</p>
+<p>GitHub 官方称 7 月有 8 起事件导致服务降级，并承认 8 月 6 日 Actions 故障的影响和恢复时长不可接受。公司表示该事件完整根因分析尚未结束，将在 9 月发布的 8 月可用性报告中补充。</p>
+<p class="why"><strong>为什么重要：</strong>依赖 GitHub Actions 的团队应把外部 CI 视为会排队和降级的依赖，准备可见的队列状态、重试边界与关键发布的替代路径。</p>
+<p class="fact"><strong>事实边界：</strong>事件和数字由 GitHub 官方披露；对 8 月 6 日故障的说明是阶段性信息，不是最终 RCA。</p>
+
+</article>
+<article class="entry"><h3>2、<a href="https://engineering.fb.com/2026/08/12/security/how-were-building-scam-alert-whatsapp/" target="_blank" rel="noopener noreferrer">WhatsApp 让诈骗识别留在设备端，还要让模型和遥测可核验</a> <span class="certainty certainty-announced">announced</span></h3>
+<p class="hook">收到陌生人消息时，模型在手机上分类；除非用户主动报告，正文和警告结果都不自动离开设备。</p>
+<p>Meta 公布 Scam Alert 的有限 Beta：模型只检查非联系人来信，权重公开并先登记到透明账本；匿名计数经 TEE、差分隐私和安全聚合处理，客户端校验失败时拒绝发送。</p>
+<p class="why"><strong>为什么重要：</strong>iOS 和 Android 团队可参考这套边界：端侧推理、最小遥测、匿名凭证、可验证二进制和用户可见日志应一起设计。</p>
+<p class="fact"><strong>事实边界：</strong>功能、架构和有限 Beta 均为 Meta 官方说明；准确率、能耗和外部验证结果尚未公开为独立 Benchmark。</p>
+<img class="article-img" src="https://engineering.fb.com/wp-content/uploads/2026/07/WhatsApp-Scam-Alert.png" alt="WhatsApp 让诈骗识别留在设备端，还要让模型和遥测可核验" loading="lazy">
+</article>
+<article class="entry"><h3>3、<a href="https://github.blog/open-source/maintainers/your-contributors-are-ai-first-now-is-your-project/" target="_blank" rel="noopener noreferrer">AI 贡献者已经进了 PR 队列，仓库说明必须放在 Agent 会找的位置</a> <span class="certainty certainty-reported">reported</span></h3>
+<p class="hook">维护者写了完整 Wiki，Agent 却没有主动阅读；把规则移到目录级说明后，约束才进入任务上下文。</p>
+<p>GitHub 文章记录 AutoGPT 维护者的做法：用 AGENTS.md 集中规则，让 Claude 专用文件指向同一标准，并通过测试、边界和提交标记控制 Agent PR。</p>
+<p class="why"><strong>为什么重要：</strong>Web、移动端和后台仓库都应让目录级规则贴近代码，写明测试命令、允许修改范围、生成文件和发布禁区。</p>
+<p class="fact"><strong>事实边界：</strong>数字和实践来自 GitHub 对维护者的采访，是单个项目经验，不是所有开源项目的效果 Benchmark。</p>
+
+</article>
+<article class="entry"><h3>4、<a href="https://techcrunch.com/2026/08/12/some-claude-users-are-mad-that-anthropics-new-watermarks-will-catch-them-cheating-at-their-jobs-classes/" target="_blank" rel="noopener noreferrer">媒体称 Claude 输出加入不可见标记，监管背景与实现仍需分开核对</a> <span class="certainty certainty-reported">reported</span></h3>
+<p class="hook">一些用户担心复制 AI 文本会留下可检测痕迹，但媒体文章并不等于厂商技术规范。</p>
+<p>TechCrunch 报道称 Anthropic 为响应欧盟 AI Act 透明度要求，在 Claude 文本中加入不可见标记，并引用社交平台上的反对意见。</p>
+<p class="why"><strong>为什么重要：</strong>内容和客户端团队不能只靠二手报道设计检测、合规或清洗流程，应等待厂商规范并测试复制、编辑、Markdown 与多语言路径。</p>
+<p class="fact"><strong>事实边界：</strong>水印与欧盟监管关联来自 TechCrunch 报道；本期未找到 Anthropic 技术文档或监管机构实施说明，因此不写成已独立证实。</p>
+<img class="article-img" src="https://techcrunch.com/wp-content/uploads/2026/06/Claude-photo.jpg?w=1024" alt="媒体称 Claude 输出加入不可见标记，监管背景与实现仍需分开核对" loading="lazy">
+</article>
+<h2 id="ai">🤖 AI 相关</h2>
+<article class="entry"><h3>1、<a href="https://huggingface.co/Qwen/Qwen3.8-2.4T-A95B" target="_blank" rel="noopener noreferrer">Qwen3.8 把 2.4T 总参数模型开放出来，但 Benchmark 仍需拆开看</a> <span class="certainty certainty-reported">reported</span></h3>
+<p class="hook">模型卡写着 2.4T 总参数、95B 激活参数和最长约 101 万 Token，真正的部署门槛仍是算力、框架与任务评测。</p>
+<p>Qwen3.8-2.4T-A95B 是文本 MoE 模型，原生上下文 262,144 Token，可扩展到 1,010,000；交互必须启用思考模式，并支持 reasoning_effort 与 preserve_thinking。</p>
+<p class="why"><strong>为什么重要：</strong>后台和 Agent 团队可用它测试长任务、仓库级编码与工具调用，但应先确认推理基础设施、输出长度、成本和数据治理。</p>
+<p class="fact"><strong>事实边界：</strong>参数与功能由 Qwen 模型卡确认；全部成绩是 Qwen 团队自测，部分为内部 Benchmark，且不同模型使用不同 harness，不能直接当独立排名。</p>
+<img class="article-img" src="https://cdn-thumbnails.huggingface.co/social-thumbnails/models/Qwen/Qwen3.8-2.4T-A95B.png" alt="Qwen3.8 把 2.4T 总参数模型开放出来，但 Benchmark 仍需拆开看" loading="lazy">
+</article>
+<h2 id="articles">📝 文章推荐</h2>
+<article class="entry"><h3><a href="https://newsletter.pragmaticengineer.com/p/stop-being-skeptical-about-ai-for" target="_blank" rel="noopener noreferrer">AI 开发的下一道瓶颈，不是生成速度，而是验证与可靠性</a></h3><p class="hook">当代码几乎免费生成，团队最稀缺的资源变成理解、验证和承担生产后果的人。</p><p>The Pragmatic Engineer 与 Honeycomb 联合创始人 Charity Majors 讨论 AI 如何改变代码经济学，并把非确定性、可观测性、评审和工程纪律放回交付中心。</p><p class="story-line">生成不是交付，能被证明、维护和回滚的变更才是。</p><img class="article-img" src="https://substackcdn.com/image/fetch/$s_!FF3K!,w_1200,h_600,c_fill,f_jpg,q_auto:good,fl_progressive:steep,g_auto/https%3A%2F%2Fsubstack-post-media.s3.amazonaws.com%2Fpublic%2Fimages%2F72b39474-2eb9-4763-803c-26bbc46bf87f_1280x720.png" alt="AI 开发的下一道瓶颈，不是生成速度，而是验证与可靠性" loading="lazy"></article>
+<article class="entry"><h3><a href="https://blog.bytebytego.com/p/github-vs-vercel-vs-replit-what-dev" target="_blank" rel="noopener noreferrer">当写代码变便宜，GitHub、Vercel 和 Replit 真正争的是交付闭环</a></h3><p class="hook">模型都能生成代码后，平台差异转向上下文、运行环境、部署、反馈和团队协作。</p><p>ByteByteGo 把三类开发平台放在 AI 代码供给增长的背景下比较，核心不是谁能多写几行，而是谁能把意图一路带到可运行产品。</p><p class="story-line">代码生成趋同时，闭环能力才是平台的护城河。</p></article>
+<article class="entry"><h3><a href="https://www.interconnects.ai/p/i-wrote-an-ai-textbook-how-long-until" target="_blank" rel="noopener noreferrer">写完一本 AI 教材之后，作者重新思考哪些写作仍值得由人完成</a></h3><p class="hook">模型能快速整理材料，却不自动拥有作者在长期研究中形成的取舍、顺序和责任。</p><p>Interconnects 作者从完成 AI 教材的经验出发，讨论模型写作能力提升后，人类写作的价值如何从产字转向选择问题、建立结构和承担判断。</p><p class="story-line">写作的稀缺部分不是句子，而是决定什么值得被解释。</p></article>
+<article class="entry"><h3><a href="https://getfresh.dev/docs/blog/packaging-for-linux/" target="_blank" rel="noopener noreferrer">为了发布一个免费 Linux 工具，作者维护了 19 类分发入口</a></h3><p class="hook">npm、Cargo、Flatpak、AppImage、deb、rpm、AUR、Nix 都能覆盖一些人，却没有一个覆盖所有人。</p><p>Fresh 作者复盘终端编辑器的 Linux 分发成本：不同包管理器、安全模型和运行方式让每次发布都可能在另一条渠道失败，下一步倾向静态 musl 二进制与自更新。</p><p class="story-line">跨平台最难的不是编译一次，而是让每条升级路径长期可信。</p></article>
+<h2 id="tools">🛠️ 工具推荐</h2><div class="tool-grid">
+<article class="tool-card"><div><span class="tag">AI 成本可观测</span><span class="priority">P0</span></div><h3><a href="https://github.com/getagentseal/codeburn" target="_blank" rel="noopener noreferrer">CodeBurn</a></h3><p>CodeBurn 仓库称可统计 Claude Code、Cursor、Codex、Gemini 等 37 种工具，执行入口为 npx codeburn。GitHub 快照约 9,276 Star、MIT 许可，仓库在最近 24 小时有提交。它会读取本机会话数据，先审查代码与支持路径，再在非敏感目录只读试跑，禁止上传原始提示、密钥或源码。</p></article>
+<article class="tool-card"><div><span class="tag">架构图与技术沟通</span><span class="priority">P1</span></div><h3><a href="https://github.com/cathrynlavery/diagram-design" target="_blank" rel="noopener noreferrer">diagram-design</a></h3><p>diagram-design 适合把系统边界、流程、时间线和比较关系快速转成可编辑图示。GitHub 快照约 10,735 Star，仓库在最近 24 小时有提交；Star 不是设计质量 Benchmark。先用一张已有架构图做盲测，验收文字溢出、移动端可读性、事实一致性和 SVG 可维护性。</p></article>
+<article class="tool-card"><div><span class="tag">并行编码 Agent</span><span class="priority">P1</span></div><h3><a href="https://github.com/stablyai/orca" target="_blank" rel="noopener noreferrer">Orca</a></h3><p>Orca 仓库称可接入用户自己的编码 Agent 订阅，管理并行任务与远程环境。GitHub 快照约 43,965 Star，TypeScript 项目在最近 24 小时有提交。并行会放大写冲突与权限风险，试用时只允许不同工作区、不同文件边界，并要求每条任务独立测试和人工合并。</p></article>
+</div>
+<h2 id="ai-tools">🧠 AI 工具</h2><div class="tool-grid">
+<article class="tool-card"><div><span class="tag">端侧视觉 Agent</span><span class="priority">P1</span></div><h3><a href="https://huggingface.co/blog/LiquidAI/lfm2-5-vl-3b" target="_blank" rel="noopener noreferrer">LFM2.5-VL-3B</a></h3><p>Liquid AI 发布 3.1B 视觉语言模型，支持 llama.cpp、MLX、vLLM、SGLang 与 ONNX。厂商自测称 M5 Max 228 token/s、Ryzen AI Max+ 116 token/s、Galaxy S26 Ultra 20 token/s，约占 3 GB 内存；这些都是厂商 Benchmark。iOS、Android 和 PC 接入前应复测首 Token 延迟、峰值内存、耗电与工具调用正确率。</p></article>
+</div>
+<h2 id="concepts">🧩 本期概念库</h2>
+<article class="concept"><h3>1. Write-Ahead Log（WAL）</h3><p><strong>一句话解释：</strong>先把变更追加到日志，再由检查点把页面合并回主数据库文件。</p><p><strong>为什么重要：</strong>写入和检查点并发时，状态判断错误可能让已提交页面没有真正落盘。</p><p><strong>团队应用：</strong>监控 WAL 大小、检查点结果与完整性检查，并保留恢复所需的确定性事务记录。</p></article>
+<article class="concept"><h3>2. Forensic Telemetry</h3><p><strong>一句话解释：</strong>为难以复现的生产故障增加低干扰、可回溯的取证信号。</p><p><strong>为什么重要：</strong>当故障间隔不可预测时，下一次现场可能是唯一能排除假设的机会。</p><p><strong>团队应用：</strong>预先定义触发、字段、保留期和隐私边界，避免故障后临时打开过量日志。</p></article>
+<article class="concept"><h3>3. Positive Proof</h3><p><strong>一句话解释：</strong>修复后再次出现原故障条件，但系统保持正确，由此证明防护真实生效。</p><p><strong>为什么重要：</strong>长时间无事故可能只是低频条件尚未再次出现。</p><p><strong>团队应用：</strong>为关键修复增加命中计数或安全告警，记录旧条件被新逻辑拦截的证据。</p></article>
+<article class="concept"><h3>4. Verification Bottleneck</h3><p><strong>一句话解释：</strong>生成速度超过评审、测试和上线证据的处理能力。</p><p><strong>为什么重要：</strong>更多 Agent 并行会增加候选变更，却可能让队列、返工和缺陷一起增长。</p><p><strong>团队应用：</strong>同时衡量生成吞吐、一次通过率、人工返工、等待时间与缺陷逃逸。</p></article>
+<h2 id="curiosity">🎲 还能这样？今日好奇心</h2>
+<article class="curiosity"><h3><a href="https://www.404media.co/ai-generated-3d-models-flood-market-but-almost-no-one-is-buying-them/" target="_blank" rel="noopener noreferrer">AI 生成模型占 3D 平台上传量六分之一，收入却只有九十分之一</a></h3><p class="hook">供给像是已经接管市场，买家的钱包却给出相反答案。</p><p>404 Media 根据 CGTrader 报告称，AI 生成内容约占新增上传六分之一，却只贡献约每 90 美元中的 1 美元收入。数据覆盖 2025 年 6 月至 2026 年 5 月，来自平台披露与买家调查，未经本期独立审计。</p><p><strong>背后的启发：</strong>AI 产量不能替代需求验证；素材平台应同时追踪付费转化、退款、返工和可用性。</p><img class="article-img" src="https://storage.ghost.io/c/0f/76/0f76b548-bc58-4f25-abc3-3f5ebca07da4/content/images/size/w1200/2026/08/robot-character-3d-model-b694a0ad11.jpg" alt="AI 生成模型占 3D 平台上传量六分之一，收入却只有九十分之一" loading="lazy"></article>
+<article class="curiosity"><h3><a href="https://openrouter.ai/deepseek/deepseek-v4-pro-0813" target="_blank" rel="noopener noreferrer">DeepSeek V4 Pro 0813 的上下文来到 100 万，价格先落到每百万 Token</a></h3><p class="hook">模型页把输入、输出、上下文和供应商状态放在一起，方便做真实工作负载的第一轮预算。</p><p>OpenRouter 页面列出每百万输入 Token 0.435 美元、输出 0.87 美元，以及 1,048,576 Token 上下文。价格、可用率和性能监控均来自 OpenRouter，可能变化；页面中的 Benchmark 含第三方数据，但本期未独立复跑。</p><p><strong>背后的启发：</strong>长上下文不是免费记忆，应先按命中率、延迟和任务成功率决定哪些内容值得送入模型。</p></article>
+<article class="curiosity"><h3><a href="https://github.blog/ai-and-ml/github-copilot/write-your-first-prompt-with-the-github-copilot-app/" target="_blank" rel="noopener noreferrer">GitHub Copilot 的入门建议不是完美提示词，而是先选对仓库或本地目录</a></h3><p class="hook">一句任务描述可以很短，前提是 Agent 已经拿到正确项目上下文。</p><p>GitHub 官方教程建议先连接仓库或本地文件夹，再用自然语言描述小改动，之后按结果补充约束或切换模型。它还提到语音输入、远程会话和不同 Agent；具体权限与可用范围需按账户和版本确认。</p><p><strong>背后的启发：</strong>提示词技巧的上限由上下文边界决定；先让 Agent 看对项目，再讨论措辞。</p><img class="article-img" src="https://github.blog/wp-content/uploads/2026/08/Screenshot-2026-08-11-at-6.38.49-PM.png?fit=1095%2C626" alt="GitHub Copilot 的入门建议不是完美提示词，而是先选对仓库或本地目录" loading="lazy"></article>
+<article class="curiosity"><h3><a href="https://x.com/gkcs_/status/2087644571849330755" target="_blank" rel="noopener noreferrer">一段 11 分钟的 X 教程，把 LLM 评测拆成相关性、依据与工具顺序</a></h3><p class="hook">不是问模型聪不聪明，而是先定义一次任务成功需要哪些可观察信号。</p><p>X 帖在 2026 年 8 月 12 日 20:57 UTC 发布，列出可观测性、评测主体、答案相关性、依据与工具序列等章节。视频与时间已抓取；“真实大厂面试题”是发布者说法，本期未独立核验。</p><p><strong>背后的启发：</strong>给 Agent 加评测时，先覆盖最终答案、证据和过程顺序三层，再讨论综合分数。</p></article>
+<h2 id="resources">📚 资源</h2>
+<article class="resource"><h3><a href="https://huggingface.co/blog/allenai/olmoearth-embeddings" target="_blank" rel="noopener noreferrer">OlmoEarth Embeddings</a></h3><p>Ai2 允许在 OlmoEarth Studio 按区域、时间、编码器和 10 至 80 米分辨率导出 Cloud-Optimized GeoTIFF 嵌入，用于相似搜索、分割和无监督探索。Nano、Tiny、Base 分别为 128、192、768 维；Studio 定制导出需申请访问，开源模型可自行计算。性能表述来自项目方与其引用评测，不能视为本期独立 Benchmark。</p></article>
+<h2 id="quotes">💬 言论：本期认知增量</h2>
+<article class="quote"><blockquote>罕见故障无法靠等待证明消失，必须等到旧条件再次出现而系统仍然正确。</blockquote><p><strong><a href="https://tailscale.com/blog/sqlite-wal-reset-bug" target="_blank" rel="noopener noreferrer">Tailscale Blog</a></strong> · 摘要式转述 · 可靠性 / 积极证据 / 复盘</p><p>四个月平静不是唯一依据，真正关键的是生产告警捕获到竞态条件而数据库没有再损坏。</p><p class="team"><strong>团队启发：</strong>修复验收要包含命中旧条件的证据。</p></article>
+<article class="quote"><blockquote>维护文档存在，不代表 Agent 会主动发现；规则要放在它实际读取的目录上下文。</blockquote><p><strong><a href="https://github.blog/open-source/maintainers/your-contributors-are-ai-first-now-is-your-project/" target="_blank" rel="noopener noreferrer">GitHub Blog</a></strong> · 摘要式转述 · AGENTS.md / 上下文 / 维护</p><p>可发现性是 Agent 规则生效的前提。</p><p class="team"><strong>团队启发：</strong>把测试命令和修改边界下沉到对应目录。</p></article>
+<article class="quote"><blockquote>隐私保证不能只写在政策里，还要由客户端校验、透明账本和失败关闭共同执行。</blockquote><p><strong><a href="https://engineering.fb.com/2026/08/12/security/how-were-building-scam-alert-whatsapp/" target="_blank" rel="noopener noreferrer">Meta Engineering</a></strong> · 摘要式转述 · 端侧 AI / 隐私 / 可验证</p><p>用户无需相信单一服务器声明，客户端可以拒绝不满足参数的遥测任务。</p><p class="team"><strong>团队启发：</strong>把隐私参数变成客户端可执行门禁。</p></article>
+<article class="quote"><blockquote>AI 改变了代码生成的经济学，可靠性和验证因此更像稀缺资源。</blockquote><p><strong><a href="https://newsletter.pragmaticengineer.com/p/stop-being-skeptical-about-ai-for" target="_blank" rel="noopener noreferrer">The Pragmatic Engineer</a></strong> · 摘要式转述 · AI 编码 / 验证 / 可观测性</p><p>这是一种工程判断，不是量化生产率结论。</p><p class="team"><strong>团队启发：</strong>评估 Agent 时优先看交付结果和返工。</p></article>
+<article class="quote"><blockquote>上传数量显示 AI 正在涌入，收入数字却显示买家还没有买单。</blockquote><p><strong><a href="https://www.404media.co/ai-generated-3d-models-flood-market-but-almost-no-one-is-buying-them/" target="_blank" rel="noopener noreferrer">404 Media</a></strong> · 摘要式转述 · 3D / 需求 / AI 内容</p><p>平台披露说明生成供给与商业价值之间仍有明显落差。</p><p class="team"><strong>团队启发：</strong>用付费与留存验证 AI 内容，不用生成量。</p></article>
+<article class="quote"><blockquote>每个 Linux 分发方案都覆盖一些用户，却没有一个覆盖所有用户。</blockquote><p><strong><a href="https://getfresh.dev/docs/blog/packaging-for-linux/" target="_blank" rel="noopener noreferrer">Fresh Blog</a></strong> · 摘要式转述 · Linux / 打包 / 客户端</p><p>渠道越多，签名、升级和故障面的组合越复杂。</p><p class="team"><strong>团队启发：</strong>把渠道矩阵纳入发布工程和监控。</p></article>
+<h2 id="podcast">🎙️ 播客提纲</h2><article class="podcast">
+<h3>安静不是修复证据：19 次数据库损坏教会 AI 团队什么</h3>
+<p class="hook">一个数据库半年坏了 19 次。最折磨人的不是损坏本身，而是它没有稳定触发条件：有时隔几小时，有时安静六周。团队最后没有靠运气等答案，而是让下一次故障必须留下可回放证据。</p>
+<h4>主故事：从事务日志到 WAL-Reset</h4><p>解释单写者 SQLite、WAL 检查点、19 次损坏和事务回放怎样把问题缩到检查点与写事务的竞态。</p>
+<h4>第二转折：金丝雀没有覆盖所有数据形态</h4><p>3.52.0 的舍入变化触发表达式索引误报，版本撤回并拆分修复，说明分阶段发布仍需覆盖真实数据分布。</p>
+<h4>工程：生成变便宜以后，验证成为瓶颈</h4><p>用 GitHub Actions 事故、AI-first PR 和 Scam Alert 说明可观测、目录级规则、端侧门禁与可验证执行。</p>
+<h4>工具：CodeBurn、diagram-design 与 Orca</h4><p>CodeBurn 看 Token 与成本，diagram-design 改善技术沟通，Orca 管理并行 Agent；三者都先从只读、非敏感、小范围任务开始。</p>
+<p>今天记住一句话：安静不是修复证据。AI 可以帮我们更快地产生候选答案，但工程团队的价值，是把正确性变成别人也能复现的证据。</p></article>
+<h2 id="team-insights">✅ 对团队的启发</h2>
+<div class="insight"><strong>1</strong><p>Agent 任务必须记录输入版本、工具调用、补丁、验证结果和回滚点，禁止只保留最终文本。</p></div>
+<div class="insight"><strong>2</strong><p>对低频生产故障预先设计取证遥测，并明确字段、采样、保留期和敏感数据边界。</p></div>
+<div class="insight"><strong>3</strong><p>把目录级 AGENTS.md 当作代码接口维护：规则可发现、命令可复制、边界可验证。</p></div>
+<div class="insight"><strong>4</strong><p>并行 Agent 只允许独立工作区和明确文件所有权，合并前分别通过静态检查与业务验证。</p></div>
+<div class="insight"><strong>5</strong><p>AI 效率看一次通过率、返工、等待、缺陷逃逸和回滚时间，不看生成行数或会话数量。</p></div>
+<footer><strong>信息源：</strong>65+ 个全球精选科技、AI、工程与系统可靠性来源。报道、观点、推断与作者自测均按各条事实边界标注。<br>
+Tech Digest # 80 · 2026-08-13</footer>
+</main></div></body></html>
