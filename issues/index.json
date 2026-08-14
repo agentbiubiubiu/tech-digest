@@ -1,5 +1,18 @@
 [
   {
+    "date": "2026-08-14",
+    "title": "第 81 期：有人把给 AI 的指令藏进了法庭文件",
+    "highlights": [
+      "据 404 Media 报道，一名自行诉讼者把面向 AI 的指令以 3 磅白字藏入法院文件；法院原站的 3 个关联文档本次均连接超时，因此案情与制裁结果保留报道口径",
+      "Stripe 用 5 类无报错却会损失收入的支付信号说明：Agent 能快速生成 PaymentIntent，但不会自动知道资金应遵守的业务意图",
+      "Google 已发布 Gemini 3.7 Flash；性能、价格与速度结论来自 Google 自有 Benchmark 和定价，不能替代团队真实任务复测",
+      "GitHub 总结 50 个开源项目的安全改进实践，强调 AI 辅助发现仍需维护者判断；项目成效属于 GitHub 基金项目统计",
+      "X 当日发现把需求拆为 constitution、specify、plan、tasks、implement 的 Spec Kit；功能已由 GitHub 官方仓库确认，热度不等于适配度",
+      "Apple 官方说明威胁通知属于高置信度提醒，但并非绝对确定；真正通知不会索要密码、验证码，也不会要求安装配置文件"
+    ],
+    "image": "https://storage.ghost.io/c/0f/76/0f76b548-bc58-4f25-abc3-3f5ebca07da4/content/images/size/w1200/2026/08/CleanShot-2026-08-13-at-10.40.56@2x.png"
+  },
+  {
     "date": "2026-08-13",
     "title": "第 80 期：19 次数据库损坏之后，真正抓住 Bug 的是证据",
     "highlights": [
