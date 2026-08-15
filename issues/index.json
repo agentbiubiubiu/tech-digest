@@ -1,5 +1,18 @@
 [
   {
+    "date": "2026-08-15",
+    "title": "第 82 期：一座云端仓库将关门，里面住着玩家十三年的伙伴",
+    "highlights": [
+      "Pokémon 官方确认 Pokémon Bank 将于 2027 年 2 月 25 日 19:00 PST 停服，届时也无法再迁移到 Pokémon HOME；服务 2014 年上线，迁移窗口约半年",
+      "Google 发布开源 HEIR 编译器，用同态加密让服务器直接处理密文；四个演示和单线程 CPU 延迟均为 Google 与合作方展示，不是独立 Benchmark",
+      "TechCrunch 报道美国多家水务设施近期遭入侵；CISA 已确认伊朗关联攻击者持续针对公网 PLC，但该通告不能独立证明每起新事件及其归因",
+      "加州 DMV 截至 8 月 12 日把 Aurora 和 Kodiak AI 列入有安全员测试许可持有人；这不等于获准无人驾驶测试或商业部署",
+      "GitHub 展示 Agent Apps 把产品分析、依赖安全、灰度发布和事故风险带进 Issue 与 PR；第三方应用权限和写操作审批仍由团队负责",
+      "curl 新性能系统每 20 分钟运行一轮，当前 24 项测试约 6 分钟完成；数据来自作者本机，适合抓短期回归，不是跨机器排名"
+    ],
+    "image": "https://www.pokemon.com/static-assets/content-assets/cms2/img/video-games/video-games/pokemon_bank/pokemon_bank_main_169.jpg"
+  },
+  {
     "date": "2026-08-14",
     "title": "第 81 期：有人把给 AI 的指令藏进了法庭文件",
     "highlights": [
