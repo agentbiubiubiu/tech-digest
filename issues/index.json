@@ -1,5 +1,18 @@
 [
   {
+    "date": "2026-08-17",
+    "title": "第 83 期：一个 AI 路由层，据报道值 70 亿美元",
+    "highlights": [
+      "据 TechCrunch 转述 Bloomberg，Stripe 已敲定以超过 70 亿美元收购 OpenRouter 的协议；双方没有发布官方收购公告，Stripe 也拒绝评论传闻",
+      "OpenRouter 已把数百个模型、自动故障转移和统一结算收进一个 API，便利背后是路由权与账单权的集中",
+      "Orca 可并行调度多种编码 Agent，但官方默认参数会绕过审批与沙箱，worktree 并不能隔离密钥、网络或系统权限",
+      "Qwen 3.8 27B 的个人实测显示默认高推理档可能把一个 SVG 任务拖到 21 分钟；这是现场样本，不是独立 Benchmark",
+      "Sainsbury's 在伦敦一家门店暂停实时人脸识别：顾客被错误拦截，门店称是人员认错，责任边界仍有争议",
+      "今天可落地的动作：抽象模型协议、保留厂商直连、导出调用与成本日志，并对故障转移做演练"
+    ],
+    "image": "https://techcrunch.com/wp-content/uploads/2024/04/Stripe-resized.webp?resize=1200,674"
+  },
+  {
     "date": "2026-08-15",
     "title": "第 82 期：一座云端仓库将关门，里面住着玩家十三年的伙伴",
     "highlights": [
