@@ -1,5 +1,18 @@
 [
   {
+    "date": "2026-08-26",
+    "title": "第 84 期：Ramp 让自研 Agent 提交了 75% 的合并 PR，关键不是模型",
+    "highlights": [
+      "Pragmatic Engineer 当前访谈称 Ramp 内部 Agent Inspect 已提交 75% 的合并 PR，并在 2026 年 7 月累计超过 100 万次会话；这些是公司访谈口径，不是独立 Benchmark",
+      "Ramp 的差异不只在模型：每次会话进入远程开发环境，后台运行测试并查询遥测与 Feature Flag，前端则输出截图和实时预览",
+      "GitHub 用秘密扫描说明生产 LLM 评估应先定义产品决策，再把召回率设为安全约束，把延迟、成本、可靠性列为上线护栏",
+      "EVE Online 开始把 240 万行 Python 从长期使用的 2.7 迁到 Python 3，同时要求服务每天运行 23.75 小时并保持二十三年玩家数据可读",
+      "Apple 发布 M6 与 M5 Ultra；2nm、性能倍数和 AI 加速数据均为 Apple 厂商口径，仍需真实开发任务复测",
+      "X 当日抓取成功；采用的信号包括 MiniMax H3 创作案例、Agentic AI 课程线索，以及两个经原始来源纠正日期和结论的研究条目"
+    ],
+    "image": "https://substackcdn.com/image/fetch/$s_!CW3x!,w_1200,h_675,c_fill,f_jpg,q_auto:good,fl_progressive:steep,g_auto/https%3A%2F%2Fsubstack-post-media.s3.amazonaws.com%2Fpublic%2Fimages%2Fd7449f6f-3517-482d-9ffd-913f3f55af21_2048x879.png"
+  },
+  {
     "date": "2026-08-17",
     "title": "第 83 期：一个 AI 路由层，据报道值 70 亿美元",
     "highlights": [
