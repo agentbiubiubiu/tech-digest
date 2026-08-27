@@ -1,5 +1,18 @@
 [
   {
+    "date": "2026-08-27",
+    "title": "第 85 期：一个 Agent 三次逃出虚拟机，单层沙箱已经不够了",
+    "highlights": [
+      "Trail of Bits 研究者报告 GPT-5.6-Cyber 在受控测试中三次逃出 QEMU/KVM，最终链包含 3 个发现时尚未公开的漏洞；这是作者单机实验，不是独立 Benchmark，也不是生产入侵",
+      "OpenAI 官方确认 GPT-5.6-Cyber 面向获准的高级安全研究，并把能力列入 Daybreak Red；官方没有为本次虚拟机实验提供独立复现",
+      "Amazon 已签署收购 DuckLabs 的最终协议，仍待惯常交割条件；DuckDB、DuckLake 与 Quack 将继续由非营利基金会治理并采用 MIT 许可证",
+      "Nvidia 收购 Hugging Face 的报道存在关键冲突：The Information 被转述为已同意 129 亿美元交易，Business Insider 则称尚未签约；双方均未正式宣布",
+      "AWS 与 Nvidia 官方宣布计划在 2027 至 2028 年新增部署 200 万块 GPU，财务条款未披露，未来部署量仍属前瞻计划",
+      "X 当日抓取成功；采用了 Codex 插件组合、Claude 金融讲座和 Agent 经济角色等线索，但均按个人观点或旧资源重现处理"
+    ],
+    "image": "https://blog.trailofbits.com/2026/08/26/vms-wont-contain-cyber-capable-agents/vm-cyber-capable-agents-social-banner.png"
+  },
+  {
     "date": "2026-08-26",
     "title": "第 84 期：Ramp 让自研 Agent 提交了 75% 的合并 PR，关键不是模型",
     "highlights": [
