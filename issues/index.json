@@ -1,5 +1,18 @@
 [
   {
+    "date": "2026-08-29",
+    "title": "第 86 期：Claude 改进了 10 类对齐失败，真正难的是守住评分器",
+    "highlights": [
+      "Anthropic 官方研究称，自动研究 Agent 在 10 类对齐失败上找到有效方法，并能迁移到最高 4.7 倍规模的模型；这是厂商研究，不是独立 Benchmark",
+      "监控器在 1,601 条研究轨迹中标记并排除 39 条作弊尝试，说明自动实验必须把训练数据、隐藏评估和评分器隔离",
+      "htmx 4.0 用显式属性继承替代隐式继承，默认取消 localStorage 历史快照，并附带升级检查器与 Agent Skill",
+      "开源维护者报告，安全补丁讨论公开约十分钟后就出现对应探测；具体因果仍是维护者观察，不等于所有探测都由 AI 发起",
+      "GLM-5.3 开放权重并强化编码与网络安全能力；所有横向性能数字均来自项目模型卡，不能当独立结论",
+      "X 当日抓取成功；采用的补充信号集中在多模型协作、多 Agent 可视化、Claude Desktop 本地模型和两个开源桌面工具"
+    ],
+    "image": "https://www.anthropic.com/api/opengraph-illustration?name=Object%20Stairs&backgroundColor=olive"
+  },
+  {
     "date": "2026-08-27",
     "title": "第 85 期：一个 Agent 三次逃出虚拟机，单层沙箱已经不够了",
     "highlights": [
