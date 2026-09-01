@@ -1,5 +1,18 @@
 [
   {
+    "date": "2026-09-01",
+    "title": "第 87 期：Tailscale 拆掉控制平面，只留下一个加密管道",
+    "highlights": [
+      "Tailscale 发布 Tailcat：不需要账号、控制平面、IP 配置或 root 权限，通过连接字符串、WireGuard、NAT 穿透和 DERP 建立点对点 TCP 通道",
+      "Tailcat 官方仓库明确不承诺 API、CLI 或线协议稳定性，公共 DERP 只有尽力服务，没有吞吐与可用性 SLA",
+      "Apple 在诉讼文件中声称一名前员工在 OpenAI 使用了苹果机密电路图并协助销毁证据；材料被遮盖且法院尚未认定，OpenAI 此前否认拥有或需要苹果商业秘密",
+      "wrapture 把 Python 测试替身与 OpenTelemetry 观测合并为同一套绑定机制；项目仍处 Alpha，是否优于成熟工具需要真实项目验证",
+      "PteroSim 把 PX4、ArduPilot、Betaflight 和 Unreal Engine 5 接成无人机测试台，但闭源、免费版限非商业使用且只支持单架多旋翼",
+      "X 当日抓取成功；Muse Code 与 Google 课程的传播文案都经过官方页面纠正，避免把旧 beta 或 90 分钟课程写成今日新品与一小时教程"
+    ],
+    "image": "https://cdn.sanity.io/images/w77i7m8x/production/eba95bf72cac81675e8f0bd6fc62e757eac2dac4-2304x1188.png"
+  },
+  {
     "date": "2026-08-29",
     "title": "第 86 期：Claude 改进了 10 类对齐失败，真正难的是守住评分器",
     "highlights": [
