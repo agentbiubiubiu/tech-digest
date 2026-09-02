@@ -1,5 +1,18 @@
 [
   {
+    "date": "2026-09-02",
+    "title": "第 88 期：Claude 写下 18 万行代码，作者却说自己审不完",
+    "highlights": [
+      "Paint.NET 作者 Rick Brewster 披露 Claude 为 WINE 路径生成约 18 万行 Direct2D 兼容代码，同时承认无法全面审查；这是作者陈述，不是独立代码审计",
+      "Vercel 官方称 AI SDK 软件工厂运行四周后贡献每周合并 PR 的 25%-35%，并关闭 70%-80% 的问题；这些比例属于团队自报数据",
+      "Flue 与 tldraw 都把外部 PR 转回问题或讨论，说明开源贡献的稀缺资源正在从代码转向上下文、判断和持续跟进",
+      "Anthropic 发布 Claude Fable 5.1 与受限访问的 Mythos 5.1；价格与 Benchmark 均按厂商口径处理，不作独立性能结论",
+      "BenchMIRT 用 100 个开源模型、16 个基准和 3.4 万余题分析单一分数混合了哪些能力，提醒团队先验证指标测量的对象",
+      "X 当日抓取成功；GitHub Copilot 模型可用性与免费课程传播均回到官方文档核验，未证实的“18 门课程”没有写成事实"
+    ],
+    "image": "https://assets.vercel.com/image/upload/contentful/image/e5382hct74si/6XWdGbz8lDKq97Puxfb4eE/6b1ca1d9d4b719739736079275a68365/AI-SDK-factory-OG-v2.png"
+  },
+  {
     "date": "2026-09-01",
     "title": "第 87 期：Tailscale 拆掉控制平面，只留下一个加密管道",
     "highlights": [
