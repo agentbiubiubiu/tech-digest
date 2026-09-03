@@ -1,16 +1,16 @@
 [
   {
     "date": "2026-09-03",
-    "title": "第 89 期：三个网站造出 21.5 万篇推荐页，AI 把它们当成了来源",
+    "title": "第 89 期：Coding Agent 接入企业以后，默认模型只是第一道门",
     "highlights": [
-      "Trellner 在 380 个软件类别上向 Perplexity sonar 与 sonar-pro 发起 760 次调用，记录 7,534 条引用；59.8% 指向 Tranco 排名十万名以外的域名",
-      "三个疑似同一运营体系的网站合计发布 215,128 篇“最佳软件”页面；共同控制属于基础设施与模板证据支持的推断，不是所有权证明",
-      "GitHub 官方实验显示，过度压缩单次工具输出可能诱发重读和重跑，使完整任务反而消耗更多 token；结论仅适用于其测试集与 Copilot harness",
-      "Meta 展示一种组织知识架构：把知识与推理解耦，并用回归测试门禁把专家反馈编译成持久更新，不需要重新训练底模",
-      "Gemini 3.8 Flash 以每百万输入 0.75 美元、输出 3.75 美元的限期价格发布；性能数字均按 Google 厂商口径处理",
-      "X 当日抓取成功，并经一手页面复核出 Inworld Agent 文档、Stanford CS146S 和 Qwen3.8 本地推理配方三条可执行资源"
+      "GitHub Copilot Business 与 Enterprise 可为新会话设企业默认模型，并通过 team-mappings.json 给不同团队覆盖默认值",
+      "GitHub Copilot app 与 CLI 已正式遵守企业、组织和仓库级内容排除策略，被排除文件不会作为上下文",
+      "Claude Code v2.1.259 新增托管 HTTP/SSE MCP 配置与 --permission-prompts none，无人值守场景遇到需弹窗授权的动作会自动拒绝",
+      "Codex 0.153.0 增强断线恢复、完整 TUI 历史和按所选 App 账号隔离的 MCP 授权，降低并行任务的状态混淆",
+      "Kubernetes 1.37 将 HPA 缩容到零推进 Beta，但控制平面版本不一致时可能把零副本误当手动暂停",
+      "本次检查 105 个正式源，69 个命中条件缓存；模型侧只接收 26 张候选卡和 20+4 份限长证据，不回灌 748 条原始条目"
     ],
-    "image": "https://trellner.com/og.png"
+    "image": "https://github.blog/wp-content/uploads/2026/09/645173207-1cda454f-a373-4f47-bdd5-e5475cdd936e.jpg"
   },
   {
     "date": "2026-09-02",
