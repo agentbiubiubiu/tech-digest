@@ -1,5 +1,18 @@
 [
   {
+    "date": "2026-09-04",
+    "title": "第 90 期：烧掉 200 亿 Token 以后，Astra 仍不能按“每小时 6 美元”估价",
+    "highlights": [
+      "OpenAI 宣布 GPT-6 Astra 先向少量组织开放，随后计划覆盖 ChatGPT 付费套餐、API 与 AWS；企业工作区首发默认关闭",
+      "Astra API 标准价格为每百万输入 10 美元、输出 50 美元，缓存读写另计；Fast 模式最高 2 倍速度、价格也是标准模式的 2 倍",
+      "Latent Space 团队称测试消耗超过 200 亿 Token；其“每小时低于 6 美元”主要由输出速率乘输出单价得到，不等同于完整任务账单",
+      "X 上的飞行模拟器演示记录 Astra 约 28.55 美元、GPT-5.6 Sol 约 6.61 美元，但两次运行配置不同，不能作为同配置 Benchmark",
+      "npm 可信发布现在支持同一包的多套 OIDC 配置，并建议默认先进入人工批准的 staged publishing",
+      "本次检查 105 个正式源，34 个命中条件缓存；35 条窗口内记录压缩为 28 张候选卡，证据深抓限制为 20+4"
+    ],
+    "image": "https://substackcdn.com/image/fetch/$s_!1Mu3!,w_1200,h_675,c_fill,f_jpg,q_auto:good,fl_progressive:steep,g_auto/https%3A%2F%2Fsubstack-post-media.s3.amazonaws.com%2Fpublic%2Fimages%2Ff60dbb10-9849-49e5-8569-5dfba8440b9c_2486x1390.png"
+  },
+  {
     "date": "2026-09-03",
     "title": "第 89 期：Coding Agent 接入企业以后，默认模型只是第一道门",
     "highlights": [
