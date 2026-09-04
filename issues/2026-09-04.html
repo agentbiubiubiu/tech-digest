@@ -6,7 +6,7 @@
 </style></head>
 <body><header class="topbar"><a class="brand" href="../index.html">Tech Digest</a><nav class="nav"><a href="index.html">Archive</a><a href="2026-09-04.html">Today</a><a href="#tools">Tools</a><a href="#quotes">Quotes</a></nav><span>2026-09-04</span></header>
 <div class="layout"><aside class="toc"><strong>本期目录</strong><a href="#main-story">🔥 主故事</a><a href="#trends">⚡ 冲突趋势</a><a href="#tech-news">📰 科技动态</a><a href="#ai">🤖 AI 相关</a><a href="#articles">📝 文章推荐</a><a href="#tools">🛠️ 工具推荐</a><a href="#ai-tools">🧠 AI 工具</a><a href="#concepts">🧩 概念库</a><a href="#curiosity">🎲 好奇心</a><a href="#resources">📚 资源</a><a href="#quotes">💬 言论</a><a href="#podcast">🎙️ 播客</a><a href="#team-insights">✅ 团队启发</a></aside><main class="content"><a class="back" href="index.html">← 返回目录</a>
-<section class="hero"><h1>第 90 期：烧掉 200 亿 Token 以后，Astra 仍不能按“每小时 6 美元”估价</h1><p class="meta">第 90 期 · 2026年9月4日，星期五</p><p class="highlights"><strong>✨ 本期亮点：</strong>OpenAI 宣布 GPT-6 Astra 先向少量组织开放，随后计划覆盖 ChatGPT 付费套餐、API 与 AWS；企业工作区首发默认关闭 · Astra API 标准价格为每百万输入 10 美元、输出 50 美元，缓存读写另计；Fast 模式最高 2 倍速度、价格也是标准模式的 2 倍 · Latent Space 团队称测试消耗超过 200 亿 Token；其“每小时低于 6 美元”主要由输出速率乘输出单价得到，不等同于完整任务账单 · X 上的飞行模拟器演示记录 Astra 约 28.55 美元、GPT-5.6 Sol 约 6.61 美元，但前者用了 6 个子 Agent 与 ultra、后者单 Agent 与 high，不能作为同配置 Benchmark · npm 可信发布现在支持同一包的多套 OIDC 配置，并建议默认先进入人工批准的 staged publishing · 本次检查 105 个正式源，34 个命中条件缓存；35 条窗口内记录压缩为 28 张候选卡，证据深抓严格限制为 20+4</p><img class="article-img" src="https://substackcdn.com/image/fetch/$s_!1Mu3!,w_1200,h_675,c_fill,f_jpg,q_auto:good,fl_progressive:steep,g_auto/https%3A%2F%2Fsubstack-post-media.s3.amazonaws.com%2Fpublic%2Fimages%2Ff60dbb10-9849-49e5-8569-5dfba8440b9c_2486x1390.png" alt="Latent Space 对 GPT-6 Astra 的测试文章封面" loading="lazy"><p class="hero-caption">配图来自 Latent Space；200 亿 Token 与每小时 6 美元均为测试团队口径，不是独立 Benchmark。</p></section>
+<section class="hero"><h1>第 90 期：烧掉 200 亿 Token 以后，Astra 仍不能按“每小时 6 美元”估价</h1><p class="meta">第 90 期 · 2026年9月4日，星期五</p><p class="highlights"><strong>✨ 本期亮点：</strong>OpenAI 宣布 GPT-6 Astra 先向少量组织开放，随后计划覆盖 ChatGPT 付费套餐、API 与 AWS；企业工作区首发默认关闭 · Astra API 标准价格为每百万输入 10 美元、输出 50 美元，缓存读写另计；Fast 模式最高 2 倍速度、价格也是标准模式的 2 倍 · Latent Space 团队称测试消耗超过 200 亿 Token；其“每小时低于 6 美元”主要由输出速率乘输出单价得到，不等同于完整任务账单 · X 上的飞行模拟器演示记录 Astra 约 28.55 美元、GPT-5.6 Sol 约 6.61 美元，但前者用了 6 个子 Agent 与 ultra、后者单 Agent 与 high，不能作为同配置 Benchmark · npm 可信发布现在支持同一包的多套 OIDC 配置，并建议默认先进入人工批准的 staged publishing · 本次检查 105 个正式源，34 个命中条件缓存；35 条窗口内记录压缩为 28 张候选卡，证据深抓严格限制为 20+4 · X 发现的 Codebase Memory MCP 已回到第一方仓库核验；它适合先在非敏感大仓库测试结构检索，项目方 Token 改善数字不作独立结论</p><img class="article-img" src="https://substackcdn.com/image/fetch/$s_!1Mu3!,w_1200,h_675,c_fill,f_jpg,q_auto:good,fl_progressive:steep,g_auto/https%3A%2F%2Fsubstack-post-media.s3.amazonaws.com%2Fpublic%2Fimages%2Ff60dbb10-9849-49e5-8569-5dfba8440b9c_2486x1390.png" alt="Latent Space 对 GPT-6 Astra 的测试文章封面" loading="lazy"><p class="hero-caption">配图来自 Latent Space；200 亿 Token 与每小时 6 美元均为测试团队口径，不是独立 Benchmark。</p></section>
 
     <h2 id="main-story">🔥 主故事</h2>
     <article class="main-story">
@@ -62,6 +62,22 @@
 <p class="fact"><strong>事实边界：</strong>发布标签与签名状态已确认；具体功能和兼容性证据不足。</p>
 
 </article>
+<article class="entry">
+<h3>5、<a href="https://clickhouse.com/blog/introducing-scheduled-upgrades-in-clickhouse-managed-postgres" target="_blank" rel="noopener noreferrer">ClickHouse 托管 Postgres 增加升级窗口，但只对指定套餐开放</a> <span class="certainty certainty-official">official</span></h3>
+<p class="hook">这是托管平台的运维功能，不是个人开发者今天应安装的工具。</p>
+<p>Scale 与 Enterprise 用户可以指定例行平台升级时段；磁盘超过 90% 等紧急容量操作不会等待窗口。</p>
+<p class="why"><strong>为什么重要：</strong>后台和 SRE 可据此对齐发布、值班与回归，但它只在已经使用该托管服务时有价值。</p>
+<p class="fact"><strong>事实边界：</strong>功能和套餐范围来自 ClickHouse 官方发布。</p>
+
+</article>
+<article class="entry">
+<h3>6、<a href="https://blog.jetbrains.com/kotlin/2026/09/kotlin-toolchain-0-12-multiplatform-library-publishing-wasm-apps-and-more" target="_blank" rel="noopener noreferrer">Kotlin Toolchain 0.12 补齐多平台发布与 Wasm 预览</a> <span class="certainty certainty-official">official</span></h3>
+<p class="hook">它服务已经采用 KMP 的项目，不应仅因覆盖 iOS 和 Android 就进入个人工具推荐。</p>
+<p>0.12 支持多平台库发布、Wasm 应用预览和命令行 Compose Hot Reload，并要求 JDK 17、Kotlin 2.2.20 与较新的 IntelliJ 插件。</p>
+<p class="why"><strong>为什么重要：</strong>KMP 团队可用隔离项目验证发布链；其他项目把它作为生态动态即可。</p>
+<p class="fact"><strong>事实边界：</strong>功能、最低版本和预览状态来自 JetBrains 官方文章。</p>
+
+</article>
 <h2 id="ai">🤖 AI 相关</h2>
 <article class="entry">
 <h3>1、<a href="https://huggingface.co/blog/Hcompany/neomme" target="_blank" rel="noopener noreferrer">NeoMME 用同一个双向 Transformer 同时处理文字与原始图像块</a> <span class="certainty certainty-project_release_vendor_benchmarks">project_release_vendor_benchmarks</span></h3>
@@ -76,14 +92,12 @@
 <article class="entry"><h3><a href="https://engineering.fb.com/2026/09/03/core-infra/zgateway-proxy-zippydb-meta" target="_blank" rel="noopener noreferrer">Meta 在 ZippyDB 前加一层无状态代理，用约 6% 开销换统一流量控制</a></h3><p class="hook">客户端直连数据库最省一跳，却让准入、负载均衡、跨区恢复和协议演进散落在每个调用方。</p><p>Meta 介绍 ZGateway：位于客户端与 ZippyDB 之间的无状态区域代理，集中承载流量与运维能力。</p><p class="story-line">多一跳是否值得，要看它消除了多少客户端复杂性。</p></article>
 <article class="entry"><h3><a href="https://blog.jetbrains.com/education/2026/09/03/learning-to-code-in-the-age-of-ai-advice-from-a-top-udemy-instructor" target="_blank" rel="noopener noreferrer">AI 让学生少问了 5 到 10 倍问题，但“卡住”本身仍是学习材料</a></h3><p class="hook">答案来得更快，学习流程更顺；变量、循环和数据流的心智模型也更容易被生成结果跳过去。</p><p>Python 讲师 Ardit Sulce 建议初学者先手写小程序、使用专业 IDE，再把 AI 当作需要审查的同事。</p><p class="story-line">消除等待是效率，保留必要的挣扎才是学习。</p></article>
 <h2 id="tools">🛠️ 工具推荐</h2><div class="tool-grid">
-<article class="tool-card"><div><span class="tag">代码差异与成本修复</span><span class="priority">high</span></div><h3><a href="https://github.com/anthropics/claude-code/releases/tag/v2.1.260" target="_blank" rel="noopener noreferrer">Claude Code v2.1.260</a></h3><p>今日实用工具：全屏模式可用 /diff 打开并排差异；同时修复 Fable 5.1 在工具调用后重复发送未缓存上下文的问题，并撤回会误拦 npm run build 的 Read 规则。适合多端与后台开发。限制：升级后要复测权限规则、缓存账单和插件。</p></article>
-<article class="tool-card"><div><span class="tag">Android 预览工具链</span><span class="priority">medium</span></div><h3><a href="https://androidstudio.googleblog.com/2026/09/android-studio-rabbit-1-canary-4-now.html" target="_blank" rel="noopener noreferrer">Android Studio Rabbit 1 Canary 4</a></h3><p>Rabbit 1 Canary 4 已进入 Canary 渠道。适合独立安装后验证 Gradle、Compose、模拟器和插件兼容性。限制：Canary 不是生产稳定版，不应覆盖团队唯一可用环境，也不能只凭版本号判断修复内容。</p></article>
-<article class="tool-card"><div><span class="tag">数据库维护窗口</span><span class="priority">high</span></div><h3><a href="https://clickhouse.com/blog/introducing-scheduled-upgrades-in-clickhouse-managed-postgres" target="_blank" rel="noopener noreferrer">ClickHouse Managed Postgres Scheduled Upgrades</a></h3><p>Scale 与 Enterprise 用户可设置维护窗口，让例行平台升级在选择的时段落地。适合后台和 SRE 对齐发布、值班与回归。限制：磁盘超过 90% 等紧急容量操作不会等待窗口；窗口也不能替代备份和升级后校验。</p></article>
-<article class="tool-card"><div><span class="tag">KMP 与 Wasm 构建</span><span class="priority">high</span></div><h3><a href="https://blog.jetbrains.com/kotlin/2026/09/kotlin-toolchain-0-12-multiplatform-library-publishing-wasm-apps-and-more" target="_blank" rel="noopener noreferrer">Kotlin Toolchain 0.12</a></h3><p>0.12 支持多平台库发布、Wasm 应用预览和命令行 Compose Hot Reload，并明确最低 JDK 17、Kotlin 编译器 2.2.20。限制：需要 IntelliJ IDEA 2026.2.1+ 与最新插件，Wasm 仍是预览能力。</p></article>
-<article class="tool-card"><div><span class="tag">桌面音频编辑</span><span class="priority">medium</span></div><h3><a href="https://github.com/audacity/audacity/releases/tag/Audacity-4.0.0" target="_blank" rel="noopener noreferrer">Audacity 4.0</a></h3><p>Audacity 4.0 引入 Qt 界面、新剪辑模型和 .aup4 格式。适合播客和桌面音频处理先复制项目试用。限制：部分导出、渲染、分析器与效果尚未补齐；旧项目升级前必须保留可回退副本。</p></article>
+<article class="tool-card"><div><span class="tag">代码库记忆 MCP</span><span class="priority">今日可试</span></div><h3><a href="https://github.com/DeusData/codebase-memory-mcp" target="_blank" rel="noopener noreferrer">Codebase Memory MCP</a></h3><p>今日实用工具：它把函数、调用链、HTTP 路由和跨服务关系索引为本地知识图谱，让 Codex 或 Claude Code 通过 MCP 先查结构、再精读必要代码。</p><p class="why"><strong>适合你的环节：</strong>大型 iOS、Web 与后台仓库的架构定位、调用链追踪和改动影响面分析。</p><p><strong>今天怎么试：</strong>先下载 macOS arm64 Release 并核对 checksums.txt，不运行一键脚本；在非敏感测试仓库手动接入，只读索引后与普通 grep 做一组 A/B。</p><p class="fact"><strong>边界：</strong>它会读取代码库并可修改 Agent 配置。项目方宣称的 10 倍、120 倍或 99% Token 改善均属项目方 Benchmark，必须用自己的仓库复测。</p></article>
+<article class="tool-card"><div><span class="tag">Coding Agent CLI</span><span class="priority">今日可试</span></div><h3><a href="https://github.com/anthropics/claude-code/releases/tag/v2.1.260" target="_blank" rel="noopener noreferrer">Claude Code v2.1.260</a></h3><p>新版可用 /diff 在对话旁查看未提交修改，并修复一项工具调用后重复发送未缓存上下文的问题。它是现有 Coding Agent 工作流的窄升级，不是再安装一套大型 IDE。</p><p class="why"><strong>适合你的环节：</strong>Agent 完成代码修改后的差异审查、权限规则回归和缓存成本观察。</p><p><strong>今天怎么试：</strong>在一个小仓库升级后完成一次单文件修改，用 /diff 审查未提交差异，并对比升级前后的权限提示与缓存账单。</p><p class="fact"><strong>边界：</strong>升级可能改变插件和权限行为；先保存配置并在非关键仓库回归。缓存修复针对发布说明列出的具体场景，不代表所有 Token 问题都已解决。</p></article>
 </div>
 <h2 id="ai-tools">🧠 AI 工具</h2><div class="tool-grid">
-<article class="tool-card"><div><span class="tag">并行 Coding Agent</span><span class="priority">high</span></div><h3><a href="https://github.blog/ai-and-ml/github-copilot/github-copilot-app-for-beginners-run-several-agents-at-once" target="_blank" rel="noopener noreferrer">GitHub Copilot 多 Agent Worktree</a></h3><p>Copilot app 可让每个会话运行在独立 Git worktree，并在 sessions 视图查看进度。适合把低耦合功能、测试和文档并行处理。限制：worktree 不解决共享接口、数据库迁移与最终合并冲突；人仍要统一验收。</p></article>
+<article class="tool-card"><div><span class="tag">Agent 工作流</span><span class="priority">今日可试</span></div><h3><a href="https://github.blog/ai-and-ml/github-copilot/github-copilot-app-for-beginners-run-several-agents-at-once" target="_blank" rel="noopener noreferrer">多 Agent Worktree 工作法</a></h3><p>每个 Agent 使用独立 Git worktree，只并行低耦合任务，最后统一合并和验收。它能避免多个会话在同一目录互相覆盖。</p><p class="why"><strong>适合你的环节：</strong>并行处理功能、测试、文档或排障时隔离分支与工作目录。</p><p><strong>今天怎么试：</strong>挑两个不改同一接口的任务，各建一个 worktree 运行 Agent；结束后回到主工作树统一检查 diff、测试和冲突。</p><p class="fact"><strong>边界：</strong>worktree 只隔离文件修改，不隔离共享 API、数据库、端口、账号和最终合并风险。来源文章以 Copilot 演示，但方法可迁移到其他 Agent。</p></article>
+<article class="tool-card"><div><span class="tag">长期 Agent 模型</span><span class="priority">能力观察</span></div><h3><a href="https://openai.com/index/gpt-6-astra" target="_blank" rel="noopener noreferrer">GPT-6 Astra</a></h3><p>Astra 更像长期 Agent 能力观察项：它计划进入 Codex、ChatGPT 付费套餐、API 与 AWS，但首发只向少量组织开放。</p><p class="why"><strong>适合你的环节：</strong>跨上下文的长任务、并行子任务，以及需要持续保留需求和测试证据的工程工作。</p><p><strong>今天怎么试：</strong>若组织已获权限，用一条真实长任务与现用模型做 A/B，固定 Agent 数、推理档位和验收标准；没有权限时只记录能力与价格，不假装已可用。</p><p class="fact"><strong>边界：</strong>开放范围有限，企业工作区首发默认关闭；官方 Benchmark 属厂商评估，社区成本演示配置也不一致。</p></article>
 </div>
 <h2 id="concepts">🧩 本期概念库</h2>
 <article class="concept"><h3>1. 每个通过任务的成本</h3><p><strong>一句话解释：</strong>完整任务总费用除以通过统一验收的任务数。</p><p><strong>为什么重要：</strong>它把失败、重试、并行和人工返工都纳入比较。</p><p><strong>团队应用：</strong>固定任务集与验收标准，分别记录各模型总账单和通过数。</p></article>
@@ -109,12 +123,12 @@
 <p class="hook">一个团队烧掉 200 亿 Token 后说，Astra 每小时不到 6 美元。公式没有错，但它算的是持续输出，不是完成工作。</p>
 <h4>第一幕：5.94 美元怎样算出来</h4><p>解释输出速率乘官方输出单价，并明确输入、缓存、并行和人工未被覆盖。</p>
 <h4>第二幕：一项 28.55 美元的非同配置演示</h4><p>说明 6 个子 Agent、ultra 与单 Agent、high 不能横向归因。</p>
-<h4>Quick Hits</h4><p>讲 npm staged publishing、Claude Code 差异面板与缓存修复、Kotlin 多平台发布。</p>
+<h4>Quick Hits</h4><p>讲 Codebase Memory MCP、Claude Code 差异面板，以及可迁移到 Codex 的多 Agent Worktree 工作法。</p>
 <h4>Team Takeaway</h4><p>固定配置，记录四类 Token、时间、验收与返工，比较每个通过任务的成本。</p>
 <p>AI Agent 没有时薪，只有每一项工作从开始到验收之间不断累积的任务账单。</p></article>
 <h2 id="team-insights">✅ 对团队的启发</h2>
 <div class="insight"><strong>1</strong><p>模型成本看每个通过任务：非缓存输入、缓存读写、输出、子 Agent、人工时间与失败重试全部入账。</p></div>
 <div class="insight"><strong>2</strong><p>模型对比固定推理档位、Agent 数、工具、时间预算和验收标准；非同配置演示只作为探索线索。</p></div>
-<div class="insight"><strong>3</strong><p>npm 稳定版默认使用多配置 OIDC 与 staged publishing，直接发布只留给有额外审批的受控流程。</p></div>
+<div class="insight"><strong>3</strong><p>先在非敏感仓库试用 Codebase Memory MCP，比较结构查询与普通 grep 的命中、耗时和实际 Token；安装前审查配置改动。</p></div>
 <div class="insight"><strong>4</strong><p>并行 Coding Agent 只处理低耦合任务，每个会话隔离 worktree，最终统一跑集成测试和人工合并。</p></div>
 <div class="insight"><strong>5</strong><p>升级 Claude Code 2.1.260 后复测权限规则与缓存账单，确认工具调用后的上下文不再重复计入未缓存输入。</p></div><footer class="footer">Tech Digest · 2026-09-04 · 来源与事实边界见各条目<br><strong>抓取缺口：</strong>console.dev 与 Figma Engineering 返回 HTTP 404；Product Hunt、Airbnb Engineering、ACM Queue 与 Coinbase Engineering 返回 HTTP 403；BAIR Blog 连接超时，JavaScript Weekly 返回 HTTP 400；失败不等于 24 小时内没有更新；13 个正式源未提供可用元数据，已按时间门禁排除；X 抓取最终状态为成功</footer></main></div></body></html>
