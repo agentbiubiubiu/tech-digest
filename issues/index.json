@@ -1,5 +1,17 @@
 [
   {
+    "date": "2026-09-05",
+    "title": "第 91 期：Agent 开始自己选模型，你的 Skill 也该做减法了",
+    "highlights": [
+      "GitHub 将 HydraFusion 作为研究预览推出，按任务编排起草、批评、修订和模型升级；离线评估不能直接当作个人账单承诺",
+      "Claude Code 2.1.261 新增 /skill-doctor，帮助查看未使用 Skill 的上下文成本；需要对应版本，不能在旧版直接调用",
+      "今日实用工具聚焦 Matt Pocock Skills、Superpowers 排障清单、Codex/Astra 验收工作流和 Playwright 测试锁",
+      "Playwright 1.63 可给共享账号或资源的测试加同名锁，减少互相干扰，同时保留其余测试并行",
+      "X 当日线索已回溯第一方仓库；已有工具明确标作实践精选，不包装成今天新发布"
+    ],
+    "image": "https://github.blog/wp-content/uploads/2026/09/OptA_UI.jpg"
+  },
+  {
     "date": "2026-09-04",
     "title": "第 90 期：烧掉 200 亿 Token 以后，Astra 仍不能按“每小时 6 美元”估价",
     "highlights": [

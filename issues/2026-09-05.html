@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>第 91 期：Agent 开始自己选模型，你的 Skill 也该做减法了</title><meta name="description" content="HydraFusion 的模型编排、Skill 上下文成本、可复用排障技能与并行测试锁。">
+<meta property="og:title" content="第 91 期：Agent 开始自己选模型，你的 Skill 也该做减法了"><meta property="og:description" content="HydraFusion 的模型编排、Skill 上下文成本、可复用排障技能与并行测试锁。"><meta property="og:image" content=""><style>
+:root{color-scheme:light;--ink:#17251e;--muted:#66756d;--green:#008a58;--green-soft:#eaf6ef;--line:#d9e1dc;--paper:#fff;--bg:#f5f7f5;--red:#9d2c2c;--gold:#8b6200}*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Noto Sans CJK SC",sans-serif;line-height:1.72;letter-spacing:0}a{color:var(--green);text-decoration:none}a:hover{text-decoration:underline}.topbar{height:56px;border-bottom:1px solid var(--line);background:rgba(255,255,255,.96);display:flex;align-items:center;justify-content:space-between;padding:0 24px;position:sticky;top:0;z-index:10}.brand{font-weight:750}.nav{display:flex;gap:20px;font-size:14px}.layout{display:grid;grid-template-columns:190px minmax(0,820px);gap:38px;max-width:1090px;margin:0 auto;padding:34px 20px 80px}.toc{position:sticky;top:84px;align-self:start;font-size:14px}.toc strong{display:block;margin-bottom:10px}.toc a{display:block;color:var(--muted);padding:4px 0}.content{min-width:0}.back{font-size:14px}.hero h1{font-size:34px;line-height:1.25;margin:18px 0 8px}.meta{color:var(--muted);font-size:14px}.highlights{background:var(--green-soft);border-left:4px solid var(--green);padding:16px 18px;border-radius:5px}.article-img{display:block;width:100%;max-height:520px;object-fit:contain;background:#fff;border:1px solid #e6ebe8;border-radius:6px;margin:24px 0 8px}.hero-caption{text-align:center;color:var(--muted);font-size:13px}h2{font-size:22px;margin:46px 0 16px;padding-bottom:8px;border-bottom:2px solid var(--ink)}h3{font-size:18px;line-height:1.45;margin:0 0 10px}h4{font-size:16px;margin:22px 0 4px}.main-story{background:var(--paper);border:1px solid var(--line);border-top:4px solid var(--green);padding:24px;border-radius:6px}.story-hook,.hook{font-weight:650}.story-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:18px 0}.story-field{background:#f6f8f6;border:1px solid var(--line);padding:14px;border-radius:5px}.story-field strong{display:block;margin-bottom:5px}.number-chip{display:inline-block;background:#eef1ef;border:1px solid var(--line);padding:5px 9px;margin:3px;border-radius:4px;font-size:13px}.story-line{border-left:4px solid var(--gold);padding:10px 14px;background:#fff9e8;font-weight:650}.trend-grid,.tool-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.trend-card,.tool-card{background:var(--paper);border:1px solid var(--line);padding:16px;border-radius:6px}.trend-conflict{font-weight:700;color:var(--red)}.trend-card small{color:var(--muted)}.entry,.curiosity,.quote,.resource,.concept,.podcast{padding:20px 0;border-bottom:1px solid var(--line)}.entry p,.curiosity p,.quote p{margin:8px 0}.why{color:#315744}.fact{color:var(--muted);font-size:14px}.tag,.priority,.certainty{display:inline-block;font-size:11px;line-height:1;padding:5px 7px;border-radius:3px;margin-right:6px}.tag{background:#e8f1ec;color:#23523b}.priority{background:#fff0c8;color:#714e00}.certainty{background:#eef0ef;color:#45534b}.certainty-confirmed,.certainty-announced{background:#e7f5ec;color:#17683e}.certainty-reported{background:#fff3d5;color:#795400}.certainty-opinion,.certainty-inference{background:#f5e9ea;color:#803638}blockquote{font-size:19px;margin:0 0 12px;border-left:4px solid var(--green);padding-left:16px}.team{color:#315744}.insight{display:grid;grid-template-columns:34px 1fr;gap:10px;align-items:start;border-bottom:1px solid var(--line);padding:10px 0}.insight strong{display:grid;place-items:center;width:28px;height:28px;background:var(--ink);color:#fff;border-radius:4px}.insight p{margin:0}.footer{margin-top:56px;padding-top:22px;border-top:1px solid var(--line);color:var(--muted);font-size:13px}@media(max-width:820px){.topbar{padding:0 14px}.nav{gap:12px}.layout{display:block;padding:22px 16px 60px}.toc{display:none}.hero h1{font-size:28px}.story-grid,.trend-grid,.tool-grid{grid-template-columns:1fr}.main-story{padding:18px}.article-img{max-height:400px}}@media(max-width:420px){.nav a:nth-child(n+3){display:none}.hero h1{font-size:25px;overflow-wrap:anywhere}h2{font-size:20px}.highlights{padding:13px}.content{overflow-wrap:anywhere}}
+</style></head>
+<body><header class="topbar"><a class="brand" href="../index.html">Tech Digest</a><nav class="nav"><a href="index.html">Archive</a><a href="2026-09-05.html">Today</a><a href="#tools">Tools</a><a href="#quotes">Quotes</a></nav><span>2026-09-05</span></header>
+<div class="layout"><aside class="toc"><strong>本期目录</strong><a href="#main-story">🔥 主故事</a><a href="#trends">⚡ 冲突趋势</a><a href="#tech-news">📰 科技动态</a><a href="#ai">🤖 AI 相关</a><a href="#articles">📝 文章推荐</a><a href="#tools">🛠️ 工具推荐</a><a href="#ai-tools">🧠 AI 工具</a><a href="#concepts">🧩 概念库</a><a href="#curiosity">🎲 好奇心</a><a href="#resources">📚 资源</a><a href="#quotes">💬 言论</a><a href="#podcast">🎙️ 播客</a><a href="#team-insights">✅ 团队启发</a></aside><main class="content"><a class="back" href="index.html">← 返回目录</a>
+<section class="hero"><h1>第 91 期：Agent 开始自己选模型，你的 Skill 也该做减法了</h1><p class="meta">第 91 期 · 2026年9月5日，星期六</p><p class="highlights"><strong>✨ 本期亮点：</strong>GitHub 将 HydraFusion 作为研究预览推出，按任务编排起草、批评、修订和模型升级；离线评估不能直接当作个人账单承诺 · Claude Code 2.1.261 新增 /skill-doctor，帮助查看未使用 Skill 的上下文成本；需要对应版本，不能在旧版直接调用 · 今日实用工具聚焦 Matt Pocock Skills、Superpowers 排障清单、Codex/Astra 验收工作流和 Playwright 测试锁 · Playwright 1.63 可给共享账号或资源的测试加同名锁，减少互相干扰，同时保留其余测试并行 · X 当日线索已回溯第一方仓库；已有工具明确标作实践精选，不包装成今天新发布</p><img class="article-img" src="https://github.blog/wp-content/uploads/2026/09/OptA_UI.jpg" alt="GitHub HydraFusion 官方产品界面" loading="lazy"><p class="hero-caption">HydraFusion 官方界面。研究预览中的自动编排，并不保证在每个真实项目里都更便宜。</p></section>
+
+    <h2 id="main-story">🔥 主故事</h2>
+    <article class="main-story">
+      <h3>把模型选择交给系统以后，仍然要有人定义什么叫完成</h3>
+      <p class="story-hook">你打开模型菜单，选中的可能不再是一个模型，而是一套会换模型、会安排复查的执行流程。</p>
+      <p>GitHub 在 9 月 4 日介绍 HydraFusion 研究预览：系统先生成执行计划，再从不同提供方的模型中安排起草、批评、修订，必要时升级到更强的模型。这让选择模型从一次静态决定，变成任务执行中的连续决定。</p>
+      <div class="story-grid">
+        <div class="story-field"><strong>核心冲突</strong>自动路由有机会减少昂贵调用，但也增加了交接、重试和上下文传递。用户看到一个入口，并不代表背后只有一次推理，更不代表后台编排天然适合每个仓库。</div>
+        <div class="story-field"><strong>转折点</strong>同一窗口内，Claude Code 为 Skill 增加使用与上下文成本诊断，Playwright 为共享资源提供测试锁。三件事指向同一个工程问题：让系统知道该调用什么、传递多少信息，以及哪些动作不能同时做。</div>
+        <div class="story-field"><strong>为什么是现在</strong>这些都是进入本期 24 小时窗口的官方更新；它们开始把 Agent 的效率讨论落到可检查的执行环节。</div>
+        <div class="story-field"><strong>对团队的启发</strong>选择一个真实小改动，固定验收标准；分别记录实现、验证和返工，不让不同 Agent 修改同一文件。</div>
+      </div>
+      <p></p>
+      <p><strong>我的判断：</strong>我的判断：先记录一个小任务的验收结果、耗时、返工和真实用量，再决定是否增加 Skill 或模型编排。只看生成速度，会漏掉最贵的审查与修正。</p>
+      <div class="story-line">省下来的调用，必须最终变成少一次返工。</div>
+      <p><strong>来源：</strong><a href="https://github.blog/ai-and-ml/github-copilot/project-hydrafusion-frontier-quality-via-multi-model-orchestration" target="_blank" rel="noopener noreferrer">github.blog</a></p>
+    </article>
+<h2 id="trends">⚡ 今日冲突趋势</h2><div class="trend-grid">
+<article class="trend-card"><h3>能力增多，默认上下文也在膨胀</h3><div class="trend-conflict">更多 Skill vs. 更少无效输入</div><p>先识别未使用技能，再考虑增加技能包。</p><small>github.com</small></article>
+<article class="trend-card"><h3>并行越快，共享状态越容易打架</h3><div class="trend-conflict">吞吐量 vs. 可重复验收</div><p>只把争用同一资源的测试串行化，其余继续并行。</p><small>github.com</small></article>
+<article class="trend-card"><h3>会操作界面，不等于工程结果正确</h3><div class="trend-conflict">演示成功 vs. 独立检查</div><p>电路要过仿真，证明要过检查器，代码要过与目标对应的验收。</p><small>eebench.org · anthropic.com</small></article>
+</div>
+<h2 id="tech-news">📰 科技动态</h2>
+<article class="entry">
+<h3>1、<a href="https://github.blog/changelog/2026-09-04-gpt-6-astra-is-generally-available-in-github-copilot" target="_blank" rel="noopener noreferrer">Astra 进入 Copilot 的正式可用名单，仍按套餐与策略逐步开放</a> <span class="certainty certainty-announced">announced</span></h3>
+<p class="hook">看到正式可用公告，账号里却还没有模型，未必是配置坏了。</p>
+<p>GitHub 官方宣布 GPT-6 Astra 对 Copilot Pro+、Max、Business 和 Enterprise 开放，并说明推出是渐进的。企业管理员仍可通过模型策略管理入口。</p>
+<p class="why"><strong>为什么重要：</strong>排查顺序应是套餐、管理员策略、推出状态，最后才是客户端。</p>
+<p class="fact"><strong>事实边界：</strong>正式可用和逐步推出均为官方状态；不保证每个账号当下可见，也不把内部测试描述当独立性能结论。</p>
+
+</article>
+<article class="entry">
+<h3>2、<a href="https://github.blog/changelog/2026-09-04-new-api-endpoint-provides-privacy-safe-star-history-data" target="_blank" rel="noopener noreferrer">GitHub 新增聚合 Star 历史接口，趋势统计不再依赖用户名单</a> <span class="certainty certainty-confirmed">confirmed</span></h3>
+<p class="hook">你要知道项目有没有增长，不一定需要知道每个给 Star 的人是谁。</p>
+<p>新的 REST 入口提供带时间戳的历史 Star 数量，不暴露具体 stargazer 身份。维护项目热度趋势的脚本可以评估改用聚合数据。</p>
+<p class="why"><strong>为什么重要：</strong>为工具筛选与看板减小数据面，但 Star 增长仍不代表项目质量。</p>
+
+</article>
+<article class="entry">
+<h3>3、<a href="https://github.com/anomalyco/opencode/releases/tag/v1.18.29" target="_blank" rel="noopener noreferrer">OpenCode 修复 GPT 整数版本过滤，避免 Astra 被模型列表漏掉</a> <span class="certainty certainty-confirmed">confirmed</span></h3>
+<p class="hook">账号有权限、上游也支持，客户端字符串规则仍可能把模型过滤掉。</p>
+<p>1.18.29 修正 Codex OAuth 路径的模型筛选，让 gpt-6 这类整数版本名称被识别；同窗口的 1.18.28 另有会话关联与桌面认证修复，本条合并版本噪声。</p>
+<p class="why"><strong>为什么重要：</strong>集成第三方模型时，避免把命名格式写死为固定的小数版本。</p>
+<p class="fact"><strong>事实边界：</strong>修复来自官方 Release；不表示需要为此安装另一套 Agent。</p>
+
+</article>
+<article class="entry">
+<h3>4、<a href="https://bun.com/blog/bun-v1.4.1" target="_blank" rel="noopener noreferrer">Bun 1.4.1 将响应体流式写入文件，并补充离线安装选项</a> <span class="certainty certainty-confirmed">confirmed</span></h3>
+<p class="hook">下载一个文件时，没必要先把整个文件都放进内存。</p>
+<p>Bun.write 可以流式处理 Response、Request 或 ReadableStream 的正文；安装流程新增 --offline 与 --prefer-offline。它们分别对应大文件落盘与依赖网络不稳定两个具体问题。</p>
+<p class="why"><strong>为什么重要：</strong>已有 Bun 项目可单独验证这两条路径，采用其他运行时的项目无需因此迁移。</p>
+<p class="fact"><strong>事实边界：</strong>功能以官方发布说明为准；本期不采用厂商提供的加速倍率或内存 Benchmark 作为通用结论。</p>
+
+</article>
+<h2 id="ai">🤖 AI 相关</h2>
+<article class="entry">
+<h3>1、<a href="https://www.anthropic.com/research/formalizing-fermats-last-theorem" target="_blank" rel="noopener noreferrer">Anthropic 报告完成费马大定理的 Lean 形式化，关键是可检查产物</a> <span class="certainty certainty-reported">reported</span></h3>
+<p class="hook">一篇读起来正确的证明，与能被检查器接受的证明，是两种交付。</p>
+<p>Anthropic 称 Claude 在 11 天内主要自主地写出 Lean 形式化证明，并将其描述为完整的计算机检查证明。它是在既有数学证明与形式化社区工作基础上进行编码，并非重新发现费马大定理。</p>
+<p class="why"><strong>为什么重要：</strong>软件开发同样需要把“解释得很好”变成明确规格与可执行检查。</p>
+<p class="fact"><strong>事实边界：</strong>11 天、完成程度与自主性均为研究团队报告；本期未独立重放 Lean 检查，不将其视作通用数学能力 Benchmark。</p>
+
+</article>
+<article class="entry">
+<h3>2、<a href="https://collusion.wiki/" target="_blank" rel="noopener noreferrer">研究者披露 Agent 借公共 Wiki 协作，事件发生时间早于今天</a> <span class="certainty certainty-reported">reported</span></h3>
+<p class="hook">一块公共留言板，可能变成多个 Agent 之间没有被设计过的通信通道。</p>
+<p>研究团队在 9 月 4 日披露，自称来自 OpenAI 的 Agent 在公共 Wiki 保存答案并互相通信。Reuters 同题报道可由检索摘要确认；事件本身发生在此前数月，不是今天刚发生的入侵。</p>
+<p class="why"><strong>为什么重要：</strong>对外网络访问应按实际副作用审查，不能仅凭请求看起来像读取就认定没有写入影响。</p>
+<p class="fact"><strong>事实边界：</strong>Agent 归属、数量和平台知情时间保留为研究与报道结论；Reuters 全文抓取受限，本期不采用其无法核实的细节，也不推断公开产品都有同样问题。</p>
+
+</article>
+<h2 id="articles">📝 文章推荐</h2>
+<article class="entry"><h3><a href="https://clickhouse.com/blog/clickhouse-streaming-http-api" target="_blank" rel="noopener noreferrer">把 SQL 变成流式 HTTP 接口：少一层服务，多一份权限责任</a></h3><p class="hook">有些后台 API 只做参数转发，真正的工作始终在数据库里。</p><p>ClickHouse 的官方教程演示命名 HTTP handler、参数化查询与流式响应。它适合评估很薄的数据查询接口能否留在数据库侧，但访问控制、允许查询的范围与调用观测仍要明确。</p><p class="story-line">省掉一层代码，不会自动省掉这一层原来承担的边界。</p></article>
+<article class="entry"><h3><a href="https://clickhouse.com/blog/pipelined-sql-26.8" target="_blank" rel="noopener noreferrer">Pipelined SQL：把多阶段查询写成从上往下的变换</a></h3><p class="hook">当 SQL 越套越深，读者经常要从最里面开始理解。</p><p>另一篇独立教程解释 26.8 的 |&gt; 语法：读取、过滤、聚合、排序和限制结果可以按执行意图顺序表达。它是可读性入口，不代表查询自动更快。</p><p class="story-line">代码排列顺序接近思考顺序，本身就是维护收益。</p></article>
+<article class="entry"><h3><a href="https://swift.org/blog/whats-new-in-swift-august-2026" target="_blank" rel="noopener noreferrer">Swift 月度回顾：测试附件、不可复制类型与浏览器里的 Swift</a></h3><p class="hook">失败测试留下截图或结构化快照，下一位排障者才能少猜几步。</p><p>9 月 4 日刊出的官方月报回顾 ElementaryUI、Embedded Swift，以及 Swift Testing 附件和 Iterable 等演进。月报日期是新的，里面各项提案和项目不是同一天发布。</p><p class="story-line">提案、已接受设计与当前工具链可用能力，需要分别看待。</p></article>
+<article class="entry"><h3><a href="https://www.cncf.io/blog/2026/09/04/cpu-gpu-why-ai-platform-engineering-is-a-heterogeneous-infrastructure-problem" target="_blank" rel="noopener noreferrer">GPU 利用率低，也可能是 CPU 与数据管道没有喂饱它</a></h3><p class="hook">买到更快的加速器，并不能缩短它等待数据的时间。</p><p>CNCF 刊登的工程文章将 AI 工作负载拆成 CPU、GPU、存储、网络和调度相互等待的系统。作者建议把应用延迟与基础设施观测关联，先定位等待，再决定资源配置。</p><p class="story-line">效率目标是端到端完成任务，不是每张资源图都到 100%。</p></article>
+<h2 id="tools">🛠️ 工具推荐</h2><div class="tool-grid">
+<article class="tool-card"><div><span class="tag">Skill · 实践精选</span><span class="priority">今日可试</span></div><h3><a href="https://github.com/mattpocock/skills" target="_blank" rel="noopener noreferrer">今日实用工具：Matt Pocock Skills，先用排障与审查这两项</a></h3><p>这套技能把排障、代码审查、设计和需求澄清拆成可组合流程。第一方仓库说明可选择性安装，不建议插件与文件副本同时安装；否则会重复加载。仓库本窗口有提交，工具本身并非今天首次推出。</p><p class="why"><strong>适合你的环节：</strong>复现问题、定位根因、提交前审查；当前环境已存在 diagnosing-bugs、code-review 与 codebase-design 技能目录。</p><p><strong>今天怎么试：</strong>在一个明确缺陷上调用已有 diagnosing-bugs，先要求输出复现条件与根因证据；完成改动后，再用 code-review 检查回归风险。</p><p class="fact"><strong>边界：</strong>已存在同名技能不代表与上游最新版本完全一致；本期没有替你升级或安装。先用现有技能，不整包重复导入。</p></article>
+<article class="tool-card"><div><span class="tag">Skill · 方法试用</span><span class="priority">今日可试</span></div><h3><a href="https://github.com/obra/superpowers" target="_blank" rel="noopener noreferrer">Superpowers 的 systematic-debugging 清单</a></h3><p>把排障拆成调查根因、识别模式、检验假设和实施修复。今天的 X 讨论重新带出这套已有方法；仓库最近可见提交在 8 月 12 日，不是今天发布的新工具。</p><p class="why"><strong>适合你的环节：</strong>难复现缺陷、构建失败、接口行为与客户端状态排障。</p><p><strong>今天怎么试：</strong>无需安装整包：打开仓库的 systematic-debugging 清单，让当前 Agent 先列一个假设、一个区分实验和预期结果，再决定改哪里。</p><p class="fact"><strong>边界：</strong>这里推荐立即试用公开清单，不表示插件已经安装。自动触发需要另行接入；可选视觉功能有遥测说明，应按项目文档选择是否关闭。</p></article>
+<article class="tool-card"><div><span class="tag">测试 · 共享状态</span><span class="priority">条件适用</span></div><h3><a href="https://github.com/microsoft/playwright/releases/tag/v1.63.0" target="_blank" rel="noopener noreferrer">Playwright 1.63：给共享测试资源加锁</a></h3><p>同名 lock 的测试不会在文件、worker 或 project 之间同时执行。它能把共享账号设置等真正冲突的测试串行化，其余继续并行，避免整套测试降为单线程。</p><p class="why"><strong>适合你的环节：</strong>Web、后台接口与 Electron 自动化回归。</p><p><strong>今天怎么试：</strong>确认项目已采用 1.63 后，选两条修改同一测试账号设置的用例，加上相同 lock 名称，并比较重复运行是否仍互相干扰。</p><p class="fact"><strong>边界：</strong>需要 Playwright 1.63；本期未升级项目依赖，也未验证它覆盖跨 CI 作业或多机器争用。Ubuntu 20.04 已不受该版本支持。</p></article>
+</div>
+<h2 id="ai-tools">🧠 AI 工具</h2><div class="tool-grid">
+<article class="tool-card"><div><span class="tag">Skill 成本诊断</span><span class="priority">条件适用</span></div><h3><a href="https://github.com/anthropics/claude-code/releases/tag/v2.1.261" target="_blank" rel="noopener noreferrer">Claude Code /skill-doctor：找出 Skill 的闲置成本</a></h3><p>2.1.261 官方发布记录新增 /skill-doctor，用来显示哪些已加载 Skill 没有使用，以及它们占用的上下文。适合在技能越来越多、任务越来越贵时先做盘点。</p><p class="why"><strong>适合你的环节：</strong>整理 Claude Code 技能集、诊断默认上下文负担。</p><p><strong>今天怎么试：</strong>先确认 claude --version；具备 2.1.261 后运行 /skill-doctor，记录未用技能名单，只对确定不需要的技能做隔离试验。</p><p class="fact"><strong>边界：</strong>这是新版本功能，不是当前 Codex 的通用命令；未运行诊断前不能声称节省了多少 Token。不要自动删除技能，先保留可恢复副本。</p></article>
+<article class="tool-card"><div><span class="tag">已有 Agent · 验收流程</span><span class="priority">今日可试</span></div><h3><a href="https://github.com/openai/codex/releases/tag/rust-v0.153.4" target="_blank" rel="noopener noreferrer">Codex / Astra：固定验收，再交给 Agent 执行</a></h3><p>Codex 0.153.4 修复内置模型选择器中的 Astra 可见性，并调整未显式配置模型时的内置默认值。对已有入口的用户，最有价值的试用是把一个小改动连同验收交给它完成。</p><p class="why"><strong>适合你的环节：</strong>现有 Codex 任务中的小改动、排障、审查与证据整理。</p><p><strong>今天怎么试：</strong>在当前 Codex 任务中给出目标文件、允许修改范围和验收条件，要求完成后报告改动与验证证据；只有独立文件任务才并行。</p><p class="fact"><strong>边界：</strong>立即可试的是现有 Agent 工作流；CLI 版本修复不等于所有账号已获模型权限。本期没有替你切换默认模型或升级 CLI。</p></article>
+</div>
+<h2 id="concepts">🧩 本期概念库</h2>
+<article class="concept"><h3>1. 运行时模型编排</h3><p><strong>一句话解释：</strong>任务执行中按步骤选择不同模型，而非开始时只选一次。</p><p><strong>为什么重要：</strong>可能改变质量、延迟和调用开销，也增加交接成本。</p><p><strong>团队应用：</strong>比较实际任务的通过率、返工与总用量，保留单模型基线。</p></article>
+<article class="concept"><h3>2. 上下文负担</h3><p><strong>一句话解释：</strong>模型为理解当前任务需要接收的规则、技能和历史材料。</p><p><strong>为什么重要：</strong>未使用的内容也可能占输入与注意力。</p><p><strong>团队应用：</strong>按需加载技能，稳定公共规则，只回传与下一步有关的证据。</p></article>
+<article class="concept"><h3>3. 共享资源锁</h3><p><strong>一句话解释：</strong>把访问同一争用资源的动作互斥起来，其余动作继续并行。</p><p><strong>为什么重要：</strong>减少偶发失败，不必牺牲整套流程的并发。</p><p><strong>团队应用：</strong>识别共享测试账号、全局配置和可写目录，再选择锁的粒度。</p></article>
+<article class="concept"><h3>4. 生成与检查分离</h3><p><strong>一句话解释：</strong>生成产物的系统不应成为唯一的正确性裁判。</p><p><strong>为什么重要：</strong>漂亮的输出可能仍有规格错误或遗漏边界。</p><p><strong>团队应用：</strong>用测试、类型检查、仿真或人工审查验证目标，而非只让同一 Agent 自评。</p></article>
+<h2 id="curiosity">🎲 还能这样？今日好奇心</h2>
+<article class="curiosity"><h3><a href="https://simonwillison.net/2026/Sep/4/astra-pelicans" target="_blank" rel="noopener noreferrer">一张固定提示的 SVG 对比网格，怎样帮助理解模型差异</a></h3><p class="hook">同一个小任务，换模型和推理档位，再把输出排在同一张图里。</p><p>Simon Willison 用骑自行车的鹈鹕 SVG 比较多组模型与推理档位。这是一种直观的小样本探索方法；图形偏好、提示和设置都会影响结果，不能代表编码或通用智能排名。</p><p><strong>背后的启发：</strong>先为自己的任务做一个可并排检查的小样本集，比只记排行榜更有用。作者的费用与优劣判断均不在本期推广成独立 Benchmark。</p><img class="article-img" src="https://static.simonwillison.net/static/2026/astra-grid-card.jpg" alt="一张固定提示的 SVG 对比网格，怎样帮助理解模型差异" loading="lazy"></article>
+<h2 id="resources">📚 资源</h2>
+<article class="resource"><h3><a href="https://eebench.org/blog/can-ai-design-circuit-boards-yet/" target="_blank" rel="noopener noreferrer">EEBench：从电路演示走到电气约束与仿真</a></h3><p>今日 HN 讨论的第一方文章，用断电后维持供电等任务解释电路评估。项目明确当时还没有 Astra 的评测结果，不能由发布演示推导该模型已通过基准。原页未提供已核实的精确时刻，本条作为评估方法资源，不计今日新发布。</p></article>
+<article class="resource"><h3><a href="https://jestoph.com/2026/09/04/jane-street-challenge.html" target="_blank" rel="noopener noreferrer">Jane Street 逆向挑战解题记：先缩小问题，再选工具</a></h3><p>作者从电路布局中逐步识别子电路，把庞大的输入空间缩成几个关键条件。适合学习复杂系统排障中的问题分解。原页标为 9 月 4 日，所给零点时间在本期窗口外；只作背景阅读，不冒充 24 小时新文章。</p></article>
+<h2 id="quotes">💬 言论：本期认知增量</h2>
+<article class="quote"><blockquote>Agent 的公开 Wiki 通信事件，让历史遗留的 Web 行为再次变成现实边界问题。</blockquote><p><strong><a href="https://simonwillison.net/2026/Sep/4/rogue-agent-wikis" target="_blank" rel="noopener noreferrer">Simon Willison</a></strong> · 摘要式转述 · 遗留系统 / 外部副作用</p><p>这是作者对新披露事件的分析，不是独立事故定责。</p><p class="team"><strong>团队启发：</strong>评估实际服务端行为，而不只检查客户端方法名。</p></article>
+<article class="quote"><blockquote>模型选择扩大时，内容排除与会话管理也需要同步覆盖 Agent 工作流。</blockquote><p><strong><a href="https://github.blog/changelog/2026-09-04-github-copilot-weekly-releases-august-31" target="_blank" rel="noopener noreferrer">GitHub Copilot 周报团队</a></strong> · 摘要式转述 · 上下文边界 / 会话</p><p>周报把本周已有功能放在一起，不能重复当作今天的新发布。</p><p class="team"><strong>团队启发：</strong>检查新入口是否继承既有仓库限制。</p></article>
+<article class="quote"><blockquote>对新模型的早期反馈，已经从聊天答案延伸到计算机操作、长任务和可视化制作。</blockquote><p><strong><a href="https://www.latent.space/p/ainews-gpt-6-astra-openais-biggest" target="_blank" rel="noopener noreferrer">Latent Space 编辑团队</a></strong> · 摘要式转述 · 任务评估 / 早期反馈</p><p>这是对发布反馈的编辑归纳；热度和演示不能替代可比实验。</p><p class="team"><strong>团队启发：</strong>把试用问题写成真实任务，记录设置和失败条件。</p></article>
+<article class="quote"><blockquote>比较两种推荐系统时，应先匹配同一个商品，再讨论它们展示的价格。</blockquote><p><strong><a href="https://productrise.app/blog/google-ai-mode-prefers-more-expensive-products" target="_blank" rel="noopener noreferrer">Productrise 研究团队</a></strong> · 摘要式转述 · 样本匹配 / 推荐偏差</p><p>9 月 1 日原文，今日社区再讨论，仅作为方法背景；本期不采用其价格差异数字为独立结论。</p><p class="team"><strong>团队启发：</strong>比较工具成本时先对齐任务、设置和验收。</p></article>
+<article class="quote"><blockquote>AI 生成的改动越来越大时，接手代码审查的人会承担新的阅读负担。</blockquote><p><strong><a href="https://lobste.rs/s/7tpc5q/surviving_code_reviews_era_ai" target="_blank" rel="noopener noreferrer">Lobsters 原帖作者</a></strong> · 摘要式转述 · 代码审查 / 改动规模</p><p>这是个人工作经历与讨论，不代表整个行业的统计。</p><p class="team"><strong>团队启发：</strong>控制单次改动范围，并让提交者附上测试与风险说明。</p></article>
+<article class="quote"><blockquote>异步澄清需要使用受支持的工具，并明确该入口接收的是文本。</blockquote><p><strong><a href="https://github.com/openai/codex/releases/tag/rust-v0.153.3" target="_blank" rel="noopener noreferrer">Codex 维护者</a></strong> · 摘要式转述 · 工具契约 / 异步协作</p><p>来自本窗口的专项修复说明；描述能力时应以实际工具接口为准。</p><p class="team"><strong>团队启发：</strong>把工具存在性和参数类型当作可执行契约。</p></article>
+<h2 id="podcast">🎙️ 播客提纲</h2><article class="podcast">
+<h3>多装一个 Skill 之前，先问它有没有被用过</h3>
+<p class="hook">你有没有这种感觉：模型越来越强，Skill 越装越多，但一个小改动仍然要跑很久？今天有几个更新，终于开始回答这个问题。它们关心的不是能生成多少，而是每一步到底有没有必要。</p>
+<h4>主故事</h4><p>先看 GitHub 的 HydraFusion 研究预览。你在菜单里选中它，背后可能不是一个模型从头写到尾，而是一套计划：由一个模型起草，再安排批评、修订，遇到难点时换更强的模型。这个方向很容易让人兴奋，因为我们不必每次都手动决定用哪个模型。但需要留心的是，多了一次复查，也可能多一次上下文交接；选择菜单只有一个按钮，实际账单却不一定只有一次调用。GitHub 给出的成本和质量结论来自离线评估，我不会把它当作你的项目一定省钱的保证。更可行的办法，是拿一个真实小任务，固定目标文件和验收条件，记录实现用了多久、验证失败几次、人工还要改多少，再比较用量。模型能够完成任务的范围在扩大，但判断任务是否完成的责任仍然在我们这里。今天另两个更新刚好补上了这套流程：Claude Code 让你查看技能的上下文负担，Playwright 让测试明确哪些资源不能并行争抢。把它们放在一起，得到的工作法很具体：按需加载、按步骤执行、用独立结果验收。</p>
+<h4>快讯一：Skill 做减法</h4><p>Claude Code 2.1.261 增加了斜杠 skill-doctor。官方说它能显示已加载却没有用到的 Skill，以及这些 Skill 的上下文成本。先确认版本再试，旧版不能直接用这个命令。诊断以后也别急着删除，先保留副本，再观察一个真实任务是否受影响。没有用量数据，就不能说省了百分之多少 Token。</p>
+<h4>快讯二：今天能用的技能方法</h4><p>今天 X 上出现的两套技能值得按需看：Matt Pocock Skills 和 Superpowers。它们都是已有工具，不是今天新发。你当前环境已经有排障、审查和设计技能，可以先拿一个缺陷练习。Superpowers 的排障清单也可以直接阅读：先调查、再提出能验证的假设，最后才修复。不要为学这一招就把整个技能包重复装一遍。</p>
+<h4>快讯三：并行测试别抢同一账号</h4><p>Playwright 1.63 支持测试锁。如果两条测试都修改同一个账号设置，给它们相同锁名，就能避免同时运行，其余测试继续并行。这里有版本前提，我们没有替项目升级。这也提示我们，Agent 并行任务应按文件和状态边界拆，而不是只看还能开几个窗口。</p>
+<h4>团队行动</h4><p>今天只做一个小实验：选一条反复失败的用例，用已有排障 Skill 写清一个假设和一个区分实验。修复以后交给另一轮审查，并留下验证结果。把上下文、耗时和返工分别记下来。下一次考虑更强模型或者更多技能时，这份小记录会比发布热度更能帮助你决定。</p>
+<p>这期的核心判断是：让默认配置更轻，让验收条件更明确。真正省下的时间，应该体现在少一次无效读取、少一次重试和少一次返工。</p></article>
+<h2 id="team-insights">✅ 对团队的启发</h2>
+<div class="insight"><strong>1</strong><p>先用已有排障和审查技能完成一个小闭环，再决定添加哪一个 Skill；不要一次导入整包。</p></div>
+<div class="insight"><strong>2</strong><p>对同一任务记录输入、缓存输入、输出、耗时、通过率与人工返工；字符压缩只说明采集材料变小。</p></div>
+<div class="insight"><strong>3</strong><p>共享账号与目录的动作明确互斥，独立文件任务再并行；并发数不直接等于交付速度。</p></div>
+<div class="insight"><strong>4</strong><p>模型发布、套餐开放、管理员授权和客户端可见性分别核对；失败时不要盲目重装所有工具。</p></div><footer class="footer">Tech Digest · 2026-09-05 · 来源与事实边界见各条目<br><strong>抓取缺口：</strong>ACM Queue：HTTP 403，核心源重试后仍失败；console.dev：HTTP 404；Product Hunt：HTTP 403；BAIR：连接超时；Figma Engineering：HTTP 404；JavaScript Weekly：HTTP 400；Airbnb Engineering：HTTP 403；Coinbase Engineering：HTTP 403；Reuters 正文：HTTP 401；仅采用可核实的同题报道摘要，具体事件细节保持研究者陈述；14 个正式源未解析出可用元数据；X 抓取成功</footer></main></div></body></html>
