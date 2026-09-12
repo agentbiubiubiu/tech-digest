@@ -1,5 +1,16 @@
 [
   {
+    "date": "2026-09-12",
+    "title": "第 97 期：任务能跑，不代表关键链路真的生效",
+    "highlights": [
+      "分布式训练复盘：部署状态之外，需要验证实际数据路径",
+      "OpenAI Docs 检查旧 Skill；把单项检查写成流程；Git 忽略来源只读排查",
+      "Claude 插件评测与 Git AI 需进一步接入，未安装不写成可用",
+      "Swift 调试与标准库变化区分工具链阶段；旧钥匙串文章仅作待核验背景"
+    ],
+    "image": "https://www.cncf.io/wp-content/uploads/2026/09/Whose-GPUs-are-these-anyway-2.jpg"
+  },
+  {
     "date": "2026-09-11",
     "title": "第 96 期：Agent 让双端开发便宜了，然后呢？",
     "highlights": [
