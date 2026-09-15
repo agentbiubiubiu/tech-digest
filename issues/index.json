@@ -1,5 +1,16 @@
 [
   {
+    "date": "2026-09-15",
+    "title": "第 99 期：构建慢了，先看谁在等待",
+    "highlights": [
+      "6项实用工具：Inspo MCP、GuideKit、BackupKit，以及3项已有Skill；不足10项按质量优先发布",
+      "Linux构建时间线：把语言标签、模块拆分与并行条件分开",
+      "Memory QoS默认开关、Copilot选模偏好，都需要核对实际行为",
+      "X原帖带来设计MCP与Agent工作流线索；社区说法不冒充验证结论"
+    ],
+    "image": "https://lalitm.com/social-cards/buildprof.png"
+  },
+  {
     "date": "2026-09-14",
     "title": "第 98 期：十项工具，先替你少做一步",
     "highlights": [
