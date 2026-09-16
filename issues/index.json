@@ -1,5 +1,16 @@
 [
   {
+    "date": "2026-09-16",
+    "title": "第 100 期：Agent 做对一次，还会连续做对吗？",
+    "highlights": [
+      "IBM Research区分平均成功率与重复稳定性，实验结果不外推为你的任务表现",
+      "8项工具：Context Mode、Graphify、Ponytail、gstack、Agent Skills，以及3项可直接采用的能力或方法",
+      "Swift 6.4、GitHub HTTPS变更与副本感知路由，分清发布状态和接入条件",
+      "X线索回到项目原文；不引用未经验证的省Token比例和绝对安全说法"
+    ],
+    "image": "https://cdn-uploads.huggingface.co/production/uploads/6435a1131860001f144239ea/BdzmSgkon1dAtbOCWqmKF.png"
+  },
+  {
     "date": "2026-09-15",
     "title": "第 99 期：构建慢了，先看谁在等待",
     "highlights": [
