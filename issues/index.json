@@ -1,5 +1,16 @@
 [
   {
+    "date": "2026-09-17",
+    "title": "第 101 期：协议会改变 Agent 的做事方式",
+    "highlights": [
+      "同一数据换成 diff patch 后，编辑行为也会变化；离线相当不等于线上等价",
+      "5项工具：OpenSpec、模型时效表、Claude MCP 等待边界，以及2项已有 Skill",
+      "Copilot 运行时80万行 Rust 迁移的可迁移价值在128个增量 PR，不在规模本身",
+      "Apple、GitHub、Cloudflare 与浏览器 AI 更新均标明适用地区、权限和发布阶段"
+    ],
+    "image": "https://code.visualstudio.com/assets/blogs/2026/09/16/building_github_copilot_inline_suggestions.png"
+  },
+  {
     "date": "2026-09-16",
     "title": "第 100 期：Agent 做对一次，还会连续做对吗？",
     "highlights": [

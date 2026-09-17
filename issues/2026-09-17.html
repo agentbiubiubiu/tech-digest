@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>第 101 期：协议会改变 Agent 的做事方式</title><meta name="description" content="同一批样本换一种输出格式，模型行为也会变；Agent 迁移要验收行为分布、客户端处理和真实任务，不能只看离线均分。">
+<meta property="og:title" content="第 101 期：协议会改变 Agent 的做事方式"><meta property="og:description" content="同一批样本换一种输出格式，模型行为也会变；Agent 迁移要验收行为分布、客户端处理和真实任务，不能只看离线均分。"><meta property="og:image" content="https://code.visualstudio.com/assets/blogs/2026/09/16/building_github_copilot_inline_suggestions.png"><style>
+:root{color-scheme:light;--ink:#17251e;--muted:#66756d;--green:#008a58;--green-soft:#eaf6ef;--line:#d9e1dc;--paper:#fff;--bg:#f5f7f5;--red:#9d2c2c;--gold:#8b6200}*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Noto Sans CJK SC",sans-serif;line-height:1.72;letter-spacing:0}a{color:var(--green);text-decoration:none}a:hover{text-decoration:underline}.topbar{height:56px;border-bottom:1px solid var(--line);background:rgba(255,255,255,.96);display:flex;align-items:center;justify-content:space-between;padding:0 24px;position:sticky;top:0;z-index:10}.brand{font-weight:750}.nav{display:flex;gap:20px;font-size:14px}.layout{display:grid;grid-template-columns:190px minmax(0,820px);gap:38px;max-width:1090px;margin:0 auto;padding:34px 20px 80px}.toc{position:sticky;top:84px;align-self:start;font-size:14px}.toc strong{display:block;margin-bottom:10px}.toc a{display:block;color:var(--muted);padding:4px 0}.content{min-width:0}.back{font-size:14px}.hero h1{font-size:34px;line-height:1.25;margin:18px 0 8px}.meta{color:var(--muted);font-size:14px}.highlights{background:var(--green-soft);border-left:4px solid var(--green);padding:16px 18px;border-radius:5px}.article-img{display:block;width:100%;max-height:520px;object-fit:contain;background:#fff;border:1px solid #e6ebe8;border-radius:6px;margin:24px 0 8px}.hero-caption{text-align:center;color:var(--muted);font-size:13px}h2{font-size:22px;margin:46px 0 16px;padding-bottom:8px;border-bottom:2px solid var(--ink)}h3{font-size:18px;line-height:1.45;margin:0 0 10px}h4{font-size:16px;margin:22px 0 4px}.main-story{background:var(--paper);border:1px solid var(--line);border-top:4px solid var(--green);padding:24px;border-radius:6px}.story-hook,.hook{font-weight:650}.story-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:18px 0}.story-field{background:#f6f8f6;border:1px solid var(--line);padding:14px;border-radius:5px}.story-field strong{display:block;margin-bottom:5px}.number-chip{display:inline-block;background:#eef1ef;border:1px solid var(--line);padding:5px 9px;margin:3px;border-radius:4px;font-size:13px}.story-line{border-left:4px solid var(--gold);padding:10px 14px;background:#fff9e8;font-weight:650}.trend-grid,.tool-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.trend-card,.tool-card{background:var(--paper);border:1px solid var(--line);padding:16px;border-radius:6px}.trend-conflict{font-weight:700;color:var(--red)}.trend-card small{color:var(--muted)}.entry,.curiosity,.quote,.resource,.concept,.podcast{padding:20px 0;border-bottom:1px solid var(--line)}.entry p,.curiosity p,.quote p{margin:8px 0}.why{color:#315744}.fact{color:var(--muted);font-size:14px}.tag,.priority,.certainty{display:inline-block;font-size:11px;line-height:1;padding:5px 7px;border-radius:3px;margin-right:6px}.tag{background:#e8f1ec;color:#23523b}.priority{background:#fff0c8;color:#714e00}.certainty{background:#eef0ef;color:#45534b}.certainty-confirmed,.certainty-announced{background:#e7f5ec;color:#17683e}.certainty-reported{background:#fff3d5;color:#795400}.certainty-opinion,.certainty-inference{background:#f5e9ea;color:#803638}blockquote{font-size:19px;margin:0 0 12px;border-left:4px solid var(--green);padding-left:16px}.team{color:#315744}.insight{display:grid;grid-template-columns:34px 1fr;gap:10px;align-items:start;border-bottom:1px solid var(--line);padding:10px 0}.insight strong{display:grid;place-items:center;width:28px;height:28px;background:var(--ink);color:#fff;border-radius:4px}.insight p{margin:0}.footer{margin-top:56px;padding-top:22px;border-top:1px solid var(--line);color:var(--muted);font-size:13px}@media(max-width:820px){.topbar{padding:0 14px}.nav{gap:12px}.layout{display:block;padding:22px 16px 60px}.toc{display:none}.hero h1{font-size:28px}.story-grid,.trend-grid,.tool-grid{grid-template-columns:1fr}.main-story{padding:18px}.article-img{max-height:400px}}@media(max-width:420px){.nav a:nth-child(n+3){display:none}.hero h1{font-size:25px;overflow-wrap:anywhere}h2{font-size:20px}.highlights{padding:13px}.content{overflow-wrap:anywhere}}
+</style></head>
+<body><header class="topbar"><a class="brand" href="../index.html">Tech Digest</a><nav class="nav"><a href="index.html">Archive</a><a href="2026-09-17.html">Today</a><a href="#tools">Tools</a><a href="#quotes">Quotes</a></nav><span>2026-09-17</span></header>
+<div class="layout"><aside class="toc"><strong>本期目录</strong><a href="#main-story">🔥 主故事</a><a href="#trends">⚡ 冲突趋势</a><a href="#tech-news">📰 科技动态</a><a href="#articles">📝 文章推荐</a><a href="#tools">🛠️ 工具推荐</a><a href="#concepts">🧩 概念库</a><a href="#resources">📚 资源</a><a href="#quotes">💬 言论</a><a href="#podcast">🎙️ 播客</a><a href="#team-insights">✅ 团队启发</a></aside><main class="content"><a class="back" href="index.html">← 返回目录</a>
+<section class="hero"><h1>第 101 期：协议会改变 Agent 的做事方式</h1><p class="meta">第 101 期 · 2026年9月17日，星期四</p><p class="core-judgment">同一批样本换一种输出格式，模型行为也会变；Agent 迁移要验收行为分布、客户端处理和真实任务，不能只看离线均分。</p><p class="highlights"><strong>✨ 本期亮点：</strong>同一数据换成 diff patch 后，编辑行为也会变化；离线相当不等于线上等价 · 5项工具：OpenSpec、模型时效表、Claude MCP 等待边界，以及2项已有 Skill · Copilot 运行时80万行 Rust 迁移的可迁移价值在128个增量 PR，不在规模本身 · Apple、GitHub、Cloudflare 与浏览器 AI 更新均标明适用地区、权限和发布阶段</p><img class="article-img" src="https://code.visualstudio.com/assets/blogs/2026/09/16/building_github_copilot_inline_suggestions.png" alt="GitHub Copilot 行内建议模型工程文章配图" loading="lazy"><p class="hero-caption">VS Code 官方技术文章配图，关联模型输出格式与行内编辑行为；不是用户项目效果截图。</p></section>
+
+    <h2 id="main-story">🔥 主故事</h2>
+    <article class="main-story">
+      <h3>同一批训练样本，为什么会教出不同的编辑习惯？</h3>
+      <p class="story-hook">数据样本没有换，只把输出改成 diff patch，模型就更倾向局部、小步地修改代码。</p>
+      <p>VS Code 团队在9月16日的技术文章中复盘 GitHub Copilot 新一代行内建议模型：他们尝试把代码补全、下一处编辑和长距离编辑从不同路径合并到一个模型。</p>
+      <div class="story-grid">
+        <div class="story-field"><strong>核心冲突</strong>使用相同样本训练的新格式模型，在离线基准上可以接近原有下一处编辑模型，但学到的仍主要是下一处编辑分布，几乎没有长距离编辑；格式变化还带来了更渐进的修改行为。</div>
+        <div class="story-field"><strong>转折点</strong>团队没有把离线相当视为完成，而是通过线上试飞发现客户端还要重新处理缓存和错误，并把小型启发式基准与更大规模的人类评估结合。模型、输出协议和客户端共同决定体验。</div>
+        <div class="story-field"><strong>为什么是现在</strong>这给日常 Agent 工程一个直接提醒：替换模型、工具协议或补丁格式时，即使输入样本和平均分不变，改动形状、失败方式和客户端行为仍可能发生漂移。</div>
+        <div class="story-field"><strong>对团队的启发</strong>选一组脱敏、可重放的小任务，同时记录验收是否通过、改动文件与行数、重试或错误路径；固定客户端版本和输出协议后再比较模型。</div>
+      </div>
+      <p></p>
+      <p><strong>我的判断：</strong>评估 Agent 迁移时应保留三层证据——任务结果、改动分布、客户端运行边界。只比较“通过了多少题”，不足以说明它会不会把一次小修扩成大段重写，也不足以证明超时、缓存和错误恢复仍然正确。</p>
+      <div class="story-line">协议不是包装，它会反过来塑造模型做事的形状。</div>
+      <p><strong>来源：</strong><a href="https://code.visualstudio.com/blogs/2026/09/16/building-the-github-copilot-inline-suggestions-model-part-one" target="_blank" rel="noopener noreferrer">code.visualstudio.com</a></p>
+    </article>
+<h2 id="trends">⚡ 今日冲突趋势</h2><div class="trend-grid">
+<article class="trend-card"><h3>离线分数与线上行为</h3><div class="trend-conflict">平均基准接近，不代表编辑分布和客户端体验不变。</div><p>把结果、改动形状和错误路径一起验收。</p><small>code.visualstudio.com</small></article>
+<article class="trend-card"><h3>生成速度与迁移证据</h3><div class="trend-conflict">代码可以快速生成，回归和回退仍需按切片积累。</div><p>大型迁移先缩短证据反馈，而不是追求一次性完成。</p><small>github.blog</small></article>
+<article class="trend-card"><h3>搜索可见与训练授权</h3><div class="trend-conflict">同一个爬虫身份可能承担搜索、训练和摘要等不同用途。</div><p>按用途表达策略，并验证运营方是否执行。</p><small>blog.cloudflare.com</small></article>
+</div>
+<h2 id="tech-news">📰 科技动态</h2>
+<article class="entry">
+<h3>1、<a href="https://github.blog/ai-and-ml/generative-ai/migrating-the-github-copilot-runtime-to-rust-using-copilot" target="_blank" rel="noopener noreferrer">GitHub 用 Agent 把 Copilot 运行时迁到 80 万行 Rust</a> <span class="certainty certainty-规模、周期、人员和性能均为 GitHub 团队自述；未独立复现，不外推为其他代码库成本。">规模、周期、人员和性能均为 GitHub 团队自述；未独立复现，不外推为其他代码库成本。</span></h3>
+<p class="hook">可迁移的不是“让 Agent 重写一切”，而是按可交付切片合入、让旧新路径持续接受回归检查。</p>
+<p>GitHub 称一名主要开发者在数月内，通过128个逐步合入的 PR，将共享 Agent 运行时从 TypeScript/Node.js 重写为超过80万行 Rust，Agent 写了大部分代码。团队报告性能有数量级提升并快速修复回归，但未在摘录中给出可独立比较的完整基准。</p>
+
+</article>
+<article class="entry">
+<h3>2、<a href="https://simonwillison.net/2026/Sep/16/datasette-2/" target="_blank" rel="noopener noreferrer">Datasette 修复尾随换行绕过表权限的问题</a> <span class="certainty certainty-作者发布说明与安全公告编号已核验；未检查用户是否运行 Datasette。">作者发布说明与安全公告编号已核验；未检查用户是否运行 Datasette。</span></h3>
+<p class="hook">权限校验前要规范化和解析对象标识；修复后仍应对异常字符与编码做回归。</p>
+<p>Datasette 0.65.5 修复请求表名带尾随换行时可能绕过表权限并暴露私有行的问题；1.0a40 同样包含该安全修复。这里记录修复事实，不从博文摘录推断受影响部署范围。</p>
+
+</article>
+<article class="entry">
+<h3>3、<a href="https://simonwillison.net/2026/Sep/16/one-claude/" target="_blank" rel="noopener noreferrer">Claude 把 Cowork 与聊天入口合并，能力边界仍在滚动</a> <span class="certainty certainty-二手转述并附原公告入口；本期未核验用户套餐或实际界面。">二手转述并附原公告入口；本期未核验用户套餐或实际界面。</span></h3>
+<p class="hook">入口变少不等于权限、后台执行和数据边界自动统一；接入前仍要逐项确认。</p>
+<p>Simon Willison 转述 Anthropic 公告：Cowork 与常规 Claude 正合并，先向 Pro 和 Max 用户的 Web、桌面与移动端逐步推出。关闭电脑后继续工作的表述属于产品能力说明，具体功能和账号可用性仍需实际核验。</p>
+
+</article>
+<article class="entry">
+<h3>4、<a href="https://androidstudio.googleblog.com/2026/09/android-studio-rabbit-1-rc-1-now.html" target="_blank" rel="noopener noreferrer">Android Studio Rabbit 1 RC 1 进入 Beta 频道</a> <span class="certainty certainty-已核验第一方说明；未在用户项目复现。">已核验第一方说明；未在用户项目复现。</span></h3>
+<p class="hook">有特定兼容问题时用并装环境验证；没有明确需求就继续用稳定工具链。</p>
+<p>Google 发布 Android Studio Rabbit 1 RC 1，官方页面说明它位于 Beta 频道并支持与稳定版并装。RC 是候选版本，不建议为了日报更新现有稳定开发环境。</p>
+
+</article>
+<article class="entry">
+<h3>5、<a href="https://clickhouse.com/blog/clickhouse-is-now-available-on-the-dbt-platform" target="_blank" rel="noopener noreferrer">ClickHouse 进入 dbt 平台，适配器与托管入口分处不同阶段</a> <span class="certainty certainty-已核验第一方说明；未在用户项目复现。">已核验第一方说明；未在用户项目复现。</span></h3>
+<p class="hook">先分清开源适配器、公开 Beta 与私有平台能力，避免把同一品牌下的不同成熟度写成一个状态。</p>
+<p>ClickHouse 说明 dbt v2 适配器为公开 Beta，而 ClickHouse 加入 dbt 平台仍是私有 Beta；现有 dbt-clickhouse 支持增量、快照、契约和测试等能力。厂商成本基准未独立复核，本期不采用性能倍数。</p>
+
+</article>
+<article class="entry">
+<h3>6、<a href="https://github.blog/changelog/2026-09-16-automate-sso-authorization-for-classic-pats-and-ssh-keys" target="_blank" rel="noopener noreferrer">GitHub 可批量为最多50个组织授权 classic PAT 或 SSH key</a> <span class="certainty certainty-已核验第一方说明；未在用户项目复现。">已核验第一方说明；未在用户项目复现。</span></h3>
+<p class="hook">减少轮换后的人工操作时，也要把 App 权限、目标组织清单和授权回读纳入审计。</p>
+<p>Enterprise Cloud 管理员可让企业安装的 GitHub App 使用 enterprise_credentials:write，批量授权 classic PAT 或 SSH key；API 会检查组织归属、凭证所有者成员关系与企业级 SSO。</p>
+
+</article>
+<article class="entry">
+<h3>7、<a href="https://github.blog/changelog/2026-09-16-scim-user-responses-now-include-a-profileurl-attribute" target="_blank" rel="noopener noreferrer">GitHub SCIM 响应新增 profileUrl，旧集成无需动作</a> <span class="certainty certainty-已核验第一方说明；未在用户项目复现。">已核验第一方说明；未在用户项目复现。</span></h3>
+<p class="hook">消费新增字段时保留缺失分支，不把字段不存在解释为接口失败或用户不存在。</p>
+<p>组织与企业 SCIM 的 /Users 响应现在可直接返回关联 GitHub 账号的 profileUrl；外部身份尚未绑定用户时该字段省略。变更是增量式，现有 userName 等字段不变。</p>
+
+</article>
+<article class="entry">
+<h3>8、<a href="https://github.blog/changelog/2026-09-16-copilot-budget-increase-requests-are-generally-available" target="_blank" rel="noopener noreferrer">Copilot 额度用尽后可直接发起预算增加申请</a> <span class="certainty certainty-已核验第一方说明；未在用户项目复现。">已核验第一方说明；未在用户项目复现。</span></h3>
+<p class="hook">恢复访问与控制成本可以进入同一闭环，但批准额度仍需项目价值和实际用量依据。</p>
+<p>Business 与 Enterprise 的按量计费用户在 AI credits 用尽时可申请增加预算，申请会路由到实际付款的组织或企业；负责人可批准、调整或拒绝。</p>
+
+</article>
+<article class="entry">
+<h3>9、<a href="https://nodejs.org/en/blog/release/v26.9.0" target="_blank" rel="noopener noreferrer">Node.js 26.9.0 为 Current 分支加入通用 MAC API</a> <span class="certainty certainty-已核验第一方说明；未在用户项目复现。">已核验第一方说明；未在用户项目复现。</span></h3>
+<p class="hook">只有依赖该能力或修复时再做兼容验证，并与项目当前 LTS 策略分开。</p>
+<p>Node.js 26.9.0 的主要语义化新增是 crypto 通用 MAC API，并补充基准分析工具。它仍属 Current 分支，不因新 API 自动成为生产项目升级目标。</p>
+
+</article>
+<article class="entry">
+<h3>10、<a href="https://developer.apple.com/news/?id=likeohx4" target="_blank" rel="noopener noreferrer">Apple 为 iOS 27 的订阅 Bundle、Suite 与多席位购买预热</a> <span class="certainty certainty-已核验第一方说明；未在用户项目复现。">已核验第一方说明；未在用户项目复现。</span></h3>
+<p class="hook">先核对资格、结算、权益恢复和跨 App 身份，再判断产品是否真的需要组合订阅。</p>
+<p>Apple 介绍 Bundles 和 Suites，可跨同一开发者的多个 App，部分 Bundle 还可跨开发者；功能将在 iOS 27 等系统稍后提供，并要求用 StoreKit 2 与申请流程。多席位购买面向组织分配。</p>
+
+</article>
+<article class="entry">
+<h3>11、<a href="https://developer.apple.com/news/?id=rfb1rooi" target="_blank" rel="noopener noreferrer">iOS 27.2 Beta 已出，iPhone Duo 开发支持要等 Xcode 27.1</a> <span class="certainty certainty-已核验第一方说明；未在用户项目复现。">已核验第一方说明；未在用户项目复现。</span></h3>
+<p class="hook">设备发布、系统版本和开发工具支持是三条时间线，兼容验收应分别记录。</p>
+<p>Apple 发布 iOS、iPadOS 与 macOS 27.2 等 Beta；同时说明 iPhone Duo 将运行 iOS 27.1，Xcode 27.1 会提供对应 SDK、模拟器姿态与方向支持，Beta 稍后开放。</p>
+
+</article>
+<article class="entry">
+<h3>12、<a href="https://developer.apple.com/news/?id=idsft9ai" target="_blank" rel="noopener noreferrer">欧盟 ATT 提示词可替换，但跟踪许可要求没有变化</a> <span class="certainty certainty-已核验第一方说明；未在用户项目复现。">已核验第一方说明；未在用户项目复现。</span></h3>
+<p class="hook">文案入口变化不能被解读为放宽跟踪条件；按分发国家和系统版本做验收。</p>
+<p>从 iOS/iPadOS 27.2 起，欧盟开发者可采用另一版 App Tracking Transparency 系统提示；德国、法国、意大利、波兰和罗马尼亚因法律要求只能使用替代版本。何时必须征求跟踪许可的规则保持不变。</p>
+
+</article>
+
+<h2 id="articles">📝 文章推荐</h2>
+<article class="entry"><h3><a href="https://blog.cloudflare.com/accountable-mixed-use-ai-crawlers/" target="_blank" rel="noopener noreferrer">Cloudflare 把“允许搜索、拒绝训练”从二选一拆开</a></h3><p class="hook">机器人名称相同不代表用途相同；策略需要区分索引、训练与摘要，并依赖运营方实际遵守。</p><p>Cloudflare 发布 Disallow AI Training 设置，面向同时承担搜索和训练用途的爬虫，称 Apple、Google 和 Microsoft 已遵守或承诺按时间表遵守。Cloudflare 数据称少于1%的站点屏蔽搜索机器人，17%启用某种训练屏蔽机制；这是其平台观察，不代表整个互联网。</p></article>
+<article class="entry"><h3><a href="https://code.visualstudio.com/updates/v1_138" target="_blank" rel="noopener noreferrer">VS Code 1.138 把 Agent 会话从窗口位置中分离出来</a></h3><p class="hook">会话能恢复后还应核对工作目录、模型、权限和未完成操作，而不是只看聊天记录出现。</p><p>VS Code 1.138 扩展 Agent Host 与 Codex 支持，目标是让同一编码会话在不同工作位置间延续，并整理已完成会话。版本正逐步推送；这是一项大型编辑器更新，作为普通动态，不占工具推荐位。</p></article>
+<h2 id="tools">🛠️ 工具推荐</h2><div class="tool-grid">
+<article class="tool-card"><div><span class="tag">实践精选</span><span class="priority">条件适用</span></div><h3><a href="https://openspec.dev/" target="_blank" rel="noopener noreferrer">今日实用工具：OpenSpec，先把需求变化留在规格里</a></h3><p>OpenSpec 用可维护的规格连接需求、Agent 与实现校验。对跨端需求，它的新增价值不是再写一份长文档，而是让“要做什么、后来改了什么、实现是否匹配”有同一入口。近期由 HN 发现，首发日期未核验，不写成今日发布。</p><p class="why"><strong>适合你的环节：</strong>减少 Web、iOS、Android 和后台对同一需求各自解释一次的偏差。</p><p><strong>今天怎么试：</strong>挑一个不含业务秘密的小需求，只写目标、非目标、三个验收例子；先与现有需求文档比较是否减少歧义，再决定是否接入仓库。</p><p class="fact"><strong>边界：</strong>尚未安装或接入。公开站点的使用量与星标是项目自述，本期不作为效果证据；规格不会自动证明代码正确，也不能替代真实接口与设备验收。</p></article>
+<article class="tool-card"><div><span class="tag">实践精选</span><span class="priority">方法可试</span></div><h3><a href="https://stale.jock.pl/" target="_blank" rel="noopener noreferrer">模型时效表：在回答“当前版本”前先查日期</a></h3><p>How Stale Is Your AI? 把模型发布日期与厂商公开的训练截止日期分开，并提供带来源的 models.json。它更适合作为核验入口和提示规则，不应把训练截止日期误写成联网能力或完整知识边界。</p><p class="why"><strong>适合你的环节：</strong>减少 Agent 凭旧记忆回答当前模型、版本与日期的问题。</p><p><strong>今天怎么试：</strong>遇到模型选型或版本问题时，先读取 models.json 的日期和来源，再回到厂商官方页面确认；只验证一项，不把整张表复制进上下文。</p><p class="fact"><strong>边界：</strong>10/20 个模型有公开截止日期，缺失表示站点未找到证据，不代表厂商从未披露。第三方整理可能滞后，不能替代最终官方核验。</p></article>
+<article class="tool-card"><div><span class="tag">实践精选</span><span class="priority">条件适用</span></div><h3><a href="https://github.com/anthropics/claude-code/releases/tag/v2.1.274" target="_blank" rel="noopener noreferrer">Claude Code 2.1.274：给首轮 MCP 连接设等待边界</a></h3><p>新版本加入 CLAUDE_CODE_MCP_STARTUP_WAIT_MS，用于限制非交互任务首轮等待 MCP 服务器的时长；还修复长时间工具调用超时、权限错误误报登录过期和损坏会话反复重试等问题。</p><p class="why"><strong>适合你的环节：</strong>区分自动化是真的卡死，还是首轮等待某个 MCP；让失败更快暴露。</p><p><strong>今天怎么试：</strong>如果实际使用该版本，先在隔离的非交互任务中记录一个正常 MCP 和一个不可达 MCP 的启动时间；设置上限后确认正常服务仍能连接，失败信息仍保留服务名和权限原因。</p><p class="fact"><strong>边界：</strong>未核验本机是否安装该版本。0 表示不等待，可能让本可恢复的服务直接缺席；只缩短等待不解决服务故障，环境变量变更也不能全局盲配。</p></article>
+<article class="tool-card"><div><span class="tag">实践精选</span><span class="priority">已有能力可用</span></div><h3><a href="https://github.com/mattpocock/skills/blob/main/skills/engineering/tdd/SKILL.md" target="_blank" rel="noopener noreferrer">tdd Skill：先把失败例子固定下来</a></h3><p>已有 TDD Skill 适合业务规则、小型修复和边界条件：先写一个能稳定失败的例子，再让最小实现通过，最后整理结构。今天没有新发布，它是现成能力。</p><p class="why"><strong>适合你的环节：</strong>减少 Agent 在没有可判定反馈时同时改代码、猜需求和扩大范围。</p><p><strong>今天怎么试：</strong>直接说：“用 tdd 修这个脱敏规则，先给我看失败用例和验收边界；只改相关文件。”对纯视觉微调或高成本端到端环境，先判断测试是否值得。</p><p class="fact"><strong>边界：</strong>测试要验证行为，不能照抄实现；旧代码难以隔离时，先建立最小可观察点。真机、线上、权限和生产数据仍需单独验收。</p></article>
+<article class="tool-card"><div><span class="tag">实践精选</span><span class="priority">已有能力可用</span></div><h3><a href="https://github.com/mattpocock/skills/blob/main/skills/engineering/research/SKILL.md" target="_blank" rel="noopener noreferrer">research Skill：把结论和一手来源放进仓库</a></h3><p>已有 Research Skill 面向需要一手资料和可追溯结论的技术问题。它适合 SDK 迁移、标准变化和复杂选型，产出可审查的 Markdown，而不是只留聊天摘要。</p><p class="why"><strong>适合你的环节：</strong>减少技术选型中重复搜索，以及结论离开会话后无法复核的问题。</p><p><strong>今天怎么试：</strong>给一个窄问题、最多三个来源类型和明确截止时间，例如“核对 iOS 27.2 对订阅接入的变化，只看 Apple 官方资料，写一页结论”。</p><p class="fact"><strong>边界：</strong>不适合一句话事实或无需留档的小问题；网页内容仍是不可信输入。研究报告不能代替构建、API 调用或设备验证。</p></article>
+</div>
+
+<h2 id="concepts">🧩 本期概念库</h2>
+<article class="concept"><h3>1. 行为分布漂移</h3><p><strong>一句话解释：</strong>总体通过率相近时，修改范围、步骤和失败方式仍可能发生系统性变化。</p><p><strong>为什么重要：</strong>它决定审查成本和线上风险，不会被单个均分完整表达。</p><p><strong>团队应用：</strong>比较文件数、改动行数、重试和错误路径。</p></article>
+<article class="concept"><h3>2. 协议塑形</h3><p><strong>一句话解释：</strong>输出格式、工具协议和客户端处理会影响模型如何表达和执行动作。</p><p><strong>为什么重要：</strong>协议变化可能成为行为变化，而非单纯兼容层调整。</p><p><strong>团队应用：</strong>迁移协议时固定任务样本并复查改动形状。</p></article>
+<article class="concept"><h3>3. 增量切换</h3><p><strong>一句话解释：</strong>把大型迁移拆成能独立合入、验证和回退的小批次。</p><p><strong>为什么重要：</strong>让真实反馈在迁移完成前持续到来。</p><p><strong>团队应用：</strong>每个切片绑定消费者、回归项和回退条件。</p></article>
+<article class="concept"><h3>4. 用途分离</h3><p><strong>一句话解释：</strong>同一主体或爬虫的搜索、训练和摘要用途应分别授权。</p><p><strong>为什么重要：</strong>身份相同不代表数据使用目的相同。</p><p><strong>团队应用：</strong>记录策略对象、用途和实际执行证据。</p></article>
+<h2 id="resources">📚 资源</h2>
+<article class="resource"><h3><a href="https://mistral.ai/news/mistral-x-mozilla/" target="_blank" rel="noopener noreferrer">Mistral 与 Mozilla：浏览器 AI 的“零留存”仍要看具体入口</a></h3><p>Mistral 宣布为 Firefox Smart Window Beta 提供模型，先覆盖法国和北美，英国与德国计划稍后上线。公告称对话默认不保存在 Mozilla 服务器，合作方同意零数据留存；这是合作方声明，不能自动等同于所有浏览数据都不离开设备。</p></article>
+<h2 id="quotes">💬 言论：本期认知增量</h2>
+<article class="quote"><blockquote>相同训练样本换成 diff patch 表达后，编辑更倾向局部渐进，说明数据格式本身会改变行为。</blockquote><p><strong><a href="https://code.visualstudio.com/blogs/2026/09/16/building-the-github-copilot-inline-suggestions-model-part-one" target="_blank" rel="noopener noreferrer">VS Code / GitHub Copilot 团队</a></strong> · 摘要式转述 · Agent工程 / 验证边界</p><p>这是团队实验观察；本期不把“离线相当”改写成“线上等价”。</p><p class="team"><strong>团队启发：</strong>模型迁移时同时比较结果、改动形状和客户端错误路径。</p></article>
+<article class="quote"><blockquote>他们把大型迁移拆成128个进入主干的 PR，持续交付，而不是等待一次性切换。</blockquote><p><strong><a href="https://github.blog/ai-and-ml/generative-ai/migrating-the-github-copilot-runtime-to-rust-using-copilot" target="_blank" rel="noopener noreferrer">GitHub Copilot 运行时团队</a></strong> · 摘要式转述 · Agent工程 / 验证边界</p><p>规模与速度是团队自述；值得借鉴的是逐步切片和回归反馈。</p><p class="team"><strong>团队启发：</strong>大迁移先定义可独立验证和回退的切片。</p></article>
+<article class="quote"><blockquote>入口合并减少了名称混乱，但新 Claude 在不同表面究竟包含哪些能力，仍需逐步厘清。</blockquote><p><strong><a href="https://simonwillison.net/2026/Sep/16/one-claude/" target="_blank" rel="noopener noreferrer">Simon Willison</a></strong> · 摘要式转述 · Agent工程 / 验证边界</p><p>属于作者观察；具体能力以账号和官方文档为准。</p><p class="team"><strong>团队启发：</strong>产品入口变化后重新核验实际权限和后台行为。</p></article>
+<h2 id="podcast">🎙️ 播客提纲</h2><details><summary>展开口播稿</summary><article class="podcast">
+<h3>第 101 期：协议会改变 Agent 的做事方式</h3>
+<p class="hook">同一批训练样本，换一种输出格式，模型就更喜欢小步修改，而不是大段重写。九月十七日这期日报想讲清一件事：Agent 的协议和客户端不是包装，它们会改变实际行为。</p>
+<h4>主故事：离线相当，为什么线上还会变</h4><p>VS Code 团队复盘 GitHub Copilot 新一代行内建议模型时，尝试把代码补全、下一处编辑和长距离编辑合成一个模型。他们用了相同数据样本，只改变输出表达，新的模型在离线基准上可以接近原有模型，但学到的主要仍是下一处编辑，长距离编辑很少。diff patch 格式还让修改更渐进。这不是一个简单的格式转换问题。团队在线上试飞后，又发现缓存和错误处理需要客户端配合修正，并把小型回归基准与更大规模的人类评估结合。对我们做 Agent 工程，迁移时至少要看三层：任务是否通过，改动分布有没有漂移，客户端的超时、缓存和恢复是否还正确。原文没有在摘录里给出完整样本量和线上收益数字，所以不能把这次经验写成普遍提升。</p>
+<h4>快讯一：规格比提示词更适合承接变化</h4><p>今天最值得小范围评估的候选是 OpenSpec。它把需求、变化和实现核对放在同一份可维护规格里。对 Web、iOS、Android 和后台一起交付的需求，价值在于少解释一遍，而不是多一层文档。它还没有安装。最小验证是挑一个无敏感信息的小需求，只写目标、非目标和三个验收例子，再和现有需求文档比较歧义是否减少。公开站点的使用量和星标是项目自述，不拿来证明效果。</p>
+<h4>快讯二：给 MCP 等待设上限，也要保留故障原因</h4><p>Claude Code 2.1.274 新增首轮 MCP 启动等待时间参数，也修复了长时间工具调用超时、权限不足被误报成登录过期，以及损坏会话无限重试的问题。这个变化适合自动化：不可达服务不该让任务无限等待。但等待设为零，也可能让本来能恢复的服务直接缺席。正确验证是同时准备一个正常服务和一个不可达服务，检查总耗时、服务名、权限原因和正常路径都没有退步。我们没有核验本机版本，也没有改任何环境变量。</p>
+<h4>快讯三：80万行迁移的重点不是数字</h4><p>GitHub 说 Copilot 运行时从 TypeScript 重写成超过八十万行 Rust，Agent 写了大部分代码，一名主要开发者用数月完成，并通过一百二十八个 PR 逐步进入主干。所有数字和性能提升都是团队自述，不能推导别的项目也能复制。真正能借鉴的是交付方式：不要等待一次性切换，让每个切片都有真实消费者、回归反馈和回退边界。大型迁移最危险的不是代码生成不够快，而是证据来得太晚。</p>
+<h4>今天可以直接做什么</h4><p>第一，遇到模型版本或训练截止日期问题，先用模型时效表找来源，再回官方页面确认。第二，需要修业务规则时，可以直接要求使用现有 tdd Skill，先展示失败例子和验收边界。第三，复杂的 SDK 或标准变化，用 research Skill 把一手来源和结论写成一页可审查文档。今天没有安装新工具、升级 IDE 或运行业务项目。若只做一个动作，我建议给下一次 Agent 模型或协议迁移补一张三列验收表：任务结果、改动形状、客户端错误路径。</p>
+<p>今天的判断是，协议会塑造模型做事的形状。在线版保留二十条正文和五项工具，数量没有达到十项，但三项方法现在就能验证。口播是文字稿，时长为估算，没有生成或试听音频。</p></article></details>
+<h2 id="team-insights">✅ 对团队的启发</h2>
+<div class="insight"><strong>1</strong><p>下一次模型或协议迁移，增加“任务结果、改动形状、客户端错误路径”三列验收。</p></div>
+<div class="insight"><strong>2</strong><p>复杂业务修复优先用现有 tdd Skill 固定失败例子；纯视觉小改先判断是否值得写测试。</p></div>
+<div class="insight"><strong>3</strong><p>大型迁移按可独立发布与回退的切片推进，避免等到最终切换才第一次获得真实反馈。</p></div><footer class="footer">Tech Digest · 2026-09-17 · 来源与事实边界见各条目<br><strong>抓取缺口：</strong>console.dev；Product Hunt；Ars Technica；BAIR Blog；Figma Engineering；JavaScript Weekly；Airbnb Engineering；ACM Queue；Coinbase Engineering</footer></main></div></body></html>
