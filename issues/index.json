@@ -1,5 +1,16 @@
 [
   {
+    "date": "2026-09-19",
+    "title": "第 102 期：Agent 的下一份产出，应该是证据",
+    "highlights": [
+      "Trail of Bits 用六个月构建审计工具链，产出95个机器校验证明并找到测试漏掉的问题",
+      "9项工具与方法：3项今天可试，6项需要安装、账号或硬件条件",
+      "Claude Code 开始兼容 AGENTS.md，但云端渠道仍有覆盖边界",
+      "本地模型、浏览器 Agent 与代码审查都按证据和权限而非演示效果判断"
+    ],
+    "image": "https://blog.trailofbits.com/2026/09/18/auditing-in-the-age-of-good-enough-ai/auditing-ai-social-banner.png"
+  },
+  {
     "date": "2026-09-17",
     "title": "第 101 期：协议会改变 Agent 的做事方式",
     "highlights": [
