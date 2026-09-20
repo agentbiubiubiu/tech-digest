@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Tech Digest #103：Agent 的上限，藏在最长的验证链里</title><meta name="description" content="Android Bench 2.0 显示短任务与长任务的巨大落差；本期聚焦端到端验收、模型路由账单与可回滚迁移。">
+<meta property="og:title" content="Tech Digest #103：Agent 的上限，藏在最长的验证链里"><meta property="og:description" content="Android Bench 2.0 显示短任务与长任务的巨大落差；本期聚焦端到端验收、模型路由账单与可回滚迁移。"><meta property="og:image" content="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhCs6gPNr-l6f79eAyix8OZ59gg6K5y8QVTb6vuU2mNR9qdIlN2VUvGzbTenI-pIEGhMYql-E-t7Hs2Z0vI_UYnHte1w3vPRpjk7E0DPenuSkt-3gUM3y5GYZKHgciA4o3Ox2oxVkNuHiCwUX1WKCUkQhzBAd2FJhFiB-k5UKXYA67hXQHRVdFwrjHWFLQ/w1200-h630-p-k-no-nu/Bench%202.0%20Metadata-bench.png"><style>
+:root{color-scheme:light;--ink:#17251e;--muted:#66756d;--green:#008a58;--green-soft:#eaf6ef;--line:#d9e1dc;--paper:#fff;--bg:#f5f7f5;--red:#9d2c2c;--gold:#8b6200}*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Noto Sans CJK SC",sans-serif;line-height:1.72;letter-spacing:0}a{color:var(--green);text-decoration:none}a:hover{text-decoration:underline}.topbar{height:56px;border-bottom:1px solid var(--line);background:rgba(255,255,255,.96);display:flex;align-items:center;justify-content:space-between;padding:0 24px;position:sticky;top:0;z-index:10}.brand{font-weight:750}.nav{display:flex;gap:20px;font-size:14px}.layout{display:grid;grid-template-columns:190px minmax(0,820px);gap:38px;max-width:1090px;margin:0 auto;padding:34px 20px 80px}.toc{position:sticky;top:84px;align-self:start;font-size:14px}.toc strong{display:block;margin-bottom:10px}.toc a{display:block;color:var(--muted);padding:4px 0}.content{min-width:0}.back{font-size:14px}.hero h1{font-size:34px;line-height:1.25;margin:18px 0 8px}.meta{color:var(--muted);font-size:14px}.highlights{background:var(--green-soft);border-left:4px solid var(--green);padding:16px 18px;border-radius:5px}.article-img{display:block;width:100%;max-height:520px;object-fit:contain;background:#fff;border:1px solid #e6ebe8;border-radius:6px;margin:24px 0 8px}.hero-caption{text-align:center;color:var(--muted);font-size:13px}h2{font-size:22px;margin:46px 0 16px;padding-bottom:8px;border-bottom:2px solid var(--ink)}h3{font-size:18px;line-height:1.45;margin:0 0 10px}h4{font-size:16px;margin:22px 0 4px}.main-story{background:var(--paper);border:1px solid var(--line);border-top:4px solid var(--green);padding:24px;border-radius:6px}.story-hook,.hook{font-weight:650}.story-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:18px 0}.story-field{background:#f6f8f6;border:1px solid var(--line);padding:14px;border-radius:5px}.story-field strong{display:block;margin-bottom:5px}.number-chip{display:inline-block;background:#eef1ef;border:1px solid var(--line);padding:5px 9px;margin:3px;border-radius:4px;font-size:13px}.story-line{border-left:4px solid var(--gold);padding:10px 14px;background:#fff9e8;font-weight:650}.trend-grid,.tool-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.trend-card,.tool-card{background:var(--paper);border:1px solid var(--line);padding:16px;border-radius:6px}.trend-conflict{font-weight:700;color:var(--red)}.trend-card small{color:var(--muted)}.entry,.curiosity,.quote,.resource,.concept,.podcast{padding:20px 0;border-bottom:1px solid var(--line)}.entry p,.curiosity p,.quote p{margin:8px 0}.why{color:#315744}.fact{color:var(--muted);font-size:14px}.tag,.priority,.certainty{display:inline-block;font-size:11px;line-height:1;padding:5px 7px;border-radius:3px;margin-right:6px}.tag{background:#e8f1ec;color:#23523b}.priority{background:#fff0c8;color:#714e00}.certainty{background:#eef0ef;color:#45534b}.certainty-confirmed,.certainty-announced{background:#e7f5ec;color:#17683e}.certainty-reported{background:#fff3d5;color:#795400}.certainty-opinion,.certainty-inference{background:#f5e9ea;color:#803638}blockquote{font-size:19px;margin:0 0 12px;border-left:4px solid var(--green);padding-left:16px}.team{color:#315744}.insight{display:grid;grid-template-columns:34px 1fr;gap:10px;align-items:start;border-bottom:1px solid var(--line);padding:10px 0}.insight strong{display:grid;place-items:center;width:28px;height:28px;background:var(--ink);color:#fff;border-radius:4px}.insight p{margin:0}.footer{margin-top:56px;padding-top:22px;border-top:1px solid var(--line);color:var(--muted);font-size:13px}@media(max-width:820px){.topbar{padding:0 14px}.nav{gap:12px}.layout{display:block;padding:22px 16px 60px}.toc{display:none}.hero h1{font-size:28px}.story-grid,.trend-grid,.tool-grid{grid-template-columns:1fr}.main-story{padding:18px}.article-img{max-height:400px}}@media(max-width:420px){.nav a:nth-child(n+3){display:none}.hero h1{font-size:25px;overflow-wrap:anywhere}h2{font-size:20px}.highlights{padding:13px}.content{overflow-wrap:anywhere}}
+</style></head>
+<body><header class="topbar"><a class="brand" href="../index.html">Tech Digest</a><nav class="nav"><a href="index.html">Archive</a><a href="2026-09-20.html">Today</a><a href="#tools">Tools</a><a href="#quotes">Quotes</a></nav><span>2026-09-20</span></header>
+<div class="layout"><aside class="toc"><strong>本期目录</strong><a href="#main-story">🔥 主故事</a><a href="#trends">⚡ 冲突趋势</a><a href="#tech-news">📰 科技动态</a><a href="#ai">🤖 AI 相关</a><a href="#articles">📝 文章推荐</a><a href="#tools">🛠️ 工具推荐</a><a href="#ai-tools">🧠 AI 工具</a><a href="#concepts">🧩 概念库</a><a href="#curiosity">🎲 好奇心</a><a href="#resources">📚 资源</a><a href="#quotes">💬 言论</a><a href="#podcast">🎙️ 播客</a><a href="#team-insights">✅ 团队启发</a></aside><main class="content"><a class="back" href="index.html">← 返回目录</a>
+<section class="hero"><h1>第 103 期：Agent 的上限，藏在最长的验证链里</h1><p class="meta">第 103 期 · 2026年9月20日，星期日</p><p class="core-judgment">选择和管理编码 Agent 时，应把端到端可交付率、验证链与返工成本置于单次补丁质量之前。</p><p class="highlights"><strong>✨ 本期亮点：</strong>Android Bench 2.0：长周期任务最高通过率约28%，明显低于原始短任务约91% · 8项工具与方法：4项方法今天可试，4项需账号、项目或安装条件 · Claude Code Auto mode 把分类器位置、计费回退和状态可见性带入升级验收 · OpenTelemetry 迁移与 AI 写作都指向同一原则：保留接口，逐段验证，再交责任</p><img class="article-img" src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhCs6gPNr-l6f79eAyix8OZ59gg6K5y8QVTb6vuU2mNR9qdIlN2VUvGzbTenI-pIEGhMYql-E-t7Hs2Z0vI_UYnHte1w3vPRpjk7E0DPenuSkt-3gUM3y5GYZKHgciA4o3Ox2oxVkNuHiCwUX1WKCUkQhzBAd2FJhFiB-k5UKXYA67hXQHRVdFwrjHWFLQ/w1200-h630-p-k-no-nu/Bench%202.0%20Metadata-bench.png" alt="Android Bench 2.0 长周期任务评测示意图" loading="lazy"><p class="hero-caption">来源：Android Developers Blog；通过率为该基准配置下结果，不能直接外推到具体业务项目。</p></section>
+
+    <h2 id="main-story">🔥 主故事</h2>
+    <article class="main-story">
+      <h3>补丁看起来完成了，App 为什么还没交付？</h3>
+      <p class="story-hook">把任务从一次修补拉长到多天工程，最高通过率从约 91% 掉到约 28%。</p>
+      <p>Google 在 Android Bench 2.0 中加入首批长周期任务：升级依赖、实现完整功能、从零构建应用，以及把跨平台应用迁到 Android。它们要求 Agent 跨越多个文件、工具和验证阶段。</p>
+      <div class="story-grid">
+        <div class="story-field"><strong>核心冲突</strong>短任务容易用局部 diff 证明进展；长任务却必须持续维护假设，并在编译、运行、依赖图和最终行为上闭环。局部正确不再等于任务完成。</div>
+        <div class="story-field"><strong>转折点</strong>官方观察到模型尤其容易在运行时验证、破坏性框架变化和未发布库知识上失败；跨平台迁移也没有模型达到完全通过，前沿模型最高约80%完成度。</div>
+        <div class="story-field"><strong>为什么是现在</strong>编码 Agent 已能承担更长工作，但团队的委派与验收仍常停留在“代码已生成”。移动端项目的真实门槛是工程可构建、App 可安装、关键状态可回读。</div>
+        <div class="story-field"><strong>对团队的启发</strong>把编译、安装、启动、关键页面回读和异常路径写进移动端 Agent 的完成定义；任何一环缺证据，都不算交付。</div>
+      </div>
+      <p><span class="number-chip">原始任务最高约91%</span><span class="number-chip">长周期任务最高约28%</span><span class="number-chip">跨平台迁移前沿模型最高约80%完成度</span></p>
+      <p><strong>我的判断：</strong>这不是“Agent 只能做两成八任务”的普遍结论。它更像一个验收警报：任务跨度增大后，错误会沿依赖链累积，缺失运行证据时尤其容易误判完成。选择模型和工作流时，应比较端到端通过率、耗时与人工返工，而非只看一次补丁。</p>
+      <div class="story-line">最长的验证链，决定了 Agent 真正能走多远。</div>
+      <p><strong>来源：</strong><a href="https://android-developers.googleblog.com/2026/09/android-bench-2-long-horizon-tasks.html" target="_blank" rel="noopener noreferrer">android-developers.googleblog.com</a></p>
+    </article>
+<h2 id="trends">⚡ 今日冲突趋势</h2><div class="trend-grid">
+<article class="trend-card"><h3>局部补丁越来越像样，端到端完成率仍低</h3><div class="trend-conflict">代码生成能力 vs 运行时闭环</div><p>任务越长，验证链越应成为委派协议的一部分。</p><small>android-developers.googleblog.com</small></article>
+<article class="trend-card"><h3>自动选模型更省心，成本解释反而更重要</h3><div class="trend-conflict">服务端路由便利 vs 计费与回退可见性</div><p>模型路由必须同时回读选择结果、失败路径与账单。</p><small>github.com</small></article>
+<article class="trend-card"><h3>统一观测栈能降成本，迁移风险来自一次性切换</h3><div class="trend-conflict">单一标准 vs 兼容与回滚成本</div><p>保留旧输入、双轨对照和逐段替换，比“全量重写”更可验证。</p><small>cncf.io</small></article>
+</div>
+<h2 id="tech-news">📰 科技动态</h2>
+<article class="entry">
+<h3>1、<a href="https://androidstudio.googleblog.com/2026/09/android-studio-rabbit-2-canary-1-now.html" target="_blank" rel="noopener noreferrer">Android Studio Rabbit 2 Canary 1 进入 Canary 通道</a> <span class="certainty certainty-confirmed">confirmed</span></h3>
+<p class="hook">Canary 的价值是提前暴露兼容问题，不是提前替换稳定开发环境。</p>
+<p>Android Studio 官方发布 Rabbit 2 Canary 1，并提供与稳定版并行安装入口。</p>
+<p class="why"><strong>为什么重要：</strong>仅当需要提前验证插件、Gradle 或新平台兼容时使用；主力项目仍应保留稳定版和可回滚配置。</p>
+
+</article>
+<article class="entry">
+<h3>2、<a href="https://github.com/temporalio/temporal/releases/tag/v1.32.0-162.5" target="_blank" rel="noopener noreferrer">Temporal 发布 1.32.0-162.5 补丁版本</a> <span class="certainty certainty-confirmed">confirmed</span></h3>
+<p class="hook">“patched version”信息不足以构成升级理由。</p>
+<p>官方 Release 只给出补丁版本标识，当前证据没有可判断影响面的详细说明。</p>
+<p class="why"><strong>为什么重要：</strong>没有明确修复项、依赖范围与回滚方案时应暂缓升级；本期只记录版本出现，不作采用推荐。</p>
+<p class="fact"><strong>事实边界：</strong>官方页面可确认版本存在，但发布说明过少。</p>
+
+</article>
+<article class="entry">
+<h3>3、<a href="https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/releases/tag/2.127.2" target="_blank" rel="noopener noreferrer">Swift Package Index Server 2.127.2 发布</a> <span class="certainty certainty-confirmed">confirmed</span></h3>
+<p class="hook">版本号本身不是 iOS 团队的行动信号。</p>
+<p>官方仓库发布 2.127.2，但抓取到的公开页面没有足够变更细节。</p>
+<p class="why"><strong>为什么重要：</strong>除非依赖该服务或命中已知问题，否则无需动作；等待 changelog 或项目级需求。</p>
+<p class="fact"><strong>事实边界：</strong>仅确认版本发布，未核验具体提交影响。</p>
+
+</article>
+<h2 id="ai">🤖 AI 相关</h2>
+<article class="entry">
+<h3>1、<a href="https://www.interconnects.ai/p/where-i-stand-on-rsi" target="_blank" rel="noopener noreferrer">对“递归自我改进”的温和反对：并行搜索不等于承担结果</a> <span class="certainty certainty-opinion">opinion</span></h3>
+<p class="hook">几千个 Agent 可以扩展搜索，却不能自动生成责任主体。</p>
+<p>Nathan Lambert 汇总近期判断，认为当前系统可通过大规模并行搜索改进研发，但在自我怀疑、长期记忆与对结果负责上仍有缺口。</p>
+<p class="why"><strong>为什么重要：</strong>对团队的价值是把并行度与闭环能力分开评估；这是作者观点，不是对未来时间线的事实证明。</p>
+
+</article>
+<article class="entry">
+<h3>2、<a href="https://www.latent.space/p/ainews-here-are-6-clones-of-jev-in" target="_blank" rel="noopener noreferrer">Jev 两天出现多种复现，速度演示仍缺统一质量基准</a> <span class="certainty certainty-reported">reported</span></h3>
+<p class="hook">一个热门演示最快复制的是表象，最慢补齐的是可比评测。</p>
+<p>Latent Space 汇总多种 Jev 类复现，并指出相关演示强调速度，但这一类别仍缺少统一基准；文中性能与比例主要来自项目方自报。</p>
+<p class="why"><strong>为什么重要：</strong>可把它当作交互范式信号，暂不能据此选模型或断言质量接近。</p>
+<p class="fact"><strong>事实边界：</strong>聚合文章中的项目数字未逐项独立复现。</p>
+
+</article>
+<h2 id="articles">📝 文章推荐</h2>
+<article class="entry"><h3><a href="https://clickhouse.com/blog/postgres-week-in-the-netherlands-pgday-lowlands-percona-live-2026" target="_blank" rel="noopener noreferrer">PostgreSQL 19 监控讨论从新特性转向可观测入口</a></h3><p class="hook">数据库新能力进入生产前，先要回答“出了问题从哪里看”。</p><p>ClickHouse 工程师复盘 PGDay Lowlands 与 Percona Live 的 PostgreSQL 19 监控分享，并链接 WAIT FOR 与系统视图等背景文章。</p></article>
+<article class="entry"><h3><a href="https://erichgrunewald.substack.com/p/why-you-should-almost-never-use-ai" target="_blank" rel="noopener noreferrer">反对把实质写作交给 AI：写作本身就是思考</a></h3><p class="hook">如果模型替你把句子连起来，它也可能替你悄悄跳过最难的推理。</p><p>Erich Grunewald 主张不要把博客、报告、备忘录等实质文本交给 AI 代写，但认可检索、分析、头脑风暴和逐项人工接受的编辑建议。</p></article>
+<h2 id="tools">🛠️ 工具推荐</h2><div class="tool-grid">
+<article class="tool-card"><div><span class="tag">移动端验收</span><span class="priority">方法可试</span></div><h3><a href="https://android-developers.googleblog.com/2026/09/android-bench-2-long-horizon-tasks.html" target="_blank" rel="noopener noreferrer">长任务完成定义矩阵</a></h3><p>把编译、安装、启动、关键状态回读和异常路径变成 Agent 的强制交付证据。</p><p class="why"><strong>适合你的环节：</strong>iOS/Android 功能、依赖升级、跨平台迁移与复杂修复</p><p><strong>今天怎么试：</strong>选一个真实移动端任务，先写5项完成证据，再让现有 Agent 执行；缺任一项按未完成计。</p><p class="fact"><strong>边界：</strong>需要可控测试环境；真实资金、生产账号或不可回滚数据不应交给自动化；基准结果不能替代本项目实测。</p><p><strong>采用判断：</strong>优先采用规则，不引入新平台；先在一个非生产任务上做同输入对照。</p><p><strong>当前做法：</strong>当前已有移动端构建与 sim-use 验证能力，但具体项目是否统一记录完成证据未知，画像更新于2026-09-17。</p><p><strong>新增收益：</strong>把“生成代码”升级为“交付可运行结果”，直接减少长任务假完成。</p><p><strong>验证标准：</strong>同任务记录端到端完成率、总耗时、人工返工；不得减少真实设备或关键业务路径的必要验收。</p></article>
+<article class="tool-card"><div><span class="tag">Agent 运行治理</span><span class="priority">方法可试</span></div><h3><a href="https://github.com/anthropics/claude-code/releases/tag/v2.1.278" target="_blank" rel="noopener noreferrer">模型路由账单回读清单</a></h3><p>升级自动模型选择时，同时记录分类位置、实际模型、延迟、失败回退和账单。</p><p class="why"><strong>适合你的环节：</strong>Claude Code 企业/API/网关升级验收</p><p><strong>今天怎么试：</strong>在隔离任务中各跑一次正常请求和一次回退路径，读取 /status，并对照费用明细。</p><p class="fact"><strong>边界：</strong>只适用于对应 Claude Code 版本与渠道；用户当前版本、账号和计费权限未核验。</p><p><strong>采用判断：</strong>方法可先写入升级模板；只有实际使用 Claude Code 2.1.278 时执行。</p><p><strong>当前做法：</strong>当前已知用户使用多种 Agent，但 Claude Code 版本和网关方式未知。</p><p><strong>新增收益：</strong>补足只看输出质量时遗漏的路由与成本证据。</p><p><strong>验证标准：</strong>选择结果和账单必须可回读；延迟、质量或费用显著恶化则回退版本或关闭自动模式。</p></article>
+<article class="tool-card"><div><span class="tag">可观测迁移</span><span class="priority">方法可试</span></div><h3><a href="https://www.cncf.io/blog/2026/09/17/opentelemetry-everywhere-migrating-a-metrics-platform-at-scale/" target="_blank" rel="noopener noreferrer">可回滚观测迁移法</a></h3><p>保留旧输入协议，以兼容层和双轨指标逐段替换采集、sidecar 与聚合组件。</p><p class="why"><strong>适合你的环节：</strong>指标平台、SDK 替换、基础设施迁移</p><p><strong>今天怎么试：</strong>为一个低风险服务画出旧链路与新链路，在不改应用输入的前提下并行采集一项指标并比较。</p><p class="fact"><strong>边界：</strong>Atlassian 的资源收益不可外推；双轨会增加短期成本，需定义误差、丢点和回滚阈值。</p></article>
+<article class="tool-card"><div><span class="tag">写作工作流</span><span class="priority">方法可试</span></div><h3><a href="https://sockpuppet.org/blog/2026/09/17/how-to-write-with-an-llm/" target="_blank" rel="noopener noreferrer">LLM 挑错而非代笔法</a></h3><p>让模型找结构跳步、重复、反例和可删段落，但不直接接受它生成的判断句。</p><p class="why"><strong>适合你的环节：</strong>管理报告、技术方案、日报与决策备忘</p><p><strong>今天怎么试：</strong>对一段自己写的草稿只提三个问题：论证跳步、最弱证据、可删20%；逐项人工决定。</p><p class="fact"><strong>边界：</strong>属于作者经验方法，未有对照实验；机械拒绝所有措辞建议也可能错过有效编辑。</p></article>
+<article class="tool-card"><div><span class="tag">PR 审查</span><span class="priority">条件适用</span></div><h3><a href="https://github.blog/changelog/2026-09-18-github-copilot-weekly-releases-september-14/" target="_blank" rel="noopener noreferrer">GitHub Copilot 复审闭环</a></h3><p>在后续审查中区分已解决与仍开放问题，并允许用 shell 工具验证修改。</p><p class="why"><strong>适合你的环节：</strong>GitHub PR 初审、修复回读与提交建议</p><p><strong>今天怎么试：</strong>若账号已开通，在一个低风险 PR 上比较首轮与复审结果，抽查自动关闭项。</p><p class="fact"><strong>边界：</strong>需要对应 Copilot 账号与仓库权限；自动关闭仍可能误判，资金、认证和发布变更不得省人工复核。</p></article>
+<article class="tool-card"><div><span class="tag">桌面 Agent</span><span class="priority">条件适用</span></div><h3><a href="https://github.com/SunnyLich/OpenWand" target="_blank" rel="noopener noreferrer">OpenWand 桌面上下文入口</a></h3><p>用热键从当前选择和上下文发起模型任务，并在写回前预览。</p><p class="why"><strong>适合你的环节：</strong>PC 客户端、跨应用文本处理与轻量知识工作</p><p><strong>今天怎么试：</strong>若要评估，只在无敏感数据的隔离样例中测试一次选区改写与写回预览。</p><p class="fact"><strong>边界：</strong>需要 Python 3.12 或发布包、模型连接；高级模式约2.8GB，隐私检测明确不能保证覆盖所有敏感信息。</p></article>
+<article class="tool-card"><div><span class="tag">认证插件</span><span class="priority">条件适用</span></div><h3><a href="https://simonwillison.net/2026/Sep/19/datasette-auth-github/" target="_blank" rel="noopener noreferrer">datasette-auth-github 1.0</a></h3><p>为 Datasette 提供 GitHub 登录，并修复未设置 Max-Age 导致移动 Safari 会话易失效的问题。</p><p class="why"><strong>适合你的环节：</strong>内部数据工具、Datasette 登录与移动端会话</p><p><strong>今天怎么试：</strong>仅当项目使用 Datasette 与 GitHub OAuth 时，在测试环境升级并验证会话跨浏览器重启保持。</p><p class="fact"><strong>边界：</strong>只适用于 Datasette；认证 Cookie 变更需要检查有效期、注销、撤销与共享设备风险。</p></article>
+</div>
+<h2 id="ai-tools">🧠 AI 工具</h2><div class="tool-grid">
+<article class="tool-card"><div><span class="tag">Agent 治理</span><span class="priority">能力观察</span></div><h3><a href="https://blog.jetbrains.com/research/2026/09/aides-framework/" target="_blank" rel="noopener noreferrer">AIDEs 委派等级检查表</a></h3><p>用能力等级讨论工具获得了哪些决策权，以及每一级需要什么监督。</p><p class="why"><strong>适合你的环节：</strong>工具选型、权限评审与团队培训</p><p><strong>今天怎么试：</strong>暂不引入新工具；把现有一个 Agent 任务按“建议、执行、验证、负责”四列重新标注。</p><p class="fact"><strong>边界：</strong>框架来自厂商研究，等级并非行业标准；文中市场估算未独立验证。</p></article>
+</div>
+<h2 id="concepts">🧩 本期概念库</h2>
+<article class="concept"><h3>1. 长周期任务</h3><p><strong>一句话解释：</strong>需要跨多文件、多工具和多轮验证，完成时间可能以天计的工程任务。</p><p><strong>为什么重要：</strong>错误会在连续决策中累积，局部正确不能代表最终交付。</p><p><strong>团队应用：</strong>拆出阶段证据，但最终仍以可构建、可运行和业务回读判定完成。</p></article>
+<article class="concept"><h3>2. 端到端可交付率</h3><p><strong>一句话解释：</strong>从固定输入到满足全部完成条件的任务比例，而非某一步生成成功率。</p><p><strong>为什么重要：</strong>它同时暴露工具调用、环境、验证和返工问题。</p><p><strong>团队应用：</strong>与耗时、人工返工和失败类型一起记录，避免只看补丁接受率。</p></article>
+<article class="concept"><h3>3. 兼容层迁移</h3><p><strong>一句话解释：</strong>保留旧输入或接口，把替换限制在系统内部的一段。</p><p><strong>为什么重要：</strong>降低一次性切换的故障半径，并允许双轨比较。</p><p><strong>团队应用：</strong>为 SDK、指标链或接口迁移预先定义误差与回滚阈值。</p></article>
+<article class="concept"><h3>4. 责任分工式 AI 写作</h3><p><strong>一句话解释：</strong>人负责事实、判断和最终措辞，模型负责检索、挑错、压缩与机械编辑。</p><p><strong>为什么重要：</strong>把效率收益与作者责任分开，减少流畅但空洞的代笔。</p><p><strong>团队应用：</strong>要求每个关键主张有人确认，模型建议逐项接受而非整段复制。</p></article>
+<h2 id="curiosity">🎲 还能这样？今日好奇心</h2>
+<article class="curiosity"><h3><a href="https://hackaday.com/2026/09/19/laser-your-way-into-debug-mode-on-the-rp2350/" target="_blank" rel="noopener noreferrer">用激光把 RP2350 的调试位重新打开</a></h3><p class="hook"></p><p></p><p><strong>背后的启发：</strong></p></article>
+<article class="curiosity"><h3><a href="https://slop-sense.labtoagi.com/games/is-this-image-ai/" target="_blank" rel="noopener noreferrer">你能在60秒内分清真实照片和AI图吗？</a></h3><p class="hook"></p><p></p><p><strong>背后的启发：</strong></p></article>
+<h2 id="resources">📚 资源</h2>
+<article class="resource"><h3><a href="https://blog.bytebytego.com/p/ep226-api-concepts-every-software" target="_blank" rel="noopener noreferrer">API 设计概念速查</a></h3><p>从请求与 JSON 之外补齐可靠 API 所需的契约、演进与边界概念；属于背景资源，不充作今日新工具。</p></article>
+<h2 id="quotes">💬 言论：本期认知增量</h2>
+<article class="quote"><blockquote>把 AI Agent 类比成可能让孩子噎住的玩具，会遗漏它们的自主行动范围。</blockquote><p><strong><a href="https://x.com/JonHaidt/status/2101422999089848426" target="_blank" rel="noopener noreferrer">Jonathan Haidt</a></strong> · 摘要式转述 · 风险类比 / Agent</p><p>有张力之处在于：风险不只来自产品缺陷，还来自系统被授予的行动权。</p></article>
+<h2 id="podcast">🎙️ 播客提纲</h2><details><summary>展开口播稿</summary><article class="podcast">
+<h3>从九成到三成：Agent 为什么一遇到长任务就掉速</h3>
+<p class="hook">同一类 Android 编码 Agent，短任务最高通过率大约九成一，换成长任务后最高只剩约二成八。差的不是一条更聪明的提示词，而是依赖升级、运行时验证、跨文件状态和最终可运行结果。今天值得理解的是：评价 Agent，必须从“补丁像不像”转向“任务有没有真的交付”。</p>
+<h4>主故事：长度不是唯一难点</h4><p>Google 发布 Android Bench 2.0 的首批长周期任务。原始短任务最高通过率约九十一%，长任务最高约二十八%。这些任务会涉及依赖升级、新功能、从零构建，甚至跨平台迁移。模型尤其容易在运行时验证、破坏性框架变化和未发布库知识上失败。这里的机制不是“文件多所以更难”这么简单：任务越长，中间决策越多，任何一次错误假设都会污染后续步骤；如果只看代码 diff，不做编译、安装、启动和页面回读，就会把未完成包装成完成。更麻烦的是，长任务的失败往往不是一个明显报错，而是依赖版本选错、页面状态没有真正切换、或者某条异常路径从未走过。它们能在代码审查时显得合理，直到运行环境才暴露。因此评测不能只问模型写了多少代码，还要问它是否在每个阶段保留了可复查状态，失败后能否从最近证据恢复，而不是从头猜测。基准仍是 Google 维护的评测，Agent 配置、任务分布和项目环境都会影响结果，不能直接外推到我们的 App。</p>
+<h4>快讯一：模型自动选择也有账单边界</h4><p>Claude Code 2.1.278 把 API、企业和多种网关场景的 Auto mode 默认改为服务端分类器，并提示计费回退。新增价值不只是少一次本地分类，而是让状态页显示当前分类器在哪里运行。升级验收应同时核对模型选择、延迟、失败回退和账单，不要只看最终回答。</p>
+<h4>快讯二：可观测迁移的收益来自双轨切换</h4><p>Atlassian 公开了把 StatsD 指标链逐步迁到 OpenTelemetry Collector 的过程：先保持应用端 UDP 接口不变，再合并 sidecar 和聚合层。团队报告昂贵服务平均节约约百分之三点九 CPU，旧聚合器和 Nomad 合计约占指标集群 CPU 请求的百分之三十八。数字是单一团队环境结果，真正可迁移的是先兼容输入，再逐段替换并对照回读。</p>
+<h4>快讯三：AI 写作的分歧其实是责任分工</h4><p>两篇本周讨论给出相近边界：让模型做检索、结构诊断和删改建议，但不要把有判断责任的正文外包出去。模型可以指出跳步、重复和反例，却不替作者承担主张。对日报最实用的规则是，证据和判断由人或明确责任主体确定，模型负责压缩与挑错，最终逐句接受。</p>
+<h4>行动：把移动端验收写进任务契约</h4><p>今天最值得做的一件事，是给一个真实 Android 或 iOS 任务补齐完成定义：依赖可解析、工程能编译、App 能安装启动、关键页面状态可读、异常路径有证据。然后用同一输入跑现有 Agent，记录完成率、耗时和人工返工。把失败分成环境、知识、工具调用、运行时行为和验收遗漏五类，下一轮只修最主要的一类。这样才能判断该换模型、补工具、改提示词，还是收窄任务。若只生成代码却缺少运行证据，就仍算未完成。</p>
+<p>今天的一句话：Agent 的能力上限不由最好看的补丁决定，而由最长的验证链决定。先定义证据，再扩大委派，并保留回退路径。</p></article></details>
+<h2 id="team-insights">✅ 对团队的启发</h2>
+<div class="insight"><strong>1</strong><p>移动端 Agent 任务统一加入编译、安装、启动、页面回读与异常路径证据；缺证据不算完成。</p></div>
+<div class="insight"><strong>2</strong><p>模型自动路由升级要把实际模型、分类位置、延迟、回退和费用放进同一份验收记录。</p></div>
+<div class="insight"><strong>3</strong><p>基础设施迁移优先保留旧输入并双轨对照，用误差和回滚阈值控制切换。</p></div>
+<div class="insight"><strong>4</strong><p>管理报告与技术方案由责任人写主张，模型只做证据整理、反例和删改建议。</p></div><footer class="footer">Tech Digest · 2026-09-20 · 来源与事实边界见各条目<br><strong>抓取缺口：</strong>console.dev（HTTP 404）；Product Hunt（HTTP 403）；Ars Technica（HTTP 405）；Figma Engineering（HTTP 404）；JavaScript Weekly（HTTP 400）；Airbnb Engineering（HTTP 403）；ACM Queue（HTTP 403）；Coinbase Engineering（HTTP 403）</footer></main></div></body></html>

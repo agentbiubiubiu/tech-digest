@@ -1,5 +1,16 @@
 [
   {
+    "date": "2026-09-20",
+    "title": "第 103 期：Agent 的上限，藏在最长的验证链里",
+    "highlights": [
+      "Android Bench 2.0：长周期任务最高通过率约28%，明显低于原始短任务约91%",
+      "8项工具与方法：4项方法今天可试，4项需账号、项目或安装条件",
+      "Claude Code Auto mode 把分类器位置、计费回退和状态可见性带入升级验收",
+      "OpenTelemetry 迁移与 AI 写作都指向同一原则：保留接口，逐段验证，再交责任"
+    ],
+    "image": "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhCs6gPNr-l6f79eAyix8OZ59gg6K5y8QVTb6vuU2mNR9qdIlN2VUvGzbTenI-pIEGhMYql-E-t7Hs2Z0vI_UYnHte1w3vPRpjk7E0DPenuSkt-3gUM3y5GYZKHgciA4o3Ox2oxVkNuHiCwUX1WKCUkQhzBAd2FJhFiB-k5UKXYA67hXQHRVdFwrjHWFLQ/w1200-h630-p-k-no-nu/Bench%202.0%20Metadata-bench.png"
+  },
+  {
     "date": "2026-09-19",
     "title": "第 102 期：Agent 的下一份产出，应该是证据",
     "highlights": [
