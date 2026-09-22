@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Tech Digest #104：当代码生成变快，CI 接管了交付节奏</title><meta name="description" content="Linear 的 CI 重构说明 Agent 时代的新瓶颈在验证反馈；本期还拆解决策模型、Agent 路由账单与 tokenizer 吞吐。">
+<meta property="og:title" content="Tech Digest #104：当代码生成变快，CI 接管了交付节奏"><meta property="og:description" content="Linear 的 CI 重构说明 Agent 时代的新瓶颈在验证反馈；本期还拆解决策模型、Agent 路由账单与 tokenizer 吞吐。"><meta property="og:image" content="https://webassets.linear.app/images/ornj730p/production/eba763cf034ad5e7b5d75ceec7ba560dd2aea5cb-2400x1350.png?q=95&amp;auto=format&amp;dpr=2"><style>
+:root{color-scheme:light;--ink:#17251e;--muted:#66756d;--green:#008a58;--green-soft:#eaf6ef;--line:#d9e1dc;--paper:#fff;--bg:#f5f7f5;--red:#9d2c2c;--gold:#8b6200}*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Noto Sans CJK SC",sans-serif;line-height:1.72;letter-spacing:0}a{color:var(--green);text-decoration:none}a:hover{text-decoration:underline}.topbar{height:56px;border-bottom:1px solid var(--line);background:rgba(255,255,255,.96);display:flex;align-items:center;justify-content:space-between;padding:0 24px;position:sticky;top:0;z-index:10}.brand{font-weight:750}.nav{display:flex;gap:20px;font-size:14px}.layout{display:grid;grid-template-columns:190px minmax(0,820px);gap:38px;max-width:1090px;margin:0 auto;padding:34px 20px 80px}.toc{position:sticky;top:84px;align-self:start;font-size:14px}.toc strong{display:block;margin-bottom:10px}.toc a{display:block;color:var(--muted);padding:4px 0}.content{min-width:0}.back{font-size:14px}.hero h1{font-size:34px;line-height:1.25;margin:18px 0 8px}.meta{color:var(--muted);font-size:14px}.highlights{background:var(--green-soft);border-left:4px solid var(--green);padding:16px 18px;border-radius:5px}.article-img{display:block;width:100%;max-height:520px;object-fit:contain;background:#fff;border:1px solid #e6ebe8;border-radius:6px;margin:24px 0 8px}.hero-caption{text-align:center;color:var(--muted);font-size:13px}h2{font-size:22px;margin:46px 0 16px;padding-bottom:8px;border-bottom:2px solid var(--ink)}h3{font-size:18px;line-height:1.45;margin:0 0 10px}h4{font-size:16px;margin:22px 0 4px}.main-story{background:var(--paper);border:1px solid var(--line);border-top:4px solid var(--green);padding:24px;border-radius:6px}.story-hook,.hook{font-weight:650}.story-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:18px 0}.story-field{background:#f6f8f6;border:1px solid var(--line);padding:14px;border-radius:5px}.story-field strong{display:block;margin-bottom:5px}.number-chip{display:inline-block;background:#eef1ef;border:1px solid var(--line);padding:5px 9px;margin:3px;border-radius:4px;font-size:13px}.story-line{border-left:4px solid var(--gold);padding:10px 14px;background:#fff9e8;font-weight:650}.trend-grid,.tool-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.trend-card,.tool-card{background:var(--paper);border:1px solid var(--line);padding:16px;border-radius:6px}.trend-conflict{font-weight:700;color:var(--red)}.trend-card small{color:var(--muted)}.entry,.curiosity,.quote,.resource,.concept,.podcast{padding:20px 0;border-bottom:1px solid var(--line)}.entry p,.curiosity p,.quote p{margin:8px 0}.why{color:#315744}.fact{color:var(--muted);font-size:14px}.tag,.priority,.certainty{display:inline-block;font-size:11px;line-height:1;padding:5px 7px;border-radius:3px;margin-right:6px}.tag{background:#e8f1ec;color:#23523b}.priority{background:#fff0c8;color:#714e00}.certainty{background:#eef0ef;color:#45534b}.certainty-confirmed,.certainty-announced{background:#e7f5ec;color:#17683e}.certainty-reported{background:#fff3d5;color:#795400}.certainty-opinion,.certainty-inference{background:#f5e9ea;color:#803638}blockquote{font-size:19px;margin:0 0 12px;border-left:4px solid var(--green);padding-left:16px}.team{color:#315744}.insight{display:grid;grid-template-columns:34px 1fr;gap:10px;align-items:start;border-bottom:1px solid var(--line);padding:10px 0}.insight strong{display:grid;place-items:center;width:28px;height:28px;background:var(--ink);color:#fff;border-radius:4px}.insight p{margin:0}.footer{margin-top:56px;padding-top:22px;border-top:1px solid var(--line);color:var(--muted);font-size:13px}@media(max-width:820px){.topbar{padding:0 14px}.nav{gap:12px}.layout{display:block;padding:22px 16px 60px}.toc{display:none}.hero h1{font-size:28px}.story-grid,.trend-grid,.tool-grid{grid-template-columns:1fr}.main-story{padding:18px}.article-img{max-height:400px}}@media(max-width:420px){.nav a:nth-child(n+3){display:none}.hero h1{font-size:25px;overflow-wrap:anywhere}h2{font-size:20px}.highlights{padding:13px}.content{overflow-wrap:anywhere}}
+</style></head>
+<body><header class="topbar"><a class="brand" href="../index.html">Tech Digest</a><nav class="nav"><a href="index.html">Archive</a><a href="2026-09-22.html">Today</a><a href="#tools">Tools</a><a href="#quotes">Quotes</a></nav><span>2026-09-22</span></header>
+<div class="layout"><aside class="toc"><strong>本期目录</strong><a href="#main-story">🔥 主故事</a><a href="#trends">⚡ 冲突趋势</a><a href="#tech-news">📰 科技动态</a><a href="#ai">🤖 AI 相关</a><a href="#articles">📝 文章推荐</a><a href="#tools">🛠️ 工具推荐</a><a href="#ai-tools">🧠 AI 工具</a><a href="#concepts">🧩 概念库</a><a href="#curiosity">🎲 好奇心</a><a href="#resources">📚 资源</a><a href="#quotes">💬 言论</a><a href="#podcast">🎙️ 播客</a><a href="#team-insights">✅ 团队启发</a></aside><main class="content"><a class="back" href="index.html">← 返回目录</a>
+<section class="hero"><h1>第 104 期：当代码生成变快，CI 接管了交付节奏</h1><p class="meta">第 104 期 · 2026年9月22日，星期二</p><p class="core-judgment">当编码 Agent 提高变更吞吐后，应优先优化端到端验证反馈、分片均衡与失败回读，而不是继续只追求更快生成。</p><p class="highlights"><strong>✨ 本期亮点：</strong>Linear 单团队案例：8 分片让关键任务初测快约19%、成本低约19% · 9项个人工具与方法：3项方法可立即试，6项需项目、账号或版本条件 · Jev 把开放式文本生成收窄成结构化概率输出，但仍缺可靠公开比较 · tokenizers v1 候选版报告3-30倍单线程编码提升，采用前先证明分词真是瓶颈</p><img class="article-img" src="https://webassets.linear.app/images/ornj730p/production/eba763cf034ad5e7b5d75ceec7ba560dd2aea5cb-2400x1350.png?q=95&amp;auto=format&amp;dpr=2" alt="Linear CI 重构文章配图" loading="lazy"><p class="hero-caption">来源：Linear 工程文章；性能与成本数字来自其自身代码库和基础设施，未独立复现。</p></section>
+
+    <h2 id="main-story">🔥 主故事</h2>
+    <article class="main-story">
+      <h3>代码供给暴涨后，验证系统成了新的排队口</h3>
+      <p class="story-hook">每周约新增 2,000 个测试，PR 仍要经过同一条 CI 管线；写得更快并不自动等于交付更快。</p>
+      <p>Linear 工程师收到 CTO 指派的“CI costs are high”任务：既要压低成本，也要缩短等待。Agent 加快了代码产生速度，但测试、类型检查和 runner 调度没有同步扩容。</p>
+      <div class="story-grid">
+        <div class="story-field"><strong>核心冲突</strong>最直接的反应是加机器，但不均衡分片会让快 runner 等最慢 runner；更高并发还可能只把成本放大。真正约束合并速度的是关键路径，而不是总算力。</div>
+        <div class="story-field"><strong>转折点</strong>团队拆分大测试文件并重排分片；从四分片到八分片的初测让关键任务速度和成本均改善约19%，一周后最慢分片从5.25分钟降至4.33分钟。tsgo 又把 TypeScript 检查周中位耗时降低73%，瓶颈随之转移。</div>
+        <div class="story-field"><strong>为什么是现在</strong>编码 Agent 正把“产生更多变更”变成常态。若验证反馈仍慢，Agent 和人都会在排队、重试与上下文切换中消耗新增吞吐。</div>
+        <div class="story-field"><strong>对团队的启发</strong>从最近20个 PR 建一张验证关键路径表，先找最慢分片、最高波动与重复重试；没有瓶颈证据就不扩容。</div>
+      </div>
+      <p><span class="number-chip">每周约新增2,000个测试</span><span class="number-chip">8分片初测约快19%且便宜19%</span><span class="number-chip">最慢分片5.25分钟降至4.33分钟</span><span class="number-chip">tsgo让类型检查周中位耗时降73%</span></p>
+      <p><strong>我的判断：</strong>这不是“所有团队都该翻倍分片”的结论。可迁移的是先测排队、执行、重试和最慢分片，再针对关键路径做同输入对照；只有端到端时间下降、失败检出不退步且成本可解释，优化才成立。</p>
+      <div class="story-line">Agent 增加的是变更供给，CI 决定的是这些变更多久能变成可信交付。</div>
+      <p><strong>来源：</strong><a href="https://linear.app/now/ci-bottleneck-reworked" target="_blank" rel="noopener noreferrer">linear.app</a></p>
+    </article>
+<h2 id="trends">⚡ 今日冲突趋势</h2><div class="trend-grid">
+<article class="trend-card"><h3>生成吞吐上涨，验证反馈却没有自动扩容</h3><div class="trend-conflict">更多变更 vs 固定 CI 关键路径</div><p>先量化排队、分片与重试，再决定扩容或重构。</p><small>linear.app</small></article>
+<article class="trend-card"><h3>结构化决策更便宜，可信校准反而更关键</h3><div class="trend-conflict">数值输出效率 vs 错误概率的业务成本</div><p>决策模型要用真实分布和校准误差验收，不能只看演示速度。</p><small>simonwillison.net</small></article>
+<article class="trend-card"><h3>自动路由减少手选，计费与回退更难忽略</h3><div class="trend-conflict">模型选择便利 vs 运行与账单可解释性</div><p>升级 Agent 路由时，把实际模型、延迟、回退和费用放进同一张验收表。</p><small>github.com</small></article>
+</div>
+<h2 id="tech-news">📰 科技动态</h2>
+<article class="entry">
+<h3>1、<a href="https://github.blog/changelog/2026-09-21-grok-4-7-is-now-available-in-github-copilot/" target="_blank" rel="noopener noreferrer">Grok 4.7 进入 GitHub Copilot</a> <span class="certainty certainty-confirmed">confirmed</span></h3>
+<p class="hook">模型多一个，不等于默认模型该换一个。</p>
+<p>GitHub称Grok 4.7正逐步面向Copilot Pro、Pro+、Max、Business与Enterprise推出，并按提供商标价计费。</p>
+<p class="why"><strong>为什么重要：</strong>只有账号可见且用同一任务比较质量、延迟、费用后才考虑采用；本期未实测。</p>
+<p class="fact"><strong>事实边界：</strong>功能由GitHub确认；模型能力描述来自厂商，未独立复现。</p>
+
+</article>
+<article class="entry">
+<h3>2、<a href="https://android-developers.googleblog.com/2026/09/bring-android-game-to-car-screen.html" target="_blank" rel="noopener noreferrer">Android 车载游戏类别从 Beta 进入 GA</a> <span class="certainty certainty-confirmed">confirmed</span></h3>
+<p class="hook">车载扩展不是把手机画面放大，而是先服从停车状态。</p>
+<p>Google开放Android Auto和带Google服务的Android Automotive OS游戏生产发布，要求Android 15+并声明车载入口与游戏类别。</p>
+<p class="why"><strong>为什么重要：</strong>只有已有Android游戏且愿意承担车载适配与分发测试时才值得投入；交易类App无直接行动。</p>
+
+</article>
+<article class="entry">
+<h3>3、<a href="https://github.blog/changelog/2026-09-21-github-enterprise-adds-credential-inventory-exports" target="_blank" rel="noopener noreferrer">GitHub Enterprise 可导出全量凭证清单</a> <span class="certainty certainty-confirmed">confirmed</span></h3>
+<p class="hook">事故响应先要知道哪些凭证能进来。</p>
+<p>企业管理员可通过CSV或REST API盘点SSH key、PAT、OAuth与GitHub App凭证，并按用户、应用和类型过滤。</p>
+<p class="why"><strong>为什么重要：</strong>适合企业安全盘点与事故响应；需要Enterprise Cloud权限，且导出文件本身是敏感资产。</p>
+
+</article>
+<h2 id="ai">🤖 AI 相关</h2>
+<article class="entry">
+<h3>1、<a href="https://simonwillison.net/2026/Sep/21/jev/" target="_blank" rel="noopener noreferrer">Jev 把模型输出收窄为决策概率</a> <span class="certainty certainty-reported">reported</span></h3>
+<p class="hook">不是每个模型都需要“说话”，有些只需要给出可校准的数值。</p>
+<p>Jev 接收文本，输出类别、真假概率、评分和置信度；项目方按输入计费并宣称低成本。</p>
+<p class="why"><strong>为什么重要：</strong>它适合分类、排序和路由的概念验证，但价格、速度与质量仍需真实分布对照，不能用公开演示代替。</p>
+<p class="fact"><strong>事实边界：</strong>机制由独立作者整理；价格和性能为项目方口径，未独立复现。</p>
+
+</article>
+<article class="entry">
+<h3>2、<a href="https://huggingface.co/blog/MultiverseComputingCAI/pruning-llms-like-a-physicist-block-removal-as-an" target="_blank" rel="noopener noreferrer">物理学式块裁剪把组合选择映射为 Ising 优化</a> <span class="certainty certainty-reported">reported</span></h3>
+<p class="hook">删掉哪些层不是连续切一段，而是一个相互作用的组合问题。</p>
+<p>作者把Transformer块选择写成受约束二进制优化，并报告在Llama-3.3-70B 50%压缩时，MMLU比最佳对照高近23个百分点。</p>
+<p class="why"><strong>为什么重要：</strong>这是作者论文与实验口径，尚不能外推到运行时成本或其他模型；认知增量在于块间相互作用可能比位置启发式更重要。</p>
+<p class="fact"><strong>事实边界：</strong>未独立复现实验，也未核对训练与评测全部配置。</p>
+
+</article>
+<h2 id="articles">📝 文章推荐</h2>
+<article class="entry"><h3><a href="https://clickhouse.com/blog/postgres-on-nvme" target="_blank" rel="noopener noreferrer">NVMe 让 Postgres 点读更快，但不会把行存变成分析引擎</a></h3><p class="hook">介质延迟下降后，数据布局会成为下一层瓶颈。</p><p>ClickHouse在固定m6id.4xlarge、Postgres 18.3和约482GiB pgbench数据下，报告本地NVMe吞吐16,030 TPS，对比gp3 EBS的1,734 TPS。</p></article>
+<article class="entry"><h3><a href="https://www.interconnects.ai/p/the-current-balance-of-power-in-open" target="_blank" rel="noopener noreferrer">开源模型竞争的讨论不能只看一张榜单</a></h3><p class="hook">榜单显示的是一个切面，生态采用还受许可、推理栈和更新频率影响。</p><p>Nathan Lambert在国会简报扩展稿中比较中美开放权重模型，并主张中国模型在其引用的AAII榜单上领先。</p></article>
+<h2 id="tools">🛠️ 工具推荐</h2><div class="tool-grid">
+<article class="tool-card"><div><span class="tag">研发效能</span><span class="priority">方法可试</span></div><h3><a href="https://linear.app/now/ci-bottleneck-reworked" target="_blank" rel="noopener noreferrer">CI 关键路径对照法</a></h3><p>按排队、执行、重试和人工等待拆解 PR 验证时间，先找最慢分片再改。</p><p class="why"><strong>适合你的环节：</strong>Web/移动端/后台 CI 与 Agent PR 验收</p><p><strong>今天怎么试：</strong>抽取最近20个PR，记录各检查项P50/P95、最慢分片和重试原因；只改一个瓶颈后复测。</p><p class="fact"><strong>边界：</strong>Linear 的收益不能外推；分片增加会提高并发和缓存压力，必须保持失败检出率与稳定性。</p><p><strong>采用判断：</strong>优先采用测量方法；只有证实存在排队或分片失衡时再改基础设施。</p><p><strong>当前做法：</strong>当前已知 YG 关注多端交付，但具体仓库 CI 等待、分片和成本基线未知，画像更新于2026-09-17。</p><p><strong>新增收益：</strong>把 Agent 产出速度与真实交付反馈连起来，避免只优化生成端。</p><p><strong>验证标准：</strong>同一批PR的端到端等待下降，重试率和失败检出不退步，新增成本可解释且可回滚。</p></article>
+<article class="tool-card"><div><span class="tag">Agent运行治理</span><span class="priority">方法可试</span></div><h3><a href="https://github.com/anthropics/claude-code/releases/tag/v2.1.278" target="_blank" rel="noopener noreferrer">模型路由账单回读清单</a></h3><p>升级自动模型选择时，同时记录分类位置、实际模型、延迟、失败回退和账单。</p><p class="why"><strong>适合你的环节：</strong>Claude Code API/企业/云网关升级验收</p><p><strong>今天怎么试：</strong>若使用对应版本，在隔离任务中读取/status，并分别核对正常路径与计费回退。</p><p class="fact"><strong>边界：</strong>用户当前版本、渠道和账号权限未核验；不使用Claude Code时无需动作。</p><p><strong>采用判断：</strong>仅在实际使用2.1.278时执行；否则保留为升级检查项。</p><p><strong>当前做法：</strong>当前知道用户使用多种Agent，但Claude Code版本和网关方式未知。</p><p><strong>新增收益：</strong>补上只看回答质量时遗漏的路由、费用和失败证据。</p><p><strong>验证标准：</strong>模型选择和账单可回读；延迟、质量或费用恶化时可关闭自动模式或回退。</p></article>
+<article class="tool-card"><div><span class="tag">Agent可观测</span><span class="priority">条件适用</span></div><h3><a href="https://blog.sentry.io/sentry-laravel-ai-integration/" target="_blank" rel="noopener noreferrer">Sentry Laravel Agent Tracing 4.27</a></h3><p>把Laravel AI调用与HTTP请求、对话和Trace关联，减少手工埋点。</p><p class="why"><strong>适合你的环节：</strong>Laravel后台Agent排障</p><p><strong>今天怎么试：</strong>仅当项目使用Laravel AI且已有Sentry tracing时，在测试环境升级SDK并检查一条Agent trace。</p><p class="fact"><strong>边界：</strong>仅适用于Laravel AI与Sentry；会引入观测数据与隐私边界，需检查采样、脱敏和费用。</p></article>
+<article class="tool-card"><div><span class="tag">数据库变更</span><span class="priority">条件适用</span></div><h3><a href="https://www.postgresql.org/about/news/postgrescompare-220-released-3382/" target="_blank" rel="noopener noreferrer">PostgresCompare 2.2 MCP/CLI</a></h3><p>比较两个PostgreSQL实例的schema差异，并生成可审阅SQL脚本；MCP入口可供Agent调用。</p><p class="why"><strong>适合你的环节：</strong>后台数据库迁移与发布前检查</p><p><strong>今天怎么试：</strong>仅在非生产副本上导出schema并对照现有迁移工具结果，不执行生成SQL。</p><p class="fact"><strong>边界：</strong>商业工具含14天试用；生成脚本仍需人工审查，生产数据库、权限和数据变更不可自动执行。</p></article>
+<article class="tool-card"><div><span class="tag">边缘运行时</span><span class="priority">条件适用</span></div><h3><a href="https://simonwillison.net/2026/Sep/21/cloudflare-python-worker/" target="_blank" rel="noopener noreferrer">Cloudflare Python Workers 本地模拟</a></h3><p>用Pyodide在workerd/V8中运行Python，并通过本地工具模拟生产栈。</p><p class="why"><strong>适合你的环节：</strong>边缘函数与Python原型</p><p><strong>今天怎么试：</strong>若已有Workers项目，选一个无外部依赖的函数做本地与线上行为对照。</p><p class="fact"><strong>边界：</strong>不支持多进程和线程等能力；当前仅核验独立工程师对官方发布的摘要，用户项目与账号未知。</p></article>
+<article class="tool-card"><div><span class="tag">Agent CLI</span><span class="priority">条件适用</span></div><h3><a href="https://github.com/anomalyco/opencode/releases/tag/v1.18.32" target="_blank" rel="noopener noreferrer">OpenCode 1.18.32 provider修复</a></h3><p>修复Bedrock图片附件模型范围与Together AI流式usage统计，并加入Grok 4.7。</p><p class="why"><strong>适合你的环节：</strong>多模型Agent CLI与用量回读</p><p><strong>今天怎么试：</strong>只有命中Bedrock图片或Together usage问题时，先在隔离会话升级并核对附件与计费字段。</p><p class="fact"><strong>边界：</strong>版本页仍出现GitHub加载错误提示；只确认发布说明文本，用户是否安装及现用版本未知。</p></article>
+<article class="tool-card"><div><span class="tag">PR管理</span><span class="priority">已有能力可用</span></div><h3><a href="https://github.blog/changelog/2026-09-21-refreshed-repository-pull-requests-page-generally-available" target="_blank" rel="noopener noreferrer">GitHub PR 页面高级筛选</a></h3><p>用AND/OR、嵌套搜索、状态检查数量和批量操作缩短多仓PR整理。</p><p class="why"><strong>适合你的环节：</strong>Release/MR日常分流与批量治理</p><p><strong>今天怎么试：</strong>若GitHub仓库在用，建立一个“我参与且检查失败”的保存查询并验证结果。</p><p class="fact"><strong>边界：</strong>仅适用于GitHub；当前主要工作仓库是否使用GitHub及账号权限未确认。</p></article>
+<article class="tool-card"><div><span class="tag">Agent工作流</span><span class="priority">方法可试</span></div><h3><a href="https://x.com/code/status/2102137063373996319" target="_blank" rel="noopener noreferrer">VS Code Agent-First Development 教程</a></h3><p>用官方教程检查Agent治理、调试、执行环境和应用开发的完整链路。</p><p class="why"><strong>适合你的环节：</strong>Agent流程培训与新人共识</p><p><strong>今天怎么试：</strong>只选治理或调试一节，与现有工作流比较一项缺口；无需先更换编辑器。</p><p class="fact"><strong>边界：</strong>当前只核验VS Code官方X帖及其YouTube入口，未通读完整视频；不把教程当实测收益。</p></article>
+</div>
+<h2 id="ai-tools">🧠 AI 工具</h2><div class="tool-grid">
+<article class="tool-card"><div><span class="tag">推理吞吐</span><span class="priority">条件适用</span></div><h3><a href="https://huggingface.co/blog/tokenizers-v1" target="_blank" rel="noopener noreferrer">tokenizers v1 候选版</a></h3><p>在分词确实阻塞GPU或高并发请求时，降低CPU编码开销。</p><p class="why"><strong>适合你的环节：</strong>模型训练、批量推理与长上下文服务</p><p><strong>今天怎么试：</strong>先profile CPU分词占比；若为瓶颈，用同语料对照v0.23与候选版的ID一致性、吞吐和内存。</p><p class="fact"><strong>边界：</strong>仍是release candidate，当前只覆盖十个模型家族；博客基准使用Apple M4 Max，不能外推。</p><p><strong>采用判断：</strong>暂不安装；先profile，命中瓶颈且模型受支持时再隔离验证。</p><p><strong>当前做法：</strong>YG是否维护模型推理服务及当前tokenizer版本未知。</p><p><strong>新增收益：</strong>只有在GPU等待CPU分词时才直接转化为吞吐，普通应用开发可能没有收益。</p><p><strong>验证标准：</strong>相同token ID、吞吐提升可复现、内存与尾延迟不退步；否则保留现状。</p></article>
+</div>
+<h2 id="concepts">🧩 本期概念库</h2>
+<article class="concept"><h3>1. 验证供给</h3><p><strong>一句话解释：</strong>CI、测试环境和人工回读能够消化多少变更。</p><p><strong>为什么重要：</strong>生成吞吐超过验证供给时，排队和上下文切换会吞掉Agent收益。</p><p><strong>团队应用：</strong>同时追踪PR生成量、排队时间、重试率和端到端交付时间。</p></article>
+<article class="concept"><h3>2. 关键路径优化</h3><p><strong>一句话解释：</strong>只优化决定最终完成时间的最慢依赖链。</p><p><strong>为什么重要：</strong>加速非瓶颈步骤不会缩短总等待，甚至可能提高成本。</p><p><strong>团队应用：</strong>按P50/P95和分片尾部耗时定位瓶颈，再做单变量对照。</p></article>
+<article class="concept"><h3>3. 决策模型</h3><p><strong>一句话解释：</strong>把自然语言输入映射为类别、概率或分数，而非继续生成文本。</p><p><strong>为什么重要：</strong>输出更易接入程序，但可信度取决于校准和错误成本。</p><p><strong>团队应用：</strong>用真实样本比较校准误差、拒答阈值和业务损失。</p></article>
+<article class="concept"><h3>4. 瓶颈迁移</h3><p><strong>一句话解释：</strong>一个步骤加速后，系统上限转移到下一慢的步骤。</p><p><strong>为什么重要：</strong>局部性能胜利不等于端到端收益。</p><p><strong>团队应用：</strong>每次优化后重新测整链路，不沿用旧瓶颈假设。</p></article>
+<h2 id="curiosity">🎲 还能这样？今日好奇心</h2>
+<article class="curiosity"><h3><a href="https://spectrum.ieee.org/hermes-shortwave-radio-digital-data" target="_blank" rel="noopener noreferrer">20瓦短波电台把电离层当作“卫星”</a></h3><p class="hook"></p><p></p><p><strong>背后的启发：</strong></p></article>
+<h2 id="resources">📚 资源</h2>
+<article class="resource"><h3><a href="https://paulbakker.io/writing/no-ai-for-writing/" target="_blank" rel="noopener noreferrer">不要让 AI 跳过写作中的思考</a></h3><p>Paul Bakker主张先由人完成写作与思考，再让模型提问题、指出缺口；适合作为管理报告和方案写作的责任边界，而非生产力实验结论。</p></article>
+<h2 id="quotes">💬 言论：本期认知增量</h2>
+<article class="quote"><blockquote>当所有人都只是在按回车，没人阅读时，代码产出已不再是瓶颈。</blockquote><p><strong><a href="https://simonwillison.net/2026/Sep/20/voxium/" target="_blank" rel="noopener noreferrer">voxium</a></strong> · 摘要式转述 · Agent / 组织效率 / 审阅</p><p>反直觉之处在于：生成越便宜，理解、审阅和责任可能越稀缺；这是匿名个人经历，不代表普遍组织状态。</p></article>
+<article class="quote"><blockquote>写作之所以有价值，正因为它迫使你完成思考。</blockquote><p><strong><a href="https://paulbakker.io/writing/no-ai-for-writing/" target="_blank" rel="noopener noreferrer">Paul Bakker</a></strong> · 摘要式转述 · 写作 / 思考 / AI边界</p><p>可把模型放在提问和挑错位置，而不是把需要负责的判断一并外包。</p></article>
+<h2 id="podcast">🎙️ 播客提纲</h2><details><summary>展开口播稿</summary><article class="podcast">
+<h3>代码越来越快，为什么交付反而卡在等待上</h3>
+<p class="hook">Linear 每周新增大约两千个测试。Agent 把写代码推快之后，每个 PR 仍要排队经过 CI，验证速度没有同步增长。今天真正值得理解的，不是哪一个模型又快了，而是当生成不再稀缺，测试调度、反馈时延和失败回读会接管整个交付节奏。</p>
+<h4>主故事：瓶颈从生成移到验证</h4><p>Linear 的工程师接到一个很朴素的任务：CI 成本太高，也要更快。问题的起点不是某个测试突然变慢，而是 Agent 让代码和 PR 更快出现，所有变更仍要经过同一条验证管线。团队先拆分过大的测试文件，再重新评估分片和 runner。把三到四个分片进一步增加到八个后，初始基准中的关键任务快约百分之十九、成本低约百分之十九；一周后最慢分片从五点二五分钟降到四点三三分钟。另一次工具链更新把 TypeScript 检查的周中位耗时降低了百分之七十三。这里的机制不是简单加机器，而是让工作分布更均衡，并把关键路径上已经不再最慢的步骤移出优化焦点。团队还估算，如果年初不主动治理，当前测试套件可能需要约十一分钟，接近现在等待时间的两倍。但这些数字来自 Linear 自己的代码库、负载和成本模型，没有独立复现，也不能直接成为我们的扩容预算。</p>
+<h4>快讯一：Decision Model 把输出从文本改成概率</h4><p>Jev 接受文本输入，却返回类别、真假判断、评分和置信度等数值，而不是继续生成一段话。它把一类决策任务从开放式生成收窄成结构化输出。当前宣传的价格与速度仍来自项目方，公开基准也容易被针对性优化。更稳妥的试法，是拿一个真实分类任务，与现有小模型比较校准误差、拒答策略和错误成本。</p>
+<h4>快讯二：Agent 自动路由要看账单回退</h4><p>Claude Code 二点一二七八把多种 API、企业和云网关场景的 Auto mode 默认切到服务端分类器，并在状态页显示分类位置，同时提示计费回退。采用价值不只是自动选模型，而是让路由位置和异常路径可观察。若正在使用对应版本，升级验收应同时核对实际模型、延迟、回退和费用。</p>
+<h4>快讯三：Tokenizer 也会成为吞吐瓶颈</h4><p>Hugging Face 报告 tokenizers v1 候选版本在十个模型家族上，单线程编码相对零点二三版快约三到三十倍，并保持相同 token ID；八 worker 扩展效率为线性的百分之七十六。它仍是候选阶段，覆盖范围也有限。只有当 profiling 证明 CPU 分词让 GPU 等待时，升级才有实际价值。</p>
+<h4>行动：先画出交付关键路径</h4><p>今天最值得做的一件事，是从最近二十个 PR 取出排队、执行、重试和人工等待时间，按检查项画出关键路径。先找最慢分片、最高波动和最常见重试原因，再用同一批 PR 做一次对照。成功条件不是机器更多，而是端到端等待下降、失败检出不退步、成本可解释。如果当前没有明显排队或分片失衡，就无需照搬 Linear 的架构。</p>
+<p>今天的一句话：Agent 提升的是变更供给，真正决定交付速度的，是验证反馈能否跟上。先测关键路径，再优化瓶颈。</p></article></details>
+<h2 id="team-insights">✅ 对团队的启发</h2>
+<div class="insight"><strong>1</strong><p>从最近20个PR建立CI关键路径基线，区分排队、执行、重试和人工等待；没有证据不扩容。</p></div>
+<div class="insight"><strong>2</strong><p>Agent模型自动路由升级时，同时验收实际模型、延迟、失败回退与费用。</p></div>
+<div class="insight"><strong>3</strong><p>模型或SDK性能声明先做项目级profiling；未命中真实瓶颈就暂缓安装。</p></div>
+<div class="insight"><strong>4</strong><p>管理报告与技术方案先由责任人写主张，再让模型提问题和找证据缺口。</p></div><footer class="footer">Tech Digest · 2026-09-22 · 来源与事实边界见各条目<br><strong>抓取缺口：</strong>console.dev（HTTP 404）；Product Hunt（HTTP 403）；Ars Technica（HTTP 405）；Figma Engineering（HTTP 404）；JavaScript Weekly（HTTP 400）；Airbnb Engineering（HTTP 403）；ACM Queue（HTTP 403）；Coinbase Engineering（HTTP 403）</footer></main></div></body></html>

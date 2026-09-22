@@ -1,5 +1,16 @@
 [
   {
+    "date": "2026-09-22",
+    "title": "第 104 期：当代码生成变快，CI 接管了交付节奏",
+    "highlights": [
+      "Linear 单团队案例：8 分片让关键任务初测快约19%、成本低约19%",
+      "9项个人工具与方法：3项方法可立即试，6项需项目、账号或版本条件",
+      "Jev 把开放式文本生成收窄成结构化概率输出，但仍缺可靠公开比较",
+      "tokenizers v1 候选版报告3-30倍单线程编码提升，采用前先证明分词真是瓶颈"
+    ],
+    "image": "https://webassets.linear.app/images/ornj730p/production/eba763cf034ad5e7b5d75ceec7ba560dd2aea5cb-2400x1350.png?q=95&auto=format&dpr=2"
+  },
+  {
     "date": "2026-09-20",
     "title": "第 103 期：Agent 的上限，藏在最长的验证链里",
     "highlights": [
