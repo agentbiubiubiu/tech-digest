@@ -1,5 +1,16 @@
 [
   {
+    "date": "2026-09-23",
+    "title": "第 105 期：Agent 工作台正在变成控制面",
+    "highlights": [
+      "JetBrains、GitHub 与 Claude Code 的同日更新共同指向 Agent 控制面",
+      "7项个人工具与方法：3项方法可立即试，4项需版本、项目或账号条件",
+      "美团统一推荐基座报告订单量提升2.06%~6.68%、推理成本降24%",
+      "Meta Petal 计划以多芯光纤在2029年实现跨洋1 Pbps容量"
+    ],
+    "image": "https://blog.jetbrains.com/wp-content/uploads/2026/09/featured-blog-post.png"
+  },
+  {
     "date": "2026-09-22",
     "title": "第 104 期：当代码生成变快，CI 接管了交付节奏",
     "highlights": [
