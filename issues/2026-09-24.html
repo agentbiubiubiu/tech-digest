@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Tech Digest #106：百万行 PR 的可验证渲染</title><meta name="description" content="Agent 让大规模重写可行后，视口预算、生产埋点和可重放探针成为 UI 交付的新瓶颈。">
+<meta property="og:title" content="Tech Digest #106：百万行 PR 的可验证渲染"><meta property="og:description" content="Agent 让大规模重写可行后，视口预算、生产埋点和可重放探针成为 UI 交付的新瓶颈。"><meta property="og:image" content="https://code.visualstudio.com/assets/blogs/2026/09/23/building_github_copilot_inline_suggestions.png"><style>
+:root{color-scheme:light;--ink:#17251e;--muted:#66756d;--green:#008a58;--green-soft:#eaf6ef;--line:#d9e1dc;--paper:#fff;--bg:#f5f7f5;--red:#9d2c2c;--gold:#8b6200}*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Noto Sans CJK SC",sans-serif;line-height:1.72;letter-spacing:0}a{color:var(--green);text-decoration:none}a:hover{text-decoration:underline}.topbar{height:56px;border-bottom:1px solid var(--line);background:rgba(255,255,255,.96);display:flex;align-items:center;justify-content:space-between;padding:0 24px;position:sticky;top:0;z-index:10}.brand{font-weight:750}.nav{display:flex;gap:20px;font-size:14px}.layout{display:grid;grid-template-columns:190px minmax(0,820px);gap:38px;max-width:1090px;margin:0 auto;padding:34px 20px 80px}.toc{position:sticky;top:84px;align-self:start;font-size:14px}.toc strong{display:block;margin-bottom:10px}.toc a{display:block;color:var(--muted);padding:4px 0}.content{min-width:0}.back{font-size:14px}.hero h1{font-size:34px;line-height:1.25;margin:18px 0 8px}.meta{color:var(--muted);font-size:14px}.highlights{background:var(--green-soft);border-left:4px solid var(--green);padding:16px 18px;border-radius:5px}.article-img{display:block;width:100%;max-height:520px;object-fit:contain;background:#fff;border:1px solid #e6ebe8;border-radius:6px;margin:24px 0 8px}.hero-caption{text-align:center;color:var(--muted);font-size:13px}h2{font-size:22px;margin:46px 0 16px;padding-bottom:8px;border-bottom:2px solid var(--ink)}h3{font-size:18px;line-height:1.45;margin:0 0 10px}h4{font-size:16px;margin:22px 0 4px}.main-story{background:var(--paper);border:1px solid var(--line);border-top:4px solid var(--green);padding:24px;border-radius:6px}.story-hook,.hook{font-weight:650}.story-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:18px 0}.story-field{background:#f6f8f6;border:1px solid var(--line);padding:14px;border-radius:5px}.story-field strong{display:block;margin-bottom:5px}.number-chip{display:inline-block;background:#eef1ef;border:1px solid var(--line);padding:5px 9px;margin:3px;border-radius:4px;font-size:13px}.story-line{border-left:4px solid var(--gold);padding:10px 14px;background:#fff9e8;font-weight:650}.trend-grid,.tool-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.trend-card,.tool-card{background:var(--paper);border:1px solid var(--line);padding:16px;border-radius:6px}.trend-conflict{font-weight:700;color:var(--red)}.trend-card small{color:var(--muted)}.entry,.curiosity,.quote,.resource,.concept,.podcast{padding:20px 0;border-bottom:1px solid var(--line)}.entry p,.curiosity p,.quote p{margin:8px 0}.why{color:#315744}.fact{color:var(--muted);font-size:14px}.tag,.priority,.certainty{display:inline-block;font-size:11px;line-height:1;padding:5px 7px;border-radius:3px;margin-right:6px}.tag{background:#e8f1ec;color:#23523b}.priority{background:#fff0c8;color:#714e00}.certainty{background:#eef0ef;color:#45534b}.certainty-confirmed,.certainty-announced{background:#e7f5ec;color:#17683e}.certainty-reported{background:#fff3d5;color:#795400}.certainty-opinion,.certainty-inference{background:#f5e9ea;color:#803638}blockquote{font-size:19px;margin:0 0 12px;border-left:4px solid var(--green);padding-left:16px}.team{color:#315744}.insight{display:grid;grid-template-columns:34px 1fr;gap:10px;align-items:start;border-bottom:1px solid var(--line);padding:10px 0}.insight strong{display:grid;place-items:center;width:28px;height:28px;background:var(--ink);color:#fff;border-radius:4px}.insight p{margin:0}.footer{margin-top:56px;padding-top:22px;border-top:1px solid var(--line);color:var(--muted);font-size:13px}@media(max-width:820px){.topbar{padding:0 14px}.nav{gap:12px}.layout{display:block;padding:22px 16px 60px}.toc{display:none}.hero h1{font-size:28px}.story-grid,.trend-grid,.tool-grid{grid-template-columns:1fr}.main-story{padding:18px}.article-img{max-height:400px}}@media(max-width:420px){.nav a:nth-child(n+3){display:none}.hero h1{font-size:25px;overflow-wrap:anywhere}h2{font-size:20px}.highlights{padding:13px}.content{overflow-wrap:anywhere}}
+</style></head>
+<body><header class="topbar"><a class="brand" href="../index.html">Tech Digest</a><nav class="nav"><a href="index.html">Archive</a><a href="2026-09-24.html">Today</a><a href="#tools">Tools</a></nav><span>2026-09-24</span></header>
+<div class="layout"><aside class="toc"><strong>本期目录</strong><a href="#main-story">🔥 主故事</a><a href="#trends">⚡ 冲突趋势</a><a href="#tech-news">📰 科技动态</a><a href="#ai">🤖 AI 相关</a><a href="#articles">📝 文章推荐</a><a href="#tools">🛠️ 工具推荐</a><a href="#concepts">🧩 概念库</a><a href="#podcast">🎙️ 播客</a><a href="#team-insights">✅ 团队启发</a></aside><main class="content"><a class="back" href="index.html">← 返回目录</a>
+<section class="hero"><h1>第 106 期：百万行 PR 的真正难题是证明它没坏</h1><p class="meta">第 106 期 · 2026年9月24日，星期四</p><p class="core-judgment">Agent 让大规模改动更容易发生后，交付瓶颈会从“能否生成”转向“能否观察、重放并判定运行时行为”；复杂 UI 应先建设健康信号与自动化预算，再扩大改动规模。</p><p class="highlights"><strong>✨ 本期亮点：</strong>主故事拆解 2200 文件、百万行差异、400+ 评论的渲染与验收机制 · 10项个人工具与方法：5项方法可当天试，5项需项目、版本或账号条件 · GitHub 本地沙箱强调策略无法执行时失败关闭，但默认关闭且仍为预览 · PgBouncer 修复3个拒绝服务漏洞，其中2个可由未认证客户端触发</p><p class="hero-caption">主故事原文未提供足够直接的高质量配图，本期不以通用产品图替代证据。</p></section>
+
+    <h2 id="main-story">🔥 主故事</h2>
+    <article class="main-story">
+      <h3>百万行 PR 的难点，是把偶发卡顿变成可判定失败</h3>
+      <p class="story-hook">二千二百个文件、超过一百万行改动、四百多条行内评论，只有约一百行会在任一时刻真实存在于 DOM。</p>
+      <p>GitHub Copilot App 团队用可找到的极端开源 PR 验证新差异界面；常规虚拟列表在评论异步加载、折叠区和动态高度面前会出现白条、跳动与难复现卡顿。</p>
+      <div class="story-grid">
+        <div class="story-field"><strong>核心冲突</strong>Agent 让八十万行级重写更可负担，但改动越大，人工滚动抽查越无法证明界面在冷启动、热缓存、展开、回复与缩放组合下仍可靠。</div>
+        <div class="story-field"><strong>转折点</strong>团队把候选工作限制在视口附近约2400像素，接入React渲染次数、性能时间线和逐帧采样，再用声明式流程驱动无头探针与真实桌面应用循环；健康信号最终成为端到端预算。</div>
+        <div class="story-field"><strong>为什么是现在</strong>生成吞吐提高会放大大规模迁移与重构的频率，验收若仍依赖肉眼，就会成为新的交付瓶颈。</div>
+        <div class="story-field"><strong>对团队的启发</strong>从一个高状态密度界面建立最小探针：固定操作流、记录节点与长帧、定义预算、在真实应用回放；不要把极端PR当作鼓励大提交。</div>
+      </div>
+      <p><span class="number-chip">2200个文件</span><span class="number-chip">超过100万行改动</span><span class="number-chip">400+条行内评论</span><span class="number-chip">约100行DOM同时存在</span><span class="number-chip">视口附近约2400px进入候选</span></p>
+      <p><strong>我的判断：</strong>新增认知不是“使用虚拟列表”，而是把运行时可观察性设计成验收接口。先让复杂状态可重放、可度量、可失败，再让Agent扩大改动范围。</p>
+      <div class="story-line">Agent 扩大了可改范围，健康信号决定了可交付范围。</div>
+      <p><strong>来源：</strong><a href="https://github.blog/engineering/user-experience/rendering-huge-pull-requests-in-the-github-copilot-app/" target="_blank" rel="noopener noreferrer">github.blog</a></p>
+    </article>
+<h2 id="trends">⚡ 今日冲突趋势</h2><div class="trend-grid">
+<article class="trend-card"><h3>改动规模增加，人工抽查失效</h3><div class="trend-conflict">Agent重写能力 vs 可重复验收</div><p>把生产埋点和操作流变成机器可读的健康信号。</p><small>github.blog</small></article>
+<article class="trend-card"><h3>限制能力存在，不等于默认安全</h3><div class="trend-conflict">本地沙箱预览 vs 默认关闭与作用域边界</div><p>验证策略是否实际生效，并要求无法执行时失败关闭。</p><small>github.blog</small></article>
+<article class="trend-card"><h3>共享规则统一，静默失效更危险</h3><div class="trend-conflict">跨Agent规则复用 vs 远程开关与版本漂移</div><p>用无害金丝雀验证规则被真实加载。</p><small>blog.szypowi.cz</small></article>
+</div>
+<h2 id="tech-news">📰 科技动态</h2>
+<article class="entry">
+<h3>1、<a href="https://www.postgresql.org/about/news/pgbouncer-1260-released-fixes-three-cves-3385/" target="_blank" rel="noopener noreferrer">PgBouncer 1.26.0修复三个拒绝服务漏洞</a> <span class="certainty certainty-confirmed">confirmed</span></h3>
+<p class="hook">两个入口不需要认证，连接池不能只按“内网组件”理解。</p>
+<p>官方发布列出三个DoS：无nonce的SCRAM消息导致崩溃、包缓冲区整数溢出导致死循环，以及恶意PostgreSQL服务器给出无界SCRAM迭代次数。</p>
+<p class="why"><strong>为什么重要：</strong>使用PgBouncer的服务应先确认暴露面与版本，再安排升级；不要把发布说明等同于已完成环境修复。</p>
+<p class="fact"><strong>事实边界：</strong>漏洞与触发条件来自PostgreSQL官方新闻页。</p>
+
+</article>
+<article class="entry">
+<h3>2、<a href="https://nodejs.org/en/blog/release/v22.23.3" target="_blank" rel="noopener noreferrer">Node.js 22.23.3更新根证书与Corepack</a> <span class="certainty certainty-confirmed">confirmed</span></h3>
+<p class="hook">LTS小版本看似普通，却会改变证书信任与包管理组件。</p>
+<p>Node.js 22.23.3 LTS将根证书更新到NSS 3.125，并把Corepack更新到0.36.0。</p>
+<p class="why"><strong>为什么重要：</strong>只在依赖22.x时按既有升级流程回归TLS、代理与包管理；不建议为这两个变更跨主版本。</p>
+<p class="fact"><strong>事实边界：</strong>变更来自Node.js官方Release。</p>
+
+</article>
+<article class="entry">
+<h3>3、<a href="https://techcrunch.com/2026/09/23/everything-new-coming-to-metas-ai-agent-muse/" target="_blank" rel="noopener noreferrer">Meta把Muse扩展到眼镜与更多连接器</a> <span class="certainty certainty-reported">reported</span></h3>
+<p class="hook">消费级Agent开始横跨设备、邮件、日历与第三方服务，权限面同步扩大。</p>
+<p>TechCrunch报道Meta Connect公布Muse新能力与眼镜入口，并称连接器平台一周内收到超过1500份申请。</p>
+<p class="why"><strong>为什么重要：</strong>数字与产品范围属于媒体对发布会的报道；本期未从Meta一方逐项回读，暂不作为采用建议。</p>
+<p class="fact"><strong>事实边界：</strong>二级媒体报道，功能可用范围和隐私控制待官方文档确认。</p>
+
+</article>
+<h2 id="ai">🤖 AI 相关</h2>
+<article class="entry">
+<h3>1、<a href="https://stripe.dev/blog/meet-stripes-knowledge-ai-platform" target="_blank" rel="noopener noreferrer">Stripe把知识Agent接入1000多个内部工具与Skill</a> <span class="certainty certainty-reported">reported</span></h3>
+<p class="hook">知识Agent真正的难题不是聊天，而是身份、权限、上下文和长任务协调。</p>
+<p>Stripe介绍面向内部非编码工作的Knowledge AI Platform，覆盖快速查询到多日项目，并连接超过1000个内部工具与Skill。</p>
+<p class="why"><strong>为什么重要：</strong>这是Stripe自述的内部平台规模，不等于通用收益；对YG的价值是把权限感知与可治理上下文视为平台核心。</p>
+<p class="fact"><strong>事实边界：</strong>规模和用途来自Stripe一方文章，未披露独立效果基线。</p>
+
+</article>
+<h2 id="articles">📝 文章推荐</h2>
+<article class="entry"><h3><a href="https://newsletter.pragmaticengineer.com/p/design-engineering-with-maggie-appleton" target="_blank" rel="noopener noreferrer">设计工程提醒：创新界面先从熟悉原语开始</a></h3><p class="hook">科研用户面对“未来感”无限画布，最后仍选择熟悉的表格。</p><p>Maggie Appleton回顾其团队在ChatGPT前尝试为科研LLM设计卡片和无限画布，用户更想要已经熟悉的简单表格。</p></article>
+<article class="entry"><h3><a href="https://github.blog/news-insights/research/developers-want-more-efficient-software-heres-what-over-1000-github-users-told-us-they-need/" target="_blank" rel="noopener noreferrer">一千零三十九名GitHub用户想要更可测的软件效率</a></h3><p class="hook">开发者并非不关心浪费，而是缺少定位、测量和说服修复的工具链。</p><p>GitHub与Yale对1039名GitHub用户调查：80%对能写出更节能代码的工具感兴趣，近75%希望测量软件或开发过程影响。</p></article>
+<article class="entry"><h3><a href="https://modal.com/blog/trillion-tokens-trillion-parameters" target="_blank" rel="noopener noreferrer">万亿参数推理的真正约束是交互延迟与每GPU吞吐</a></h3><p class="hook">Coding Agent既要吞吐又要互动，单看峰值token速度会漏掉资源效率。</p><p>Modal介绍其为Kimi K2.6优化推理服务，并开放端点配置和上游引擎改动。</p></article>
+<article class="entry"><h3><a href="https://spectrum.ieee.org/top-engineering-skills" target="_blank" rel="noopener noreferrer">AI时代更稀缺的可能是写作、判断与不外包思考</a></h3><p class="hook">提示写得更清楚只是表层，真正风险是把不舒服的思考一起外包。</p><p>IEEE Spectrum作者认为AI是乘数而非替代，并强调写作、人际能力与保持独立判断。</p></article>
+<h2 id="tools">🛠️ 工具推荐</h2><div class="tool-grid">
+<article class="tool-card"><div><span class="tag">权限边界</span><span class="priority">方法可试</span></div><h3><a href="https://github.blog/changelog/2026-09-23-local-sandboxing-in-the-github-copilot-app/" target="_blank" rel="noopener noreferrer">本地Agent沙箱核验清单</a></h3><p>把文件、网络、凭据、会话生效时点和失败关闭逐项验收，而不是只看“已开启”。</p><p class="why"><strong>适合你的环节：</strong>本地Agent任务启动前</p><p><strong>今天怎么试：</strong>在隔离项目启动新会话，尝试一个被拒目录和被禁网络目标，确认明确失败且无副作用。</p><p class="fact"><strong>边界：</strong>Copilot App功能本身默认关闭、仅影响本地仓库与工作树会话，仍为公开预览；方法可迁移。</p><p><strong>采用判断：</strong>今天先借鉴核验清单，不因预览功能迁移工具。</p><p><strong>当前做法：</strong>当前Codex任务已有沙箱与最小授权规则，但具体项目策略状态未知。</p><p><strong>新增收益：</strong>新增的是把生效时点和失败关闭纳入验收，避免配置存在却未执行。</p><p><strong>验证标准：</strong>被拒访问必须稳定失败；允许路径、正常测试与Git只读操作不得退步。</p></article>
+<article class="tool-card"><div><span class="tag">规则加载</span><span class="priority">方法可试</span></div><h3><a href="https://blog.szypowi.cz/p/claude-code-reads-agents.md-only-when-telemetry-is-on/" target="_blank" rel="noopener noreferrer">AGENTS.md 金丝雀</a></h3><p>给关键项目规则放一个无害、可观察的检查项，验证版本或隐私设置变化后规则仍被加载。</p><p class="why"><strong>适合你的环节：</strong>Agent规则与Skill初始化</p><p><strong>今天怎么试：</strong>在隔离任务要求Agent回报一个不含秘密的固定标记；升级前后各跑一次。</p><p class="fact"><strong>边界：</strong>来源为个人复现且文章标记已修复；不能据此断言所有Claude Code版本或其他Agent仍有问题。</p></article>
+<article class="tool-card"><div><span class="tag">数据库测试</span><span class="priority">条件适用</span></div><h3><a href="https://www.postgresql.org/about/news/pgsql-test-real-postgres-testing-for-faster-development-loops-3380/" target="_blank" rel="noopener noreferrer">pgsql-test</a></h3><p>用临时真实Postgres、事务回滚和角色上下文验证外键、触发器与RLS，而不是用mock替代数据库语义。</p><p class="why"><strong>适合你的环节：</strong>后台与数据权限测试</p><p><strong>今天怎么试：</strong>在有RLS或触发器的测试项目新增1个正向、1个越权拒绝用例。</p><p class="fact"><strong>边界：</strong>需要PostgreSQL与Node测试环境；本期未核验许可证、启动耗时和大型fixture成本。</p></article>
+<article class="tool-card"><div><span class="tag">语音原型</span><span class="priority">条件适用</span></div><h3><a href="https://simonwillison.net/2026/Sep/23/gemini-tts-playground/" target="_blank" rel="noopener noreferrer">Gemini 3.8 TTS Playground</a></h3><p>用浏览器内BYOK界面试单人或多人TTS，并直接预览请求与输出。</p><p class="why"><strong>适合你的环节：</strong>播客和语音交互原型</p><p><strong>今天怎么试：</strong>只用测试API Key与无敏感文本生成30秒双人片段，记录时延与费用。</p><p class="fact"><strong>边界：</strong>需要Gemini API Key；自定义声音必须有权使用样本，作者成本只是一次样例。</p></article>
+<article class="tool-card"><div><span class="tag">代码审查</span><span class="priority">条件适用</span></div><h3><a href="https://github.blog/changelog/2026-09-23-copilot-code-review-more-ways-to-request-and-configure-reviews/" target="_blank" rel="noopener noreferrer">Copilot代码审查配置</a></h3><p>分别控制自动审查、草稿、新推送与默认审查力度，减少无意义审查或漏审。</p><p class="why"><strong>适合你的环节：</strong>GitHub PR审查</p><p><strong>今天怎么试：</strong>在非关键仓库只开启新推送自动审查，比较一周内有效发现与噪声。</p><p class="fact"><strong>边界：</strong>需要相应Copilot计划和仓库权限；企业默认会继承，不能替代人工CR与CI。</p></article>
+<article class="tool-card"><div><span class="tag">模型验收</span><span class="priority">方法可试</span></div><h3><a href="https://code.visualstudio.com/blogs/2026/09/23/building-the-github-copilot-inline-suggestions-model-part-two" target="_blank" rel="noopener noreferrer">输出分布验收法</a></h3><p>升级建议模型时同时检查输出长度、位置、完整度和用户行为，而不只看离线正确率。</p><p class="why"><strong>适合你的环节：</strong>编辑器模型或Agent迁移</p><p><strong>今天怎么试：</strong>从真实任务取20个样本，固定模型与配置，对比接受、撤销、跳转位置和输出长度分布。</p><p class="fact"><strong>边界：</strong>VS Code文章针对内联建议模型；迁移到通用Agent时指标需重定义，20例只用于预筛。</p></article>
+<article class="tool-card"><div><span class="tag">Agent CLI</span><span class="priority">条件适用</span></div><h3><a href="https://github.com/anthropics/claude-code/releases/tag/v2.1.281" target="_blank" rel="noopener noreferrer">Claude Code 2.1.281安全回归项</a></h3><p>把递归删除命令替换、5xx重试、MCP连接与大PDF延迟加入升级回归。</p><p class="why"><strong>适合你的环节：</strong>Claude Code版本升级</p><p><strong>今天怎么试：</strong>若环境已安装，先在临时目录验证命令替换删除仍会提示，禁止触碰真实项目。</p><p class="fact"><strong>边界：</strong>用户安装与版本未知；Release页为厂商变更说明，本轮未本机执行。</p></article>
+<article class="tool-card"><div><span class="tag">Web教学</span><span class="priority">方法可试</span></div><h3><a href="https://simonwillison.net/2026/Sep/23/shadow-roots/" target="_blank" rel="noopener noreferrer">Shadow Roots交互示例</a></h3><p>用可操作示例解释样式封装、继承、slot、part和JavaScript访问，比静态定义更快定位Shadow DOM误解。</p><p class="why"><strong>适合你的环节：</strong>Web组件学习与评审</p><p><strong>今天怎么试：</strong>打开示例逐一改外部样式和slot内容，记录哪些边界可穿透。</p><p class="fact"><strong>边界：</strong>这是生成式教学artifact，不能替代浏览器规范和兼容性测试。</p></article>
+<article class="tool-card"><div><span class="tag">GPU仿真</span><span class="priority">条件适用</span></div><h3><a href="https://huggingface.co/blog/nvidia/how-to-use-nvidia-warp-and-mjwarp" target="_blank" rel="noopener noreferrer">MJWarp迁移闸门</a></h3><p>用主机复制、派生状态刷新和吞吐路径分离的闸门检查MuJoCo到GPU并行仿真。</p><p class="why"><strong>适合你的环节：</strong>机器人仿真与性能验证</p><p><strong>今天怎么试：</strong>仅在有MuJoCo/NVIDIA GPU项目时，以小模型核对CPU与GPU状态并确认无每步host copy。</p><p class="fact"><strong>边界：</strong>需要CUDA与兼容模型；2048环境是教程目标，不是本期独立复现的性能结论。</p></article>
+<article class="tool-card"><div><span class="tag">CI迁移</span><span class="priority">方法可试</span></div><h3><a href="https://github.blog/changelog/2026-09-23-node-20-is-no-longer-available-in-github-actions/" target="_blank" rel="noopener noreferrer">GitHub Actions Node 24迁移清单</a></h3><p>盘点JavaScript Action运行时与自托管Runner架构，提前暴露Node 24兼容问题。</p><p class="why"><strong>适合你的环节：</strong>CI与发布流水线</p><p><strong>今天怎么试：</strong>搜索action.yml的runs.using和旧版action引用，在测试分支验证一条工作流。</p><p class="fact"><strong>边界：</strong>macOS 13.4及更早版本、ARM32自托管Runner不受Node 24支持；不要直接改生产流水线。</p></article>
+</div>
+
+<h2 id="concepts">🧩 本期概念库</h2>
+<article class="concept"><h3>1. 健康信号</h3><p><strong>一句话解释：</strong>把渲染次数、长帧、请求、节点数量和业务结果压成可自动判定的状态。</p><p><strong>为什么重要：</strong>没有健康信号，自动回放只能证明脚本跑完。</p><p><strong>团队应用：</strong>先定义失败预算，再写驱动流程。</p></article>
+<article class="concept"><h3>2. O(viewport)渲染</h3><p><strong>一句话解释：</strong>工作量随当前视口附近内容增长，而不是随整个数据集增长。</p><p><strong>为什么重要：</strong>百万行数据仍能保持有限DOM与布局成本。</p><p><strong>团队应用：</strong>同时验收滚动定位、动态高度和评论异步加载。</p></article>
+<article class="concept"><h3>3. 失败关闭</h3><p><strong>一句话解释：</strong>安全策略无法执行时停止运行，而不是退化为无保护模式。</p><p><strong>为什么重要：</strong>避免“配置看起来存在、实际没生效”的隐性风险。</p><p><strong>团队应用：</strong>把策略执行失败加入启动验收。</p></article>
+<article class="concept"><h3>4. 输出分布验收</h3><p><strong>一句话解释：</strong>比较输出长度、位置、完整度和用户行为，而非只看平均正确率。</p><p><strong>为什么重要：</strong>相同离线分数可能产生完全不同的编辑体验。</p><p><strong>团队应用：</strong>模型升级保留固定样本与分布对照。</p></article>
+<h2 id="podcast">🎙️ 播客提纲</h2><details><summary>展开口播稿</summary><article class="podcast">
+<h3>百万行 PR 教会我们的，不是如何渲染更多 DOM</h3>
+<p class="hook">一个包含二千二百个文件、超过一百万行改动和四百多条行内评论的拉取请求，真正难的不是把它打开，而是证明用户滚动、展开、回复和缩放时，界面仍然没有悄悄坏掉。</p>
+<h4>主故事：从百万行差异到可验证界面</h4><p>GitHub Copilot App 团队拿一个极端拉取请求做压力场景：二千二百个文件、超过一百万行改动、四百多条行内评论。浏览器不可能挂上一百万个 DOM 节点，所以它只让视口附近约二千四百像素范围内的区块进入候选，实际同时存在的行大约一百条。难点是评论、折叠和异步加载会不断改变高度，肉眼偶尔滚一遍无法复现白条、跳动和延迟。团队因此把 React 渲染次数、性能时间线和逐帧卡顿采样接入生产埋点，再用声明式 JSON 流程驱动无头探针和真实桌面应用。真实应用的自动循环会分别走冷启动和热缓存，展开详情、打开再取消回复框、切换文件树并改变窗口大小；测量结果同时写入磁盘，让Agent不需要盯着屏幕也能读回运行时证据。每个样本带健康信号，端到端测试把它们写成预算。这里有个容易忽略的边界：可重放不等于可信。如果脚本只检查按钮点过、页面滚过，它仍会放过卡顿、错位和异步状态丢失；健康信号必须直接对应用户能感知的失败。新增认知不是虚拟列表本身，而是 Agent 让大规模重写变得可行后，验收系统必须先能观察、重放并判定失败。文章是单团队案例，百万行是极端样本，不代表日常 PR 应该变大。</p>
+<h4>快讯一：沙箱必须失败关闭</h4><p>GitHub Copilot App 的本地沙箱可以按项目限制文件、网络和凭据，但默认关闭，只影响新会话或重启后的会话。最重要的一条是：操作系统无法执行策略时，沙箱 shell 会报错，而不是无保护运行。它仍是公开预览，云端和远程主机也不受这组设置控制。</p>
+<h4>快讯二：共享规则要用金丝雀验证</h4><p>一名工程师实测 Claude Code 的 AGENTS 点 MD 支持曾受远程开关和非必要流量设置影响，规则文件会静默不加载；其文章后来标记已修复。可迁移的方法是为关键规则放一个无害金丝雀，并在版本升级或隐私设置变化后检查它是否真的生效。单篇复现不能替代官方兼容承诺。</p>
+<h4>快讯三：数据库测试要跑真实语义</h4><p>pgsql-test 把临时数据库、事务回滚、角色与 JWT 上下文放进 JavaScript 测试循环。它强调 mock 无法验证外键、触发器、行级安全和真实数据库角色。适合已有 PostgreSQL 逻辑的项目小范围试验，不能仅因示例顺手就引入新依赖。</p>
+<h4>行动：给一个复杂界面补可重放健康信号</h4><p>今天最值得采取的动作，是从一个容易卡顿或状态错乱的列表、图表或差异页选一条真实操作流，记录视口节点数、长帧、关键请求与交互结果，做成可重放脚本。先只覆盖一个冷启动和一个热状态，不做无意义的全排列；再故意注入一次超预算延迟或错误高度，确认探针真的会失败。成功条件不是跑完，而是同一类回归能稳定失败、修复后稳定通过，并且正常场景没有明显变慢。若现有监控已经能给出这些证据，就不需要为新工具重建一套体系。</p>
+<p>当 Agent 把改动规模推高，真正稀缺的不是生成能力，而是能让运行时问题被观察、重放和判定的验收系统。</p></article></details>
+<h2 id="team-insights">✅ 对团队的启发</h2>
+<div class="insight"><strong>1</strong><p>为一个高状态密度客户端页面建立可重放探针和明确健康预算，先解决“如何证明没坏”。</p></div>
+<div class="insight"><strong>2</strong><p>Agent沙箱验收必须覆盖生效时点、被拒路径和失败关闭，不能只看设置开关。</p></div>
+<div class="insight"><strong>3</strong><p>共享AGENTS.md或Skill加入无害金丝雀，版本升级和隐私设置变化后自动复核。</p></div>
+<div class="insight"><strong>4</strong><p>模型升级同时比较输出分布与真实用户动作，不用单一离线分数代替体验。</p></div><footer class="footer">Tech Digest · 2026-09-24 · 来源与事实边界见各条目<br><strong>抓取缺口：</strong>Console.dev（HTTP 404）；Product Hunt（HTTP 403）；Ars Technica（HTTP 405）；Figma Engineering（HTTP 404）；JavaScript Weekly（HTTP 400）；Airbnb Engineering（HTTP 403）；ACM Queue（HTTP 403）；Coinbase Engineering（HTTP 403）</footer></main></div></body></html>

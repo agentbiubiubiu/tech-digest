@@ -1,5 +1,16 @@
 [
   {
+    "date": "2026-09-24",
+    "title": "第 106 期：百万行 PR 的真正难题是证明它没坏",
+    "highlights": [
+      "主故事拆解 2200 文件、百万行差异、400+ 评论的渲染与验收机制",
+      "10项个人工具与方法：5项方法可当天试，5项需项目、版本或账号条件",
+      "GitHub 本地沙箱强调策略无法执行时失败关闭，但默认关闭且仍为预览",
+      "PgBouncer 修复3个拒绝服务漏洞，其中2个可由未认证客户端触发"
+    ],
+    "image": "https://code.visualstudio.com/assets/blogs/2026/09/23/building_github_copilot_inline_suggestions.png"
+  },
+  {
     "date": "2026-09-23",
     "title": "第 105 期：Agent 工作台正在变成控制面",
     "highlights": [
