@@ -1,5 +1,16 @@
 [
   {
+    "date": "2026-09-25",
+    "title": "第 107 期：Agent 开始进入 Android Studio 的工程现场",
+    "highlights": [
+      "Android Studio BYOA 把 Codex、Claude 等 Agent 接进 Android 工程上下文，但目前仅 Canary 预览",
+      "10 项个人工具与方法：3 项方法可立即试，7 项需版本、项目或账号条件",
+      "GitHub 模糊测试 Agent 用覆盖率平台期定义停止条件",
+      "PostgreSQL 19 Beta 4 以可靠性为由撤回部分计划功能"
+    ],
+    "image": "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgVijlUmODt3ow1Idsd8Ym6PooGBLRhyphenhyphen-iQZDu4HdVmBqD2pXpoToSAS95n2KGmCOPZffaac-lFhs11rbr49ooB6HyzI6ePNGzhQ83xx-5qTwPUOnwlKbWLP5bIPi1CmDy-vU0UVVW_dh-T2jLK33nbI1gBwHxmIBoXV748JStkCSUONOoH5zBBHX0jlLE/w1200-h630-p-k-no-nu/BYOA-Backup-Metadata_1.png"
+  },
+  {
     "date": "2026-09-24",
     "title": "第 106 期：百万行 PR 的真正难题是证明它没坏",
     "highlights": [
